@@ -192,27 +192,27 @@
 │                    FLUTTER APP                          │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │           Authentication Layer                   │  │
-│  │                                                  │  │
-│  │  Login → Fetch User Profile → Determine Role    │  │
-│  └──────────────────┬───────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │           Authentication Layer                   │   │
+│  │                                                  │   │
+│  │  Login → Fetch User Profile → Determine Role     │   │
+│  └──────────────────┬───────────────────────────────┘   │
 │                     │                                   │
 │         ┌───────────┴───────────┐                       │
 │         │                       │                       │
-│  ┌──────▼──────┐         ┌──────▼──────┐               │
-│  │   Patient   │         │   Doctor    │               │
-│  │     UI      │         │     UI      │               │
-│  │             │         │             │               │
-│  │ • Time-based│         │ • Patient   │               │
-│  │   schedule  │         │   list      │               │
-│  │ • Morning/  │         │ • Adherence │               │
-│  │   Afternoon │         │   tracking  │               │
-│  │   /Night    │         │ • Prescribe │               │
-│  │ • Calendar  │         │ • Analytics │               │
-│  │ • Quick     │         │ • Urgent    │               │
-│  │   "Taken"   │         │   updates   │               │
-│  └─────────────┘         └─────────────┘               │
+│  ┌──────▼──────┐         ┌──────▼──────┐                │
+│  │   Patient   │         │   Doctor    │                │
+│  │     UI      │         │     UI      │                │ 
+│  │             │         │             │                │
+│  │ • Time-based│         │ • Patient   │                │
+│  │   schedule  │         │   list      │                │
+│  │ • Morning/  │         │ • Adherence │                │
+│  │   Afternoon │         │   tracking  │                │
+│  │   /Night    │         │ • Prescribe │                │
+│  │ • Calendar  │         │ • Analytics │                │
+│  │ • Quick     │         │ • Urgent    │                │
+│  │   "Taken"   │         │   updates   │                │
+│  └─────────────┘         └─────────────┘                │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
 ```
