@@ -1,0 +1,79 @@
+import '../models/medication_model/medication.dart';
+import '../models/dose_event_model/dose_event.dart';
+import '../models/enums_model/dose_status.dart';
+import '../models/enums_model/medication_type.dart';
+import 'database_service.dart';
+import 'notification_service.dart';
+
+class ReminderGeneratorService {
+  static final ReminderGeneratorService instance = ReminderGeneratorService._init();
+  ReminderGeneratorService._init();
+
+  final DatabaseService _db = DatabaseService.instance;
+  final NotificationService _notifications = NotificationService.instance;
+
+  // Default Cambodia timezone reminder times for PRN
+  static const List<String> defaultPrnTimes = [
+    '08:00', // Morning
+    '12:00', // Noon
+    '18:00', // Evening
+    '21:00', // Night
+  ];
+
+  Future<List<DoseEvent>> generateDoseEvents(
+    Medication medication,
+    int daysAhead,
+  ) async {
+    final doseEvents = <DoseEvent>[];
+    final now = DateTime.now();
+
+    // Use provided reminder times or defaults for PRN
+    final reminderTimes = medication.reminderTimes.isNotEmpty
+        ? medication.reminderTimes
+        : (medication.type == MedicationType.prn ? defaultPrnTimes : []);
+
+    if (reminderTimes.isEmpty) {
+      throw Exception('No reminder times specified');
+    }
+
+    // Generate dose events for the next N days
+    for (int day = 0; day < daysAhead; day++) {
+      final date = now.add(Duration(days: day));
+
+      for (final timeStr in reminderTimes) {
+        final timeParts = timeStr.split(':');
+        final hour = int.parse(timeParts[0]);
+        final minute = int.parse(timeParts[1]);
+
+        final scheduledTime = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          hour,
+          minute,
+        );
+
+        // Only create future dose events
+        if (scheduledTime.isAfter(now)) {
+          final doseEvent = DoseEvent(
+            medicationId: medication.id!,
+            scheduledTime: scheduledTime,
+            status: DoseStatus.due,
+          );
+
+          final id = await _db.createDoseEvent(doseEvent);
+          final savedDoseEvent = doseEvent.copyWith(id: id);
+          doseEvents.add(savedDoseEvent);
+
+          // Schedule notification
+          await _notifications.scheduleReminder(
+            savedDoseEvent,
+            medication.name,
+          );
+        }
+      }
+    }
+
+    return doseEvents;
+  }
+}
