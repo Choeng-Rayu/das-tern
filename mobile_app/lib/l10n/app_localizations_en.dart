@@ -91,7 +91,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signIn => 'Log in to account / Sign in';
 
   @override
-  String get forgotPassword => 'Forgot Password?';
+  String get forgotPassword => 'Forgot password?';
 
   @override
   String get welcomeTitle => 'Welcome to DasTern';
@@ -163,7 +163,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hello => 'Hello';
 
   @override
-  String get todaySchedule => 'Schedule (Today)';
+  String get todaySchedule => 'Today\'s Schedule';
 
   @override
   String get dose => 'dose';
@@ -481,4 +481,100 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get enterAddressHint => 'Street, District, Province';
+
+  @override
+  String get createMedication => 'Create Medication';
+
+  @override
+  String get form => 'Form';
+
+  @override
+  String get frequency => 'Frequency';
+
+  @override
+  String get reminderTime => 'Reminder Time';
+
+  @override
+  String get instructions => 'Instructions';
+
+  @override
+  String get daytime => 'Daytime';
+
+  @override
+  String get medicationCreated => 'Medication created successfully';
+
+  @override
+  String get reminderSet => 'Reminder set successfully';
+
+  @override
+  String get markedAsTaken => 'Marked as taken';
+
+  @override
+  String get timesPerDay => 'times per day';
+
+  @override
+  String get capsule => 'Capsule';
+
+  @override
+  String get liquid => 'Liquid';
+
+  @override
+  String get regular => 'Regular';
+
+  @override
+  String get prn => 'As Needed (PRN)';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get analysis => 'Analysis';
+
+  @override
+  String get scan => 'Scan';
+
+  @override
+  String get family => 'Family';
+
+  @override
+  String get comingSoon => 'Coming Soon';
+
+  @override
+  String get lightTheme => 'Light';
+
+  @override
+  String get darkTheme => 'Dark';
+
+  @override
+  String get systemTheme => 'System';
+
+  @override
+  String get selectLanguage => 'Select Language';
+
+  @override
+  String get selectTheme => 'Select Theme';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get security => 'Security';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get phoneOrEmail => 'Phone Number or Email';
+
+  @override
+  String get enterPhoneOrEmail => 'Enter phone number or email';
+
+  @override
+  String get pleaseEnterPhoneOrEmail => 'Please enter phone number or email';
+
+  @override
+  String get enterPassword => 'Enter password';
+
+  @override
+  String get noAccount => 'Don\'t have an account?';
 }

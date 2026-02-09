@@ -90,7 +90,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get signIn => 'ចូលគណនី';
 
   @override
-  String get forgotPassword => 'ភ្លេចពាក្យសម្ងាត់?';
+  String get forgotPassword => 'ភ្លេចលេខសម្ងាត់?';
 
   @override
   String get welcomeTitle => 'សូមស្វាគមន៍មកកាន់ DasTern';
@@ -162,7 +162,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get hello => 'សួស្តី';
 
   @override
-  String get todaySchedule => 'កាលវិភាគ (ថ្ងៃនេះ)';
+  String get todaySchedule => 'កាលវិភាគថ្ងៃនេះ';
 
   @override
   String get dose => 'ដុំ';
@@ -171,13 +171,13 @@ class AppLocalizationsKm extends AppLocalizations {
   String get patient => 'អ្នកជំងឺ';
 
   @override
-  String get completed => 'បានបញ្ចប់';
+  String get completed => 'រួចរាល់';
 
   @override
-  String get pending => 'រងចាំ';
+  String get pending => 'មិនទាន់រួចរាល់';
 
   @override
-  String get login => 'ចូលប្រើ';
+  String get login => 'ចូលគណនី';
 
   @override
   String get register => 'ចុះឈ្មោះ';
@@ -225,7 +225,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get medicationName => 'ឈ្មោះថ្នាំ';
 
   @override
-  String get dosage => 'ប្រមាណប្រើ';
+  String get dosage => 'កម្រិតប្រើប្រាស់';
 
   @override
   String get amount => 'ចំនួន';
@@ -307,7 +307,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get completedReminders => 'បានបញ្ចប់';
 
   @override
-  String get markAsTaken => 'សម្គាល់ថាបានញ៉ាំ';
+  String get markAsTaken => 'សម្គាល់ថាបានទទួលទាន';
 
   @override
   String get skip => 'រំលង';
@@ -443,7 +443,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get phoneInvalid => 'លេខទូរស័ព្ទមិនត្រឹមត្រូវ';
 
   @override
-  String get pleaseEnterPassword => 'សូមបញ្ចូលពាក្យសម្ងាត់';
+  String get pleaseEnterPassword => 'សូមបញ្ចូលលេខសម្ងាត់';
 
   @override
   String get pleaseEnterName => 'សូមបញ្ចូលឈ្មោះ';
@@ -480,4 +480,100 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get enterAddressHint => 'ភូមិ កុម សង្កាត់';
+
+  @override
+  String get createMedication => 'បង្កើតថ្នាំ';
+
+  @override
+  String get form => 'ទម្រង់';
+
+  @override
+  String get frequency => 'ផាបញឹកញាប់';
+
+  @override
+  String get reminderTime => 'ពេលវេលារំលឹក';
+
+  @override
+  String get instructions => 'សេចក្តីណែនាំ';
+
+  @override
+  String get daytime => 'ពេលថ្ងៃ';
+
+  @override
+  String get medicationCreated => 'បង្កើតថ្នាំបានជោគជ័យ';
+
+  @override
+  String get reminderSet => 'កំណត់ការរំលឹកបានជោគជ័យ';
+
+  @override
+  String get markedAsTaken => 'សម្គាល់ថាបានទទួលទាន';
+
+  @override
+  String get timesPerDay => 'ដងក្នុងមួយថ្ងៃ';
+
+  @override
+  String get capsule => 'កាប់ស៊ុល';
+
+  @override
+  String get liquid => 'ទឹក';
+
+  @override
+  String get regular => 'ធម្មតា';
+
+  @override
+  String get prn => 'តាមតម្រូវការ';
+
+  @override
+  String get home => 'ទំព័រដើម';
+
+  @override
+  String get analysis => 'ការវិភាគ';
+
+  @override
+  String get scan => 'ស្កេន';
+
+  @override
+  String get family => 'គ្រួសារ';
+
+  @override
+  String get comingSoon => 'នឹងមកដល់ឆាប់ៗ';
+
+  @override
+  String get lightTheme => 'ភ្លឺ';
+
+  @override
+  String get darkTheme => 'ងងឹត';
+
+  @override
+  String get systemTheme => 'ប្រព័ន្ធ';
+
+  @override
+  String get selectLanguage => 'ជ្រើសរើសភាសា';
+
+  @override
+  String get selectTheme => 'ជ្រើសរើសស្បែក';
+
+  @override
+  String get notifications => 'ការជូនដំណឹង';
+
+  @override
+  String get security => 'សុវត្ថិភាព';
+
+  @override
+  String get about => 'អំពី';
+
+  @override
+  String get phoneOrEmail => 'លេខទូរសព្ទ ឬ អ៊ីមែល';
+
+  @override
+  String get enterPhoneOrEmail => 'បញ្ចូលលេខទូរសព្ទ ឬ អ៊ីមែល';
+
+  @override
+  String get pleaseEnterPhoneOrEmail => 'សូមបញ្ចូលលេខទូរសព្ទ ឬ អ៊ីមែល';
+
+  @override
+  String get enterPassword => 'បញ្ចូលលេខសម្ងាត់';
+
+  @override
+  String get noAccount => 'មិនទាន់មានគណនីមែនទេ?';
 }

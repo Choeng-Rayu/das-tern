@@ -63,7 +63,7 @@
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐   │
-│  │   Next.js API  │  │   Next.js API  │  │   Next.js API  │   │
+│  │   NestJS API   │  │   NestJS API   │  │   NestJS API   │   │
 │  │   Server 1     │  │   Server 2     │  │   Server N     │   │
 │  │                │  │                │  │                │   │
 │  │  • REST APIs   │  │  • GraphQL     │  │  • WebSocket   │   │
@@ -146,13 +146,13 @@
 
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| **API Framework** | Next.js 14+ (App Router) | Server-side API routes |
+| **API Framework** | NestJS 10+ | Enterprise Node.js framework |
 | **Runtime** | Node.js 20+ | JavaScript runtime |
 | **API Type** | REST + GraphQL | Flexible API design |
-| **Real-time** | WebSocket (Socket.io) | Live updates |
-| **ORM** | Prisma | Type-safe database access |
-| **Validation** | Zod | Schema validation |
-| **Authentication** | NextAuth.js | OAuth & JWT management |
+| **Real-time** | WebSocket (@nestjs/websockets) | Live updates |
+| **ORM** | Prisma / TypeORM | Type-safe database access |
+| **Validation** | class-validator | DTO validation |
+| **Authentication** | Passport.js + JWT | OAuth & JWT management |
 
 ### Database & Storage
 
@@ -452,48 +452,322 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
 
 ---
 
-### 2. Backend API (Next.js)
+### 2. Backend API (NestJS)
 
 #### Project Structure
 
 ```
-/app
-  /api
-    /auth
-      /[...nextauth]      # NextAuth.js routes
-      /google             # Google OAuth
-    /v1
-      /patients           # Patient endpoints
-      /prescriptions      # Prescription management
-      /doses              # Dose tracking
-      /connections        # Doctor/Family connections
-      /sync               # Offline sync endpoints
-      /notifications      # Push notification management
-    /graphql              # GraphQL endpoint
-  /webhooks               # Third-party webhooks
-
-/lib
-  /db                     # Prisma client
-  /auth                   # Auth utilities
-  /services               # Business logic services
-  /middleware             # Custom middleware
-  /utils                  # Helper functions
+/src
+  /main.ts                # Application entry point
+  /app.module.ts          # Root module
+  
+  /auth
+    /auth.module.ts
+    /auth.controller.ts
+    /auth.service.ts
+    /strategies
+      google.strategy.ts
+      jwt.strategy.ts
+    /guards
+      jwt-auth.guard.ts
+      roles.guard.ts
+    /decorators
+      current-user.decorator.ts
+  
+  /patients
+    /patients.module.ts
+    /patients.controller.ts
+    /patients.service.ts
+    /dto
+      create-patient.dto.ts
+      update-patient.dto.ts
+    /entities
+      patient.entity.ts
+  
+  /prescriptions
+    /prescriptions.module.ts
+    /prescriptions.controller.ts
+    /prescriptions.service.ts
+    /dto
+    /entities
+  
+  /doses
+    /doses.module.ts
+    /doses.controller.ts
+    /doses.service.ts
+  
+  /connections
+    /connections.module.ts
+    /connections.controller.ts
+    /connections.service.ts
+  
+  /sync
+    /sync.module.ts
+    /sync.controller.ts
+    /sync.service.ts
+  
+  /notifications
+    /notifications.module.ts
+    /notifications.service.ts
+    /notifications.gateway.ts  # WebSocket gateway
+  
+  /graphql
+    /graphql.module.ts
+    /resolvers
+      prescription.resolver.ts
+      patient.resolver.ts
+    /schema.gql
+  
+  /common
+    /decorators
+    /filters
+      http-exception.filter.ts
+    /interceptors
+      logging.interceptor.ts
+      transform.interceptor.ts
+    /pipes
+      validation.pipe.ts
+    /guards
+  
+  /database
+    /database.module.ts
+    /prisma.service.ts
+  
+  /config
+    /configuration.ts
+    /validation.ts
 
 /prisma
-  schema.prisma           # Database schema
-  /migrations             # Database migrations
+  schema.prisma
+  /migrations
+
+/test
+  /e2e
+  /unit
 ```
 
 #### API Design Principles
 
-- **RESTful Endpoints**: Standard CRUD operations
-- **GraphQL**: Complex queries and real-time subscriptions
-- **API Versioning**: `/api/v1`, `/api/v2`
-- **Rate Limiting**: Per-user and per-IP limits
-- **Request Validation**: Zod schemas for all inputs
-- **Error Handling**: Standardized error responses
-- **Pagination**: Cursor-based pagination
-- **Filtering & Sorting**: Query parameter support
+- **RESTful Endpoints**: Standard CRUD operations with controllers
+- **GraphQL**: Complex queries using @nestjs/graphql
+- **API Versioning**: URI versioning (`/api/v1`, `/api/v2`)
+- **Rate Limiting**: Using @nestjs/throttler
+- **Request Validation**: class-validator with DTOs
+- **Error Handling**: Global exception filters
+- **Pagination**: Cursor-based with decorators
+- **Filtering & Sorting**: Query parameter decorators
+
+#### Example Controller
+
+```typescript
+// prescriptions.controller.ts
+import { 
+  Controller, 
+  Get, 
+  Post, 
+  Body, 
+  Param, 
+  UseGuards,
+  Query 
+} from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { PrescriptionsService } from './prescriptions.service';
+import { CreatePrescriptionDto } from './dto/create-prescription.dto';
+
+@Controller('api/v1/prescriptions')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class PrescriptionsController {
+  constructor(private readonly prescriptionsService: PrescriptionsService) {}
+
+  @Get()
+  async findAll(
+    @CurrentUser() user: User,
+    @Query('status') status?: string,
+    @Query('cursor') cursor?: string,
+  ) {
+    return this.prescriptionsService.findAll(user.id, { status, cursor });
+  }
+
+  @Post()
+  @Roles('doctor')
+  async create(
+    @CurrentUser() user: User,
+    @Body() createDto: CreatePrescriptionDto,
+  ) {
+    return this.prescriptionsService.create(user.id, createDto);
+  }
+
+  @Post(':id/urgent-update')
+  @Roles('doctor')
+  async urgentUpdate(
+    @Param('id') id: string,
+    @Body() updateDto: UpdatePrescriptionDto,
+  ) {
+    return this.prescriptionsService.urgentUpdate(id, updateDto);
+  }
+}
+```
+
+#### Example Service
+
+```typescript
+// prescriptions.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../database/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
+
+@Injectable()
+export class PrescriptionsService {
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationsService,
+  ) {}
+
+  async findAll(userId: string, options: { status?: string; cursor?: string }) {
+    const limit = 20;
+    
+    const prescriptions = await this.prisma.prescription.findMany({
+      where: {
+        patientId: userId,
+        ...(options.status && { status: options.status }),
+      },
+      take: limit + 1,
+      ...(options.cursor && { 
+        cursor: { id: options.cursor }, 
+        skip: 1 
+      }),
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const hasMore = prescriptions.length > limit;
+    const results = hasMore ? prescriptions.slice(0, -1) : prescriptions;
+    const nextCursor = hasMore ? results[results.length - 1].id : null;
+
+    return { items: results, nextCursor, hasMore };
+  }
+
+  async urgentUpdate(id: string, updateDto: UpdatePrescriptionDto) {
+    const prescription = await this.prisma.prescription.findUnique({
+      where: { id },
+      include: { patient: true },
+    });
+
+    if (!prescription) {
+      throw new NotFoundException('Prescription not found');
+    }
+
+    // Create new version
+    const newVersion = await this.prisma.prescription.create({
+      data: {
+        ...updateDto,
+        patientId: prescription.patientId,
+        doctorId: prescription.doctorId,
+        version: prescription.version + 1,
+        parentVersionId: prescription.id,
+        isUrgent: true,
+        status: 'active',
+      },
+    });
+
+    // Auto-apply: deactivate old version
+    await this.prisma.prescription.update({
+      where: { id },
+      data: { status: 'inactive' },
+    });
+
+    // Send urgent notification
+    await this.notifications.sendUrgentUpdate(
+      prescription.patient,
+      newVersion,
+    );
+
+    return newVersion;
+  }
+}
+```
+
+#### WebSocket Gateway
+
+```typescript
+// notifications.gateway.ts
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { UseGuards } from '@nestjs/common';
+import { WsJwtGuard } from '../auth/guards/ws-jwt.guard';
+
+@WebSocketGateway({ cors: true })
+@UseGuards(WsJwtGuard)
+export class NotificationsGateway 
+  implements OnGatewayConnection, OnGatewayDisconnect {
+  
+  @WebSocketServer()
+  server: Server;
+
+  private userSockets = new Map<string, string>();
+
+  handleConnection(client: Socket) {
+    const userId = client.handshake.auth.userId;
+    this.userSockets.set(userId, client.id);
+  }
+
+  handleDisconnect(client: Socket) {
+    const userId = Array.from(this.userSockets.entries())
+      .find(([_, socketId]) => socketId === client.id)?.[0];
+    if (userId) {
+      this.userSockets.delete(userId);
+    }
+  }
+
+  sendToUser(userId: string, event: string, data: any) {
+    const socketId = this.userSockets.get(userId);
+    if (socketId) {
+      this.server.to(socketId).emit(event, data);
+    }
+  }
+}
+```
+
+#### GraphQL Resolver
+
+```typescript
+// prescription.resolver.ts
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { PrescriptionsService } from './prescriptions.service';
+
+@Resolver('Prescription')
+@UseGuards(GqlAuthGuard)
+export class PrescriptionResolver {
+  constructor(private prescriptionsService: PrescriptionsService) {}
+
+  @Query('prescriptions')
+  async getPrescriptions(
+    @CurrentUser() user: User,
+    @Args('status') status?: string,
+  ) {
+    return this.prescriptionsService.findAll(user.id, { status });
+  }
+
+  @Mutation('createPrescription')
+  async createPrescription(
+    @CurrentUser() user: User,
+    @Args('input') input: CreatePrescriptionInput,
+  ) {
+    return this.prescriptionsService.create(user.id, input);
+  }
+}
+```
 
 ---
 
@@ -676,18 +950,43 @@ audit_logs (
 #### 1. Authentication Security
 
 ```typescript
-// JWT Configuration
-{
-  accessToken: {
-    expiresIn: '15m',
-    algorithm: 'RS256',  // Asymmetric encryption
-    issuer: 'dastern.com',
-    audience: 'dastern-mobile-app'
-  },
-  refreshToken: {
-    expiresIn: '7d',
-    rotationEnabled: true,  // Rotate on each use
-    reuseDetection: true    // Detect token theft
+// JWT Configuration in auth module
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
+@Module({
+  imports: [
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('JWT_SECRET'),
+        signOptions: {
+          expiresIn: '15m',
+          algorithm: 'RS256',
+          issuer: 'dastern.com',
+          audience: 'dastern-mobile-app',
+        },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+})
+export class AuthModule {}
+
+// Refresh token strategy
+@Injectable()
+export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+  constructor(configService: ConfigService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: configService.get('JWT_REFRESH_SECRET'),
+      passReqToCallback: true,
+    });
+  }
+
+  validate(req: Request, payload: any) {
+    const refreshToken = req.get('Authorization').replace('Bearer', '').trim();
+    return { ...payload, refreshToken };
   }
 }
 ```
@@ -705,19 +1004,60 @@ audit_logs (
 #### 3. API Security Headers
 
 ```typescript
-// Security Headers
-{
-  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-  'X-Frame-Options': 'DENY',
-  'X-Content-Type-Options': 'nosniff',
-  'X-XSS-Protection': '1; mode=block',
-  'Content-Security-Policy': "default-src 'self'",
-  'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
+// Security Headers using Helmet
+import helmet from 'helmet';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  
+  app.use(helmet({
+    strictTransportSecurity: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+    },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+      },
+    },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  }));
+  
+  app.enableCors({
+    origin: process.env.ALLOWED_ORIGINS?.split(','),
+    credentials: true,
+  });
+  
+  await app.listen(3000);
 }
 ```
 
 #### 4. Rate Limiting Strategy
+
+```typescript
+// Using @nestjs/throttler
+import { ThrottlerModule } from '@nestjs/throttler';
+
+@Module({
+  imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 100,
+    }),
+  ],
+})
+export class AppModule {}
+
+// Custom rate limiting per endpoint
+@Controller('auth')
+export class AuthController {
+  @Post('login')
+  @Throttle(5, 900) // 5 attempts per 15 minutes
+  async login(@Body() loginDto: LoginDto) {
+    // ...
+  }
+}
+```
 
 | Endpoint Type | Rate Limit | Window |
 |--------------|------------|--------|
@@ -731,11 +1071,56 @@ audit_logs (
 
 **At Rest:**
 ```typescript
-// Field-level encryption for sensitive data
-const encryptedData = {
-  medicalHistory: encrypt(data.medicalHistory, userKey),
-  prescriptionDetails: encrypt(data.prescriptionDetails, userKey),
-  personalNotes: encrypt(data.personalNotes, userKey)
+// Field-level encryption service
+import { Injectable } from '@nestjs/common';
+import * as crypto from 'crypto';
+
+@Injectable()
+export class EncryptionService {
+  private algorithm = 'aes-256-gcm';
+  
+  encrypt(data: string, userKey: string): string {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(this.algorithm, userKey, iv);
+    
+    let encrypted = cipher.update(data, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    
+    const authTag = cipher.getAuthTag();
+    
+    return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
+  }
+  
+  decrypt(encryptedData: string, userKey: string): string {
+    const [ivHex, authTagHex, encrypted] = encryptedData.split(':');
+    
+    const iv = Buffer.from(ivHex, 'hex');
+    const authTag = Buffer.from(authTagHex, 'hex');
+    const decipher = crypto.createDecipheriv(this.algorithm, userKey, iv);
+    
+    decipher.setAuthTag(authTag);
+    
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    
+    return decrypted;
+  }
+}
+
+// Usage in service
+@Injectable()
+export class PrescriptionsService {
+  constructor(private encryption: EncryptionService) {}
+  
+  async create(data: CreatePrescriptionDto, userKey: string) {
+    const encryptedData = {
+      medicalHistory: this.encryption.encrypt(data.medicalHistory, userKey),
+      prescriptionDetails: this.encryption.encrypt(data.details, userKey),
+      personalNotes: this.encryption.encrypt(data.notes, userKey),
+    };
+    
+    return this.prisma.prescription.create({ data: encryptedData });
+  }
 }
 ```
 
@@ -748,42 +1133,104 @@ const encryptedData = {
 
 **Role-Based Access Control (RBAC):**
 ```typescript
-enum Role {
+// roles.enum.ts
+export enum Role {
   PATIENT = 'patient',
   DOCTOR = 'doctor',
   FAMILY = 'family',
-  ADMIN = 'admin'
+  ADMIN = 'admin',
 }
 
-enum Permission {
-  READ_OWN_DATA = 'read:own',
-  WRITE_OWN_DATA = 'write:own',
-  READ_PATIENT_DATA = 'read:patient',
-  WRITE_PRESCRIPTION = 'write:prescription',
-  MANAGE_CONNECTIONS = 'manage:connections'
+// roles.decorator.ts
+import { SetMetadata } from '@nestjs/common';
+import { Role } from './roles.enum';
+
+export const ROLES_KEY = 'roles';
+export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
+
+// roles.guard.ts
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { Role } from './roles.enum';
+import { ROLES_KEY } from './roles.decorator';
+
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    
+    if (!requiredRoles) {
+      return true;
+    }
+    
+    const { user } = context.switchToHttp().getRequest();
+    return requiredRoles.some((role) => user.role === role);
+  }
+}
+
+// Usage in controller
+@Controller('prescriptions')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class PrescriptionsController {
+  @Post()
+  @Roles(Role.DOCTOR)
+  create(@Body() dto: CreatePrescriptionDto) {
+    // Only doctors can create prescriptions
+  }
 }
 ```
 
 **Attribute-Based Access Control (ABAC):**
 ```typescript
-// Permission check example
-function canAccessPrescription(user, prescription) {
-  // Patient owns the prescription
-  if (prescription.patientId === user.id) return true;
-  
-  // Doctor has connection with ALLOWED permission
-  if (user.role === 'doctor') {
-    const connection = getConnection(user.id, prescription.patientId);
-    return connection?.permissionLevel === 'ALLOWED';
+// permissions.guard.ts
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { PrescriptionsService } from '../prescriptions/prescriptions.service';
+import { ConnectionsService } from '../connections/connections.service';
+
+@Injectable()
+export class PrescriptionAccessGuard implements CanActivate {
+  constructor(
+    private prescriptions: PrescriptionsService,
+    private connections: ConnectionsService,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+    const prescriptionId = request.params.id;
+
+    const prescription = await this.prescriptions.findOne(prescriptionId);
+
+    // Patient owns the prescription
+    if (prescription.patientId === user.id) {
+      return true;
+    }
+
+    // Doctor has connection with ALLOWED permission
+    if (user.role === 'doctor') {
+      const connection = await this.connections.findConnection(
+        user.id,
+        prescription.patientId,
+      );
+      return connection?.permissionLevel === 'ALLOWED';
+    }
+
+    // Family has connection and permission
+    if (user.role === 'family') {
+      const connection = await this.connections.findConnection(
+        user.id,
+        prescription.patientId,
+      );
+      return connection?.status === 'accepted';
+    }
+
+    return false;
   }
-  
-  // Family has connection and permission
-  if (user.role === 'family') {
-    const connection = getConnection(user.id, prescription.patientId);
-    return connection?.status === 'accepted';
-  }
-  
-  return false;
 }
 ```
 
@@ -1263,7 +1710,7 @@ async function sendPushNotification(
 ```
 
 ### Email Service Integration
-
++
 ```typescript
 // SendGrid integration
 import sgMail from '@sendgrid/mail';
@@ -1431,7 +1878,7 @@ services:
       timeout: 10s
       retries: 5
 
-  # Next.js API
+  # NestJS API
   api:
     build:
       context: ./backend
@@ -1441,8 +1888,8 @@ services:
       DATABASE_READ_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres-replica:5432/dastern
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     depends_on:
@@ -1766,53 +2213,63 @@ groups:
 ### Logging Strategy
 
 ```typescript
-// Structured logging with Winston
-import winston from 'winston';
+// Using built-in NestJS logger with Winston
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.errors({ stack: true }),
-    winston.format.json()
-  ),
-  defaultMeta: { 
-    service: 'dastern-api',
-    environment: process.env.NODE_ENV
-  },
-  transports: [
-    // Console output
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      )
-    }),
-    // File output
-    new winston.transports.File({ 
-      filename: 'logs/error.log', 
-      level: 'error' 
-    }),
-    new winston.transports.File({ 
-      filename: 'logs/combined.log' 
-    })
-  ]
+const app = await NestFactory.create(AppModule, {
+  logger: WinstonModule.createLogger({
+    level: process.env.LOG_LEVEL || 'info',
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.errors({ stack: true }),
+      winston.format.json(),
+    ),
+    defaultMeta: {
+      service: 'dastern-api',
+      environment: process.env.NODE_ENV,
+    },
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.colorize(),
+          winston.format.simple(),
+        ),
+      }),
+      new winston.transports.File({
+        filename: 'logs/error.log',
+        level: 'error',
+      }),
+      new winston.transports.File({
+        filename: 'logs/combined.log',
+      }),
+    ],
+  }),
 });
 
-// Usage
-logger.info('User logged in', {
-  userId: user.id,
-  email: user.email,
-  ipAddress: req.ip,
-  userAgent: req.headers['user-agent']
-});
+// Usage in service
+@Injectable()
+export class AuthService {
+  constructor(private readonly logger: Logger) {}
 
-logger.error('Database query failed', {
-  error: error.message,
-  stack: error.stack,
-  query: sanitizedQuery,
-  userId: user.id
-});
+  async login(user: User, req: Request) {
+    this.logger.log('User logged in', {
+      userId: user.id,
+      email: user.email,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+  }
+
+  async handleError(error: Error, user: User, query: string) {
+    this.logger.error('Database query failed', {
+      error: error.message,
+      stack: error.stack,
+      query: this.sanitizeQuery(query),
+      userId: user.id,
+    });
+  }
+}
 ```
 
 ---
@@ -1876,13 +2333,13 @@ logger.error('Database query failed', {
 | Technology | Reason |
 |-----------|--------|
 | **Flutter** | Single codebase for iOS/Android, excellent offline support, native performance |
-| **Next.js** | Full-stack framework, API routes, excellent DX, TypeScript support, easy deployment |
+| **NestJS** | Enterprise-grade framework, modular architecture, TypeScript-first, dependency injection, extensive ecosystem |
 | **PostgreSQL** | ACID compliance, row-level security, JSON support, mature ecosystem |
 | **Docker** | Consistent environments, easy deployment, resource isolation |
 | **Redis** | Fast caching, session storage, rate limiting, pub/sub for real-time features |
 | **RabbitMQ** | Reliable message queuing, async job processing, retry mechanisms |
 | **Prisma** | Type-safe ORM, migrations, excellent DX, prevents SQL injection |
-| **NextAuth.js** | OAuth integration, session management, secure by default |
+| **Passport.js** | Flexible authentication, OAuth integration, strategy-based design |
 
 ---
 
@@ -2106,101 +2563,236 @@ class ApiClient {
 #### 1. Response Compression
 
 ```typescript
-import compression from 'compression';
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import * as compression from 'compression';
 
-app.use(compression({
-  level: 6,
-  threshold: 1024,  // Only compress > 1KB
-}));
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  
+  app.use(compression({
+    level: 6,
+    threshold: 1024,  // Only compress > 1KB
+  }));
+  
+  await app.listen(3000);
+}
+bootstrap();
 ```
 
 #### 2. Database Query Optimization
 
 ```typescript
-// Select only needed fields
-await prisma.prescription.findMany({
-  where: { patientId: userId, status: 'active' },
-  select: {
-    id: true,
-    medicationName: true,
-    dosage: true,
-    schedule: true,
-  },
-  take: 20,
-});
+// prescriptions.service.ts
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../database/prisma.service';
 
-// Prevent N+1 queries
-const patients = await prisma.user.findMany({
-  where: { role: 'patient' },
-  include: {
-    prescriptions: {
-      where: { status: 'active' },
-      take: 10,
-    },
+@Injectable()
+export class PrescriptionsService {
+  constructor(private prisma: PrismaService) {}
+
+  async findAll(userId: string, status?: string) {
+    // Select only needed fields
+    return this.prisma.prescription.findMany({
+      where: { patientId: userId, status: status || 'active' },
+      select: {
+        id: true,
+        medicationName: true,
+        dosage: true,
+        schedule: true,
+      },
+      take: 20,
+    });
   }
-});
+
+  async findPatientsWithPrescriptions() {
+    // Prevent N+1 queries
+    return this.prisma.user.findMany({
+      where: { role: 'patient' },
+      include: {
+        prescriptions: {
+          where: { status: 'active' },
+          take: 10,
+        },
+      },
+    });
+  }
+}
 ```
 
 #### 3. Redis Caching
 
 ```typescript
-class CacheService {
+// cache.service.ts
+import { Injectable, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+
+@Injectable()
+export class CacheService {
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+
   async getOrSet<T>(
     key: string,
     fetcher: () => Promise<T>,
-    ttl: number = 300
+    ttl: number = 300,
   ): Promise<T> {
-    const cached = await this.redis.get(key);
-    if (cached) return JSON.parse(cached);
-    
+    const cached = await this.cacheManager.get<T>(key);
+    if (cached) return cached;
+
     const data = await fetcher();
-    await this.redis.setex(key, ttl, JSON.stringify(data));
+    await this.cacheManager.set(key, data, ttl * 1000);
     return data;
   }
 }
 
-// Usage
-const prescriptions = await cacheService.getOrSet(
-  `prescriptions:${userId}`,
-  () => prisma.prescription.findMany({ where: { patientId: userId } }),
-  300  // 5 minutes
-);
+// Usage in service
+@Injectable()
+export class PrescriptionsService {
+  constructor(
+    private prisma: PrismaService,
+    private cache: CacheService,
+  ) {}
+
+  async findAll(userId: string) {
+    return this.cache.getOrSet(
+      `prescriptions:${userId}`,
+      () => this.prisma.prescription.findMany({ 
+        where: { patientId: userId } 
+      }),
+      300, // 5 minutes
+    );
+  }
+}
+
+// Module configuration
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
+
+@Module({
+  imports: [
+    CacheModule.register({
+      store: redisStore,
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT,
+      ttl: 300,
+    }),
+  ],
+})
+export class AppModule {}
 ```
 
 #### 4. Background Jobs
 
 ```typescript
-// Offload heavy tasks to queue
-const notificationQueue = new Queue('notifications');
+// Using @nestjs/bull for queue management
+import { Injectable } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
-await notificationQueue.add('send-missed-dose-alert', {
-  patientId: patient.id,
-  familyIds: family.map(f => f.id),
-}, {
-  attempts: 3,
-  backoff: { type: 'exponential', delay: 2000 },
-});
+@Injectable()
+export class NotificationsService {
+  constructor(
+    @InjectQueue('notifications') private notificationQueue: Queue,
+  ) {}
+
+  async sendMissedDoseAlert(patient: User, family: User[]) {
+    await this.notificationQueue.add(
+      'send-missed-dose-alert',
+      {
+        patientId: patient.id,
+        familyIds: family.map(f => f.id),
+      },
+      {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      },
+    );
+  }
+}
+
+// Processor
+import { Process, Processor } from '@nestjs/bull';
+import { Job } from 'bull';
+
+@Processor('notifications')
+export class NotificationsProcessor {
+  @Process('send-missed-dose-alert')
+  async handleMissedDoseAlert(job: Job) {
+    const { patientId, familyIds } = job.data;
+    // Send notifications
+  }
+}
+
+// Module configuration
+import { BullModule } from '@nestjs/bull';
+
+@Module({
+  imports: [
+    BullModule.forRoot({
+      redis: {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT),
+      },
+    }),
+    BullModule.registerQueue({
+      name: 'notifications',
+    }),
+  ],
+})
+export class NotificationsModule {}
 ```
 
 #### 5. Cursor-Based Pagination
 
 ```typescript
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const cursor = searchParams.get('cursor');
-  const limit = 20;
-  
-  const items = await prisma.prescription.findMany({
-    take: limit + 1,
-    ...(cursor && { cursor: { id: cursor }, skip: 1 }),
-    orderBy: { createdAt: 'desc' },
-  });
-  
-  const hasMore = items.length > limit;
-  const results = hasMore ? items.slice(0, -1) : items;
-  const nextCursor = hasMore ? results[results.length - 1].id : null;
-  
-  return Response.json({ items: results, nextCursor, hasMore });
+// pagination.decorator.ts
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+
+export const Pagination = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return {
+      cursor: request.query.cursor,
+      limit: parseInt(request.query.limit) || 20,
+    };
+  },
+);
+
+// prescriptions.controller.ts
+@Controller('api/v1/prescriptions')
+export class PrescriptionsController {
+  constructor(private prescriptionsService: PrescriptionsService) {}
+
+  @Get()
+  async findAll(
+    @CurrentUser() user: User,
+    @Pagination() pagination: { cursor?: string; limit: number },
+  ) {
+    return this.prescriptionsService.findAll(user.id, pagination);
+  }
+}
+
+// prescriptions.service.ts
+@Injectable()
+export class PrescriptionsService {
+  async findAll(
+    userId: string,
+    { cursor, limit }: { cursor?: string; limit: number },
+  ) {
+    const items = await this.prisma.prescription.findMany({
+      where: { patientId: userId },
+      take: limit + 1,
+      ...(cursor && { cursor: { id: cursor }, skip: 1 }),
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const hasMore = items.length > limit;
+    const results = hasMore ? items.slice(0, -1) : items;
+    const nextCursor = hasMore ? results[results.length - 1].id : null;
+
+    return { items: results, nextCursor, hasMore };
+  }
 }
 ```
 
@@ -2407,11 +2999,11 @@ class SyncManager {
 
 1. **Single Flutter App** with role-based UI (Patient/Doctor)
 2. **Offline-First** with local SQLite database
-3. **Next.js Backend** with REST + GraphQL APIs
+3. **NestJS Backend** with modular architecture, REST + GraphQL APIs
 4. **PostgreSQL** in Docker with read replicas
-5. **Google OAuth** + JWT authentication
+5. **Google OAuth** + JWT authentication with Passport.js
 6. **Redis** for caching and rate limiting
-7. **RabbitMQ** for async job processing
+7. **Bull Queue** (RabbitMQ) for async job processing
 8. **Multi-layer security** with encryption at rest and in transit
 9. **Horizontal scaling** with load balancers
 10. **Comprehensive monitoring** and performance tracking

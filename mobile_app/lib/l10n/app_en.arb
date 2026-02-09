@@ -657,5 +657,193 @@
   "enterAddressHint": "Street, District, Province",
   "@enterAddressHint": {
     "description": "Address hint"
+  },
+  "createMedication": "Create Medication",
+  "@createMedication": {
+    "description": "Create medication button"
+  },
+  "medicationName": "Medication Name",
+  "@medicationName": {
+    "description": "Medication name label"
+  },
+  "dosage": "Dosage",
+  "@dosage": {
+    "description": "Dosage label"
+  },
+  "form": "Form",
+  "@form": {
+    "description": "Medication form label"
+  },
+  "frequency": "Frequency",
+  "@frequency": {
+    "description": "Frequency label"
+  },
+  "reminderTime": "Reminder Time",
+  "@reminderTime": {
+    "description": "Reminder time label"
+  },
+  "instructions": "Instructions",
+  "@instructions": {
+    "description": "Instructions label"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+  "todaySchedule": "Today's Schedule",
+  "@todaySchedule": {
+    "description": "Today schedule title"
+  },
+  "daytime": "Daytime",
+  "@daytime": {
+    "description": "Daytime label"
+  },
+  "night": "Night",
+  "@night": {
+    "description": "Night label"
+  },
+  "pending": "Pending",
+  "@pending": {
+    "description": "Pending status"
+  },
+  "completed": "Completed",
+  "@completed": {
+    "description": "Completed status"
+  },
+  "markAsTaken": "Mark as Taken",
+  "@markAsTaken": {
+    "description": "Mark as taken button"
+  },
+  "medicationCreated": "Medication created successfully",
+  "@medicationCreated": {
+    "description": "Success message"
+  },
+  "reminderSet": "Reminder set successfully",
+  "@reminderSet": {
+    "description": "Reminder success message"
+  },
+  "markedAsTaken": "Marked as taken",
+  "@markedAsTaken": {
+    "description": "Marked as taken message"
+  },
+  "timesPerDay": "times per day",
+  "@timesPerDay": {
+    "description": "Times per day label"
+  },
+  "tablet": "Tablet",
+  "@tablet": {
+    "description": "Tablet form"
+  },
+  "capsule": "Capsule",
+  "@capsule": {
+    "description": "Capsule form"
+  },
+  "liquid": "Liquid",
+  "@liquid": {
+    "description": "Liquid form"
+  },
+  "regular": "Regular",
+  "@regular": {
+    "description": "Regular medication type"
+  },
+  "prn": "As Needed (PRN)",
+  "@prn": {
+    "description": "PRN medication type"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Home tab label"
+  },
+  "analysis": "Analysis",
+  "@analysis": {
+    "description": "Analysis tab label"
+  },
+  "scan": "Scan",
+  "@scan": {
+    "description": "Scan tab label"
+  },
+  "family": "Family",
+  "@family": {
+    "description": "Family tab label"
+  },
+  "comingSoon": "Coming Soon",
+  "@comingSoon": {
+    "description": "Coming soon message"
+  },
+  "lightTheme": "Light",
+  "@lightTheme": {
+    "description": "Light theme option"
+  },
+  "darkTheme": "Dark",
+  "@darkTheme": {
+    "description": "Dark theme option"
+  },
+  "systemTheme": "System",
+  "@systemTheme": {
+    "description": "System theme option"
+  },
+  "selectLanguage": "Select Language",
+  "@selectLanguage": {
+    "description": "Select language dialog title"
+  },
+  "selectTheme": "Select Theme",
+  "@selectTheme": {
+    "description": "Select theme dialog title"
+  },
+  "notifications": "Notifications",
+  "@notifications": {
+    "description": "Notifications setting label"
+  },
+  "security": "Security",
+  "@security": {
+    "description": "Security setting label"
+  },
+  "about": "About",
+  "@about": {
+    "description": "About setting label"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout button"
+  },
+  "phoneOrEmail": "Phone Number or Email",
+  "@phoneOrEmail": {
+    "description": "Phone or email field label"
+  },
+  "enterPhoneOrEmail": "Enter phone number or email",
+  "@enterPhoneOrEmail": {
+    "description": "Phone or email field placeholder"
+  },
+  "pleaseEnterPhoneOrEmail": "Please enter phone number or email",
+  "@pleaseEnterPhoneOrEmail": {
+    "description": "Phone or email validation error"
+  },
+  "enterPassword": "Enter password",
+  "@enterPassword": {
+    "description": "Password field placeholder"
+  },
+  "pleaseEnterPassword": "Please enter password",
+  "@pleaseEnterPassword": {
+    "description": "Password validation error"
+  },
+  "forgotPassword": "Forgot password?",
+  "@forgotPassword": {
+    "description": "Forgot password link"
+  },
+  "login": "Login",
+  "@login": {
+    "description": "Login button"
+  },
+  "noAccount": "Don't have an account?",
+  "@noAccount": {
+    "description": "No account prompt"
+  },
+  "register": "Register",
+  "@register": {
+    "description": "Register link"
   }
 }

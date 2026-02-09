@@ -1,0 +1,123 @@
+version: '3.9'
+
+services:
+  # PostgreSQL 17 - Latest stable version
+  postgres:
+    image: postgres:17-alpine
+    container_name: dastern-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-dastern}
+      POSTGRES_USER: ${POSTGRES_USER:-dastern_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dastern_password}
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
+      TZ: Asia/Phnom_Penh
+      PGTZ: Asia/Phnom_Penh
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init-scripts:/docker-entrypoint-initdb.d
+    command: >
+      postgres
+      -c timezone=Asia/Phnom_Penh
+      -c log_min_duration_statement=1000
+      -c max_connections=20
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dastern_user} -d ${POSTGRES_DB:-dastern}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dastern-network
+
+  # Redis 7.4 - Latest stable version
+  redis:
+    image: redis:7.4-alpine
+    container_name: dastern-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-dastern_redis_password}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+      --appendonly yes
+      --appendfsync everysec
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-dastern_redis_password}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - dastern-network
+
+  # RabbitMQ 4.0 - Latest stable version (for async jobs)
+  rabbitmq:
+    image: rabbitmq:4.0-management-alpine
+    container_name: dastern-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-dastern_user}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-dastern_password}
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - dastern-network
+
+  # MinIO (S3-compatible storage) - Latest version
+  minio:
+    image: minio/minio:latest
+    container_name: dastern-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-dastern_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-dastern_password}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - dastern-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  minio_data:
+    driver: local
+
+networks:
+  dastern-network:
+    driver: bridge

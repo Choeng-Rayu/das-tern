@@ -63,7 +63,7 @@ import 'app_localizations_km.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('km')
+    Locale('km'),
   ];
 
   /// The application title
@@ -263,7 +263,7 @@ abstract class AppLocalizations {
   /// Forgot password link
   ///
   /// In en, this message translates to:
-  /// **'Forgot Password?'**
+  /// **'Forgot password?'**
   String get forgotPassword;
 
   /// Title shown on welcome screen
@@ -404,10 +404,10 @@ abstract class AppLocalizations {
   /// **'Hello'**
   String get hello;
 
-  /// Today's schedule title
+  /// Today schedule title
   ///
   /// In en, this message translates to:
-  /// **'Schedule (Today)'**
+  /// **'Today\'s Schedule'**
   String get todaySchedule;
 
   /// Dose/pill label
@@ -440,7 +440,7 @@ abstract class AppLocalizations {
   /// **'Login'**
   String get login;
 
-  /// Register button
+  /// Register link
   ///
   /// In en, this message translates to:
   /// **'Register'**
@@ -524,13 +524,13 @@ abstract class AppLocalizations {
   /// **'Medication updated successfully'**
   String get medicationUpdated;
 
-  /// Medication name field
+  /// Medication name label
   ///
   /// In en, this message translates to:
   /// **'Medication Name'**
   String get medicationName;
 
-  /// Dosage field
+  /// Dosage label
   ///
   /// In en, this message translates to:
   /// **'Dosage'**
@@ -548,7 +548,7 @@ abstract class AppLocalizations {
   /// **'Unit'**
   String get unit;
 
-  /// Tablet unit
+  /// Tablet form
   ///
   /// In en, this message translates to:
   /// **'Tablet'**
@@ -620,7 +620,7 @@ abstract class AppLocalizations {
   /// **'Evening'**
   String get evening;
 
-  /// Night time
+  /// Night label
   ///
   /// In en, this message translates to:
   /// **'Night'**
@@ -692,7 +692,7 @@ abstract class AppLocalizations {
   /// **'Completed'**
   String get completedReminders;
 
-  /// Mark medication as taken button
+  /// Mark as taken button
   ///
   /// In en, this message translates to:
   /// **'Mark as Taken'**
@@ -962,7 +962,7 @@ abstract class AppLocalizations {
   /// **'Invalid phone number'**
   String get phoneInvalid;
 
-  /// Password required error
+  /// Password validation error
   ///
   /// In en, this message translates to:
   /// **'Please enter password'**
@@ -1039,6 +1039,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Street, District, Province'**
   String get enterAddressHint;
+
+  /// Create medication button
+  ///
+  /// In en, this message translates to:
+  /// **'Create Medication'**
+  String get createMedication;
+
+  /// Medication form label
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get form;
+
+  /// Frequency label
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get frequency;
+
+  /// Reminder time label
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder Time'**
+  String get reminderTime;
+
+  /// Instructions label
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions'**
+  String get instructions;
+
+  /// Daytime label
+  ///
+  /// In en, this message translates to:
+  /// **'Daytime'**
+  String get daytime;
+
+  /// Success message
+  ///
+  /// In en, this message translates to:
+  /// **'Medication created successfully'**
+  String get medicationCreated;
+
+  /// Reminder success message
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder set successfully'**
+  String get reminderSet;
+
+  /// Marked as taken message
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as taken'**
+  String get markedAsTaken;
+
+  /// Times per day label
+  ///
+  /// In en, this message translates to:
+  /// **'times per day'**
+  String get timesPerDay;
+
+  /// Capsule form
+  ///
+  /// In en, this message translates to:
+  /// **'Capsule'**
+  String get capsule;
+
+  /// Liquid form
+  ///
+  /// In en, this message translates to:
+  /// **'Liquid'**
+  String get liquid;
+
+  /// Regular medication type
+  ///
+  /// In en, this message translates to:
+  /// **'Regular'**
+  String get regular;
+
+  /// PRN medication type
+  ///
+  /// In en, this message translates to:
+  /// **'As Needed (PRN)'**
+  String get prn;
+
+  /// Home tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
+  /// Analysis tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis'**
+  String get analysis;
+
+  /// Scan tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get scan;
+
+  /// Family tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get family;
+
+  /// Coming soon message
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get comingSoon;
+
+  /// Light theme option
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get lightTheme;
+
+  /// Dark theme option
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get darkTheme;
+
+  /// System theme option
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get systemTheme;
+
+  /// Select language dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Select Language'**
+  String get selectLanguage;
+
+  /// Select theme dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Select Theme'**
+  String get selectTheme;
+
+  /// Notifications setting label
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// Security setting label
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get security;
+
+  /// About setting label
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// Phone or email field label
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number or Email'**
+  String get phoneOrEmail;
+
+  /// Phone or email field placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone number or email'**
+  String get enterPhoneOrEmail;
+
+  /// Phone or email validation error
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter phone number or email'**
+  String get pleaseEnterPhoneOrEmail;
+
+  /// Password field placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'Enter password'**
+  String get enterPassword;
+
+  /// No account prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account?'**
+  String get noAccount;
 }
 
 class _AppLocalizationsDelegate
@@ -1068,8 +1260,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }
