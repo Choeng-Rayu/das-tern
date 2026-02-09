@@ -1,0 +1,83 @@
+============================================================
+Docker Services Connectivity Test
+============================================================
+
+1. Checking running containers
+============================================================
+Exit code: 0
+Output:
+NAMES              STATUS                    PORTS
+dastern-postgres   Up 23 minutes (healthy)   0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+dastern-redis      Up 23 minutes (healthy)   0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp
+
+
+2. Testing PostgreSQL connectivity
+============================================================
+Exit code: 0
+Output:
+/var/run/postgresql:5432 - accepting connections
+
+
+3. Testing PostgreSQL query
+============================================================
+Exit code: 0
+Output:
+ current_database | current_user 
+------------------+--------------
+ dastern          | dastern_user
+(1 row)
+
+
+
+4. Checking PostgreSQL timezone
+============================================================
+Exit code: 0
+Output:
+    TimeZone     
+-----------------
+ Asia/Phnom_Penh
+(1 row)
+
+
+
+5. Testing Redis connectivity
+============================================================
+Exit code: 0
+Output:
+PONG
+
+Errors:
+Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
+
+
+6. Testing Redis SET operation
+============================================================
+Exit code: 0
+Output:
+OK
+
+
+7. Testing Redis GET operation
+============================================================
+Exit code: 0
+Output:
+test_value
+
+
+8. Checking PostgreSQL health status
+============================================================
+Exit code: 0
+Output:
+healthy
+
+
+9. Checking Redis health status
+============================================================
+Exit code: 0
+Output:
+healthy
+
+
+============================================================
+Test Summary: 9 passed, 0 failed
+============================================================

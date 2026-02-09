@@ -1,0 +1,25 @@
+import 'package:flutter/material.dart';
+import '../../theme/design_tokens.dart';
+
+class MissedDoseAlertsScreen extends StatelessWidget {
+  const MissedDoseAlertsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Missed Dose Alerts')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.construction, size: 64, color: AppColors.primaryBlue),
+            const SizedBox(height: 16),
+            Text('Missed Dose Alerts', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text('Coming soon...'),
+          ],
+        ),
+      ),
+    );
+  }
+}

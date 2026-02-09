@@ -1,0 +1,115 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import '../models/medication_model/medication.dart';
+import '../models/enums_model/medication_status.dart';
+import '../services/database_service.dart';
+import '../services/sync_service.dart';
+import '../services/reminder_generator_service.dart';
+
+class MedicationProvider extends ChangeNotifier {
+  final DatabaseService _db = DatabaseService.instance;
+  final SyncService _sync = SyncService.instance;
+  final ReminderGeneratorService _reminderGen = ReminderGeneratorService.instance;
+
+  List<Medication> _medications = [];
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  List<Medication> get medications => _medications;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  List<Medication> get activeMedications => 
+      _medications.where((m) => m.status == MedicationStatus.active).toList();
+
+  Future<void> loadMedications() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _medications = await _db.getMedications();
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Failed to load medications: $e';
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> createMedication(Medication medication) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      // Save to local database
+      final id = await _db.createMedication(medication);
+      final savedMedication = medication.copyWith(id: id);
+
+      // Generate dose events and schedule reminders
+      await _reminderGen.generateDoseEvents(savedMedication, 7);
+
+      // Update status to active
+      final activeMedication = savedMedication.copyWith(
+        status: MedicationStatus.active,
+      );
+      await _db.updateMedication(activeMedication);
+
+      // Add to sync queue
+      await _db.addToSyncQueue(
+        'create',
+        'medications',
+        id,
+        jsonEncode(activeMedication.toJson()),
+      );
+
+      // Trigger sync if online
+      await _sync.syncPendingChanges();
+
+      // Reload medications
+      await loadMedications();
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Failed to create medication: $e';
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> updateMedicationStatus(int id, MedicationStatus status) async {
+    try {
+      final medication = _medications.firstWhere((m) => m.id == id);
+      final updated = medication.copyWith(
+        status: status,
+        updatedAt: DateTime.now(),
+      );
+
+      await _db.updateMedication(updated);
+
+      // Add to sync queue
+      await _db.addToSyncQueue(
+        'update',
+        'medications',
+        id,
+        jsonEncode(updated.toJson()),
+      );
+
+      await _sync.syncPendingChanges();
+      await loadMedications();
+    } catch (e) {
+      _errorMessage = 'Failed to update medication status: $e';
+      notifyListeners();
+    }
+  }
+
+  List<Medication> getMedicationsByTimeGroup(String timeGroup) {
+    // This will be used by the dashboard to filter medications
+    // For now, return all active medications
+    return activeMedications;
+  }
+}
