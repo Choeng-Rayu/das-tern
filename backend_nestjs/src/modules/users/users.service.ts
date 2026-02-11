@@ -49,6 +49,21 @@ export class UsersService {
     return result;
   }
 
+  async updateGracePeriod(id: string, minutes: number) {
+    const validOptions = [10, 20, 30, 60];
+    if (!validOptions.includes(minutes)) {
+      throw new NotFoundException('Grace period must be 10, 20, 30, or 60 minutes');
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: { gracePeriodMinutes: minutes },
+    });
+
+    const { passwordHash, pinCodeHash, ...result } = user;
+    return result;
+  }
+
   async getStorageInfo(userId: string) {
     const subscription = await this.prisma.subscription.findUnique({
       where: { userId },
@@ -137,5 +152,45 @@ export class UsersService {
       auditLogs: auditLogCount * 1024,
       files: 0, // TODO: Calculate from S3
     };
+  }
+
+  // ============================
+  // Meal Time Preferences
+  // ============================
+
+  async getMealTimePreferences(userId: string) {
+    const prefs = await this.prisma.mealTimePreference.findUnique({
+      where: { userId },
+    });
+
+    if (!prefs) {
+      // Return defaults for Cambodia timezone
+      return {
+        userId,
+        morningMeal: '07:00',
+        afternoonMeal: '12:00',
+        nightMeal: '18:00',
+        isDefault: true,
+      };
+    }
+
+    return { ...prefs, isDefault: false };
+  }
+
+  async updateMealTimePreferences(userId: string, data: { morningMeal?: string; afternoonMeal?: string; nightMeal?: string }) {
+    return this.prisma.mealTimePreference.upsert({
+      where: { userId },
+      create: {
+        userId,
+        morningMeal: data.morningMeal || '07:00',
+        afternoonMeal: data.afternoonMeal || '12:00',
+        nightMeal: data.nightMeal || '18:00',
+      },
+      update: {
+        ...(data.morningMeal && { morningMeal: data.morningMeal }),
+        ...(data.afternoonMeal && { afternoonMeal: data.afternoonMeal }),
+        ...(data.nightMeal && { nightMeal: data.nightMeal }),
+      },
+    });
   }
 }

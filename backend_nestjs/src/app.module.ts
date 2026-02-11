@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import { DatabaseModule } from './database/database.module';
@@ -13,6 +14,10 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { AuditModule } from './modules/audit/audit.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { EmailModule } from './modules/email/email.module';
+import { DoctorDashboardModule } from './modules/doctor-dashboard/doctor-dashboard.module';
+import { MedicinesModule } from './modules/medicines/medicines.module';
+import { AdherenceModule } from './modules/adherence/adherence.module';
+import { BakongPaymentModule } from './modules/bakong-payment/bakong-payment.module';
 
 @Module({
   imports: [
@@ -29,6 +34,7 @@ import { EmailModule } from './modules/email/email.module';
       store: redisStore as any,
       host: process.env.REDIS_HOST || 'localhost',
       port: parseInt(process.env.REDIS_PORT || '6379'),
+      password: process.env.REDIS_PASSWORD || undefined,
       ttl: 300,
     }),
     DatabaseModule,
@@ -41,6 +47,16 @@ import { EmailModule } from './modules/email/email.module';
     AuditModule,
     SubscriptionsModule,
     EmailModule,
+    DoctorDashboardModule,
+    MedicinesModule,
+    AdherenceModule,
+    BakongPaymentModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
-export class AppModule {}
+export class AppModule { }

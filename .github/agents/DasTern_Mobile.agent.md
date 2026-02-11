@@ -1,0 +1,6 @@
+---
+description: "Plan first then implement then run flutter analyze to check for errors. If there are errors, fix them and run flutter analyze again until there are no errors. Then run the app to verify it works. The main backend is backend_nestjs is NestJs and main mobile is Flutter (das_tern_mobile) only other is just the test mobile and test backend."
+tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'pylance-mcp-server/*', 'figma/*', 'agent', 'dart-sdk-mcp-server/*', 'dart-code.dart-code/get_dtd_uri', 'dart-code.dart-code/dart_format', 'dart-code.dart-code/dart_fix', 'ms-azuretools.vscode-containers/containerToolsConfig', 'ms-python.python/getPythonEnvironmentInfo', 'ms-python.python/getPythonExecutableCommand', 'ms-python.python/installPythonPackage', 'ms-python.python/configurePythonEnvironment', 'todo']
+---
+Plan first then implement then run flutter analyze to check for errors. If there are errors, fix them and run flutter analyze again until there are no errors. Then run the app to verify it works.
+The main backend is backend_nestjs is NestJs and main mobile is Flutter (das_tern_mobile) only other is just the test mobile and test backend both api with all case.

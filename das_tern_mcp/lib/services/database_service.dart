@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
+import 'logger_service.dart';
 
 /// Local SQLite database for offline dose caching and sync queue.
 class DatabaseService {
   static final DatabaseService instance = DatabaseService._();
   DatabaseService._();
 
+  final LoggerService _log = LoggerService.instance;
   static Database? _database;
   static const int _dbVersion = 1;
   static const String _dbName = 'das_tern.db';
@@ -17,8 +19,10 @@ class DatabaseService {
   }
 
   Future<Database> _initDatabase() async {
+    _log.info('DatabaseService', 'Initializing database');
     final dbPath = await getDatabasesPath();
     final path = p.join(dbPath, _dbName);
+    _log.debug('DatabaseService', 'Database path: $path');
 
     return openDatabase(
       path,
@@ -29,6 +33,7 @@ class DatabaseService {
   }
 
   Future<void> _onCreate(Database db, int version) async {
+    _log.info('DatabaseService', 'Creating database schema v$version');
     // Cached dose events for offline viewing & reminder scheduling
     await db.execute('''
       CREATE TABLE dose_events (
@@ -82,6 +87,7 @@ class DatabaseService {
         'CREATE INDEX idx_dose_status ON dose_events(status)');
     await db.execute(
         'CREATE INDEX idx_sync_queue_created ON sync_queue(created_at)');
+    _log.success('DatabaseService', 'Database schema created successfully');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -94,6 +100,7 @@ class DatabaseService {
 
   /// Save/update a list of dose events from the server.
   Future<void> cacheDoseEvents(List<Map<String, dynamic>> doses) async {
+    _log.dbOperation('CACHE', 'dose_events', {'count': doses.length});
     final db = await database;
     final batch = db.batch();
     for (final dose in doses) {
@@ -192,6 +199,7 @@ class DatabaseService {
     required String method,
     Map<String, dynamic>? body,
   }) async {
+    _log.dbOperation('INSERT', 'sync_queue', {'action': action, 'endpoint': endpoint});
     final db = await database;
     return db.insert('sync_queue', {
       'action': action,
@@ -279,10 +287,12 @@ class DatabaseService {
 
   /// Clear all local data (for logout).
   Future<void> clearAll() async {
+    _log.warning('DatabaseService', 'Clearing all local data');
     final db = await database;
     await db.delete('dose_events');
     await db.delete('sync_queue');
     await db.delete('prescriptions');
+    _log.info('DatabaseService', 'All local data cleared');
   }
 
   Future<void> close() async {

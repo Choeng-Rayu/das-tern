@@ -18,13 +18,19 @@ class DoctorShell extends StatefulWidget {
 class _DoctorShellState extends State<DoctorShell> {
   int _currentIndex = 0;
 
-  final _tabs = const [
-    DoctorHomeTab(),
-    DoctorPatientsTab(),
-    DoctorPrescriptionsTab(),
-    DoctorPrescriptionHistoryTab(),
-    DoctorSettingsTab(),
+  late final List<Widget> _tabs = [
+    DoctorHomeTab(onSwitchTab: _switchTab),
+    const DoctorPatientsTab(),
+    const DoctorPrescriptionsTab(),
+    const DoctorPrescriptionHistoryTab(),
+    const DoctorSettingsTab(),
   ];
+
+  void _switchTab(int index) {
+    if (index >= 0 && index < _tabs.length) {
+      setState(() => _currentIndex = index);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -4,6 +4,7 @@ import '../services/api_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
 import '../services/sync_service.dart';
+import '../services/logger_service.dart';
 
 /// Manages dose schedule and history state with offline support.
 /// When offline, reads from SQLite and queues actions for sync.
@@ -12,6 +13,7 @@ class DoseProvider extends ChangeNotifier {
   final DatabaseService _db = DatabaseService.instance;
   final NotificationService _notif = NotificationService.instance;
   final SyncService _sync = SyncService.instance;
+  final LoggerService _log = LoggerService.instance;
 
   bool _isLoading = false;
   String? _error;
@@ -37,6 +39,7 @@ class DoseProvider extends ChangeNotifier {
   /// Online → API + cache to SQLite + schedule notifications.
   /// Offline → load from SQLite cache.
   Future<void> fetchTodaySchedule() async {
+    _log.info('DoseProvider', 'Fetching today\'s schedule');
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -44,6 +47,7 @@ class DoseProvider extends ChangeNotifier {
       final today = DateTime.now().toIso8601String().split('T')[0];
 
       if (_sync.isOnline) {
+        _log.debug('DoseProvider', 'Fetching from API (online)');
         // Online: fetch from API
         final result =
             await _api.getDoseSchedule(date: today, groupBy: 'timePeriod');
@@ -55,6 +59,7 @@ class DoseProvider extends ChangeNotifier {
           await _notif.scheduleAllReminders(doseList);
           _todaysDoses =
               doseList.map((d) => DoseEvent.fromJson(d)).toList();
+          _log.success('DoseProvider', 'Schedule fetched from API', {'count': _todaysDoses.length});
         }
         if (result['grouped'] != null) {
           _groupedDoses =
@@ -66,6 +71,7 @@ class DoseProvider extends ChangeNotifier {
           );
         }
       } else {
+        _log.warning('DoseProvider', 'Device offline, loading from cache');
         // Offline: load from SQLite
         final cached = await _db.getCachedDosesByDate(today);
         _todaysDoses =
@@ -79,9 +85,11 @@ class DoseProvider extends ChangeNotifier {
         }
         // Schedule notifications from cache
         await _notif.scheduleAllReminders(cached);
+        _log.info('DoseProvider', 'Schedule loaded from cache', {'count': _todaysDoses.length});
       }
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
+      _log.error('DoseProvider', 'Failed to fetch schedule', e);
       // Fallback to cache on API error
       try {
         final today = DateTime.now().toIso8601String().split('T')[0];
@@ -90,6 +98,7 @@ class DoseProvider extends ChangeNotifier {
           _todaysDoses =
               cached.map((d) => DoseEvent.fromJson(d)).toList();
           _error = null; // cleared – we have cached data
+          _log.info('DoseProvider', 'Fallback to cache successful');
         }
       } catch (_) {}
     } finally {
@@ -119,11 +128,13 @@ class DoseProvider extends ChangeNotifier {
 
   /// Mark a dose as taken (works offline).
   Future<bool> markTaken(String doseId) async {
+    _log.info('DoseProvider', 'Marking dose taken', {'doseId': doseId, 'online': _sync.isOnline});
     try {
       final now = DateTime.now();
 
       if (_sync.isOnline) {
         await _api.markDoseTaken(doseId, takenAt: now);
+        _log.success('DoseProvider', 'Dose marked taken (online)');
       } else {
         // Save locally and queue for sync
         await _db.markDoseTakenLocally(doseId, now);
@@ -133,6 +144,7 @@ class DoseProvider extends ChangeNotifier {
           method: 'PATCH',
           body: {'takenAt': now.toIso8601String(), 'offline': true},
         );
+        _log.info('DoseProvider', 'Dose marked taken (offline, queued for sync)');
       }
 
       // Cancel the reminder for this dose
@@ -143,6 +155,7 @@ class DoseProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
+      _log.error('DoseProvider', 'Failed to mark dose taken', e);
       notifyListeners();
       return false;
     }

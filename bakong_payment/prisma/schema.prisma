@@ -1,0 +1,227 @@
+// Bakong Payment Integration Service - Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Enums
+// ============================================
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  TIMEOUT
+  EXPIRED
+  CANCELLED
+}
+
+enum PlanType {
+  PREMIUM
+  FAMILY_PREMIUM
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum WebhookEvent {
+  PAYMENT_COMPLETED
+  PAYMENT_FAILED
+  SUBSCRIPTION_ACTIVATED
+  SUBSCRIPTION_EXPIRED
+  SUBSCRIPTION_CANCELLED
+}
+
+enum WebhookStatus {
+  PENDING
+  DELIVERED
+  FAILED
+}
+
+// ============================================
+// Payment Transaction Model
+// ============================================
+
+model PaymentTransaction {
+  id                String        @id @default(uuid()) @db.Uuid
+  userId            String        @db.Uuid
+  billNumber        String        @unique @db.VarChar(100)  // Unique invoice number
+  md5Hash           String        @unique @db.VarChar(32)   // MD5 hash of QR code
+  amount            Decimal       @db.Decimal(10, 2)
+  currency          String        @default("USD") @db.VarChar(3)
+  status            PaymentStatus @default(PENDING)
+  planType          PlanType
+  
+  // QR Code Data
+  qrCode            String?       @db.Text              // KHQR string
+  qrImagePath       String?       @db.VarChar(500)      // Path to QR image
+  deepLink          String?       @db.Text              // Bakong app deep link
+  
+  // Payment Details
+  isUpgrade         Boolean       @default(false)
+  isRenewal         Boolean       @default(false)
+  proratedAmount    Decimal?      @db.Decimal(10, 2)
+  
+  // Bakong Response Data
+  bakongData        Json?         @db.JsonB             // Bakong API response
+  
+  // Monitoring
+  checkAttempts     Int           @default(0)
+  lastCheckedAt     DateTime?     @db.Timestamptz(3)
+  
+  // Timestamps
+  createdAt         DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime      @updatedAt @db.Timestamptz(3)
+  paidAt            DateTime?     @db.Timestamptz(3)
+  expiredAt         DateTime?     @db.Timestamptz(3)
+  
+  // Relations
+  subscription      Subscription? @relation(fields: [subscriptionId], references: [id])
+  subscriptionId    String?       @db.Uuid
+  statusHistory     PaymentStatusHistory[]
+  
+  @@index([userId])
+  @@index([billNumber])
+  @@index([md5Hash])
+  @@index([status])
+  @@index([createdAt])
+  @@map("payment_transactions")
+}
+
+// ============================================
+// Payment Status History Model
+// ============================================
+
+model PaymentStatusHistory {
+  id            String           @id @default(uuid()) @db.Uuid
+  transactionId String           @db.Uuid
+  oldStatus     PaymentStatus?
+  newStatus     PaymentStatus
+  reason        String?          @db.Text
+  metadata      Json?            @db.JsonB
+  createdAt     DateTime         @default(now()) @db.Timestamptz(3)
+  
+  transaction   PaymentTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  
+  @@index([transactionId])
+  @@index([createdAt])
+  @@map("payment_status_history")
+}
+
+// ============================================
+// Subscription Model
+// ============================================
+
+model Subscription {
+  id              String             @id @default(uuid()) @db.Uuid
+  userId          String             @unique @db.Uuid
+  planType        PlanType
+  status          SubscriptionStatus @default(PENDING)
+  
+  // Billing Information
+  startDate       DateTime           @db.Timestamptz(3)
+  nextBillingDate DateTime           @db.Timestamptz(3)
+  lastBillingDate DateTime?          @db.Timestamptz(3)
+  
+  // Cancellation
+  cancelledAt     DateTime?          @db.Timestamptz(3)
+  cancellationReason String?         @db.Text
+  
+  // Timestamps
+  createdAt       DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime           @updatedAt @db.Timestamptz(3)
+  
+  // Relations
+  payments        PaymentTransaction[]
+  statusHistory   SubscriptionStatusHistory[]
+  
+  @@index([userId])
+  @@index([status])
+  @@index([nextBillingDate])
+  @@map("subscriptions")
+}
+
+// ============================================
+// Subscription Status History Model
+// ============================================
+
+model SubscriptionStatusHistory {
+  id             String             @id @default(uuid()) @db.Uuid
+  subscriptionId String             @db.Uuid
+  oldStatus      SubscriptionStatus?
+  newStatus      SubscriptionStatus
+  reason         String?            @db.Text
+  metadata       Json?              @db.JsonB
+  createdAt      DateTime           @default(now()) @db.Timestamptz(3)
+  
+  subscription   Subscription       @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  
+  @@index([subscriptionId])
+  @@index([createdAt])
+  @@map("subscription_status_history")
+}
+
+// ============================================
+// Webhook Notification Model
+// ============================================
+
+model WebhookNotification {
+  id            String            @id @default(uuid()) @db.Uuid
+  event         WebhookEvent
+  targetUrl     String            @db.VarChar(500)
+  payload       Json              @db.JsonB
+  signature     String            @db.VarChar(255)
+  
+  // Delivery Status
+  status        WebhookStatus     @default(PENDING)
+  attempts      Int               @default(0)
+  lastAttemptAt DateTime?         @db.Timestamptz(3)
+  nextRetryAt   DateTime?         @db.Timestamptz(3)
+  
+  // Response Data
+  responseStatus Int?
+  responseBody   String?          @db.Text
+  errorMessage   String?          @db.Text
+  
+  // Timestamps
+  createdAt     DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime          @updatedAt @db.Timestamptz(3)
+  deliveredAt   DateTime?         @db.Timestamptz(3)
+  
+  @@index([status])
+  @@index([nextRetryAt])
+  @@index([createdAt])
+  @@map("webhook_notifications")
+}
+
+// ============================================
+// Audit Log Model
+// ============================================
+
+model AuditLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String?  @db.Uuid
+  action       String   @db.VarChar(100)
+  resourceType String   @db.VarChar(50)
+  resourceId   String?  @db.Uuid
+  details      Json?    @db.JsonB
+  ipAddress    String?  @db.VarChar(45)
+  userAgent    String?  @db.Text
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  
+  @@index([userId])
+  @@index([action])
+  @@index([resourceType])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
