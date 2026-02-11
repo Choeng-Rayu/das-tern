@@ -10,6 +10,7 @@ import { OtpService } from './otp.service';
 export class AuthService {
   private readonly LOCK_DURATION = 15 * 60 * 1000; // 15 minutes
   private readonly MAX_FAILED_ATTEMPTS = 5;
+  private readonly BCRYPT_ROUNDS = 12;
 
   constructor(
     private prisma: PrismaService,
@@ -112,9 +113,20 @@ export class AuthService {
       throw new ConflictException('Phone number is already registered');
     }
 
+    // Check if ID card number already exists (only if provided)
+    if (dto.idCardNumber) {
+      const existingIdCard = await this.prisma.user.findUnique({
+        where: { idCardNumber: dto.idCardNumber },
+      });
+
+      if (existingIdCard) {
+        throw new ConflictException('ID card number is already registered');
+      }
+    }
+
     // Hash password and PIN
-    const passwordHash = await bcrypt.hash(dto.password, 10);
-    const pinCodeHash = await bcrypt.hash(dto.pinCode, 10);
+    const passwordHash = await bcrypt.hash(dto.password, this.BCRYPT_ROUNDS);
+    const pinCodeHash = await bcrypt.hash(dto.pinCode, this.BCRYPT_ROUNDS);
 
     // Create user with PENDING status (requires OTP verification)
     const user = await this.prisma.user.create({
@@ -127,7 +139,7 @@ export class AuthService {
         pinCodeHash,
         gender: dto.gender,
         dateOfBirth: new Date(dto.dateOfBirth),
-        idCardNumber: dto.idCardNumber,
+        idCardNumber: dto.idCardNumber || null,
         accountStatus: 'PENDING_VERIFICATION',
       },
     });
@@ -153,7 +165,7 @@ export class AuthService {
     }
 
     // Hash password
-    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const passwordHash = await bcrypt.hash(dto.password, this.BCRYPT_ROUNDS);
 
     // Create doctor with PENDING_VERIFICATION status
     const user = await this.prisma.user.create({
@@ -234,7 +246,7 @@ export class AuthService {
           lastName: profile.lastName,
           fullName: profile.displayName,
           phoneNumber: profile.email, // Temporary, should be updated
-          passwordHash: await bcrypt.hash(Math.random().toString(36), 10),
+          passwordHash: await bcrypt.hash(Math.random().toString(36), this.BCRYPT_ROUNDS),
           role: 'PATIENT',
           accountStatus: 'ACTIVE',
         },

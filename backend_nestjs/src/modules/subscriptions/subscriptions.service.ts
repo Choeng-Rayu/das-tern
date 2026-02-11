@@ -82,4 +82,120 @@ export class SubscriptionsService {
       data: { storageUsed: Number(subscription.storageUsed) + deltaBytes },
     });
   }
+
+  // ============================
+  // Subscription Limits
+  // ============================
+
+  async getSubscriptionLimits(userId: string) {
+    const subscription = await this.findOne(userId);
+    const tier = subscription?.tier || 'FREEMIUM';
+
+    const limits = this.getTierLimits(tier);
+
+    // Get current usage
+    const prescriptionCount = await this.prisma.prescription.count({
+      where: { patientId: userId, status: { in: ['ACTIVE', 'DRAFT', 'PAUSED'] } },
+    });
+
+    const medicineCount = await this.prisma.medication.count({
+      where: { prescription: { patientId: userId, status: { in: ['ACTIVE', 'DRAFT', 'PAUSED'] } } },
+    });
+
+    const familyConnectionCount = await this.prisma.connection.count({
+      where: {
+        OR: [
+          { initiatorId: userId, recipient: { role: 'FAMILY_MEMBER' } },
+          { recipientId: userId, initiator: { role: 'FAMILY_MEMBER' } },
+        ],
+        status: { in: ['PENDING', 'ACCEPTED'] },
+      },
+    });
+
+    return {
+      tier,
+      prescriptionLimit: limits.prescriptions,
+      prescriptionCount,
+      medicineLimit: limits.medicines,
+      medicineCount,
+      familyConnectionLimit: limits.familyConnections,
+      familyConnectionCount,
+      storageQuota: Number(subscription?.storageQuota || 5368709120),
+      storageUsed: Number(subscription?.storageUsed || 0),
+    };
+  }
+
+  async checkPrescriptionLimit(patientId: string): Promise<boolean> {
+    const limits = await this.getSubscriptionLimits(patientId);
+    if (limits.prescriptionLimit === -1) return true; // unlimited
+    return limits.prescriptionCount < limits.prescriptionLimit;
+  }
+
+  async checkMedicineLimit(patientId: string): Promise<boolean> {
+    const limits = await this.getSubscriptionLimits(patientId);
+    if (limits.medicineLimit === -1) return true;
+    return limits.medicineCount < limits.medicineLimit;
+  }
+
+  async checkFamilyConnectionLimit(patientId: string): Promise<boolean> {
+    const limits = await this.getSubscriptionLimits(patientId);
+    if (limits.familyConnectionLimit === -1) return true;
+    return limits.familyConnectionCount < limits.familyConnectionLimit;
+  }
+
+  private getTierLimits(tier: string) {
+    switch (tier) {
+      case 'FREEMIUM':
+        return { prescriptions: 1, medicines: 3, familyConnections: 1, storageGB: 5 };
+      case 'PREMIUM':
+        return { prescriptions: -1, medicines: -1, familyConnections: 5, storageGB: 20 };
+      case 'FAMILY_PREMIUM':
+        return { prescriptions: -1, medicines: -1, familyConnections: 10, storageGB: 20 };
+      default:
+        return { prescriptions: 1, medicines: 3, familyConnections: 1, storageGB: 5 };
+    }
+  }
+
+  async getFeatureComparison() {
+    return {
+      tiers: [
+        {
+          name: 'FREEMIUM',
+          prescriptions: '1',
+          medicines: '3',
+          familyConnections: '1',
+          storage: '5 GB',
+          reminders: true,
+          adherenceTracking: true,
+          offlineMode: true,
+          doctorConnection: true,
+          prioritySupport: false,
+        },
+        {
+          name: 'PREMIUM',
+          prescriptions: 'Unlimited',
+          medicines: 'Unlimited',
+          familyConnections: '5',
+          storage: '20 GB',
+          reminders: true,
+          adherenceTracking: true,
+          offlineMode: true,
+          doctorConnection: true,
+          prioritySupport: true,
+        },
+        {
+          name: 'FAMILY_PREMIUM',
+          prescriptions: 'Unlimited',
+          medicines: 'Unlimited',
+          familyConnections: '10',
+          storage: '20 GB',
+          reminders: true,
+          adherenceTracking: true,
+          offlineMode: true,
+          doctorConnection: true,
+          prioritySupport: true,
+        },
+      ],
+    };
+  }
 }

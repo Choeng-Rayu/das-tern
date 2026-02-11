@@ -8,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'database_service.dart';
 import 'notification_service.dart';
+import 'logger_service.dart';
 
 /// Monitors connectivity and auto-syncs offline actions when back online.
 /// Also pulls fresh data from the server after sync.
@@ -18,6 +19,7 @@ class SyncService extends ChangeNotifier {
   final DatabaseService _db = DatabaseService.instance;
   final NotificationService _notifications = NotificationService.instance;
   final Connectivity _connectivity = Connectivity();
+  final LoggerService _log = LoggerService.instance;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
@@ -41,19 +43,22 @@ class SyncService extends ChangeNotifier {
 
   /// Start listening for connectivity changes.
   Future<void> startListening() async {
+    _log.info('SyncService', 'Starting connectivity monitoring');
     // Check initial state
     final result = await _connectivity.checkConnectivity();
     _isOnline = _isConnected(result);
+    _log.info('SyncService', 'Initial connectivity state', {'online': _isOnline, 'type': result.name});
 
     _connectivitySub =
         _connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
       final wasOnline = _isOnline;
       _isOnline = _isConnected(result);
+      _log.stateChange('SyncService', wasOnline ? 'online' : 'offline', _isOnline ? 'online' : 'offline', result.name);
       notifyListeners();
 
       // Just came back online → trigger sync
       if (!wasOnline && _isOnline) {
-        debugPrint('[SyncService] Back online – syncing pending changes');
+        _log.info('SyncService', 'Back online – syncing pending changes');
         syncAll();
       }
     });
@@ -87,9 +92,16 @@ class SyncService extends ChangeNotifier {
 
   /// Run a full sync: push pending → pull fresh data.
   Future<void> syncAll() async {
-    if (_isSyncing) return;
-    if (!_isOnline) return;
+    if (_isSyncing) {
+      _log.debug('SyncService', 'Sync already in progress, skipping');
+      return;
+    }
+    if (!_isOnline) {
+      _log.warning('SyncService', 'Cannot sync: device is offline');
+      return;
+    }
 
+    _log.info('SyncService', 'Starting full sync cycle');
     _isSyncing = true;
     notifyListeners();
 
@@ -106,9 +118,9 @@ class SyncService extends ChangeNotifier {
       // 4. Pull fresh prescriptions
       await _pullPrescriptions();
 
-      debugPrint('[SyncService] Sync complete');
+      _log.success('SyncService', 'Sync complete');
     } catch (e) {
-      debugPrint('[SyncService] Sync error: $e');
+      _log.error('SyncService', 'Sync error', e);
     } finally {
       _isSyncing = false;
       await _refreshPendingCount();
@@ -122,9 +134,12 @@ class SyncService extends ChangeNotifier {
 
   Future<void> _processSyncQueue() async {
     final queue = await _db.getSyncQueue();
-    if (queue.isEmpty) return;
+    if (queue.isEmpty) {
+      _log.debug('SyncService', 'Sync queue is empty');
+      return;
+    }
 
-    debugPrint('[SyncService] Processing ${queue.length} queued actions');
+    _log.syncOperation('Processing sync queue', {'items': queue.length});
 
     for (final item in queue) {
       try {
@@ -133,6 +148,7 @@ class SyncService extends ChangeNotifier {
         final bodyStr = item['body'] as String?;
         final headers = await _authHeaders();
 
+        _log.debug('SyncService', 'Replaying: $method $endpoint');
         http.Response res;
         final uri = Uri.parse('$_baseUrl$endpoint');
 
@@ -173,9 +189,12 @@ class SyncService extends ChangeNotifier {
 
   Future<void> _pushUnsyncedDoses() async {
     final unsynced = await _db.getUnsyncedDoses();
-    if (unsynced.isEmpty) return;
+    if (unsynced.isEmpty) {
+      _log.debug('SyncService', 'No unsynced doses to push');
+      return;
+    }
 
-    debugPrint('[SyncService] Pushing ${unsynced.length} unsynced doses');
+    _log.syncOperation('Pushing unsynced doses', {'count': unsynced.length});
     final syncedIds = <String>[];
 
     for (final dose in unsynced) {

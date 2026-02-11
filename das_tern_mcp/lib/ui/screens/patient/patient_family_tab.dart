@@ -16,20 +16,14 @@ class PatientFamilyTab extends StatefulWidget {
 }
 
 class _PatientFamilyTabState extends State<PatientFamilyTab> {
-  final _searchController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ConnectionProvider>().fetchConnections();
+      final provider = context.read<ConnectionProvider>();
+      provider.fetchCaregivers();
+      provider.fetchConnectedPatients();
     });
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
   }
 
   @override
@@ -40,27 +34,37 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
       appBar: AppBar(
         title: const Text('មុខងារគ្រួសារ'),
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.pushNamed(context, '/family/grace-period');
+            },
+            tooltip: 'ការកំណត់ពេលវេលា',
+          ),
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.pushNamed(context, '/family/history');
+            },
+            tooltip: 'ប្រវត្តិ',
+          ),
+        ],
       ),
       body: RefreshIndicator(
-        onRefresh: () => connectionProvider.fetchConnections(),
+        onRefresh: () async {
+          await connectionProvider.fetchCaregivers();
+          await connectionProvider.fetchConnectedPatients();
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Search bar (matches Figma: ស្វែងរកអ្នកជំងឺ)
-              AppTextField(
-                controller: _searchController,
-                label: '',
-                hint: 'ស្វែងរកអ្នកជំងឺ',
-                prefixIcon: const Icon(Icons.search, size: 20),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-
-              // Connected family members
+              // My Caregivers section
               Text(
-                'Family Members',
+                'អ្នកថែទាំរបស់ខ្ញុំ',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -74,44 +78,55 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                     child: CircularProgressIndicator(),
                   ),
                 )
-              else if (connectionProvider.acceptedConnections.isEmpty &&
-                  connectionProvider.pendingConnections.isEmpty)
+              else if (connectionProvider.caregivers.isEmpty &&
+                  connectionProvider.connectedPatients.isEmpty)
                 _buildEmptyState(context)
               else ...[
-                // Accepted connections
-                ...connectionProvider.acceptedConnections.map<Widget>(
-                  (conn) => _buildFamilyMemberCard(context, conn, true),
-                ),
-                // Pending connections
-                if (connectionProvider.pendingConnections.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.md),
+                // Caregivers
+                if (connectionProvider.caregivers.isNotEmpty)
+                  ...connectionProvider.caregivers.map<Widget>(
+                    (conn) => _buildFamilyMemberCard(context, conn),
+                  ),
+
+                // Patients I'm monitoring
+                if (connectionProvider.connectedPatients.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.lg),
                   Text(
-                    'Pending',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: AppColors.textSecondary,
+                    'អ្នកជំងឺដែលខ្ញុំតាមដាន',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
                   ),
-                  const SizedBox(height: AppSpacing.xs),
-                  ...connectionProvider.pendingConnections.map<Widget>(
-                    (conn) => _buildFamilyMemberCard(context, conn, false),
+                  const SizedBox(height: AppSpacing.sm),
+                  ...connectionProvider.connectedPatients.map<Widget>(
+                    (conn) => _buildPatientCard(context, conn),
                   ),
                 ],
               ],
 
               const SizedBox(height: AppSpacing.xl),
 
-              // Connect button (matches Figma: ភ្ជាប់ពេលនេះ)
+              // Connect button
               Center(
                 child: PrimaryButton(
                   text: 'ភ្ជាប់ពេលនេះ',
                   icon: Icons.link,
                   onPressed: () {
-                    // TODO: Show connect dialog
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Connect feature coming soon'),
-                      ),
-                    );
+                    Navigator.pushNamed(context, '/family/connect');
+                  },
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.sm),
+
+              // View all connections
+              Center(
+                child: PrimaryButton(
+                  text: 'មើលការតភ្ជាប់ទាំងអស់',
+                  icon: Icons.people_outline,
+                  isOutlined: true,
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/family/access-list');
                   },
                 ),
               ),
@@ -139,7 +154,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Connect with family members\nto monitor their medication.',
+              'ភ្ជាប់ជាមួយគ្រួសារដើម្បី\nត្រួតពិនិត្យការទទួលទានថ្នាំ',
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
@@ -152,22 +167,15 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
     );
   }
 
-  Widget _buildFamilyMemberCard(
-    BuildContext context,
-    Connection connection,
-    bool isAccepted,
-  ) {
-    final patient = connection.patient ?? connection.doctor ?? {};
-    final name = '${patient['firstName'] ?? ''} ${patient['lastName'] ?? ''}'
-        .trim();
-    final symptom = '';
+  Widget _buildFamilyMemberCard(BuildContext context, Connection connection) {
+    final name = connection.getOtherUserName(connection.recipientId);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: AppCard(
-        onTap: isAccepted
+        onTap: connection.status.name == 'accepted'
             ? () {
-                // TODO: Navigate to family member detail
+                Navigator.pushNamed(context, '/family/access-list');
               }
             : null,
         child: Row(
@@ -190,14 +198,14 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                         .bodyMedium
                         ?.copyWith(fontWeight: FontWeight.w600),
                   ),
-                  if (symptom.isNotEmpty)
-                    Text(
-                      'រោគសញ្ញា: $symptom',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: AppColors.textSecondary),
-                    ),
+                  Text(
+                    Connection.permissionLevelToDisplay(
+                        connection.permissionLevel),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: AppColors.textSecondary),
+                  ),
                 ],
               ),
             ),
@@ -207,22 +215,77 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                 vertical: AppSpacing.xs,
               ),
               decoration: BoxDecoration(
-                color: isAccepted
+                color: connection.status.name == 'accepted'
                     ? AppColors.statusSuccess.withValues(alpha: 0.1)
                     : AppColors.statusWarning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                isAccepted ? 'ទទួលទានថ្នាំ' : 'មិនបានទទួលទានថ្នាំ',
+                connection.status.name == 'accepted' ? 'សកម្ម' : 'រង់ចាំ',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: isAccepted
+                  color: connection.status.name == 'accepted'
                       ? AppColors.statusSuccess
                       : AppColors.statusWarning,
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPatientCard(BuildContext context, Connection connection) {
+    final name = connection.getOtherUserName(connection.initiatorId);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: AppCard(
+        onTap: connection.status.name == 'accepted'
+            ? () {
+                Navigator.pushNamed(
+                  context,
+                  '/family/caregiver-dashboard',
+                  arguments: {'connection': connection},
+                );
+              }
+            : null,
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor:
+                  AppColors.successGreen.withValues(alpha: 0.1),
+              child: Icon(Icons.favorite,
+                  color: AppColors.successGreen, size: 20),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name.isEmpty ? 'Patient' : name,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    Connection.permissionLevelToDisplay(
+                        connection.permissionLevel),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            if (connection.status.name == 'accepted')
+              const Icon(Icons.chevron_right, color: AppColors.neutral400),
           ],
         ),
       ),

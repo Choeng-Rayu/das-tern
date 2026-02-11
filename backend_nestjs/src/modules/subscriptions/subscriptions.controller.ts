@@ -14,8 +14,28 @@ export class SubscriptionsController {
     return this.subscriptionsService.findOne(user.id);
   }
 
+  @Get('limits')
+  async getSubscriptionLimits(@CurrentUser() user: any) {
+    return this.subscriptionsService.getSubscriptionLimits(user.id);
+  }
+
+  @Get('features')
+  async getFeatureComparison() {
+    return this.subscriptionsService.getFeatureComparison();
+  }
+
   @Patch('tier')
   async updateTier(@CurrentUser() user: any, @Body('tier') tier: SubscriptionTier) {
+    return this.subscriptionsService.updateTier(user.id, tier);
+  }
+
+  @Post('upgrade')
+  async upgradeSubscription(@CurrentUser() user: any, @Body('tier') tier: SubscriptionTier) {
+    return this.subscriptionsService.updateTier(user.id, tier);
+  }
+
+  @Post('downgrade')
+  async downgradeSubscription(@CurrentUser() user: any, @Body('tier') tier: SubscriptionTier) {
     return this.subscriptionsService.updateTier(user.id, tier);
   }
 

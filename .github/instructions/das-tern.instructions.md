@@ -7,7 +7,8 @@ AI AGENT RULES – DOCKER (POSTGRES & REDIS), NESTJS BACKEND, MOBILE APP
 Scope
 =====
 - Docker is used ONLY to run PostgreSQL and Redis
-- Backend framework is NestJS (Node.js)
+- Backend framework is Nest (Nest.js)
+- bakong_payment is implemented separately and is NOT part of this scope
 - Mobile app consumes the backend API
 - No OCR services
 - No AI or LLM services
@@ -39,35 +40,10 @@ The agent MUST enforce a clean and predictable project structure.
 
 Recommended structure:
 
-- docker/
-  - postgres/
-    - init.sql
-    - seed.sql
-    - migrations/
-  - redis/
-
-- backend/
-  - src/
-  - database/
-    - migrations/
-    - schema/
-  - .env.example
-  - nest-cli.json
-  - package.json
-
-- mobile_app/
-  - src/
-  - .env.example
-
-- .env                  (never committed)
-- .env.example          (always committed)
-- docker-compose.yml
-- README.md
-
 Rules:
 - Docker is ONLY responsible for Postgres and Redis.
 - Backend (NestJS) runs outside Docker unless explicitly stated.
-- Database scripts must live under docker/postgres/ or backend/database/.
+- Database scripts must live under docker/postgres/ or backend_nestjs/database/.
 - .env files must NEVER be hardcoded inside source code.
 - .env.example must list ALL required environment variables.
 - docker-compose.yml must reference correct database paths and variables.
@@ -89,28 +65,11 @@ for:
 
 If mismatches or outdated references are found, the agent MUST update them.
 
-
-4. Container Lifecycle Enforcement
-----------------------------------
-When sensitive files related to Postgres, Redis, or .env are changed,
-the agent MUST enforce a full container restart:
-
-- docker compose down
-- docker compose up -d
-
-If database schema or initialization scripts change, the agent MUST also run:
-
-- docker compose down -v
-- docker compose up -d
-
-Skipping restarts is NOT allowed for database or .env changes.
-
-
-5. Backend (NestJS) Configuration Verification
+5. backend_nestjs Configuration Verification
 ----------------------------------------------
 After Docker containers are running, the agent MUST verify:
 
-- NestJS database connection matches .env values
+- backend_nestjs database connection matches .env values
 - PostgreSQL host, port, user, and database name are correct
 - Redis connection settings are correct
 - No hardcoded credentials exist in the backend source code
@@ -145,8 +104,8 @@ Expected Agent Behavior
 - Warns when Docker restart or volume reset is required
 - Never assumes .env changes apply automatically
 - Enforces clean file structure and separation of concerns
-- Keeps PostgreSQL, Redis, backend, and mobile app in sync
-- Prioritizes data integrity and system stability
+- Keeps PostgreSQL, Redis, backend_nestjs, and mobile app (das_tern_mcp)in sync
+- Prioritizes data integrity, system stability and Security both backend and mobile
 - Reports issues clearly and resolves them when possible
 
 

@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { CreatePrescriptionDto, UpdatePrescriptionDto } from './dto';
+import { NotificationsService } from '../notifications/notifications.service';
+import { CreatePrescriptionDto, UpdatePrescriptionDto, CreatePatientPrescriptionDto } from './dto';
 
 @Injectable()
 export class PrescriptionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationsService,
+  ) {}
 
   async create(doctorId: string, dto: CreatePrescriptionDto) {
     // Verify doctor-patient connection
@@ -67,7 +71,7 @@ export class PrescriptionsService {
   }
 
   async findAll(userId: string, role: string, filters?: { status?: string; patientId?: string }) {
-    const where: any = role === 'PATIENT' 
+    const where: any = role === 'PATIENT'
       ? { patientId: userId, ...(filters?.status && { status: filters.status }) }
       : { doctorId: userId, ...(filters?.patientId && { patientId: filters.patientId }) };
 
@@ -165,7 +169,15 @@ export class PrescriptionsService {
       data: { status: 'ACTIVE' },
     });
 
-    // TODO: Send notification to patient
+    // Notify patient about urgent prescription change
+    const prescription = await this.findOne(id);
+    await this.notifications.send(
+      prescription.patientId,
+      'URGENT_PRESCRIPTION_CHANGE',
+      'Urgent Prescription Update',
+      `Your prescription has been urgently updated by Dr. ${prescription.doctor?.fullName || 'your doctor'}. Reason: ${dto.urgentReason}`,
+      { prescriptionId: id, urgentReason: dto.urgentReason },
+    );
 
     return updated;
   }
@@ -186,6 +198,22 @@ export class PrescriptionsService {
     // Generate dose events
     await this.generateDoseEvents(activated);
 
+    // Create audit log entry
+    await this.prisma.auditLog.create({
+      data: {
+        actorId: patientId,
+        actorRole: 'PATIENT',
+        actionType: 'PRESCRIPTION_CONFIRM',
+        resourceType: 'Prescription',
+        resourceId: id,
+        details: {
+          prescriptionId: id,
+          status: 'ACTIVE',
+          confirmedAt: new Date().toISOString(),
+        },
+      },
+    });
+
     return activated;
   }
 
@@ -201,9 +229,288 @@ export class PrescriptionsService {
       data: { status: 'DRAFT' },
     });
 
-    // TODO: Notify doctor about retake request
+    // Notify doctor about retake request
+    if (prescription.doctorId) {
+      await this.notifications.send(
+        prescription.doctorId,
+        'PRESCRIPTION_UPDATE',
+        'Prescription Retake Request',
+        `Patient ${prescription.patient?.firstName || prescription.patientName} has requested a retake for their prescription. Reason: ${reason}`,
+        { prescriptionId: id, retakeReason: reason },
+      );
+    }
 
     return { message: 'Retake request sent to doctor', reason };
+  }
+
+  async createPatientPrescription(patientId: string, dto: CreatePatientPrescriptionDto) {
+    // Fetch patient info from User table
+    const patient = await this.prisma.user.findUnique({
+      where: { id: patientId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        fullName: true,
+        gender: true,
+        dateOfBirth: true,
+      },
+    });
+
+    if (!patient) {
+      throw new NotFoundException('Patient not found');
+    }
+
+    // Build patient name
+    const patientName = patient.fullName
+      || [patient.firstName, patient.lastName].filter(Boolean).join(' ')
+      || 'Unknown';
+
+    // Calculate patient age from dateOfBirth
+    let patientAge = 0;
+    if (patient.dateOfBirth) {
+      const today = new Date();
+      const birth = new Date(patient.dateOfBirth);
+      patientAge = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        patientAge--;
+      }
+    }
+
+    // Create prescription with ACTIVE status (patient-created)
+    const prescription = await this.prisma.prescription.create({
+      data: {
+        patientId,
+        doctorId: null,
+        patientName,
+        patientGender: patient.gender || 'OTHER',
+        patientAge,
+        symptoms: dto.diagnosis || dto.title,
+        status: 'ACTIVE',
+        currentVersion: 1,
+        isUrgent: false,
+        medications: {
+          create: dto.medicines.map((med, index) => {
+            const dosageInfo = {
+              amount: med.dosageAmount,
+              unit: med.dosageUnit,
+              beforeMeal: med.beforeMeal || false,
+            };
+
+            // Map scheduleTimes to morning/daytime/night dosages
+            let morningDosage: any = null;
+            let daytimeDosage: any = null;
+            let nightDosage: any = null;
+
+            if (med.scheduleTimes && med.scheduleTimes.length > 0) {
+              for (const schedule of med.scheduleTimes) {
+                const period = schedule.timePeriod.toLowerCase();
+                if (period === 'morning' || period === 'breakfast') {
+                  morningDosage = { ...dosageInfo, time: schedule.time };
+                } else if (period === 'afternoon' || period === 'daytime' || period === 'lunch') {
+                  daytimeDosage = { ...dosageInfo, time: schedule.time };
+                } else if (period === 'evening' || period === 'night' || period === 'dinner') {
+                  nightDosage = { ...dosageInfo, time: schedule.time };
+                }
+              }
+            } else {
+              // Default: set morning dosage if no schedule times provided
+              morningDosage = dosageInfo;
+            }
+
+            return {
+              rowNumber: index + 1,
+              medicineName: med.medicineName,
+              medicineNameKhmer: med.medicineNameKhmer,
+              morningDosage,
+              daytimeDosage,
+              nightDosage,
+              imageUrl: med.imageUrl,
+              frequency: med.frequency,
+              timing: med.beforeMeal ? 'មុនអាហារ' : 'បន្ទាប់ពីអាហារ',
+            };
+          }),
+        },
+      },
+      include: { medications: true },
+    });
+
+    // Generate dose events for 30 days
+    await this.generateDoseEvents(prescription);
+
+    // Create audit log entry
+    await this.prisma.auditLog.create({
+      data: {
+        actorId: patientId,
+        actorRole: 'PATIENT',
+        actionType: 'PRESCRIPTION_CREATE',
+        resourceType: 'Prescription',
+        resourceId: prescription.id,
+        details: {
+          title: dto.title,
+          doctorName: dto.doctorName,
+          medicationCount: dto.medicines.length,
+          createdByPatient: true,
+          startDate: dto.startDate,
+          endDate: dto.endDate,
+        },
+      },
+    });
+
+    return prescription;
+  }
+
+  async deletePrescription(id: string, patientId: string) {
+    const prescription = await this.findOne(id);
+
+    if (prescription.patientId !== patientId) {
+      throw new ForbiddenException('Access denied: you can only delete your own prescriptions');
+    }
+
+    // Delete associated dose events first
+    await this.prisma.doseEvent.deleteMany({
+      where: { prescriptionId: id },
+    });
+
+    // Delete associated medications
+    await this.prisma.medication.deleteMany({
+      where: { prescriptionId: id },
+    });
+
+    // Delete associated versions
+    await this.prisma.prescriptionVersion.deleteMany({
+      where: { prescriptionId: id },
+    });
+
+    // Delete the prescription
+    await this.prisma.prescription.delete({
+      where: { id },
+    });
+
+    return { message: 'Prescription deleted successfully' };
+  }
+
+  async pausePrescription(id: string, patientId: string) {
+    const prescription = await this.findOne(id);
+
+    if (prescription.patientId !== patientId) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    if (prescription.status !== 'ACTIVE') {
+      throw new BadRequestException('Only ACTIVE prescriptions can be paused');
+    }
+
+    const paused = await this.prisma.prescription.update({
+      where: { id },
+      data: { status: 'PAUSED' },
+      include: { medications: true },
+    });
+
+    // Create audit log entry
+    await this.prisma.auditLog.create({
+      data: {
+        actorId: patientId,
+        actorRole: 'PATIENT',
+        actionType: 'PRESCRIPTION_UPDATE',
+        resourceType: 'Prescription',
+        resourceId: id,
+        details: {
+          action: 'pause',
+          previousStatus: 'ACTIVE',
+          newStatus: 'PAUSED',
+        },
+      },
+    });
+
+    return paused;
+  }
+
+  async resumePrescription(id: string, patientId: string) {
+    const prescription = await this.findOne(id);
+
+    if (prescription.patientId !== patientId) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    if (prescription.status !== 'PAUSED') {
+      throw new BadRequestException('Only PAUSED prescriptions can be resumed');
+    }
+
+    const resumed = await this.prisma.prescription.update({
+      where: { id },
+      data: { status: 'ACTIVE' },
+      include: { medications: true },
+    });
+
+    // Regenerate dose events for 30 days
+    // First, delete future DUE dose events
+    await this.prisma.doseEvent.deleteMany({
+      where: {
+        prescriptionId: id,
+        status: 'DUE',
+        scheduledTime: { gte: new Date() },
+      },
+    });
+
+    // Generate new dose events
+    await this.generateDoseEvents(resumed);
+
+    // Create audit log entry
+    await this.prisma.auditLog.create({
+      data: {
+        actorId: patientId,
+        actorRole: 'PATIENT',
+        actionType: 'PRESCRIPTION_UPDATE',
+        resourceType: 'Prescription',
+        resourceId: id,
+        details: {
+          action: 'resume',
+          previousStatus: 'PAUSED',
+          newStatus: 'ACTIVE',
+        },
+      },
+    });
+
+    return resumed;
+  }
+
+  async rejectPrescription(id: string, patientId: string, reason?: string) {
+    const prescription = await this.findOne(id);
+
+    if (prescription.patientId !== patientId) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    if (prescription.status !== 'DRAFT') {
+      throw new BadRequestException('Only DRAFT prescriptions can be rejected');
+    }
+
+    const rejected = await this.prisma.prescription.update({
+      where: { id },
+      data: { status: 'INACTIVE' },
+      include: { medications: true },
+    });
+
+    // Create audit log entry
+    await this.prisma.auditLog.create({
+      data: {
+        actorId: patientId,
+        actorRole: 'PATIENT',
+        actionType: 'PRESCRIPTION_UPDATE',
+        resourceType: 'Prescription',
+        resourceId: id,
+        details: {
+          action: 'reject',
+          previousStatus: prescription.status,
+          newStatus: 'INACTIVE',
+          reason: reason || null,
+        },
+      },
+    });
+
+    return rejected;
   }
 
   private async generateDoseEvents(prescription: any) {
