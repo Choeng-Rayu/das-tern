@@ -1,112 +1,105 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/app_spacing.dart';
+import '../../widgets/auth_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Screen for choosing registration role: Patient or Doctor.
-/// Matches Figma gradient background + Khmer labels.
 class RegisterRoleScreen extends StatelessWidget {
   const RegisterRoleScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF2B7A9E),
-              Color(0xFF1A5276),
-              Color(0xFF154360),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // ── Back button ──
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  ),
-                ),
+    final l10n = AppLocalizations.of(context)!;
 
-                // ── Logo ──
-                Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.medical_services,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    const Text(
-                      'ដាស់តឿន',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-
-                const Text(
-                  'ខ្ញុំជា...',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                const Text(
-                  'ជ្រើសរើសតួនាទីរបស់អ្នកដើម្បីចាប់ផ្តើម',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-
-                // Patient card
-                _RoleCard(
-                  icon: Icons.person_outline,
-                  title: 'អ្នកជំងឺ',
-                  description:
-                      'តាមដានថ្នាំ កំណត់ការរំលឹក និងគ្រប់គ្រងវេជ្ជបញ្ជា។',
-                  onTap: () =>
-                      Navigator.of(context).pushNamed('/register/patient'),
-                ),
-                const SizedBox(height: AppSpacing.md),
-
-                // Doctor card
-                _RoleCard(
-                  icon: Icons.medical_services_outlined,
-                  title: 'វេជ្ជបណ្ឌិត',
-                  description:
-                      'គ្រប់គ្រងអ្នកជំងឺ បង្កើតវេជ្ជបញ្ជា និងតាមដានការទទួលទានថ្នាំ។',
-                  onTap: () =>
-                      Navigator.of(context).pushNamed('/register/doctor'),
-                ),
-              ],
+    return AuthGradientScaffold(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AuthHeader(
+              showBackButton: true,
+              onBack: () => Navigator.of(context).pop(),
+              trailing: const LanguageSwitcherButton(),
             ),
-          ),
+            const SizedBox(height: AppSpacing.xxl),
+
+            // ── Title ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Column(
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.people_alt_rounded,
+                      color: Colors.white,
+                      size: 36,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    l10n.selectRoleTitle,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    l10n.selectRoleSubtitle,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+
+            // ── Patient card ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: _RoleCard(
+                icon: Icons.person_outline,
+                title: l10n.patientRole,
+                description: l10n.patientRoleDescription,
+                onTap: () =>
+                    Navigator.of(context).pushNamed('/register/patient'),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // ── Doctor card ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: _RoleCard(
+                icon: Icons.medical_services_outlined,
+                title: l10n.doctorRole,
+                description: l10n.doctorRoleDescription,
+                onTap: () =>
+                    Navigator.of(context).pushNamed('/register/doctor'),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xxl * 2),
+
+            // ── Back to login link ──
+            AuthLinkRow(
+              message: l10n.alreadyHaveAccount,
+              actionText: l10n.signIn,
+              onTap: () => Navigator.of(context).pop(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+          ],
         ),
       ),
     );
@@ -133,20 +126,20 @@ class _RoleCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: Colors.white24),
+          color: Colors.white.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(AppRadius.xxl),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
         ),
         child: Row(
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: 60,
+              height: 60,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(AppRadius.lg),
+                borderRadius: BorderRadius.circular(AppRadius.xl),
               ),
-              child: Icon(icon, color: Colors.white, size: 28),
+              child: Icon(icon, color: Colors.white, size: 30),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
@@ -157,22 +150,22 @@ class _RoleCard extends StatelessWidget {
                     title,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 17,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     description,
-                    style: const TextStyle(
-                      color: Colors.white70,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 13,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.white54),
+            const Icon(Icons.chevron_right, color: Colors.white54, size: 28),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/notification_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
@@ -23,11 +24,12 @@ class _DoctorNotificationsTabState extends State<DoctorNotificationsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<NotificationProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(l10n.notifications),
         automaticallyImplyLeading: false,
       ),
       body: RefreshIndicator(
@@ -42,7 +44,7 @@ class _DoctorNotificationsTabState extends State<DoctorNotificationsTab> {
                         Icon(Icons.notifications_off_outlined,
                             size: 64, color: AppColors.neutral300),
                         const SizedBox(height: AppSpacing.md),
-                        Text('No notifications',
+                        Text(l10n.noNotifications,
                             style: Theme.of(context).textTheme.titleMedium),
                       ],
                     ),

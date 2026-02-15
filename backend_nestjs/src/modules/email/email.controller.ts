@@ -1,11 +1,16 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { Throttle } from '@nestjs/throttler';
 import { EmailService } from './email.service';
 import { SendEmailDto, SendWelcomeEmailDto } from './dto/send-email.dto';
 
 @Controller('email')
 export class EmailController {
-  constructor(private emailService: EmailService) {}
+  constructor(
+    private emailService: EmailService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   @Post('test')
   @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 requests per minute
@@ -23,14 +28,13 @@ export class EmailController {
   async sendOTP(@Body() dto: SendEmailDto) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await this.emailService.sendOTP(dto.email, otp);
-    
-    // TODO: Store OTP in Redis/database for verification
-    // await this.cacheManager.set(`otp:${dto.email}`, otp, 600);
-    
-    return { 
+
+    // Store OTP in Redis with 10 minute expiry
+    await this.cacheManager.set(`otp:email:${dto.email}`, otp, 600);
+
+    return {
       success: true,
       message: 'OTP sent successfully'
-      // ⚠️ OTP removed from response for security
     };
   }
 

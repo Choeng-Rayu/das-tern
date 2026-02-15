@@ -1,14 +1,16 @@
 import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
+import 'logger_service.dart';
 
 /// Local SQLite database for offline dose caching and sync queue.
 class DatabaseService {
   static final DatabaseService instance = DatabaseService._();
   DatabaseService._();
 
+  final LoggerService _log = LoggerService.instance;
   static Database? _database;
-  static const int _dbVersion = 1;
+  static const int _dbVersion = 2;
   static const String _dbName = 'das_tern.db';
 
   Future<Database> get database async {
@@ -17,8 +19,10 @@ class DatabaseService {
   }
 
   Future<Database> _initDatabase() async {
+    _log.info('DatabaseService', 'Initializing database');
     final dbPath = await getDatabasesPath();
     final path = p.join(dbPath, _dbName);
+    _log.debug('DatabaseService', 'Database path: $path');
 
     return openDatabase(
       path,
@@ -29,6 +33,7 @@ class DatabaseService {
   }
 
   Future<void> _onCreate(Database db, int version) async {
+    _log.info('DatabaseService', 'Creating database schema v$version');
     // Cached dose events for offline viewing & reminder scheduling
     await db.execute('''
       CREATE TABLE dose_events (
@@ -82,10 +87,40 @@ class DatabaseService {
         'CREATE INDEX idx_dose_status ON dose_events(status)');
     await db.execute(
         'CREATE INDEX idx_sync_queue_created ON sync_queue(created_at)');
+
+    // Health vitals table
+    await _createHealthVitalsTable(db);
+
+    _log.success('DatabaseService', 'Database schema created successfully');
+  }
+
+  Future<void> _createHealthVitalsTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE health_vitals (
+        id TEXT PRIMARY KEY,
+        patient_id TEXT NOT NULL,
+        vital_type TEXT NOT NULL,
+        value REAL NOT NULL,
+        value_secondary REAL,
+        unit TEXT NOT NULL,
+        measured_at TEXT NOT NULL,
+        notes TEXT,
+        is_abnormal INTEGER NOT NULL DEFAULT 0,
+        source TEXT,
+        created_at TEXT NOT NULL,
+        synced INTEGER NOT NULL DEFAULT 1
+      )
+    ''');
+    await db.execute('CREATE INDEX idx_vital_type ON health_vitals(vital_type)');
+    await db.execute('CREATE INDEX idx_vital_measured ON health_vitals(measured_at)');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Future migrations go here
+    if (oldVersion < 2) {
+      _log.info('DatabaseService', 'Migrating database from v$oldVersion to v2');
+      await _createHealthVitalsTable(db);
+      _log.success('DatabaseService', 'Migration to v2 complete');
+    }
   }
 
   // ────────────────────────────────────────────
@@ -94,6 +129,7 @@ class DatabaseService {
 
   /// Save/update a list of dose events from the server.
   Future<void> cacheDoseEvents(List<Map<String, dynamic>> doses) async {
+    _log.dbOperation('CACHE', 'dose_events', {'count': doses.length});
     final db = await database;
     final batch = db.batch();
     for (final dose in doses) {
@@ -192,6 +228,7 @@ class DatabaseService {
     required String method,
     Map<String, dynamic>? body,
   }) async {
+    _log.dbOperation('INSERT', 'sync_queue', {'action': action, 'endpoint': endpoint});
     final db = await database;
     return db.insert('sync_queue', {
       'action': action,
@@ -274,15 +311,107 @@ class DatabaseService {
   }
 
   // ────────────────────────────────────────────
+  // Health Vitals cache
+  // ────────────────────────────────────────────
+
+  /// Batch insert/replace cached health vitals.
+  Future<void> cacheHealthVitals(List<Map<String, dynamic>> vitals) async {
+    _log.dbOperation('CACHE', 'health_vitals', {'count': vitals.length});
+    final db = await database;
+    final batch = db.batch();
+    for (final v in vitals) {
+      batch.insert(
+        'health_vitals',
+        {
+          'id': v['id'],
+          'patient_id': v['patientId'],
+          'vital_type': v['vitalType'],
+          'value': v['value'],
+          'value_secondary': v['valueSecondary'],
+          'unit': v['unit'],
+          'measured_at': v['measuredAt'],
+          'notes': v['notes'],
+          'is_abnormal': (v['isAbnormal'] == true) ? 1 : 0,
+          'source': v['source'],
+          'created_at': v['createdAt'],
+          'synced': 1,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
+  /// Query cached vitals with optional type filter.
+  Future<List<Map<String, dynamic>>> getCachedVitals({String? vitalType}) async {
+    final db = await database;
+    final rows = await db.query(
+      'health_vitals',
+      where: vitalType != null ? 'vital_type = ?' : null,
+      whereArgs: vitalType != null ? [vitalType] : null,
+      orderBy: 'measured_at DESC',
+    );
+    return rows.map((r) => {
+      'id': r['id'],
+      'patientId': r['patient_id'],
+      'vitalType': r['vital_type'],
+      'value': r['value'],
+      'valueSecondary': r['value_secondary'],
+      'unit': r['unit'],
+      'measuredAt': r['measured_at'],
+      'notes': r['notes'],
+      'isAbnormal': r['is_abnormal'] == 1,
+      'source': r['source'],
+      'createdAt': r['created_at'],
+    }).toList();
+  }
+
+  /// Get vitals that have not been synced to the server.
+  Future<List<Map<String, dynamic>>> getUnsyncedVitals() async {
+    final db = await database;
+    final rows = await db.query(
+      'health_vitals',
+      where: 'synced = 0',
+    );
+    return rows.map((r) => {
+      'id': r['id'],
+      'patientId': r['patient_id'],
+      'vitalType': r['vital_type'],
+      'value': r['value'],
+      'valueSecondary': r['value_secondary'],
+      'unit': r['unit'],
+      'measuredAt': r['measured_at'],
+      'notes': r['notes'],
+      'isAbnormal': r['is_abnormal'] == 1,
+      'source': r['source'],
+      'createdAt': r['created_at'],
+    }).toList();
+  }
+
+  /// Mark vitals as synced after successful server push.
+  Future<void> markVitalsSynced(List<String> ids) async {
+    if (ids.isEmpty) return;
+    final db = await database;
+    final placeholders = ids.map((_) => '?').join(',');
+    await db.rawUpdate(
+      'UPDATE health_vitals SET synced = 1 WHERE id IN ($placeholders)',
+      ids,
+    );
+  }
+
+  // ────────────────────────────────────────────
   // Utilities
   // ────────────────────────────────────────────
 
   /// Clear all local data (for logout).
   Future<void> clearAll() async {
+    _log.warning('DatabaseService', 'Clearing all local data');
     final db = await database;
     await db.delete('dose_events');
     await db.delete('sync_queue');
     await db.delete('prescriptions');
+    await db.delete('health_vitals');
+    _log.info('DatabaseService', 'All local data cleared');
   }
 
   Future<void> close() async {

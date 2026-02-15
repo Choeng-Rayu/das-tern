@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { PrescriptionsService } from './prescriptions.service';
-import { CreatePrescriptionDto, UpdatePrescriptionDto } from './dto';
+import { CreatePrescriptionDto, UpdatePrescriptionDto, CreatePatientPrescriptionDto } from './dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -32,6 +32,15 @@ export class PrescriptionsController {
     return this.prescriptionsService.create(user.id, dto);
   }
 
+  @Post('patient')
+  @Roles(UserRole.PATIENT)
+  async createPatientPrescription(
+    @CurrentUser() user: any,
+    @Body() dto: CreatePatientPrescriptionDto,
+  ) {
+    return this.prescriptionsService.createPatientPrescription(user.id, dto);
+  }
+
   @Patch(':id')
   @Roles(UserRole.DOCTOR)
   async update(@Param('id') id: string, @CurrentUser() user: any, @Body() dto: UpdatePrescriptionDto) {
@@ -54,5 +63,33 @@ export class PrescriptionsController {
   @Roles(UserRole.PATIENT)
   async retake(@Param('id') id: string, @CurrentUser() user: any, @Body('reason') reason: string) {
     return this.prescriptionsService.retake(id, user.id, reason);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.PATIENT)
+  async deletePrescription(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.prescriptionsService.deletePrescription(id, user.id);
+  }
+
+  @Post(':id/pause')
+  @Roles(UserRole.PATIENT)
+  async pausePrescription(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.prescriptionsService.pausePrescription(id, user.id);
+  }
+
+  @Post(':id/resume')
+  @Roles(UserRole.PATIENT)
+  async resumePrescription(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.prescriptionsService.resumePrescription(id, user.id);
+  }
+
+  @Post(':id/reject')
+  @Roles(UserRole.PATIENT)
+  async rejectPrescription(
+    @Param('id') id: string,
+    @CurrentUser() user: any,
+    @Body('reason') reason?: string,
+  ) {
+    return this.prescriptionsService.rejectPrescription(id, user.id, reason);
   }
 }

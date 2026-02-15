@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/locale_provider.dart';
+import '../../../providers/subscription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../../ui/theme/theme_provider.dart';
@@ -16,10 +18,11 @@ class PatientProfileTab extends StatelessWidget {
     final themeProvider = context.watch<ThemeProvider>();
     final localeProvider = context.watch<LocaleProvider>();
     final user = auth.user;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(l10n.profile),
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
@@ -43,7 +46,7 @@ class PatientProfileTab extends StatelessWidget {
             Text(
               user?['firstName'] != null
                   ? '${user!['firstName']} ${user['lastName'] ?? ''}'
-                  : 'Patient',
+                  : l10n.patient,
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
@@ -58,14 +61,18 @@ class PatientProfileTab extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
 
+            // Subscription card
+            _SubscriptionCard(),
+            const SizedBox(height: AppSpacing.md),
+
             // Settings list
             _SettingsSection(
-              title: 'Preferences',
+              title: l10n.preferences,
               children: [
                 // Theme toggle
                 ListTile(
                   leading: const Icon(Icons.brightness_6),
-                  title: const Text('Theme'),
+                  title: Text(l10n.theme),
                   trailing: SegmentedButton<ThemeMode>(
                     segments: const [
                       ButtonSegment(
@@ -85,7 +92,7 @@ class PatientProfileTab extends StatelessWidget {
                 // Language
                 ListTile(
                   leading: const Icon(Icons.language),
-                  title: const Text('Language'),
+                  title: Text(l10n.language),
                   trailing: DropdownButton<String>(
                     value: localeProvider.locale.languageCode,
                     underline: const SizedBox(),
@@ -103,11 +110,11 @@ class PatientProfileTab extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
 
             _SettingsSection(
-              title: 'Account',
+              title: l10n.account,
               children: [
                 ListTile(
                   leading: const Icon(Icons.edit),
-                  title: const Text('Edit Profile'),
+                  title: Text(l10n.editProfile),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     // TODO: Navigate to edit profile
@@ -115,7 +122,7 @@ class PatientProfileTab extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.lock),
-                  title: const Text('Change Password'),
+                  title: Text(l10n.changePassword),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     // TODO: Navigate to change password
@@ -123,7 +130,7 @@ class PatientProfileTab extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.people),
-                  title: const Text('My Connections'),
+                  title: Text(l10n.myConnections),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     // TODO: Navigate to connections
@@ -146,9 +153,9 @@ class PatientProfileTab extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.logout, color: AppColors.alertRed),
-                label: const Text(
-                  'Log Out',
-                  style: TextStyle(color: AppColors.alertRed),
+                label: Text(
+                  l10n.logOut,
+                  style: const TextStyle(color: AppColors.alertRed),
                 ),
               ),
             ),
@@ -164,6 +171,83 @@ class PatientProfileTab extends StatelessWidget {
     final last = (user['lastName'] ?? '').toString();
     return '${first.isNotEmpty ? first[0] : ''}${last.isNotEmpty ? last[0] : ''}'
         .toUpperCase();
+  }
+}
+
+class _SubscriptionCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final sub = context.watch<SubscriptionProvider>();
+    final tier = sub.currentTier;
+    final isPremium = sub.isPremium;
+    final l10n = AppLocalizations.of(context)!;
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => Navigator.pushNamed(context, '/subscription/upgrade'),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isPremium
+                      ? const Color(0xFF6B4AA3).withValues(alpha: 0.1)
+                      : AppColors.primaryBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  isPremium ? Icons.diamond : Icons.star_outline,
+                  color: isPremium ? const Color(0xFF6B4AA3) : AppColors.primaryBlue,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tier.replaceAll('_', ' '),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    Text(
+                      isPremium ? l10n.allFeaturesUnlocked : l10n.upgradeToUnlock,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              if (!isPremium)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    l10n.upgrade,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                )
+              else
+                const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

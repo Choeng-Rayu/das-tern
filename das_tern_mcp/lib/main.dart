@@ -9,8 +9,12 @@ import 'providers/dose_provider.dart';
 import 'providers/prescription_provider.dart';
 import 'providers/connection_provider.dart';
 import 'providers/notification_provider.dart';
+import 'providers/doctor_dashboard_provider.dart';
+import 'providers/subscription_provider.dart';
+import 'providers/health_monitoring_provider.dart';
 import 'services/notification_service.dart';
 import 'services/sync_service.dart';
+import 'services/logger_service.dart';
 import 'ui/theme/light_theme.dart';
 import 'ui/theme/dark_theme.dart';
 import 'ui/theme/theme_provider.dart';
@@ -18,14 +22,33 @@ import 'utils/app_router.dart';
 import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
+  final log = LoggerService.instance;
+  
+  // Capture Flutter errors
+  FlutterError.onError = (FlutterErrorDetails details) {
+    log.error('FlutterError', 'Uncaught Flutter error', details.exception, details.stack);
+    FlutterError.presentError(details);
+  };
+
+  log.info('App', '🚀 Starting DAS TERN MCP App');
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
+  
+  try {
+    log.debug('App', 'Loading environment variables');
+    await dotenv.load(fileName: '.env');
+    log.success('App', 'Environment loaded');
 
-  // Initialize offline services
-  await NotificationService.instance.init();
-  await SyncService.instance.startListening();
+    // Initialize offline services
+    log.info('App', 'Initializing services');
+    await NotificationService.instance.init();
+    await SyncService.instance.startListening();
+    log.success('App', 'Services initialized');
 
-  runApp(const DasTernApp());
+    runApp(const DasTernApp());
+  } catch (e, stack) {
+    log.error('App', 'Failed to initialize app', e, stack);
+    rethrow;
+  }
 }
 
 class DasTernApp extends StatelessWidget {
@@ -42,6 +65,9 @@ class DasTernApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PrescriptionProvider()),
         ChangeNotifierProvider(create: (_) => ConnectionProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => DoctorDashboardProvider()),
+        ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
+        ChangeNotifierProvider(create: (_) => HealthMonitoringProvider()),
         ChangeNotifierProvider.value(value: SyncService.instance),
       ],
       child: Consumer2<ThemeProvider, LocaleProvider>(

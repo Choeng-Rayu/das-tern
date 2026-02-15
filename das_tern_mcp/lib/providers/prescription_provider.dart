@@ -133,4 +133,116 @@ class PrescriptionProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  /// Create a patient prescription (self-administered).
+  Future<bool> createPatientPrescription(Map<String, dynamic> data) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await _api.createPatientPrescription(data);
+      await fetchPrescriptions();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Add medicine to an existing prescription.
+  Future<bool> addMedicine(
+      String prescriptionId, Map<String, dynamic> data) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await _api.addMedicine(prescriptionId, data);
+      await fetchPrescriptions();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Update a medicine.
+  Future<bool> updateMedicine(
+      String medicineId, Map<String, dynamic> data) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await _api.updateMedicine(medicineId, data);
+      await fetchPrescriptions();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Delete a medicine.
+  Future<bool> deleteMedicine(String medicineId) async {
+    try {
+      await _api.deleteMedicine(medicineId);
+      await fetchPrescriptions();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Pause a prescription.
+  Future<bool> pausePrescription(String id) async {
+    try {
+      await _api.pausePrescription(id);
+      await fetchPrescriptions();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Resume a prescription.
+  Future<bool> resumePrescription(String id) async {
+    try {
+      await _api.resumePrescription(id);
+      await fetchPrescriptions();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Delete a prescription.
+  Future<bool> deletePrescription(String id) async {
+    try {
+      await _api.deletePrescription(id);
+      _prescriptions.removeWhere((p) => p.id == id);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
 }

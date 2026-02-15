@@ -1,0 +1,42 @@
+{
+  "item_number": {
+    "known_labels": ["ល.រ", "លេខរៀង"],
+    "english": "Item Number"
+  },
+  "medication_name": {
+    "known_labels": ["ឈ្មោះថ្នាំ", "ថ្នាំ"],
+    "english": "Medication Name"
+  },
+  "duration": {
+    "known_labels": ["ថ្ងៃផុត", "រយៈពេល"],
+    "english": "Duration"
+  },
+  "instructions": {
+    "known_labels": ["វិធីប្រើ", "របៀបប្រើ"],
+    "english": "Instructions"
+  },
+  "morning": {
+    "known_labels": ["ព្រឹក (6-8)", "ព្រឹក", "ព្រឹក(6-8)"],
+    "english": "Morning (6-8)",
+    "time_range": "06:00-08:00",
+    "period": "morning"
+  },
+  "midday": {
+    "known_labels": ["ថ្ងៃត្រង់ (11-12)", "ថ្ងៃត្រង់", "ថ្ងៃត្រង់(11-12)"],
+    "english": "Midday (11-12)",
+    "time_range": "11:00-12:00",
+    "period": "midday"
+  },
+  "afternoon": {
+    "known_labels": ["ល្ងាច (05-06)", "ល្ងាច", "ល្ងាច(5-6)"],
+    "english": "Afternoon (5-6)",
+    "time_range": "17:00-18:00",
+    "period": "afternoon"
+  },
+  "evening": {
+    "known_labels": ["យប់ (08-10)", "យប់", "យប់(8-10)"],
+    "english": "Evening (8-10)",
+    "time_range": "20:00-22:00",
+    "period": "evening"
+  }
+}
