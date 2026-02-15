@@ -1,0 +1,78 @@
+{
+  "image_id": "image_002",
+  "total_entries": 12,
+  "entries": [
+    {
+      "filename": "image_002_med_r1_item_number",
+      "region": "medication_table",
+      "field": "row1_item_number",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_002_med_r1_medication_name",
+      "region": "medication_table",
+      "field": "row1_medication_name",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_002_med_r1_morning",
+      "region": "medication_table",
+      "field": "row1_morning",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_002_med_r1_afternoon",
+      "region": "medication_table",
+      "field": "row1_afternoon",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_002_med_r2_item_number",
+      "region": "medication_table",
+      "field": "row2_item_number",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_002_med_r2_medication_name",
+      "region": "medication_table",
+      "field": "row2_medication_name",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_002_med_r2_morning",
+      "region": "medication_table",
+      "field": "row2_morning",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_002_med_r2_afternoon",
+      "region": "medication_table",
+      "field": "row2_afternoon",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_002_med_r3_item_number",
+      "region": "medication_table",
+      "field": "row3_item_number",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_002_med_r3_medication_name",
+      "region": "medication_table",
+      "field": "row3_medication_name",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_002_med_r3_morning",
+      "region": "medication_table",
+      "field": "row3_morning",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_002_med_r3_afternoon",
+      "region": "medication_table",
+      "field": "row3_afternoon",
+      "has_bbox": false
+    }
+  ]
+}

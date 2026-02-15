@@ -859,6 +859,26 @@ class AppLocalizationsKm extends AppLocalizations {
   String get scannerComingSoon => 'មុខងារស្កេនន័រនឹងមកដល់ឆាប់ៗ';
 
   @override
+  String get scanFromCamera => 'ថតរូប';
+
+  @override
+  String get scanFromGallery => 'ជ្រើសពីវិចិត្រសាល';
+
+  @override
+  String get scanProcessing => 'កំពុងស្កេនវេជ្ជបញ្ជា...';
+
+  @override
+  String get scanSuccess => 'ស្កេនវេជ្ជបញ្ជាបានជោគជ័យ!';
+
+  @override
+  String get scanFailed => 'ស្កេនបរាជ័យ។ សូមព្យាយាមម្តងទៀត។';
+
+  @override
+  String scanMedicationsFound(int count) {
+    return 'រកឃើញថ្នាំ $count មុខ';
+  }
+
+  @override
   String get doseHistoryAppearHere =>
       'ប្រវត្តិការប្រើថ្នាំរបស់អ្នកនឹងបង្ហាញនៅទីនេះ។';
 

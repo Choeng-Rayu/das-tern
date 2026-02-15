@@ -345,6 +345,15 @@
   "scanPrescriptionDescription": "Use your camera to scan a prescription\nfrom your doctor.",
   "openScanner": "Open Scanner",
   "scannerComingSoon": "Scanner feature coming soon",
+  "scanFromCamera": "Take Photo",
+  "scanFromGallery": "Choose from Gallery",
+  "scanProcessing": "Scanning prescription...",
+  "scanSuccess": "Prescription scanned successfully!",
+  "scanFailed": "Scan failed. Please try again.",
+  "scanMedicationsFound": "{count} medications found",
+  "@scanMedicationsFound": {
+    "placeholders": { "count": { "type": "int" } }
+  },
 
   "doseHistoryAppearHere": "Your dose history will appear here.",
   "noNotifications": "No notifications",

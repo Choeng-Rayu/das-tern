@@ -1046,6 +1046,69 @@ class ApiService {
   }
 
   // ────────────────────────────────────────────
+  // OCR Scan endpoints
+  // ────────────────────────────────────────────
+
+  /// POST /ocr/scan – scan prescription image, extract and create prescription
+  Future<Map<String, dynamic>> scanPrescription(List<int> imageBytes, String filename) async {
+    final token = await _getAccessToken();
+    final uri = Uri.parse('$baseUrl/ocr/scan');
+    final request = http.MultipartRequest('POST', uri);
+    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename));
+
+    final streamed = await request.send();
+    final res = await http.Response.fromStream(streamed);
+    if (res.statusCode == 401) {
+      final refreshed = await _tryRefreshToken();
+      if (refreshed) {
+        final token2 = await _getAccessToken();
+        final request2 = http.MultipartRequest('POST', uri);
+        if (token2 != null) request2.headers['Authorization'] = 'Bearer $token2';
+        request2.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename));
+        final streamed2 = await request2.send();
+        final res2 = await http.Response.fromStream(streamed2);
+        return Map<String, dynamic>.from(_handleResponse(res2));
+      }
+    }
+    return Map<String, dynamic>.from(_handleResponse(res));
+  }
+
+  /// POST /ocr/extract – extract prescription data without creating (preview)
+  Future<Map<String, dynamic>> extractPrescription(List<int> imageBytes, String filename) async {
+    final token = await _getAccessToken();
+    final uri = Uri.parse('$baseUrl/ocr/extract');
+    final request = http.MultipartRequest('POST', uri);
+    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename));
+
+    final streamed = await request.send();
+    final res = await http.Response.fromStream(streamed);
+    if (res.statusCode == 401) {
+      final refreshed = await _tryRefreshToken();
+      if (refreshed) {
+        final token2 = await _getAccessToken();
+        final request2 = http.MultipartRequest('POST', uri);
+        if (token2 != null) request2.headers['Authorization'] = 'Bearer $token2';
+        request2.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename));
+        final streamed2 = await request2.send();
+        final res2 = await http.Response.fromStream(streamed2);
+        return Map<String, dynamic>.from(_handleResponse(res2));
+      }
+    }
+    return Map<String, dynamic>.from(_handleResponse(res));
+  }
+
+  /// GET /ocr/health – check OCR service availability
+  Future<Map<String, dynamic>> getOcrHealth() async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.get(Uri.parse('$baseUrl/ocr/health'), headers: h),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────
   // Medicine endpoints
   // ────────────────────────────────────────────
 
