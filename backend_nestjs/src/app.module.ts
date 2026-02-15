@@ -18,6 +18,7 @@ import { DoctorDashboardModule } from './modules/doctor-dashboard/doctor-dashboa
 import { MedicinesModule } from './modules/medicines/medicines.module';
 import { AdherenceModule } from './modules/adherence/adherence.module';
 import { BakongPaymentModule } from './modules/bakong-payment/bakong-payment.module';
+import { HealthMonitoringModule } from './modules/health-monitoring/health-monitoring.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { BakongPaymentModule } from './modules/bakong-payment/bakong-payment.mod
     MedicinesModule,
     AdherenceModule,
     BakongPaymentModule,
+    HealthMonitoringModule,
   ],
   providers: [
     {

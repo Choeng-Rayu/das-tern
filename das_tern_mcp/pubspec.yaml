@@ -57,6 +57,9 @@ dependencies:
   # Share functionality
   share_plus: ^9.0.0
 
+  # Charts
+  fl_chart: ^0.69.0
+
   # Clipboard
   # (already available via Flutter SDK)
 

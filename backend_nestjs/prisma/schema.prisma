@@ -92,6 +92,8 @@ enum NotificationType {
   MISSED_DOSE_ALERT
   URGENT_PRESCRIPTION_CHANGE
   FAMILY_ALERT
+  VITAL_ANOMALY
+  EMERGENCY_ALERT
 }
 
 enum AuditActionType {
@@ -112,6 +114,45 @@ enum AuditActionType {
   DOCTOR_NOTE_CREATE
   DOCTOR_NOTE_UPDATE
   DOCTOR_DISCONNECT
+  VITAL_RECORDED
+  EMERGENCY_TRIGGERED
+}
+
+// ============================================
+// MEDICINE & HEALTH MONITORING ENUMS
+// ============================================
+
+enum MedicineType {
+  PO
+  ORAL
+  INJECTION
+  TOPICAL
+  OTHER
+}
+
+enum MedicineUnit {
+  TABLET
+  CAPSULE
+  ML
+  MG
+  DROP
+  OTHER
+}
+
+enum VitalType {
+  BLOOD_PRESSURE
+  GLUCOSE
+  HEART_RATE
+  WEIGHT
+  TEMPERATURE
+  SPO2
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
 
 // ============================================
@@ -129,13 +170,13 @@ model User {
   phoneNumber          String         @unique @db.VarChar(20)
   email                String?        @unique @db.VarChar(255)
   passwordHash         String         @db.VarChar(255)
-  pinCodeHash          String?        @db.VarChar(255)
-  
+
   // Personal Details
   gender               Gender?
   dateOfBirth          DateTime?      @db.Date
   idCardNumber         String?        @unique @db.VarChar(50)
-  
+  profilePictureUrl    String?        @db.Text
+
   // Preferences
   language             Language       @default(KHMER)
   theme                Theme          @default(LIGHT)
@@ -173,6 +214,9 @@ model User {
   prescriptionVersions PrescriptionVersion[]
   doctorNotes          DoctorNote[]          @relation("DoctorNotes")
   patientNotes         DoctorNote[]          @relation("PatientNotes")
+  healthVitals         HealthVital[]         @relation("PatientVitals")
+  vitalThresholds      VitalThreshold[]      @relation("PatientThresholds")
+  healthAlerts         HealthAlert[]         @relation("PatientAlerts")
   
   @@index([phoneNumber])
   @@index([email])
@@ -221,30 +265,38 @@ model Prescription {
   id             String             @id @default(uuid()) @db.Uuid
   patientId      String             @db.Uuid
   doctorId       String?            @db.Uuid
-  
+
   // Patient Info (snapshot at creation)
   patientName    String             @db.VarChar(200)
   patientGender  Gender
   patientAge     Int
   symptoms       String             @db.Text
-  
+
+  // Clinical Details
+  diagnosis         String?         @db.Text
+  clinicalNote      String?         @db.Text
+  doctorLicenseNumber String?       @db.VarChar(100)
+  followUpDate      DateTime?       @db.Date
+  startDate         DateTime?       @db.Date
+  endDate           DateTime?       @db.Date
+
   // Prescription Details
   status         PrescriptionStatus @default(DRAFT)
   currentVersion Int                @default(1)
   isUrgent       Boolean            @default(false)
   urgentReason   String?            @db.Text
-  
+
   // Timestamps
   createdAt      DateTime           @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime           @updatedAt @db.Timestamptz(3)
-  
+
   // Relations
   patient        User               @relation("PatientPrescriptions", fields: [patientId], references: [id], onDelete: Cascade)
   doctor         User?              @relation("DoctorPrescriptions", fields: [doctorId], references: [id], onDelete: SetNull)
   medications    Medication[]
   doseEvents     DoseEvent[]
   versions       PrescriptionVersion[]
-  
+
   @@index([patientId])
   @@index([doctorId])
   @@index([status])
@@ -276,29 +328,38 @@ model Medication {
   id               String       @id @default(uuid()) @db.Uuid
   prescriptionId   String       @db.Uuid
   rowNumber        Int
-  
+
   // Medication Details
   medicineName     String       @db.VarChar(255)
   medicineNameKhmer String?     @db.VarChar(255)
   imageUrl         String?      @db.Text
-  
+  medicineType     MedicineType @default(ORAL)
+  unit             MedicineUnit @default(TABLET)
+  dosageAmount     Float        @default(1)
+  description      String?      @db.Text
+  additionalNote   String?      @db.Text
+  createdBy        String?      @db.Uuid
+
   // Dosage Information (JSONB for flexibility)
   morningDosage    Json?        @db.JsonB
   daytimeDosage    Json?        @db.JsonB
   nightDosage      Json?        @db.JsonB
-  
-  // Additional Info
+
+  // Schedule
   frequency        String?      @db.VarChar(100)
+  duration         Int?
   timing           String?      @db.VarChar(100)
-  
+  isPRN            Boolean      @default(false)
+  beforeMeal       Boolean      @default(false)
+
   // Timestamps
   createdAt        DateTime     @default(now()) @db.Timestamptz(3)
   updatedAt        DateTime     @updatedAt @db.Timestamptz(3)
-  
+
   // Relations
   prescription     Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
   doseEvents       DoseEvent[]
-  
+
   @@index([prescriptionId])
   @@map("medications")
 }
@@ -516,4 +577,80 @@ model ConnectionToken {
   @@index([patientId])
   @@index([expiresAt])
   @@map("connection_tokens")
+}
+
+// ============================================
+// HEALTH MONITORING MODELS
+// ============================================
+
+model HealthVital {
+  id             String    @id @default(uuid()) @db.Uuid
+  patientId      String    @db.Uuid
+  vitalType      VitalType
+  value          Float
+  valueSecondary Float?
+  unit           String    @db.VarChar(20)
+  measuredAt     DateTime  @db.Timestamptz(3)
+  notes          String?   @db.Text
+  isAbnormal     Boolean   @default(false)
+  source         String?   @db.VarChar(50) @default("manual")
+
+  // Timestamps
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @db.Timestamptz(3)
+
+  // Relations
+  patient        User      @relation("PatientVitals", fields: [patientId], references: [id], onDelete: Cascade)
+  alerts         HealthAlert[]
+
+  @@index([patientId])
+  @@index([vitalType])
+  @@index([measuredAt])
+  @@index([patientId, vitalType, measuredAt])
+  @@map("health_vitals")
+}
+
+model VitalThreshold {
+  id             String    @id @default(uuid()) @db.Uuid
+  patientId      String    @db.Uuid
+  vitalType      VitalType
+  minValue       Float?
+  maxValue       Float?
+  minSecondary   Float?
+  maxSecondary   Float?
+
+  // Timestamps
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @db.Timestamptz(3)
+
+  // Relations
+  patient        User      @relation("PatientThresholds", fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@unique([patientId, vitalType])
+  @@index([patientId])
+  @@map("vital_thresholds")
+}
+
+model HealthAlert {
+  id             String        @id @default(uuid()) @db.Uuid
+  patientId      String        @db.Uuid
+  vitalId        String?       @db.Uuid
+  alertType      String        @db.VarChar(50)
+  severity       AlertSeverity @default(MEDIUM)
+  message        String        @db.Text
+  isResolved     Boolean       @default(false)
+  resolvedAt     DateTime?     @db.Timestamptz(3)
+  resolvedBy     String?       @db.Uuid
+
+  // Timestamps
+  createdAt      DateTime      @default(now()) @db.Timestamptz(3)
+
+  // Relations
+  patient        User          @relation("PatientAlerts", fields: [patientId], references: [id], onDelete: Cascade)
+  vital          HealthVital?  @relation(fields: [vitalId], references: [id], onDelete: SetNull)
+
+  @@index([patientId])
+  @@index([isResolved])
+  @@index([createdAt])
+  @@map("health_alerts")
 }

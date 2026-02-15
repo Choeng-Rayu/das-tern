@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/connection_model/connection.dart';
 import '../../../models/enums_model/enums.dart';
 import '../../../providers/connection_provider.dart';
@@ -32,13 +33,14 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
   }
 
   Future<void> _validateToken() async {
+    final l10n = AppLocalizations.of(context)!;
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final token = args?['token'] as String?;
 
     if (token == null || token.isEmpty) {
       setState(() {
-        _error = 'Invalid token';
+        _error = l10n.invalidToken;
         _isLoading = false;
       });
       return;
@@ -55,7 +57,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
           });
         } else {
           setState(() {
-            _error = result?['message'] ?? 'Token is invalid or expired';
+            _error = result?['message'] ?? l10n.tokenInvalidOrExpired;
             _isLoading = false;
           });
         }
@@ -71,6 +73,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
   }
 
   Future<void> _consumeToken() async {
+    final l10n = AppLocalizations.of(context)!;
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final token = args?['token'] as String?;
@@ -85,8 +88,8 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
         if (success) {
           // Show success and go to family access list
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('ការតភ្ជាប់បានជោគជ័យ!'),
+            SnackBar(
+              content: Text(l10n.connectionSuccess),
               backgroundColor: AppColors.successGreen,
             ),
           );
@@ -97,7 +100,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
           );
         } else {
           setState(() {
-            _error = provider.error ?? 'Failed to connect';
+            _error = provider.error ?? l10n.failedToConnect;
             _isConsuming = false;
           });
         }
@@ -114,9 +117,10 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ការតភ្ជាប់'),
+        title: Text(l10n.connectionTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -133,6 +137,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
   }
 
   Widget _buildErrorState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -152,7 +157,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            'កូដមិនត្រឹមត្រូវ',
+            l10n.codeInvalid,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -167,7 +172,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
           ),
           const SizedBox(height: AppSpacing.xl),
           PrimaryButton(
-            text: 'ព្យាយាមម្តងទៀត',
+            text: l10n.retry,
             onPressed: () => Navigator.pop(context),
           ),
         ],
@@ -176,6 +181,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
   }
 
   Widget _buildPreview(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final patientData = _tokenData?['patient'] ?? {};
     final patientName =
         '${patientData['firstName'] ?? ''} ${patientData['lastName'] ?? ''}'
@@ -206,7 +212,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
         const SizedBox(height: AppSpacing.lg),
 
         Text(
-          'កូដត្រឹមត្រូវ!',
+          l10n.codeValidTitle,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: AppColors.successGreen,
@@ -227,7 +233,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                patientName.isEmpty ? 'Patient' : patientName,
+                patientName.isEmpty ? l10n.patient : patientName,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -236,7 +242,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
               _buildInfoRow(
                 context,
                 Icons.shield_outlined,
-                'កម្រិតការចូលប្រើ',
+                l10n.accessLevelTitle,
                 Connection.permissionLevelToDisplay(
                   _permFromString(permLevel),
                 ),
@@ -245,7 +251,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
                 _buildInfoRow(
                   context,
                   Icons.timer_outlined,
-                  'ផុតកំណត់',
+                  l10n.expiresLabel,
                   _formatExpiry(expiresAt),
                 ),
             ],
@@ -271,7 +277,7 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
-                  'ការតភ្ជាប់នេះនឹងត្រូវការការយល់ព្រមពីអ្នកជំងឺ',
+                  l10n.connectionRequiresApproval,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.warningOrange,
                       ),
@@ -285,13 +291,13 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
 
         // Action buttons
         PrimaryButton(
-          text: 'ភ្ជាប់ពេលនេះ',
+          text: l10n.connectNow,
           isLoading: _isConsuming,
           onPressed: _consumeToken,
         ),
         const SizedBox(height: AppSpacing.sm),
         PrimaryButton(
-          text: 'បោះបង់',
+          text: l10n.cancel,
           isOutlined: true,
           onPressed: () => Navigator.pop(context),
         ),
@@ -330,11 +336,12 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
   }
 
   String _formatExpiry(DateTime expiry) {
+    final l10n = AppLocalizations.of(context)!;
     final diff = expiry.difference(DateTime.now());
-    if (diff.isNegative) return 'ផុតកំណត់';
+    if (diff.isNegative) return l10n.tokenExpired;
     final hours = diff.inHours;
     final minutes = diff.inMinutes % 60;
-    return '$hours ម៉ោង $minutes នាទី';
+    return '$hours ${l10n.hoursUnit} $minutes ${l10n.minutesUnit}';
   }
 
   PermissionLevel _permFromString(String v) {

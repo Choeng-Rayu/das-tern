@@ -1,5 +1,6 @@
-import { IsString, IsNotEmpty, IsOptional, IsDateString, IsArray, ValidateNested, IsEnum, IsNumber, IsBoolean } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsDateString, IsArray, ValidateNested, IsNumber, IsBoolean, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
+import { MedicineType, MedicineUnit } from '@prisma/client';
 
 export class PatientMedicationDto {
   @IsString()
@@ -9,6 +10,14 @@ export class PatientMedicationDto {
   @IsOptional()
   @IsString()
   medicineNameKhmer?: string;
+
+  @IsOptional()
+  @IsEnum(MedicineType)
+  medicineType?: MedicineType;
+
+  @IsOptional()
+  @IsEnum(MedicineUnit)
+  unit?: MedicineUnit;
 
   @IsNumber()
   dosageAmount: number;
@@ -30,7 +39,16 @@ export class PatientMedicationDto {
   scheduleTimes?: { timePeriod: string; time: string }[];
 
   @IsOptional()
-  duration?: { type: string; value?: number | string };
+  @IsNumber()
+  durationDays?: number;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  additionalNote?: string;
 
   @IsOptional()
   @IsString()

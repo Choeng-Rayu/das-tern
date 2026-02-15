@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/doctor_dashboard_provider.dart';
 import '../../../models/doctor_dashboard_model/doctor_dashboard_models.dart';
+import '../../../models/enums_model/medication_type.dart';
+import '../../../models/health_model/health_vital.dart';
+import '../../../services/api_service.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 
@@ -23,7 +27,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<DoctorDashboardProvider>();
       provider.fetchPatientDetails(widget.patientId);
@@ -40,20 +44,22 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<DoctorDashboardProvider>();
     final details = provider.selectedPatientDetails;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          details?.patient.displayName ?? 'Patient',
+          details?.patient.displayName ?? l10n.patient,
         ),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Overview'),
-            Tab(text: 'Adherence'),
-            Tab(text: 'Notes'),
+          tabs: [
+            Tab(text: l10n.overview),
+            Tab(text: l10n.adherence),
+            Tab(text: l10n.vitals),
+            Tab(text: l10n.notes),
           ],
         ),
       ),
@@ -62,7 +68,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
           : details == null
               ? Center(
                   child: Text(
-                    provider.error ?? 'Failed to load patient details',
+                    provider.error ?? l10n.failedToLoadPatientDetails,
                     style: TextStyle(color: AppColors.alertRed),
                   ),
                 )
@@ -71,6 +77,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
                   children: [
                     _OverviewTab(details: details),
                     _AdherenceTab(details: details),
+                    _VitalsTab(patientId: widget.patientId),
                     _NotesTab(
                       patientId: widget.patientId,
                       noteController: _noteController,
@@ -91,6 +98,7 @@ class _OverviewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final patient = details.patient;
     final adherence = details.adherence;
     final prescriptions = details.prescriptions;
@@ -135,7 +143,7 @@ class _OverviewTab extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Age: ${patient.age ?? 'N/A'} • ${patient.gender ?? 'N/A'}',
+                              l10n.ageLabel(patient.age?.toString() ?? 'N/A', patient.gender ?? 'N/A'),
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -167,22 +175,22 @@ class _OverviewTab extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _MetricColumn(
-                    label: 'Adherence',
+                    label: l10n.adherence,
                     value: '${adherence.overallPercentage.toStringAsFixed(0)}%',
                     color: _adherenceColor(adherence.level),
                   ),
                   _MetricColumn(
-                    label: 'Taken',
+                    label: l10n.taken,
                     value: '${adherence.takenDoses}',
                     color: AppColors.successGreen,
                   ),
                   _MetricColumn(
-                    label: 'Missed',
+                    label: l10n.missed,
                     value: '${adherence.missedDoses}',
                     color: AppColors.alertRed,
                   ),
                   _MetricColumn(
-                    label: 'Late',
+                    label: l10n.late,
                     value: '${adherence.lateDoses}',
                     color: AppColors.warningOrange,
                   ),
@@ -194,7 +202,7 @@ class _OverviewTab extends StatelessWidget {
 
           // Prescriptions
           Text(
-            'Active Prescriptions (${prescriptions.where((p) => p.isActive).length})',
+            l10n.activePrescriptionsCount(prescriptions.where((p) => p.isActive).length),
             style: Theme.of(context)
                 .textTheme
                 .titleMedium
@@ -202,9 +210,9 @@ class _OverviewTab extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           if (prescriptions.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
-              child: Center(child: Text('No prescriptions')),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+              child: Center(child: Text(l10n.noPrescriptions)),
             )
           else
             ...prescriptions.map(
@@ -216,9 +224,9 @@ class _OverviewTab extends StatelessWidget {
                         ? AppColors.successGreen
                         : AppColors.neutralGray,
                   ),
-                  title: Text(rx.symptoms ?? 'Prescription'),
+                  title: Text(rx.symptoms ?? l10n.prescription),
                   subtitle: Text(
-                    '${rx.status} • ${rx.medications.length} medicines',
+                    l10n.statusMedicines(rx.status, rx.medications.length),
                   ),
                   trailing: Text(
                     _formatDate(rx.createdAt),
@@ -299,10 +307,11 @@ class _AdherenceTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final timeline = details.adherenceTimeline;
 
     if (timeline.isEmpty) {
-      return const Center(child: Text('No adherence data available'));
+      return Center(child: Text(l10n.noAdherenceData));
     }
 
     return SingleChildScrollView(
@@ -311,7 +320,7 @@ class _AdherenceTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Daily Adherence (Last 30 Days)',
+            l10n.dailyAdherenceLast30,
             style: Theme.of(context)
                 .textTheme
                 .titleMedium
@@ -361,7 +370,7 @@ class _AdherenceTab extends StatelessWidget {
 
           // Timeline list
           Text(
-            'Daily Breakdown',
+            l10n.dailyBreakdown,
             style: Theme.of(context)
                 .textTheme
                 .titleMedium
@@ -428,6 +437,7 @@ class _NotesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<DoctorDashboardProvider>();
 
     return Column(
@@ -440,10 +450,10 @@ class _NotesTab extends StatelessWidget {
               Expanded(
                 child: TextField(
                   controller: noteController,
-                  decoration: const InputDecoration(
-                    hintText: 'Add a note...',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(
+                  decoration: InputDecoration(
+                    hintText: l10n.addNoteHint,
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.md,
                       vertical: AppSpacing.sm,
                     ),
@@ -472,7 +482,7 @@ class _NotesTab extends StatelessWidget {
           child: provider.notesLoading
               ? const Center(child: CircularProgressIndicator())
               : provider.doctorNotes.isEmpty
-                  ? const Center(child: Text('No notes yet'))
+                  ? Center(child: Text(l10n.noNotesYet))
                   : ListView.builder(
                       padding: const EdgeInsets.all(AppSpacing.md),
                       itemCount: provider.doctorNotes.length,
@@ -534,11 +544,12 @@ class _NotesTab extends StatelessWidget {
     DoctorDashboardProvider provider,
     DoctorNote note,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final editController = TextEditingController(text: note.content);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Edit Note'),
+        title: Text(l10n.editNote),
         content: TextField(
           controller: editController,
           maxLines: 5,
@@ -547,7 +558,7 @@ class _NotesTab extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -557,7 +568,7 @@ class _NotesTab extends StatelessWidget {
               }
               if (ctx.mounted) Navigator.pop(ctx);
             },
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -569,15 +580,16 @@ class _NotesTab extends StatelessWidget {
     DoctorDashboardProvider provider,
     DoctorNote note,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Note'),
-        content: const Text('Are you sure you want to delete this note?'),
+        title: Text(l10n.deleteNote),
+        content: Text(l10n.deleteNoteConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -588,9 +600,207 @@ class _NotesTab extends StatelessWidget {
               await provider.deleteNote(note.id);
               if (ctx.mounted) Navigator.pop(ctx);
             },
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Vitals Tab
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+class _VitalsTab extends StatefulWidget {
+  final String patientId;
+  const _VitalsTab({required this.patientId});
+
+  @override
+  State<_VitalsTab> createState() => _VitalsTabState();
+}
+
+class _VitalsTabState extends State<_VitalsTab> {
+  List<HealthVital> _vitals = [];
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVitals();
+  }
+
+  Future<void> _loadVitals() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final data = await ApiService.instance.getPatientVitals(widget.patientId);
+      setState(() {
+        _vitals = data.map((j) => HealthVital.fromJson(j)).toList()
+          ..sort((a, b) => b.measuredAt.compareTo(a.measuredAt));
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(_error!, style: const TextStyle(color: AppColors.alertRed)),
+            const SizedBox(height: AppSpacing.sm),
+            ElevatedButton(
+              onPressed: _loadVitals,
+              child: Text(l10n.retry),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_vitals.isEmpty) {
+      return Center(child: Text(l10n.noVitalReadings));
+    }
+
+    // Group by vital type for latest summary
+    final latestByType = <VitalType, HealthVital>{};
+    for (final v in _vitals) {
+      if (!latestByType.containsKey(v.vitalType)) {
+        latestByType[v.vitalType] = v;
+      }
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadVitals,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.latestReadings,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: AppSpacing.sm,
+              crossAxisSpacing: AppSpacing.sm,
+              childAspectRatio: 1.8,
+              children: latestByType.entries.map((entry) {
+                final vital = entry.value;
+                return Container(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: vital.isAbnormal
+                        ? AppColors.alertRed.withValues(alpha: 0.08)
+                        : AppColors.successGreen.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    border: Border.all(
+                      color: vital.isAbnormal
+                          ? AppColors.alertRed.withValues(alpha: 0.3)
+                          : AppColors.successGreen.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        vital.vitalType.displayName,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${vital.displayValue} ${vital.unit}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: vital.isAbnormal
+                              ? AppColors.alertRed
+                              : AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        '${vital.measuredAt.day}/${vital.measuredAt.month}/${vital.measuredAt.year}',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              l10n.historyCount(_vitals.length),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            ..._vitals.take(50).map(
+              (vital) => Card(
+                margin: const EdgeInsets.only(bottom: AppSpacing.xs),
+                child: ListTile(
+                  dense: true,
+                  leading: Container(
+                    width: 6,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: vital.isAbnormal
+                          ? AppColors.alertRed
+                          : AppColors.successGreen,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                  title: Text(
+                    '${vital.vitalType.displayName}: ${vital.displayValue} ${vital.unit}',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  subtitle: Text(
+                    '${vital.measuredAt.day}/${vital.measuredAt.month}/${vital.measuredAt.year} '
+                    '${vital.measuredAt.hour.toString().padLeft(2, '0')}:'
+                    '${vital.measuredAt.minute.toString().padLeft(2, '0')}',
+                    style: const TextStyle(fontSize: 11),
+                  ),
+                  trailing: vital.isAbnormal
+                      ? const Icon(Icons.warning, color: AppColors.alertRed, size: 18)
+                      : null,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

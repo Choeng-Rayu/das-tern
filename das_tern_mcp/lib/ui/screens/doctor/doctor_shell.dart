@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/app_colors.dart';
 import 'doctor_home_tab.dart';
 import 'doctor_patients_tab.dart';
@@ -34,6 +35,7 @@ class _DoctorShellState extends State<DoctorShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -47,31 +49,31 @@ class _DoctorShellState extends State<DoctorShell> {
         unselectedItemColor: AppColors.neutral400,
         selectedFontSize: 11,
         unselectedFontSize: 10,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'ទំព័រដើម',
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: l10n.home,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.people_outline),
-            activeIcon: Icon(Icons.people),
-            label: 'តាមដានអ្នកជំងឺ',
+            icon: const Icon(Icons.people_outline),
+            activeIcon: const Icon(Icons.people),
+            label: l10n.doctorPatientsTab,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.note_add_outlined),
-            activeIcon: Icon(Icons.note_add),
-            label: 'បង្កើតវេជ្ជបញ្ជា',
+            icon: const Icon(Icons.note_add_outlined),
+            activeIcon: const Icon(Icons.note_add),
+            label: l10n.doctorPrescriptionsTab,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history_outlined),
-            activeIcon: Icon(Icons.history),
-            label: 'ប្រវិត្តវេជ្ជបញ្ជារ',
+            icon: const Icon(Icons.history_outlined),
+            activeIcon: const Icon(Icons.history),
+            label: l10n.doctorPrescriptionHistoryTab,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            activeIcon: Icon(Icons.settings),
-            label: 'ការកំណត់',
+            icon: const Icon(Icons.settings_outlined),
+            activeIcon: const Icon(Icons.settings),
+            label: l10n.settings,
           ),
         ],
       ),

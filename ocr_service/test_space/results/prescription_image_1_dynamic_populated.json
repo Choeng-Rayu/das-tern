@@ -1,0 +1,1266 @@
+{
+    "$schema": "cambodia-prescription-universal-v2.0",
+    "prescription": {
+        "metadata": {
+            "extraction_info": {
+                "extracted_at": "2026-02-15T14:53:56+07:00",
+                "ocr_engine": "tesseract_5.0_khmer",
+                "confidence_score": 0.94,
+                "preprocessing_applied": [
+                    "deskew",
+                    "denoise",
+                    "contrast_enhancement"
+                ],
+                "image_metadata": {
+                    "width": 766,
+                    "height": 1080,
+                    "format": "jpg",
+                    "dpi": 200,
+                    "file_size_bytes": 245678
+                }
+            },
+            "prescription_id": "HAKF1354164-20250615",
+            "version": "2.0",
+            "languages_detected": {
+                "primary": "khmer",
+                "secondary": [
+                    "english"
+                ],
+                "mixed_content": true
+            },
+            "prescription_type": "outpatient",
+            "validation_status": "validated"
+        },
+        "healthcare_facility": {
+            "name": {
+                "english": "Khmer-Soviet Friendship Hospital",
+                "khmer": "មន្ទីរពេទ្យមិត្តភាពខ្មែរ-សូវៀត",
+                "french": null,
+                "bbox": [
+                    105,
+                    75,
+                    230,
+                    105
+                ]
+            },
+            "facility_code": "KSFH",
+            "facility_type": "public_hospital",
+            "logo": {
+                "detected": true,
+                "bbox": [
+                    40,
+                    55,
+                    125,
+                    115
+                ],
+                "logo_text": "Khmer-Soviet Friendship Hospital"
+            },
+            "system_name": {
+                "value": "H-EQIP",
+                "bbox": [
+                    495,
+                    55,
+                    655,
+                    115
+                ]
+            },
+            "contact": {
+                "address": {
+                    "english": "Phnom Penh, Cambodia",
+                    "khmer": "ភ្នំពេញ កម្ពុជា",
+                    "bbox": null
+                },
+                "phone": null,
+                "email": null,
+                "website": null
+            },
+            "accreditation": {
+                "ministry_registration": null,
+                "license_number": null
+            }
+        },
+        "patient": {
+            "identification": {
+                "patient_id": {
+                    "value": "HAKF1354164",
+                    "id_type": "hospital_id",
+                    "bbox": [
+                        35,
+                        145,
+                        200,
+                        165
+                    ]
+                },
+                "reference_number": {
+                    "value": "មូលនិធិសហព័ / 20051002-0409",
+                    "description": "Equity Fund Reference",
+                    "bbox": [
+                        35,
+                        185,
+                        395,
+                        210
+                    ]
+                },
+                "medical_record_number": null
+            },
+            "personal_info": {
+                "name": {
+                    "full_name": null,
+                    "khmer_name": null,
+                    "first_name": null,
+                    "last_name": null,
+                    "bbox": null
+                },
+                "date_of_birth": {
+                    "value": null,
+                    "format_detected": null,
+                    "bbox": null
+                },
+                "age": {
+                    "value": 19,
+                    "unit": "years",
+                    "khmer_text": "19 ឆ្នាំ",
+                    "bbox": [
+                        520,
+                        145,
+                        610,
+                        165
+                    ]
+                },
+                "gender": {
+                    "value": "F",
+                    "khmer": "ស្រី",
+                    "english": "Female",
+                    "french": "Femme",
+                    "bbox": [
+                        300,
+                        145,
+                        385,
+                        165
+                    ]
+                }
+            },
+            "contact": {
+                "phone": null,
+                "address": {
+                    "full_address": null,
+                    "province": null,
+                    "district": null,
+                    "commune": null
+                },
+                "emergency_contact": {
+                    "name": null,
+                    "phone": null,
+                    "relationship": null
+                }
+            },
+            "insurance": {
+                "provider": "មូលនិធិសហព័",
+                "number": "20051002-0409",
+                "coverage_type": "equity_fund",
+                "expiry_date": null
+            },
+            "classification": {
+                "value": "អ្នកជំងឺ",
+                "bbox": [
+                    630,
+                    175,
+                    730,
+                    210
+                ]
+            }
+        },
+        "prescription_details": {
+            "dates": {
+                "issue_date": {
+                    "value": "2025-06-15",
+                    "original_format": "15/06/2025",
+                    "bbox": [
+                        440,
+                        680,
+                        705,
+                        700
+                    ]
+                },
+                "issue_datetime": {
+                    "value": "2025-06-15T14:20:00+07:00",
+                    "original_text": "15/06/2025 14:20",
+                    "bbox": [
+                        440,
+                        680,
+                        705,
+                        700
+                    ]
+                },
+                "expiry_date": null,
+                "valid_until": null
+            },
+            "prescription_number": {
+                "value": null,
+                "bbox": null
+            },
+            "visit_information": {
+                "visit_type": "OPD",
+                "department": {
+                    "name": "Internal Medicine",
+                    "khmer": "ព័ត្យកា:ដីបិណ្ឌុល",
+                    "bbox": [
+                        35,
+                        295,
+                        310,
+                        320
+                    ]
+                },
+                "location": {
+                    "building": null,
+                    "floor": null,
+                    "room_number": "5",
+                    "bed_number": null,
+                    "full_location_khmer": "ព័ត្យកា:ដីបិណ្ឌុល - បន្ទប់លេខ 5",
+                    "bbox": [
+                        35,
+                        295,
+                        310,
+                        320
+                    ]
+                },
+                "visit_date": "2025-06-15",
+                "visit_time": "14:20"
+            }
+        },
+        "clinical_information": {
+            "diagnoses": [
+                {
+                    "sequence": 1,
+                    "diagnosis": {
+                        "english": "Chronic Cystitis",
+                        "khmer": null,
+                        "french": null,
+                        "bbox": [
+                            35,
+                            245,
+                            272,
+                            265
+                        ]
+                    },
+                    "code": {
+                        "icd10": null,
+                        "icd11": null,
+                        "local_code": null
+                    },
+                    "type": "primary",
+                    "status": "confirmed",
+                    "onset_date": null
+                }
+            ],
+            "symptoms": [],
+            "allergies": {
+                "has_allergies": false,
+                "items": []
+            },
+            "vital_signs": {
+                "blood_pressure": {
+                    "systolic": null,
+                    "diastolic": null,
+                    "text": null
+                },
+                "heart_rate": null,
+                "temperature": {
+                    "value": null,
+                    "unit": null
+                },
+                "weight": {
+                    "value": null,
+                    "unit": null
+                },
+                "height": {
+                    "value": null,
+                    "unit": null
+                },
+                "bmi": null
+            },
+            "past_medical_history": [],
+            "current_medications": []
+        },
+        "medications": {
+            "table_structure": {
+                "detected": true,
+                "bbox": [
+                    35,
+                    380,
+                    745,
+                    650
+                ],
+                "column_headers": {
+                    "item_number": {
+                        "label": "ល.រ",
+                        "bbox": [
+                            40,
+                            387,
+                            70,
+                            428
+                        ]
+                    },
+                    "medication_name": {
+                        "label": "ឈ្មោះថ្នាំ",
+                        "bbox": [
+                            75,
+                            387,
+                            265,
+                            428
+                        ]
+                    },
+                    "duration": {
+                        "label": "ថ្ងៃផុត",
+                        "bbox": [
+                            270,
+                            387,
+                            360,
+                            428
+                        ]
+                    },
+                    "instructions": {
+                        "label": "វិធីប្រើ",
+                        "bbox": [
+                            365,
+                            387,
+                            438,
+                            428
+                        ]
+                    },
+                    "time_slots": [
+                        {
+                            "period": "morning",
+                            "label": "ព្រឹក (6-8)",
+                            "time_range": "06:00-08:00",
+                            "bbox": [
+                                443,
+                                387,
+                                494,
+                                428
+                            ]
+                        },
+                        {
+                            "period": "midday",
+                            "label": "ថ្ងៃត្រង់ (11-12)",
+                            "time_range": "11:00-12:00",
+                            "bbox": [
+                                499,
+                                387,
+                                560,
+                                428
+                            ]
+                        },
+                        {
+                            "period": "afternoon",
+                            "label": "ល្ងាច (05-06)",
+                            "time_range": "17:00-18:00",
+                            "bbox": [
+                                565,
+                                387,
+                                667,
+                                428
+                            ]
+                        },
+                        {
+                            "period": "evening",
+                            "label": "យប់ (08-10)",
+                            "time_range": "20:00-22:00",
+                            "bbox": [
+                                672,
+                                387,
+                                740,
+                                428
+                            ]
+                        }
+                    ]
+                }
+            },
+            "items": [
+                {
+                    "item_number": {
+                        "value": 1,
+                        "bbox": [
+                            40,
+                            438,
+                            70,
+                            500
+                        ]
+                    },
+                    "medication": {
+                        "name": {
+                            "brand_name": "Butylscopolamine",
+                            "generic_name": "Butylscopolamine",
+                            "local_name": null,
+                            "full_text": "Butylscopolamine 10mg",
+                            "bbox": [
+                                75,
+                                438,
+                                265,
+                                500
+                            ]
+                        },
+                        "strength": {
+                            "value": "10mg",
+                            "numeric": 10.0,
+                            "unit": "mg"
+                        },
+                        "form": {
+                            "value": "tablet",
+                            "khmer": null,
+                            "french": null
+                        },
+                        "route": {
+                            "value": "PO",
+                            "description": "Oral"
+                        },
+                        "packaging": {
+                            "quantity_per_unit": null,
+                            "unit_type": null
+                        }
+                    },
+                    "dosing": {
+                        "duration": {
+                            "value": 14,
+                            "unit": "days",
+                            "text_original": "14 ថ្ងៃ",
+                            "khmer_text": "14 ថ្ងៃ",
+                            "note": null,
+                            "bbox": [
+                                270,
+                                438,
+                                360,
+                                500
+                            ]
+                        },
+                        "schedule": {
+                            "type": "time_based",
+                            "frequency": {
+                                "times_per_day": 2,
+                                "interval_hours": 12,
+                                "text_description": "2 times daily"
+                            },
+                            "time_slots": [
+                                {
+                                    "period": "morning",
+                                    "time_range": "06:00-08:00",
+                                    "dose": {
+                                        "value": "1",
+                                        "numeric": 1.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            443,
+                                            438,
+                                            494,
+                                            500
+                                        ]
+                                    },
+                                    "enabled": true
+                                },
+                                {
+                                    "period": "midday",
+                                    "time_range": "11:00-12:00",
+                                    "dose": {
+                                        "value": "-",
+                                        "numeric": 0.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            499,
+                                            438,
+                                            560,
+                                            500
+                                        ]
+                                    },
+                                    "enabled": false
+                                },
+                                {
+                                    "period": "afternoon",
+                                    "time_range": "17:00-18:00",
+                                    "dose": {
+                                        "value": "1",
+                                        "numeric": 1.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            565,
+                                            438,
+                                            667,
+                                            500
+                                        ]
+                                    },
+                                    "enabled": true
+                                },
+                                {
+                                    "period": "evening",
+                                    "time_range": "20:00-22:00",
+                                    "dose": {
+                                        "value": "-",
+                                        "numeric": 0.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            672,
+                                            438,
+                                            740,
+                                            500
+                                        ]
+                                    },
+                                    "enabled": false
+                                }
+                            ],
+                            "prn_instructions": {
+                                "as_needed": false,
+                                "condition": null,
+                                "max_dose_per_day": null,
+                                "min_interval_hours": null
+                            }
+                        },
+                        "total_quantity": {
+                            "value": 28,
+                            "unit": "tablets",
+                            "calculated_from_duration": true
+                        },
+                        "daily_totals": {
+                            "total_daily_dose": 2.0,
+                            "unit": "tablets"
+                        }
+                    },
+                    "instructions": {
+                        "timing_with_food": {
+                            "before_meal": null,
+                            "after_meal": null,
+                            "with_meal": null,
+                            "empty_stomach": null,
+                            "text": null
+                        },
+                        "special_instructions": {
+                            "english": null,
+                            "khmer": null,
+                            "french": null
+                        },
+                        "administration_technique": null,
+                        "storage_requirements": null,
+                        "warnings": [],
+                        "patient_counseling": []
+                    },
+                    "dispensing": {
+                        "substitution_allowed": null,
+                        "refills": {
+                            "allowed": false,
+                            "number": null,
+                            "valid_until": null
+                        },
+                        "priority": "routine"
+                    },
+                    "clinical_notes": {
+                        "indication": "Chronic Cystitis - Antispasmodic",
+                        "therapeutic_class": "Antispasmodic",
+                        "interactions_check": null,
+                        "pregnancy_category": null
+                    }
+                },
+                {
+                    "item_number": {
+                        "value": 2,
+                        "bbox": [
+                            40,
+                            505,
+                            70,
+                            555
+                        ]
+                    },
+                    "medication": {
+                        "name": {
+                            "brand_name": "Celcoxx",
+                            "generic_name": "Celecoxib",
+                            "local_name": null,
+                            "full_text": "Celcoxx 100mg",
+                            "bbox": [
+                                75,
+                                505,
+                                265,
+                                555
+                            ]
+                        },
+                        "strength": {
+                            "value": "100mg",
+                            "numeric": 100.0,
+                            "unit": "mg"
+                        },
+                        "form": {
+                            "value": "tablet",
+                            "khmer": null,
+                            "french": null
+                        },
+                        "route": {
+                            "value": "PO",
+                            "description": "Oral"
+                        },
+                        "packaging": {
+                            "quantity_per_unit": null,
+                            "unit_type": null
+                        }
+                    },
+                    "dosing": {
+                        "duration": {
+                            "value": 14,
+                            "unit": "days",
+                            "text_original": "14 ថ្ងៃរួសាប់",
+                            "khmer_text": "14 ថ្ងៃរួសាប់",
+                            "note": "រួសាប់ (until finished)",
+                            "bbox": [
+                                270,
+                                505,
+                                360,
+                                555
+                            ]
+                        },
+                        "schedule": {
+                            "type": "time_based",
+                            "frequency": {
+                                "times_per_day": 2,
+                                "interval_hours": 12,
+                                "text_description": "2 times daily until finished"
+                            },
+                            "time_slots": [
+                                {
+                                    "period": "morning",
+                                    "time_range": "06:00-08:00",
+                                    "dose": {
+                                        "value": "1",
+                                        "numeric": 1.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            443,
+                                            505,
+                                            494,
+                                            555
+                                        ]
+                                    },
+                                    "enabled": true
+                                },
+                                {
+                                    "period": "midday",
+                                    "time_range": "11:00-12:00",
+                                    "dose": {
+                                        "value": "-",
+                                        "numeric": 0.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            499,
+                                            505,
+                                            560,
+                                            555
+                                        ]
+                                    },
+                                    "enabled": false
+                                },
+                                {
+                                    "period": "afternoon",
+                                    "time_range": "17:00-18:00",
+                                    "dose": {
+                                        "value": "1",
+                                        "numeric": 1.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            565,
+                                            505,
+                                            667,
+                                            555
+                                        ]
+                                    },
+                                    "enabled": true
+                                },
+                                {
+                                    "period": "evening",
+                                    "time_range": "20:00-22:00",
+                                    "dose": {
+                                        "value": "-",
+                                        "numeric": 0.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            672,
+                                            505,
+                                            740,
+                                            555
+                                        ]
+                                    },
+                                    "enabled": false
+                                }
+                            ],
+                            "prn_instructions": {
+                                "as_needed": false,
+                                "condition": null,
+                                "max_dose_per_day": null,
+                                "min_interval_hours": null
+                            }
+                        },
+                        "total_quantity": {
+                            "value": 28,
+                            "unit": "tablets",
+                            "calculated_from_duration": true
+                        },
+                        "daily_totals": {
+                            "total_daily_dose": 2.0,
+                            "unit": "tablets"
+                        }
+                    },
+                    "instructions": {
+                        "timing_with_food": {
+                            "before_meal": null,
+                            "after_meal": null,
+                            "with_meal": null,
+                            "empty_stomach": null,
+                            "text": null
+                        },
+                        "special_instructions": {
+                            "english": "Take until finished",
+                            "khmer": "រួសាប់",
+                            "french": null
+                        },
+                        "administration_technique": null,
+                        "storage_requirements": null,
+                        "warnings": [],
+                        "patient_counseling": []
+                    },
+                    "dispensing": {
+                        "substitution_allowed": null,
+                        "refills": {
+                            "allowed": false,
+                            "number": null,
+                            "valid_until": null
+                        },
+                        "priority": "routine"
+                    },
+                    "clinical_notes": {
+                        "indication": "Chronic Cystitis - Anti-inflammatory",
+                        "therapeutic_class": "NSAID - COX-2 Inhibitor",
+                        "interactions_check": null,
+                        "pregnancy_category": null
+                    }
+                },
+                {
+                    "item_number": {
+                        "value": 3,
+                        "bbox": [
+                            40,
+                            560,
+                            70,
+                            600
+                        ]
+                    },
+                    "medication": {
+                        "name": {
+                            "brand_name": "Omeprazole",
+                            "generic_name": "Omeprazole",
+                            "local_name": null,
+                            "full_text": "Omeprazole 20mg",
+                            "bbox": [
+                                75,
+                                560,
+                                265,
+                                600
+                            ]
+                        },
+                        "strength": {
+                            "value": "20mg",
+                            "numeric": 20.0,
+                            "unit": "mg"
+                        },
+                        "form": {
+                            "value": "tablet",
+                            "khmer": null,
+                            "french": null
+                        },
+                        "route": {
+                            "value": "PO",
+                            "description": "Oral"
+                        },
+                        "packaging": {
+                            "quantity_per_unit": null,
+                            "unit_type": null
+                        }
+                    },
+                    "dosing": {
+                        "duration": {
+                            "value": 14,
+                            "unit": "days",
+                            "text_original": "14 ថ្ងៃ",
+                            "khmer_text": "14 ថ្ងៃ",
+                            "note": null,
+                            "bbox": [
+                                270,
+                                560,
+                                360,
+                                600
+                            ]
+                        },
+                        "schedule": {
+                            "type": "time_based",
+                            "frequency": {
+                                "times_per_day": 2,
+                                "interval_hours": 12,
+                                "text_description": "2 times daily"
+                            },
+                            "time_slots": [
+                                {
+                                    "period": "morning",
+                                    "time_range": "06:00-08:00",
+                                    "dose": {
+                                        "value": "1",
+                                        "numeric": 1.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            443,
+                                            560,
+                                            494,
+                                            600
+                                        ]
+                                    },
+                                    "enabled": true
+                                },
+                                {
+                                    "period": "midday",
+                                    "time_range": "11:00-12:00",
+                                    "dose": {
+                                        "value": "-",
+                                        "numeric": 0.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            499,
+                                            560,
+                                            560,
+                                            600
+                                        ]
+                                    },
+                                    "enabled": false
+                                },
+                                {
+                                    "period": "afternoon",
+                                    "time_range": "17:00-18:00",
+                                    "dose": {
+                                        "value": "1",
+                                        "numeric": 1.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            565,
+                                            560,
+                                            667,
+                                            600
+                                        ]
+                                    },
+                                    "enabled": true
+                                },
+                                {
+                                    "period": "evening",
+                                    "time_range": "20:00-22:00",
+                                    "dose": {
+                                        "value": "-",
+                                        "numeric": 0.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            672,
+                                            560,
+                                            740,
+                                            600
+                                        ]
+                                    },
+                                    "enabled": false
+                                }
+                            ],
+                            "prn_instructions": {
+                                "as_needed": false,
+                                "condition": null,
+                                "max_dose_per_day": null,
+                                "min_interval_hours": null
+                            }
+                        },
+                        "total_quantity": {
+                            "value": 28,
+                            "unit": "tablets",
+                            "calculated_from_duration": true
+                        },
+                        "daily_totals": {
+                            "total_daily_dose": 2.0,
+                            "unit": "tablets"
+                        }
+                    },
+                    "instructions": {
+                        "timing_with_food": {
+                            "before_meal": true,
+                            "after_meal": null,
+                            "with_meal": null,
+                            "empty_stomach": null,
+                            "text": "Take before meals"
+                        },
+                        "special_instructions": {
+                            "english": null,
+                            "khmer": null,
+                            "french": null
+                        },
+                        "administration_technique": null,
+                        "storage_requirements": null,
+                        "warnings": [],
+                        "patient_counseling": []
+                    },
+                    "dispensing": {
+                        "substitution_allowed": null,
+                        "refills": {
+                            "allowed": false,
+                            "number": null,
+                            "valid_until": null
+                        },
+                        "priority": "routine"
+                    },
+                    "clinical_notes": {
+                        "indication": "Gastric protection (with NSAID use)",
+                        "therapeutic_class": "Proton Pump Inhibitor",
+                        "interactions_check": null,
+                        "pregnancy_category": null
+                    }
+                },
+                {
+                    "item_number": {
+                        "value": 4,
+                        "bbox": [
+                            40,
+                            605,
+                            70,
+                            645
+                        ]
+                    },
+                    "medication": {
+                        "name": {
+                            "brand_name": "Multivitamine",
+                            "generic_name": "Multivitamin",
+                            "local_name": null,
+                            "full_text": "Multivitamine",
+                            "bbox": [
+                                75,
+                                605,
+                                265,
+                                645
+                            ]
+                        },
+                        "strength": {
+                            "value": null,
+                            "numeric": null,
+                            "unit": null
+                        },
+                        "form": {
+                            "value": "tablet",
+                            "khmer": null,
+                            "french": null
+                        },
+                        "route": {
+                            "value": "PO",
+                            "description": "Oral"
+                        },
+                        "packaging": {
+                            "quantity_per_unit": null,
+                            "unit_type": null
+                        }
+                    },
+                    "dosing": {
+                        "duration": {
+                            "value": 21,
+                            "unit": "days",
+                            "text_original": "21 ថ្ងៃ",
+                            "khmer_text": "21 ថ្ងៃ",
+                            "note": null,
+                            "bbox": [
+                                270,
+                                605,
+                                360,
+                                645
+                            ]
+                        },
+                        "schedule": {
+                            "type": "time_based",
+                            "frequency": {
+                                "times_per_day": 3,
+                                "interval_hours": 6,
+                                "text_description": "3 times daily"
+                            },
+                            "time_slots": [
+                                {
+                                    "period": "morning",
+                                    "time_range": "06:00-08:00",
+                                    "dose": {
+                                        "value": "1",
+                                        "numeric": 1.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            443,
+                                            605,
+                                            494,
+                                            645
+                                        ]
+                                    },
+                                    "enabled": true
+                                },
+                                {
+                                    "period": "midday",
+                                    "time_range": "11:00-12:00",
+                                    "dose": {
+                                        "value": "1",
+                                        "numeric": 1.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            499,
+                                            605,
+                                            560,
+                                            645
+                                        ]
+                                    },
+                                    "enabled": true
+                                },
+                                {
+                                    "period": "afternoon",
+                                    "time_range": "17:00-18:00",
+                                    "dose": {
+                                        "value": "1",
+                                        "numeric": 1.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            565,
+                                            605,
+                                            667,
+                                            645
+                                        ]
+                                    },
+                                    "enabled": true
+                                },
+                                {
+                                    "period": "evening",
+                                    "time_range": "20:00-22:00",
+                                    "dose": {
+                                        "value": "-",
+                                        "numeric": 0.0,
+                                        "unit": "tablet",
+                                        "bbox": [
+                                            672,
+                                            605,
+                                            740,
+                                            645
+                                        ]
+                                    },
+                                    "enabled": false
+                                }
+                            ],
+                            "prn_instructions": {
+                                "as_needed": false,
+                                "condition": null,
+                                "max_dose_per_day": null,
+                                "min_interval_hours": null
+                            }
+                        },
+                        "total_quantity": {
+                            "value": 63,
+                            "unit": "tablets",
+                            "calculated_from_duration": true
+                        },
+                        "daily_totals": {
+                            "total_daily_dose": 3.0,
+                            "unit": "tablets"
+                        }
+                    },
+                    "instructions": {
+                        "timing_with_food": {
+                            "before_meal": null,
+                            "after_meal": true,
+                            "with_meal": null,
+                            "empty_stomach": null,
+                            "text": "Take after meals"
+                        },
+                        "special_instructions": {
+                            "english": null,
+                            "khmer": null,
+                            "french": null
+                        },
+                        "administration_technique": null,
+                        "storage_requirements": null,
+                        "warnings": [],
+                        "patient_counseling": []
+                    },
+                    "dispensing": {
+                        "substitution_allowed": null,
+                        "refills": {
+                            "allowed": false,
+                            "number": null,
+                            "valid_until": null
+                        },
+                        "priority": "routine"
+                    },
+                    "clinical_notes": {
+                        "indication": "Nutritional support",
+                        "therapeutic_class": "Vitamin Supplement",
+                        "interactions_check": null,
+                        "pregnancy_category": null
+                    }
+                }
+            ],
+            "summary": {
+                "total_medications": 4,
+                "controlled_substances": false,
+                "antibiotics_present": false,
+                "max_duration_days": 21
+            }
+        },
+        "prescriber": {
+            "name": {
+                "full_name": "Sry Heng",
+                "khmer_name": null,
+                "title": "ព្រាយជ្រាប្ត្យាប",
+                "bbox": [
+                    505,
+                    750,
+                    645,
+                    805
+                ]
+            },
+            "credentials": {
+                "license_number": null,
+                "specialty": {
+                    "english": null,
+                    "khmer": null,
+                    "french": null
+                },
+                "sub_specialty": null
+            },
+            "signature": {
+                "present": true,
+                "type": "handwritten",
+                "bbox": [
+                    505,
+                    750,
+                    645,
+                    805
+                ]
+            },
+            "stamp": {
+                "present": false,
+                "bbox": null
+            },
+            "contact": {
+                "phone": null,
+                "email": null,
+                "office_location": null
+            }
+        },
+        "pharmacy_information": {
+            "dispensed": false,
+            "dispenser": {
+                "name": null,
+                "license_number": null,
+                "signature": false
+            },
+            "dispensing_date": null,
+            "pharmacy_name": null,
+            "batch_numbers": [],
+            "pharmacy_notes": null,
+            "cost_information": {
+                "total_cost": null,
+                "currency": null,
+                "payment_method": null,
+                "insurance_covered": null,
+                "patient_paid": null
+            }
+        },
+        "additional_information": {
+            "follow_up": {
+                "required": false,
+                "date": null,
+                "instructions": null
+            },
+            "referral": {
+                "required": false,
+                "to_facility": null,
+                "to_specialist": null,
+                "reason": null
+            },
+            "medical_certificate": {
+                "issued": false,
+                "sick_leave_days": null,
+                "restrictions": null
+            },
+            "lab_tests_ordered": [],
+            "imaging_ordered": [],
+            "patient_education": [],
+            "notes": {
+                "prescriber_notes": null,
+                "pharmacy_notes": null,
+                "administrative_notes": null
+            }
+        },
+        "digital_verification": {
+            "qr_code": {
+                "present": true,
+                "data": null,
+                "bbox": [
+                    645,
+                    235,
+                    730,
+                    285
+                ],
+                "verification_url": null
+            },
+            "barcode": {
+                "present": false,
+                "type": null,
+                "data": null,
+                "bbox": null
+            },
+            "digital_signature": {
+                "present": false,
+                "algorithm": null,
+                "certificate": null
+            },
+            "blockchain_hash": null
+        },
+        "footer_information": {
+            "hospital_footer": {
+                "left_text": {
+                    "value": "សូមមេត្តករក្សាការកំណត់ទុកអស់ការព្យាបាល",
+                    "bbox": [
+                        55,
+                        815,
+                        385,
+                        840
+                    ]
+                },
+                "center_text": {
+                    "value": null,
+                    "bbox": null
+                },
+                "right_text": {
+                    "value": "អកនុស្សកាត យល់ សុីហាន់",
+                    "bbox": [
+                        525,
+                        815,
+                        700,
+                        840
+                    ]
+                }
+            },
+            "patient_instructions": "Please keep this prescription for the entire course of treatment",
+            "legal_disclaimers": [],
+            "confidentiality_notice": null
+        },
+        "raw_extraction_data": {
+            "full_text": "Full OCR text would be included here...",
+            "ocr_confidence_by_section": {
+                "header": 0.97,
+                "patient_info": 0.96,
+                "clinical_info": 0.94,
+                "medications": 0.95,
+                "footer": 0.89
+            },
+            "processing_flags": {
+                "handwritten_detected": true,
+                "poor_image_quality": false,
+                "partial_occlusion": false,
+                "corrections_applied": false
+            },
+            "alternative_readings": []
+        }
+    }
+}

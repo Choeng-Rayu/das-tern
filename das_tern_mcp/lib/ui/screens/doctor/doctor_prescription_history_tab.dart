@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/prescription_model/prescription.dart';
 import '../../../providers/prescription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
@@ -28,11 +29,12 @@ class _DoctorPrescriptionHistoryTabState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<PrescriptionProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ប្រវិត្តវេជ្ជបញ្ជារ'),
+        title: Text(l10n.prescriptionHistory),
         automaticallyImplyLeading: false,
       ),
       body: RefreshIndicator(
@@ -54,6 +56,7 @@ class _DoctorPrescriptionHistoryTabState
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -62,12 +65,12 @@ class _DoctorPrescriptionHistoryTabState
               size: 64, color: AppColors.neutral300),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'No prescription history',
+            l10n.noPrescriptionHistory,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Your created prescriptions\nwill appear here.',
+            l10n.prescriptionsCreatedAppearHere,
             style: Theme.of(context)
                 .textTheme
                 .bodySmall

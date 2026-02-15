@@ -1,0 +1,556 @@
+{
+    "$schema": "cambodia-prescription-universal-v2.0",
+    "$description": "Universal dynamic format for all Cambodian prescriptions supporting mixed Khmer, English, and French languages",
+    "prescription": {
+        "metadata": {
+            "extraction_info": {
+                "extracted_at": "ISO8601 datetime",
+                "ocr_engine": "string",
+                "confidence_score": "float 0-1",
+                "preprocessing_applied": [
+                    "string"
+                ],
+                "image_metadata": {
+                    "width": "integer",
+                    "height": "integer",
+                    "format": "string (jpg | png | pdf)",
+                    "dpi": "integer | null",
+                    "file_size_bytes": "integer | null"
+                }
+            },
+            "prescription_id": "string | null",
+            "version": "string",
+            "languages_detected": {
+                "primary": "khmer | english | french",
+                "secondary": [
+                    "khmer",
+                    "english",
+                    "french"
+                ],
+                "mixed_content": "boolean"
+            },
+            "prescription_type": "outpatient | inpatient | emergency | discharge | specialty | null",
+            "validation_status": "pending | validated | rejected | null"
+        },
+        "healthcare_facility": {
+            "name": {
+                "english": "string | null",
+                "khmer": "string | null",
+                "french": "string | null",
+                "bbox": "[x1, y1, x2, y2] | null"
+            },
+            "facility_code": "string | null",
+            "facility_type": "public_hospital | private_clinic | pharmacy | health_center | null",
+            "logo": {
+                "detected": "boolean",
+                "bbox": "[x1, y1, x2, y2] | null",
+                "logo_text": "string | null"
+            },
+            "system_name": {
+                "value": "string | null (e.g., H-EQIP, HIS, EMR)",
+                "bbox": "[x1, y1, x2, y2] | null"
+            },
+            "contact": {
+                "address": {
+                    "english": "string | null",
+                    "khmer": "string | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "phone": "string | null",
+                "email": "string | null",
+                "website": "string | null"
+            },
+            "accreditation": {
+                "ministry_registration": "string | null",
+                "license_number": "string | null"
+            }
+        },
+        "patient": {
+            "identification": {
+                "patient_id": {
+                    "value": "string | null",
+                    "id_type": "hospital_id | national_id | passport | insurance_id | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "reference_number": {
+                    "value": "string | null",
+                    "description": "string | null (e.g., មូលនិធិសហព័)",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "medical_record_number": "string | null"
+            },
+            "personal_info": {
+                "name": {
+                    "full_name": "string | null",
+                    "khmer_name": "string | null",
+                    "first_name": "string | null",
+                    "last_name": "string | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "date_of_birth": {
+                    "value": "string | null (YYYY-MM-DD)",
+                    "format_detected": "string | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "age": {
+                    "value": "integer | null",
+                    "unit": "years | months | days | null",
+                    "khmer_text": "string | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "gender": {
+                    "value": "M | F | Other | null",
+                    "khmer": "ប្រុស | ស្រី | null",
+                    "english": "Male | Female | null",
+                    "french": "Homme | Femme | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                }
+            },
+            "contact": {
+                "phone": "string | null",
+                "address": {
+                    "full_address": "string | null",
+                    "province": "string | null",
+                    "district": "string | null",
+                    "commune": "string | null"
+                },
+                "emergency_contact": {
+                    "name": "string | null",
+                    "phone": "string | null",
+                    "relationship": "string | null"
+                }
+            },
+            "insurance": {
+                "provider": "string | null",
+                "number": "string | null",
+                "coverage_type": "NSSF | private | equity_fund | self_pay | null",
+                "expiry_date": "string | null"
+            },
+            "classification": {
+                "value": "string | null (e.g., អ្នកជំងឺ)",
+                "bbox": "[x1, y1, x2, y2] | null"
+            }
+        },
+        "prescription_details": {
+            "dates": {
+                "issue_date": {
+                    "value": "string (YYYY-MM-DD)",
+                    "original_format": "string | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "issue_datetime": {
+                    "value": "ISO8601 datetime | null",
+                    "original_text": "string | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "expiry_date": "string | null",
+                "valid_until": "string | null"
+            },
+            "prescription_number": {
+                "value": "string | null",
+                "bbox": "[x1, y1, x2, y2] | null"
+            },
+            "visit_information": {
+                "visit_type": "OPD | IPD | Emergency | Follow-up | null",
+                "department": {
+                    "name": "string | null",
+                    "khmer": "string | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "location": {
+                    "building": "string | null",
+                    "floor": "string | null",
+                    "room_number": "string | null",
+                    "bed_number": "string | null",
+                    "full_location_khmer": "string | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "visit_date": "string | null",
+                "visit_time": "string | null"
+            }
+        },
+        "clinical_information": {
+            "diagnoses": [
+                {
+                    "sequence": "integer",
+                    "diagnosis": {
+                        "english": "string | null",
+                        "khmer": "string | null",
+                        "french": "string | null",
+                        "bbox": "[x1, y1, x2, y2] | null"
+                    },
+                    "code": {
+                        "icd10": "string | null",
+                        "icd11": "string | null",
+                        "local_code": "string | null"
+                    },
+                    "type": "primary | secondary | complication | null",
+                    "status": "confirmed | provisional | differential | null",
+                    "onset_date": "string | null"
+                }
+            ],
+            "symptoms": [
+                {
+                    "description": "string",
+                    "language": "khmer | english | french",
+                    "severity": "mild | moderate | severe | null"
+                }
+            ],
+            "allergies": {
+                "has_allergies": "boolean",
+                "items": [
+                    {
+                        "allergen": "string",
+                        "reaction": "string | null",
+                        "severity": "string | null"
+                    }
+                ]
+            },
+            "vital_signs": {
+                "blood_pressure": {
+                    "systolic": "integer | null",
+                    "diastolic": "integer | null",
+                    "text": "string | null"
+                },
+                "heart_rate": "integer | null",
+                "temperature": {
+                    "value": "float | null",
+                    "unit": "celsius | fahrenheit | null"
+                },
+                "weight": {
+                    "value": "float | null",
+                    "unit": "kg | lbs | null"
+                },
+                "height": {
+                    "value": "float | null",
+                    "unit": "cm | m | null"
+                },
+                "bmi": "float | null"
+            },
+            "past_medical_history": [
+                "string"
+            ],
+            "current_medications": [
+                "string"
+            ]
+        },
+        "medications": {
+            "table_structure": {
+                "detected": "boolean",
+                "bbox": "[x1, y1, x2, y2] | null",
+                "column_headers": {
+                    "item_number": {
+                        "label": "string | null",
+                        "bbox": "[x1, y1, x2, y2] | null"
+                    },
+                    "medication_name": {
+                        "label": "string | null",
+                        "bbox": "[x1, y1, x2, y2] | null"
+                    },
+                    "duration": {
+                        "label": "string | null",
+                        "bbox": "[x1, y1, x2, y2] | null"
+                    },
+                    "instructions": {
+                        "label": "string | null",
+                        "bbox": "[x1, y1, x2, y2] | null"
+                    },
+                    "time_slots": [
+                        {
+                            "period": "morning | midday | afternoon | evening | night | custom",
+                            "label": "string",
+                            "time_range": "string | null",
+                            "bbox": "[x1, y1, x2, y2] | null"
+                        }
+                    ]
+                }
+            },
+            "items": [
+                {
+                    "item_number": {
+                        "value": "integer",
+                        "bbox": "[x1, y1, x2, y2] | null"
+                    },
+                    "medication": {
+                        "name": {
+                            "brand_name": "string | null",
+                            "generic_name": "string | null",
+                            "local_name": "string | null",
+                            "full_text": "string",
+                            "bbox": "[x1, y1, x2, y2] | null"
+                        },
+                        "strength": {
+                            "value": "string | null",
+                            "numeric": "float | null",
+                            "unit": "mg | g | ml | mcg | IU | % | null"
+                        },
+                        "form": {
+                            "value": "tablet | capsule | syrup | suspension | injection | cream | ointment | drops | inhaler | patch | suppository | null",
+                            "khmer": "string | null",
+                            "french": "string | null"
+                        },
+                        "route": {
+                            "value": "PO | IV | IM | SC | topical | ophthalmic | otic | nasal | rectal | vaginal | null",
+                            "description": "string | null"
+                        },
+                        "packaging": {
+                            "quantity_per_unit": "integer | null",
+                            "unit_type": "string | null"
+                        }
+                    },
+                    "dosing": {
+                        "duration": {
+                            "value": "integer | null",
+                            "unit": "days | weeks | months | null",
+                            "text_original": "string",
+                            "khmer_text": "string | null",
+                            "note": "string | null (e.g., រួសាប់ - until finished)",
+                            "bbox": "[x1, y1, x2, y2] | null"
+                        },
+                        "schedule": {
+                            "type": "time_based | fixed_times | prn | continuous | null",
+                            "frequency": {
+                                "times_per_day": "integer | null",
+                                "interval_hours": "integer | null",
+                                "text_description": "string | null"
+                            },
+                            "time_slots": [
+                                {
+                                    "period": "morning | midday | afternoon | evening | night | custom",
+                                    "time_range": "string | null (e.g., '6-8', '06:00-08:00')",
+                                    "dose": {
+                                        "value": "string",
+                                        "numeric": "float | null",
+                                        "unit": "tablet | ml | mg | drops | puff | null",
+                                        "bbox": "[x1, y1, x2, y2] | null"
+                                    },
+                                    "enabled": "boolean"
+                                }
+                            ],
+                            "prn_instructions": {
+                                "as_needed": "boolean",
+                                "condition": "string | null",
+                                "max_dose_per_day": "string | null",
+                                "min_interval_hours": "integer | null"
+                            }
+                        },
+                        "total_quantity": {
+                            "value": "integer | null",
+                            "unit": "string | null",
+                            "calculated_from_duration": "boolean"
+                        },
+                        "daily_totals": {
+                            "total_daily_dose": "float | null",
+                            "unit": "string | null"
+                        }
+                    },
+                    "instructions": {
+                        "timing_with_food": {
+                            "before_meal": "boolean | null",
+                            "after_meal": "boolean | null",
+                            "with_meal": "boolean | null",
+                            "empty_stomach": "boolean | null",
+                            "text": "string | null"
+                        },
+                        "special_instructions": {
+                            "english": "string | null",
+                            "khmer": "string | null",
+                            "french": "string | null"
+                        },
+                        "administration_technique": "string | null",
+                        "storage_requirements": "string | null",
+                        "warnings": [
+                            {
+                                "text": "string",
+                                "severity": "critical | warning | info | null"
+                            }
+                        ],
+                        "patient_counseling": [
+                            "string"
+                        ]
+                    },
+                    "dispensing": {
+                        "substitution_allowed": "boolean | null",
+                        "refills": {
+                            "allowed": "boolean",
+                            "number": "integer | null",
+                            "valid_until": "string | null"
+                        },
+                        "priority": "urgent | routine | null"
+                    },
+                    "clinical_notes": {
+                        "indication": "string | null",
+                        "therapeutic_class": "string | null",
+                        "interactions_check": "boolean | null",
+                        "pregnancy_category": "string | null"
+                    }
+                }
+            ],
+            "summary": {
+                "total_medications": "integer",
+                "controlled_substances": "boolean",
+                "antibiotics_present": "boolean",
+                "max_duration_days": "integer | null"
+            }
+        },
+        "prescriber": {
+            "name": {
+                "full_name": "string | null",
+                "khmer_name": "string | null",
+                "title": "string | null",
+                "bbox": "[x1, y1, x2, y2] | null"
+            },
+            "credentials": {
+                "license_number": "string | null",
+                "specialty": {
+                    "english": "string | null",
+                    "khmer": "string | null",
+                    "french": "string | null"
+                },
+                "sub_specialty": "string | null"
+            },
+            "signature": {
+                "present": "boolean",
+                "type": "handwritten | digital | stamp | null",
+                "bbox": "[x1, y1, x2, y2] | null"
+            },
+            "stamp": {
+                "present": "boolean",
+                "bbox": "[x1, y1, x2, y2] | null"
+            },
+            "contact": {
+                "phone": "string | null",
+                "email": "string | null",
+                "office_location": "string | null"
+            }
+        },
+        "pharmacy_information": {
+            "dispensed": "boolean",
+            "dispenser": {
+                "name": "string | null",
+                "license_number": "string | null",
+                "signature": "boolean"
+            },
+            "dispensing_date": "string | null",
+            "pharmacy_name": "string | null",
+            "batch_numbers": [
+                {
+                    "medication_item": "integer",
+                    "batch_number": "string",
+                    "expiry_date": "string | null"
+                }
+            ],
+            "pharmacy_notes": "string | null",
+            "cost_information": {
+                "total_cost": "float | null",
+                "currency": "USD | KHR | null",
+                "payment_method": "string | null",
+                "insurance_covered": "float | null",
+                "patient_paid": "float | null"
+            }
+        },
+        "additional_information": {
+            "follow_up": {
+                "required": "boolean",
+                "date": "string | null",
+                "instructions": "string | null"
+            },
+            "referral": {
+                "required": "boolean",
+                "to_facility": "string | null",
+                "to_specialist": "string | null",
+                "reason": "string | null"
+            },
+            "medical_certificate": {
+                "issued": "boolean",
+                "sick_leave_days": "integer | null",
+                "restrictions": "string | null"
+            },
+            "lab_tests_ordered": [
+                {
+                    "test_name": "string",
+                    "urgency": "stat | routine | null"
+                }
+            ],
+            "imaging_ordered": [
+                "string"
+            ],
+            "patient_education": [
+                "string"
+            ],
+            "notes": {
+                "prescriber_notes": "string | null",
+                "pharmacy_notes": "string | null",
+                "administrative_notes": "string | null"
+            }
+        },
+        "digital_verification": {
+            "qr_code": {
+                "present": "boolean",
+                "data": "string | null",
+                "bbox": "[x1, y1, x2, y2] | null",
+                "verification_url": "string | null"
+            },
+            "barcode": {
+                "present": "boolean",
+                "type": "string | null",
+                "data": "string | null",
+                "bbox": "[x1, y1, x2, y2] | null"
+            },
+            "digital_signature": {
+                "present": "boolean",
+                "algorithm": "string | null",
+                "certificate": "string | null"
+            },
+            "blockchain_hash": "string | null"
+        },
+        "footer_information": {
+            "hospital_footer": {
+                "left_text": {
+                    "value": "string | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "center_text": {
+                    "value": "string | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                },
+                "right_text": {
+                    "value": "string | null",
+                    "bbox": "[x1, y1, x2, y2] | null"
+                }
+            },
+            "patient_instructions": "string | null",
+            "legal_disclaimers": [
+                "string"
+            ],
+            "confidentiality_notice": "string | null"
+        },
+        "raw_extraction_data": {
+            "full_text": "string",
+            "ocr_confidence_by_section": {
+                "header": "float 0-1 | null",
+                "patient_info": "float 0-1 | null",
+                "clinical_info": "float 0-1 | null",
+                "medications": "float 0-1 | null",
+                "footer": "float 0-1 | null"
+            },
+            "processing_flags": {
+                "handwritten_detected": "boolean",
+                "poor_image_quality": "boolean",
+                "partial_occlusion": "boolean",
+                "corrections_applied": "boolean"
+            },
+            "alternative_readings": [
+                {
+                    "field_path": "string",
+                    "alternatives": [
+                        {
+                            "value": "string",
+                            "confidence": "float 0-1"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/app_colors.dart';
 import 'patient_home_tab.dart';
 import 'patient_medications_tab.dart';
@@ -28,6 +29,7 @@ class _PatientShellState extends State<PatientShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -41,31 +43,31 @@ class _PatientShellState extends State<PatientShell> {
         unselectedItemColor: AppColors.neutral400,
         selectedFontSize: 11,
         unselectedFontSize: 10,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'ទំព័រដើម',
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: l10n.homeTab,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.medication_outlined),
-            activeIcon: Icon(Icons.medication),
-            label: 'ការវិភាគថ្នាំ',
+            icon: const Icon(Icons.medication_outlined),
+            activeIcon: const Icon(Icons.medication),
+            label: l10n.medicationsAnalysis,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.document_scanner_outlined),
-            activeIcon: Icon(Icons.document_scanner),
-            label: 'ស្កេនវេជ្ជបញ្ជា',
+            icon: const Icon(Icons.document_scanner_outlined),
+            activeIcon: const Icon(Icons.document_scanner),
+            label: l10n.scanPrescriptionTab,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.family_restroom_outlined),
-            activeIcon: Icon(Icons.family_restroom),
-            label: 'មុខងារគ្រួសារ',
+            icon: const Icon(Icons.family_restroom_outlined),
+            activeIcon: const Icon(Icons.family_restroom),
+            label: l10n.familyFeatures,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            activeIcon: Icon(Icons.settings),
-            label: 'ការកំណត់',
+            icon: const Icon(Icons.settings_outlined),
+            activeIcon: const Icon(Icons.settings),
+            label: l10n.profile,
           ),
         ],
       ),

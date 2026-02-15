@@ -26,6 +26,22 @@ export class PrescriptionsService {
       throw new ForbiddenException('No active connection with patient');
     }
 
+    // Validation: at least 1 medication required
+    if (!dto.medications || dto.medications.length === 0) {
+      throw new BadRequestException('Prescription must have at least 1 medication');
+    }
+
+    // Validation: diagnosis or symptoms required
+    if (!dto.symptoms && !dto.diagnosis) {
+      throw new BadRequestException('Diagnosis or symptoms is required');
+    }
+
+    // Get doctor's license number from profile
+    const doctor = await this.prisma.user.findUnique({
+      where: { id: doctorId },
+      select: { licenseNumber: true },
+    });
+
     // Create prescription with medications
     const prescription = await this.prisma.prescription.create({
       data: {
@@ -35,6 +51,11 @@ export class PrescriptionsService {
         patientGender: dto.patientGender,
         patientAge: dto.patientAge,
         symptoms: dto.symptoms,
+        diagnosis: dto.diagnosis,
+        clinicalNote: dto.clinicalNote,
+        doctorLicenseNumber: doctor?.licenseNumber || null,
+        followUpDate: dto.followUpDate ? new Date(dto.followUpDate) : null,
+        startDate: new Date(),
         status: 'DRAFT',
         currentVersion: 1,
         isUrgent: dto.isUrgent || false,
@@ -44,12 +65,21 @@ export class PrescriptionsService {
             rowNumber: med.rowNumber,
             medicineName: med.medicineName,
             medicineNameKhmer: med.medicineNameKhmer,
+            medicineType: med.medicineType || 'ORAL',
+            unit: med.unit || 'TABLET',
+            dosageAmount: med.dosageAmount || 1,
+            description: med.description,
+            additionalNote: med.additionalNote,
+            createdBy: doctorId,
             morningDosage: med.morningDosage as any,
             daytimeDosage: med.daytimeDosage as any,
             nightDosage: med.nightDosage as any,
             imageUrl: med.imageUrl,
-            frequency: this.calculateFrequency(med),
+            frequency: med.frequency || this.calculateFrequency(med),
+            duration: med.durationDays || null,
             timing: this.determineTiming(med),
+            isPRN: med.isPRN || false,
+            beforeMeal: med.beforeMeal || false,
           })),
         },
       },
@@ -93,7 +123,7 @@ export class PrescriptionsService {
         medications: true,
         versions: { orderBy: { versionNumber: 'desc' } },
         patient: { select: { id: true, firstName: true, lastName: true } },
-        doctor: { select: { id: true, fullName: true, specialty: true } },
+        doctor: { select: { id: true, fullName: true, specialty: true, licenseNumber: true } },
       },
     });
 
@@ -127,6 +157,9 @@ export class PrescriptionsService {
       where: { id },
       data: {
         symptoms: dto.symptoms,
+        diagnosis: dto.diagnosis,
+        clinicalNote: dto.clinicalNote,
+        followUpDate: dto.followUpDate ? new Date(dto.followUpDate) : undefined,
         currentVersion: prescription.currentVersion + 1,
         isUrgent: dto.isUrgent,
         urgentReason: dto.urgentReason,
@@ -143,12 +176,21 @@ export class PrescriptionsService {
           rowNumber: med.rowNumber,
           medicineName: med.medicineName,
           medicineNameKhmer: med.medicineNameKhmer,
+          medicineType: med.medicineType || 'ORAL',
+          unit: med.unit || 'TABLET',
+          dosageAmount: med.dosageAmount || 1,
+          description: med.description,
+          additionalNote: med.additionalNote,
+          createdBy: doctorId,
           morningDosage: med.morningDosage as any,
           daytimeDosage: med.daytimeDosage as any,
           nightDosage: med.nightDosage as any,
           imageUrl: med.imageUrl,
-          frequency: this.calculateFrequency(med),
+          frequency: med.frequency || this.calculateFrequency(med),
+          duration: med.durationDays || null,
           timing: this.determineTiming(med),
+          isPRN: med.isPRN || false,
+          beforeMeal: med.beforeMeal || false,
         })),
       });
     }
@@ -261,6 +303,16 @@ export class PrescriptionsService {
       throw new NotFoundException('Patient not found');
     }
 
+    // Validation: each medicine needs name + frequency
+    for (const med of dto.medicines) {
+      if (!med.medicineName) {
+        throw new BadRequestException('Each medicine must have a name');
+      }
+      if (!med.frequency) {
+        throw new BadRequestException('Each medicine must have a frequency');
+      }
+    }
+
     // Build patient name
     const patientName = patient.fullName
       || [patient.firstName, patient.lastName].filter(Boolean).join(' ')
@@ -287,14 +339,16 @@ export class PrescriptionsService {
         patientGender: patient.gender || 'OTHER',
         patientAge,
         symptoms: dto.diagnosis || dto.title,
+        diagnosis: dto.diagnosis,
+        startDate: new Date(dto.startDate),
+        endDate: dto.endDate ? new Date(dto.endDate) : null,
         status: 'ACTIVE',
         currentVersion: 1,
         isUrgent: false,
         medications: {
           create: dto.medicines.map((med, index) => {
             const dosageInfo = {
-              amount: med.dosageAmount,
-              unit: med.dosageUnit,
+              amount: `${med.dosageAmount}${med.dosageUnit}`,
               beforeMeal: med.beforeMeal || false,
             };
 
@@ -323,12 +377,21 @@ export class PrescriptionsService {
               rowNumber: index + 1,
               medicineName: med.medicineName,
               medicineNameKhmer: med.medicineNameKhmer,
+              medicineType: med.medicineType || 'ORAL',
+              unit: med.unit || 'TABLET',
+              dosageAmount: med.dosageAmount,
+              description: med.description,
+              additionalNote: med.additionalNote,
+              createdBy: patientId,
               morningDosage,
               daytimeDosage,
               nightDosage,
               imageUrl: med.imageUrl,
               frequency: med.frequency,
+              duration: med.durationDays || null,
               timing: med.beforeMeal ? 'មុនអាហារ' : 'បន្ទាប់ពីអាហារ',
+              isPRN: med.isPRN || false,
+              beforeMeal: med.beforeMeal || false,
             };
           }),
         },
@@ -336,7 +399,7 @@ export class PrescriptionsService {
       include: { medications: true },
     });
 
-    // Generate dose events for 30 days
+    // Generate dose events
     await this.generateDoseEvents(prescription);
 
     // Create audit log entry
@@ -444,8 +507,7 @@ export class PrescriptionsService {
       include: { medications: true },
     });
 
-    // Regenerate dose events for 30 days
-    // First, delete future DUE dose events
+    // Delete future DUE dose events, then regenerate
     await this.prisma.doseEvent.deleteMany({
       where: {
         prescriptionId: id,
@@ -454,7 +516,6 @@ export class PrescriptionsService {
       },
     });
 
-    // Generate new dose events
     await this.generateDoseEvents(resumed);
 
     // Create audit log entry
@@ -517,51 +578,74 @@ export class PrescriptionsService {
     const today = new Date();
     const events: any[] = [];
 
+    // Get patient's meal time preferences
+    const mealPref = await this.prisma.mealTimePreference.findUnique({
+      where: { userId: prescription.patientId },
+    });
+
+    const morningHour = mealPref?.morningMeal ? parseInt(mealPref.morningMeal.split(':')[0]) : 7;
+    const morningMin = mealPref?.morningMeal ? parseInt(mealPref.morningMeal.split(':')[1]) : 0;
+    const afternoonHour = mealPref?.afternoonMeal ? parseInt(mealPref.afternoonMeal.split(':')[0]) : 12;
+    const afternoonMin = mealPref?.afternoonMeal ? parseInt(mealPref.afternoonMeal.split(':')[1]) : 0;
+    const nightHour = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[0]) : 20;
+    const nightMin = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[1]) : 0;
+
     for (const medication of prescription.medications) {
-      // Generate for next 30 days
-      for (let day = 0; day < 30; day++) {
+      if (medication.isPRN) continue;
+
+      const days = medication.duration || 30;
+
+      for (let day = 0; day < days; day++) {
         const date = new Date(today);
         date.setDate(date.getDate() + day);
 
         if (medication.morningDosage) {
+          const scheduledTime = new Date(date);
+          scheduledTime.setHours(morningHour, morningMin, 0, 0);
           events.push({
             prescriptionId: prescription.id,
             medicationId: medication.id,
             patientId: prescription.patientId,
-            scheduledTime: new Date(date.setHours(7, 0, 0, 0)),
+            scheduledTime,
             timePeriod: 'DAYTIME' as const,
             status: 'DUE' as const,
-            reminderTime: '07:00',
+            reminderTime: `${String(morningHour).padStart(2, '0')}:${String(morningMin).padStart(2, '0')}`,
           });
         }
 
         if (medication.daytimeDosage) {
+          const scheduledTime = new Date(date);
+          scheduledTime.setHours(afternoonHour, afternoonMin, 0, 0);
           events.push({
             prescriptionId: prescription.id,
             medicationId: medication.id,
             patientId: prescription.patientId,
-            scheduledTime: new Date(date.setHours(12, 0, 0, 0)),
+            scheduledTime,
             timePeriod: 'DAYTIME' as const,
             status: 'DUE' as const,
-            reminderTime: '12:00',
+            reminderTime: `${String(afternoonHour).padStart(2, '0')}:${String(afternoonMin).padStart(2, '0')}`,
           });
         }
 
         if (medication.nightDosage) {
+          const scheduledTime = new Date(date);
+          scheduledTime.setHours(nightHour, nightMin, 0, 0);
           events.push({
             prescriptionId: prescription.id,
             medicationId: medication.id,
             patientId: prescription.patientId,
-            scheduledTime: new Date(date.setHours(20, 0, 0, 0)),
+            scheduledTime,
             timePeriod: 'NIGHT' as const,
             status: 'DUE' as const,
-            reminderTime: '20:00',
+            reminderTime: `${String(nightHour).padStart(2, '0')}:${String(nightMin).padStart(2, '0')}`,
           });
         }
       }
     }
 
-    await this.prisma.doseEvent.createMany({ data: events });
+    if (events.length > 0) {
+      await this.prisma.doseEvent.createMany({ data: events });
+    }
   }
 
   private calculateFrequency(med: any): string {
@@ -570,7 +654,7 @@ export class PrescriptionsService {
   }
 
   private determineTiming(med: any): string {
-    const hasBeforeMeal = [med.morningDosage, med.daytimeDosage, med.nightDosage]
+    const hasBeforeMeal = med.beforeMeal || [med.morningDosage, med.daytimeDosage, med.nightDosage]
       .some(d => d?.beforeMeal);
     return hasBeforeMeal ? 'មុនអាហារ' : 'បន្ទាប់ពីអាហារ';
   }

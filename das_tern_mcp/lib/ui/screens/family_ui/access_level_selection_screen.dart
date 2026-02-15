@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/enums_model/enums.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
@@ -17,41 +18,37 @@ class _AccessLevelSelectionScreenState
     extends State<AccessLevelSelectionScreen> {
   PermissionLevel _selectedLevel = PermissionLevel.request;
 
-  static const _levels = [
-    _LevelOption(
-      level: PermissionLevel.request,
-      title: 'មើលប៉ុណ្ណោះ',
-      titleEn: 'View Only',
-      description: 'គ្រួសារអាចមើលតារាងថ្នាំប៉ុណ្ណោះ',
-      descriptionEn: 'Caregiver can only view medication schedules',
-      icon: Icons.visibility,
-      color: AppColors.primaryBlue,
-    ),
-    _LevelOption(
-      level: PermissionLevel.selected,
-      title: 'មើល + រំលឹក',
-      titleEn: 'View + Remind',
-      description: 'គ្រួសារអាចមើលនិងផ្ញើការរំលឹក',
-      descriptionEn: 'Caregiver can view and send nudge reminders',
-      icon: Icons.notifications_active,
-      color: AppColors.warningOrange,
-    ),
-    _LevelOption(
-      level: PermissionLevel.allowed,
-      title: 'មើល + គ្រប់គ្រង',
-      titleEn: 'View + Manage',
-      description: 'គ្រួសារអាចមើល រំលឹក និងកែប្រែតារាង',
-      descriptionEn: 'Caregiver can view, remind and edit schedules',
-      icon: Icons.edit_note,
-      color: AppColors.successGreen,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    final levels = [
+      _LevelOption(
+        level: PermissionLevel.request,
+        title: l10n.viewOnly,
+        description: l10n.viewOnlyDescription,
+        icon: Icons.visibility,
+        color: AppColors.primaryBlue,
+      ),
+      _LevelOption(
+        level: PermissionLevel.selected,
+        title: l10n.viewAndRemind,
+        description: l10n.viewAndRemindDescription,
+        icon: Icons.notifications_active,
+        color: AppColors.warningOrange,
+      ),
+      _LevelOption(
+        level: PermissionLevel.allowed,
+        title: l10n.viewAndManage,
+        description: l10n.viewAndManageDescription,
+        icon: Icons.edit_note,
+        color: AppColors.successGreen,
+      ),
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('កម្រិតការចូលប្រើ'),
+        title: Text(l10n.accessLevelTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -66,14 +63,14 @@ class _AccessLevelSelectionScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'ជ្រើសរើសកម្រិតការចូលប្រើ',
+                l10n.selectAccessLevel,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'អ្នកអាចផ្លាស់ប្តូរកម្រិតនេះនៅពេលក្រោយ',
+                l10n.accessLevelChangeableLater,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -81,8 +78,8 @@ class _AccessLevelSelectionScreenState
               const SizedBox(height: AppSpacing.lg),
 
               // Permission level options
-              ...List.generate(_levels.length, (index) {
-                final option = _levels[index];
+              ...List.generate(levels.length, (index) {
+                final option = levels[index];
                 final isSelected = _selectedLevel == option.level;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -94,7 +91,7 @@ class _AccessLevelSelectionScreenState
 
               // Continue button
               PrimaryButton(
-                text: 'បន្ត',
+                text: l10n.continueButton,
                 onPressed: () {
                   Navigator.pushNamed(
                     context,
@@ -180,18 +177,14 @@ class _AccessLevelSelectionScreenState
 class _LevelOption {
   final PermissionLevel level;
   final String title;
-  final String titleEn;
   final String description;
-  final String descriptionEn;
   final IconData icon;
   final Color color;
 
   const _LevelOption({
     required this.level,
     required this.title,
-    required this.titleEn,
     required this.description,
-    required this.descriptionEn,
     required this.icon,
     required this.color,
   });

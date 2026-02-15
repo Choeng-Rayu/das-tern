@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, MedicineUnit } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { CreateMedicineDto, UpdateMedicineDto } from './dto';
 
@@ -7,8 +7,8 @@ import { CreateMedicineDto, UpdateMedicineDto } from './dto';
 export class MedicinesService {
   constructor(private prisma: PrismaService) {}
 
-  async addMedicine(prescriptionId: string, patientId: string, dto: CreateMedicineDto) {
-    // Verify prescription exists and belongs to patient
+  async addMedicine(prescriptionId: string, userId: string, dto: CreateMedicineDto, userRole: string) {
+    // Verify prescription exists
     const prescription = await this.prisma.prescription.findUnique({
       where: { id: prescriptionId },
       include: { medications: true },
@@ -18,13 +18,17 @@ export class MedicinesService {
       throw new NotFoundException('Prescription not found');
     }
 
-    if (prescription.patientId !== patientId) {
-      throw new ForbiddenException('Access denied');
-    }
-
-    // Only allow editing patient-created prescriptions (doctorId is null)
+    // Permission logic:
+    // - Patient can add to their own patient-created prescriptions (doctorId is null)
+    // - Doctor can add to their own doctor-created prescriptions
     if (prescription.doctorId) {
-      throw new ForbiddenException('Cannot add medicines to doctor-issued prescriptions');
+      if (prescription.doctorId !== userId) {
+        throw new ForbiddenException('Cannot modify another doctor\'s prescription');
+      }
+    } else {
+      if (prescription.patientId !== userId) {
+        throw new ForbiddenException('Access denied');
+      }
     }
 
     const rowNumber = prescription.medications.length + 1;
@@ -49,25 +53,34 @@ export class MedicinesService {
         rowNumber,
         medicineName: dto.medicineName,
         medicineNameKhmer: dto.medicineNameKhmer,
+        medicineType: dto.medicineType || 'ORAL',
+        unit: dto.unit || this.mapDosageUnit(dto.dosageUnit),
+        dosageAmount: dto.dosageAmount,
+        description: dto.description,
+        additionalNote: dto.additionalNote,
+        createdBy: userId,
         morningDosage: hasTimes ? (morningDosage || Prisma.DbNull) : { amount: `${dto.dosageAmount}${dto.dosageUnit}`, beforeMeal: dto.beforeMeal || false },
         daytimeDosage: hasTimes ? (daytimeDosage || Prisma.DbNull) : Prisma.DbNull,
         nightDosage: hasTimes ? (nightDosage || Prisma.DbNull) : Prisma.DbNull,
         imageUrl: dto.imageUrl,
         frequency: dto.frequency || '1ដង/១ថ្ងៃ',
+        duration: dto.durationDays || null,
         timing: dto.beforeMeal ? 'មុនអាហារ' : 'បន្ទាប់ពីអាហារ',
+        isPRN: dto.isPRN || false,
+        beforeMeal: dto.beforeMeal || false,
       },
     });
 
     // Generate dose events for this medicine if prescription is ACTIVE
     if (prescription.status === 'ACTIVE' && !dto.isPRN) {
-      await this.generateDoseEventsForMedicine(prescriptionId, medicine.id, patientId, medicine);
+      await this.generateDoseEventsForMedicine(prescriptionId, medicine.id, prescription.patientId, medicine);
     }
 
     // Create audit log
     await this.prisma.auditLog.create({
       data: {
-        actorId: patientId,
-        actorRole: 'PATIENT',
+        actorId: userId,
+        actorRole: userRole as any,
         actionType: 'PRESCRIPTION_UPDATE',
         resourceType: 'Medication',
         resourceId: medicine.id,
@@ -89,7 +102,6 @@ export class MedicinesService {
 
     // Allow access if user is the patient, the doctor, or has a connection
     if (prescription.patientId !== userId && prescription.doctorId !== userId) {
-      // Check for family/doctor connection
       const connection = await this.prisma.connection.findFirst({
         where: {
           OR: [
@@ -131,14 +143,16 @@ export class MedicinesService {
       throw new ForbiddenException('Access denied');
     }
 
-    // Compute whether medicine can be edited
     const hasTakenDoses = medicine.doseEvents.some(
       d => d.status === 'TAKEN_ON_TIME' || d.status === 'TAKEN_LATE'
     );
 
     return {
       ...medicine,
-      canEdit: !hasTakenDoses && !medicine.prescription.doctorId,
+      canEdit: !hasTakenDoses && (
+        (!medicine.prescription.doctorId && medicine.prescription.patientId === userId) ||
+        (medicine.prescription.doctorId === userId)
+      ),
       totalDoses: medicine.doseEvents.length,
       takenDoses: medicine.doseEvents.filter(d => d.status === 'TAKEN_ON_TIME' || d.status === 'TAKEN_LATE').length,
       missedDoses: medicine.doseEvents.filter(d => d.status === 'MISSED').length,
@@ -146,7 +160,7 @@ export class MedicinesService {
     };
   }
 
-  async updateMedicine(id: string, patientId: string, dto: UpdateMedicineDto) {
+  async updateMedicine(id: string, userId: string, dto: UpdateMedicineDto, userRole: string) {
     const medicine = await this.prisma.medication.findUnique({
       where: { id },
       include: { prescription: true, doseEvents: true },
@@ -156,36 +170,48 @@ export class MedicinesService {
       throw new NotFoundException('Medicine not found');
     }
 
-    if (medicine.prescription.patientId !== patientId) {
-      throw new ForbiddenException('Access denied');
-    }
-
+    // Permission logic: doctor can edit own prescription, patient can edit patient-created
     if (medicine.prescription.doctorId) {
-      throw new ForbiddenException('Cannot edit medicines from doctor-issued prescriptions');
+      if (medicine.prescription.doctorId !== userId) {
+        throw new ForbiddenException('Cannot edit medicines from another doctor\'s prescription');
+      }
+    } else {
+      if (medicine.prescription.patientId !== userId) {
+        throw new ForbiddenException('Access denied');
+      }
     }
 
-    // Check if any doses have been taken
-    const hasTakenDoses = medicine.doseEvents.some(
-      d => d.status === 'TAKEN_ON_TIME' || d.status === 'TAKEN_LATE'
-    );
-
-    if (hasTakenDoses) {
-      throw new BadRequestException('Cannot edit medicine after first dose. Create a new medicine instead.');
+    // Check if any doses have been taken (only restrict for non-doctor edits)
+    if (!medicine.prescription.doctorId) {
+      const hasTakenDoses = medicine.doseEvents.some(
+        d => d.status === 'TAKEN_ON_TIME' || d.status === 'TAKEN_LATE'
+      );
+      if (hasTakenDoses) {
+        throw new BadRequestException('Cannot edit medicine after first dose. Create a new medicine instead.');
+      }
     }
 
     // Build update data
     const updateData: any = {};
     if (dto.medicineName) updateData.medicineName = dto.medicineName;
     if (dto.medicineNameKhmer !== undefined) updateData.medicineNameKhmer = dto.medicineNameKhmer;
+    if (dto.medicineType !== undefined) updateData.medicineType = dto.medicineType;
+    if (dto.unit !== undefined) updateData.unit = dto.unit;
+    if (dto.dosageAmount !== undefined) updateData.dosageAmount = dto.dosageAmount;
+    if (dto.description !== undefined) updateData.description = dto.description;
+    if (dto.additionalNote !== undefined) updateData.additionalNote = dto.additionalNote;
+    if (dto.durationDays !== undefined) updateData.duration = dto.durationDays;
+    if (dto.isPRN !== undefined) updateData.isPRN = dto.isPRN;
     if (dto.imageUrl !== undefined) updateData.imageUrl = dto.imageUrl;
     if (dto.beforeMeal !== undefined) {
+      updateData.beforeMeal = dto.beforeMeal;
       updateData.timing = dto.beforeMeal ? 'មុនអាហារ' : 'បន្ទាប់ពីអាហារ';
     }
 
     // Update dosage fields if schedule times provided
     if (dto.scheduleTimes) {
-      const dosageStr = `${dto.dosageAmount || ''}${dto.dosageUnit || ''}`;
-      const bm = dto.beforeMeal || false;
+      const dosageStr = `${dto.dosageAmount || medicine.dosageAmount}${dto.dosageUnit || ''}`;
+      const bm = dto.beforeMeal ?? medicine.beforeMeal;
       updateData.morningDosage = dto.scheduleTimes.some((st: any) => st.timePeriod === 'MORNING')
         ? { amount: dosageStr, beforeMeal: bm } : Prisma.DbNull;
       updateData.daytimeDosage = dto.scheduleTimes.some((st: any) => st.timePeriod === 'DAYTIME')
@@ -203,11 +229,9 @@ export class MedicinesService {
 
     // Regenerate dose events if prescription is active
     if (medicine.prescription.status === 'ACTIVE') {
-      // Delete existing DUE dose events for this medicine
       await this.prisma.doseEvent.deleteMany({
         where: { medicationId: id, status: 'DUE' },
       });
-      // Regenerate
       await this.generateDoseEventsForMedicine(
         medicine.prescriptionId,
         id,
@@ -219,8 +243,8 @@ export class MedicinesService {
     // Audit log
     await this.prisma.auditLog.create({
       data: {
-        actorId: patientId,
-        actorRole: 'PATIENT',
+        actorId: userId,
+        actorRole: userRole as any,
         actionType: 'PRESCRIPTION_UPDATE',
         resourceType: 'Medication',
         resourceId: id,
@@ -231,7 +255,7 @@ export class MedicinesService {
     return updated;
   }
 
-  async deleteMedicine(id: string, patientId: string) {
+  async deleteMedicine(id: string, userId: string, userRole: string) {
     const medicine = await this.prisma.medication.findUnique({
       where: { id },
       include: { prescription: true },
@@ -241,12 +265,15 @@ export class MedicinesService {
       throw new NotFoundException('Medicine not found');
     }
 
-    if (medicine.prescription.patientId !== patientId) {
-      throw new ForbiddenException('Access denied');
-    }
-
+    // Permission logic
     if (medicine.prescription.doctorId) {
-      throw new ForbiddenException('Cannot delete medicines from doctor-issued prescriptions');
+      if (medicine.prescription.doctorId !== userId) {
+        throw new ForbiddenException('Cannot delete medicines from another doctor\'s prescription');
+      }
+    } else {
+      if (medicine.prescription.patientId !== userId) {
+        throw new ForbiddenException('Access denied');
+      }
     }
 
     // Delete cascades to dose events
@@ -255,8 +282,8 @@ export class MedicinesService {
     // Audit log
     await this.prisma.auditLog.create({
       data: {
-        actorId: patientId,
-        actorRole: 'PATIENT',
+        actorId: userId,
+        actorRole: userRole as any,
         actionType: 'PRESCRIPTION_UPDATE',
         resourceType: 'Medication',
         resourceId: id,
@@ -268,7 +295,6 @@ export class MedicinesService {
   }
 
   async getArchivedMedicines(patientId: string) {
-    // Get medications from inactive/completed prescriptions
     return this.prisma.medication.findMany({
       where: {
         prescription: {
@@ -308,6 +334,20 @@ export class MedicinesService {
     });
   }
 
+  private mapDosageUnit(unitStr: string): MedicineUnit {
+    const mapping: Record<string, MedicineUnit> = {
+      tablet: 'TABLET',
+      tablets: 'TABLET',
+      capsule: 'CAPSULE',
+      capsules: 'CAPSULE',
+      ml: 'ML',
+      mg: 'MG',
+      drop: 'DROP',
+      drops: 'DROP',
+    };
+    return mapping[unitStr.toLowerCase()] || 'OTHER';
+  }
+
   private async generateDoseEventsForMedicine(
     prescriptionId: string,
     medicationId: string,
@@ -316,14 +356,27 @@ export class MedicinesService {
   ) {
     const today = new Date();
     const events: any[] = [];
+    const days = medication.duration || 30;
 
-    for (let day = 0; day < 30; day++) {
+    // Try to get patient's meal time preferences for personalized dose times
+    const mealPref = await this.prisma.mealTimePreference.findUnique({
+      where: { userId: patientId },
+    });
+
+    const morningHour = mealPref?.morningMeal ? parseInt(mealPref.morningMeal.split(':')[0]) : 7;
+    const morningMin = mealPref?.morningMeal ? parseInt(mealPref.morningMeal.split(':')[1]) : 0;
+    const afternoonHour = mealPref?.afternoonMeal ? parseInt(mealPref.afternoonMeal.split(':')[0]) : 12;
+    const afternoonMin = mealPref?.afternoonMeal ? parseInt(mealPref.afternoonMeal.split(':')[1]) : 0;
+    const nightHour = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[0]) : 20;
+    const nightMin = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[1]) : 0;
+
+    for (let day = 0; day < days; day++) {
       const date = new Date(today);
       date.setDate(date.getDate() + day);
 
       if (medication.morningDosage) {
         const scheduledTime = new Date(date);
-        scheduledTime.setHours(7, 0, 0, 0);
+        scheduledTime.setHours(morningHour, morningMin, 0, 0);
         events.push({
           prescriptionId,
           medicationId,
@@ -331,13 +384,13 @@ export class MedicinesService {
           scheduledTime,
           timePeriod: 'DAYTIME' as const,
           status: 'DUE' as const,
-          reminderTime: '07:00',
+          reminderTime: `${String(morningHour).padStart(2, '0')}:${String(morningMin).padStart(2, '0')}`,
         });
       }
 
       if (medication.daytimeDosage) {
         const scheduledTime = new Date(date);
-        scheduledTime.setHours(12, 0, 0, 0);
+        scheduledTime.setHours(afternoonHour, afternoonMin, 0, 0);
         events.push({
           prescriptionId,
           medicationId,
@@ -345,13 +398,13 @@ export class MedicinesService {
           scheduledTime,
           timePeriod: 'DAYTIME' as const,
           status: 'DUE' as const,
-          reminderTime: '12:00',
+          reminderTime: `${String(afternoonHour).padStart(2, '0')}:${String(afternoonMin).padStart(2, '0')}`,
         });
       }
 
       if (medication.nightDosage) {
         const scheduledTime = new Date(date);
-        scheduledTime.setHours(20, 0, 0, 0);
+        scheduledTime.setHours(nightHour, nightMin, 0, 0);
         events.push({
           prescriptionId,
           medicationId,
@@ -359,7 +412,7 @@ export class MedicinesService {
           scheduledTime,
           timePeriod: 'NIGHT' as const,
           status: 'DUE' as const,
-          reminderTime: '20:00',
+          reminderTime: `${String(nightHour).padStart(2, '0')}:${String(nightMin).padStart(2, '0')}`,
         });
       }
     }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../services/api_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
@@ -12,6 +13,9 @@ class AuthProvider extends ChangeNotifier {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
   );
 
   bool _isLoading = false;
@@ -86,16 +90,77 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Sign in with Google OAuth.
+  /// Optional userRole parameter for doctor registration flow.
+  Future<bool> signInWithGoogle({String? userRole}) async {
+    _log.info('AuthProvider', 'Google Sign-In attempt', {'userRole': userRole});
+    _setLoading(true);
+    _error = null;
+    try {
+      // Sign out first to ensure account picker is shown
+      await _googleSignIn.signOut();
+
+      // Trigger Google Sign-In flow
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        _log.warning('AuthProvider', 'Google Sign-In cancelled by user');
+        _error = 'Sign in cancelled';
+        notifyListeners();
+        return false;
+      }
+
+      _log.debug('AuthProvider', 'Google account selected', {'email': googleUser.email});
+
+      // Get authentication tokens
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      if (googleAuth.idToken == null) {
+        _log.error('AuthProvider', 'Failed to get Google ID token', {});
+        _error = 'Failed to authenticate with Google';
+        notifyListeners();
+        return false;
+      }
+
+      _log.debug('AuthProvider', 'Got Google ID token, sending to backend');
+
+      // Send to backend
+      final result = await _api.googleLogin(googleAuth.idToken!, userRole: userRole);
+      await _saveTokens(result);
+      _user = result['user'];
+      _isAuthenticated = true;
+
+      _log.success('AuthProvider', 'Google Sign-In successful', {
+        'userId': _user?['id'],
+        'role': _user?['role'],
+        'email': _user?['email']
+      });
+
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '').replaceFirst('ApiException: ', '');
+      _log.error('AuthProvider', 'Google Sign-In failed', e);
+
+      // Sign out Google account on failure
+      await _googleSignIn.signOut();
+
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   /// Register a new patient.
   Future<Map<String, dynamic>?> registerPatient({
     required String firstName,
     required String lastName,
     required String gender,
     required String dateOfBirth,
-    required String idCardNumber,
+    String? idCardNumber,
     required String phoneNumber,
     required String password,
-    required String pinCode,
   }) async {
     _setLoading(true);
     _error = null;
@@ -108,7 +173,6 @@ class AuthProvider extends ChangeNotifier {
         idCardNumber: idCardNumber,
         phoneNumber: phoneNumber,
         password: password,
-        pinCode: pinCode,
       );
       notifyListeners();
       return result;

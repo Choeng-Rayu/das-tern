@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/connection_model/connection.dart';
 import '../../../models/enums_model/enums.dart';
 import '../../../providers/connection_provider.dart';
@@ -39,15 +40,16 @@ class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('គ្រួសាររបស់ខ្ញុំ'),
+        title: Text(l10n.myFamily),
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'អ្នកថែទាំ'),
-            Tab(text: 'អ្នកជំងឺ'),
+          tabs: [
+            Tab(text: l10n.caregiversTab),
+            Tab(text: l10n.patientsTab),
           ],
         ),
         actions: [
@@ -56,7 +58,7 @@ class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
             onPressed: () {
               Navigator.pushNamed(context, '/family/history');
             },
-            tooltip: 'ប្រវត្តិការតភ្ជាប់',
+            tooltip: l10n.connectionHistory,
           ),
         ],
       ),
@@ -72,7 +74,7 @@ class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
           Navigator.pushNamed(context, '/family/connect');
         },
         icon: const Icon(Icons.add),
-        label: const Text('ភ្ជាប់ថ្មី'),
+        label: Text(l10n.newConnection),
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: AppColors.white,
       ),
@@ -84,6 +86,7 @@ class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
 class _CaregiversList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<ConnectionProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading) {
@@ -94,9 +97,8 @@ class _CaregiversList extends StatelessWidget {
           return _buildEmptyState(
             context,
             icon: Icons.people_outline,
-            title: 'មិនទាន់មានអ្នកថែទាំ',
-            subtitle:
-                'ចែករំលែកកូដ QR ដើម្បីអនុញ្ញាតគ្រួសារ\nត្រួតពិនិត្យការទទួលទានថ្នាំ',
+            title: l10n.noCaregiversYet,
+            subtitle: l10n.shareQrToAllowFamily,
           );
         }
 
@@ -119,6 +121,7 @@ class _CaregiversList extends StatelessWidget {
 class _PatientsMonitoredList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<ConnectionProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading) {
@@ -129,8 +132,8 @@ class _PatientsMonitoredList extends StatelessWidget {
           return _buildEmptyState(
             context,
             icon: Icons.favorite_border,
-            title: 'មិនទាន់តាមដានអ្នកជំងឺ',
-            subtitle: 'ស្កេនកូដ QR ពីអ្នកជំងឺដើម្បីចាប់ផ្តើម\nតាមដានការទទួលទានថ្នាំ',
+            title: l10n.notMonitoringPatients,
+            subtitle: l10n.scanQrToStartMonitoring,
           );
         }
 
@@ -191,6 +194,7 @@ class _CaregiverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // For a patient, the caregiver is the initiator
     final caregiver = connection.initiator ?? {};
     final name =
@@ -214,7 +218,7 @@ class _CaregiverCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name.isEmpty ? 'Caregiver' : name,
+                    name.isEmpty ? l10n.caregiverLabel : name,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -248,6 +252,7 @@ class _PatientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // For a caregiver, the patient is the recipient
     final patient = connection.recipient ?? {};
     final name =
@@ -280,7 +285,7 @@ class _PatientCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name.isEmpty ? 'Patient' : name,
+                    name.isEmpty ? l10n.patient : name,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -336,21 +341,22 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final Color color;
     final String label;
 
     switch (connection.status) {
       case ConnectionStatus.pending:
         color = AppColors.warningOrange;
-        label = 'រង់ចាំ';
+        label = l10n.pending;
         break;
       case ConnectionStatus.accepted:
         color = AppColors.successGreen;
-        label = 'សកម្ម';
+        label = l10n.active;
         break;
       case ConnectionStatus.revoked:
         color = AppColors.alertRed;
-        label = 'ដកហូត';
+        label = l10n.statusRevoked;
         break;
     }
 

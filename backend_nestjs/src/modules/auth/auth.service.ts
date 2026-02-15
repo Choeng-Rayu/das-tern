@@ -1,23 +1,29 @@
 import { Injectable, UnauthorizedException, BadRequestException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { OAuth2Client } from 'google-auth-library';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../../database/prisma.service';
 import { RegisterPatientDto, RegisterDoctorDto } from './dto';
 import { OtpService } from './otp.service';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
   private readonly LOCK_DURATION = 15 * 60 * 1000; // 15 minutes
   private readonly MAX_FAILED_ATTEMPTS = 5;
   private readonly BCRYPT_ROUNDS = 12;
+  private readonly googleClient: OAuth2Client;
 
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
     private otpService: OtpService,
-  ) {}
+  ) {
+    const googleClientId = this.configService.get('GOOGLE_CLIENT_ID');
+    this.googleClient = new OAuth2Client(googleClientId);
+  }
 
   async validateUser(phoneNumber: string, password: string) {
     const user = await this.prisma.user.findUnique({
@@ -75,7 +81,7 @@ export class AuthService {
       });
     }
 
-    const { passwordHash, pinCodeHash, ...result } = user;
+    const { passwordHash, ...result } = user;
     return result;
   }
 
@@ -124,9 +130,8 @@ export class AuthService {
       }
     }
 
-    // Hash password and PIN
+    // Hash password
     const passwordHash = await bcrypt.hash(dto.password, this.BCRYPT_ROUNDS);
-    const pinCodeHash = await bcrypt.hash(dto.pinCode, this.BCRYPT_ROUNDS);
 
     // Create user with PENDING status (requires OTP verification)
     const user = await this.prisma.user.create({
@@ -136,7 +141,6 @@ export class AuthService {
         lastName: dto.lastName,
         phoneNumber: dto.phoneNumber,
         passwordHash,
-        pinCodeHash,
         gender: dto.gender,
         dateOfBirth: new Date(dto.dateOfBirth),
         idCardNumber: dto.idCardNumber || null,
@@ -208,7 +212,7 @@ export class AuthService {
       },
     });
 
-    const { passwordHash, pinCodeHash, ...result } = user;
+    const { passwordHash, ...result } = user;
     return this.login(result);
   }
 
@@ -226,10 +230,84 @@ export class AuthService {
         throw new UnauthorizedException('User not found');
       }
 
-      const { passwordHash, pinCodeHash, ...result } = user;
+      const { passwordHash, ...result } = user;
       return this.login(result);
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  /**
+   * Validate Google ID token from mobile apps and create/login user
+   * Used for Flutter app Google Sign-In
+   */
+  async googleLoginMobile(idToken: string, userRole?: UserRole) {
+    try {
+      // Verify the ID token
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken,
+        audience: this.configService.get('GOOGLE_CLIENT_ID'),
+      });
+
+      const payload = ticket.getPayload();
+
+      if (!payload || !payload.email) {
+        throw new UnauthorizedException('Invalid Google token');
+      }
+
+      const { email, given_name, family_name, name, picture } = payload;
+
+      // Check if user exists by email
+      let user = await this.prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!user) {
+        // Create new user from Google profile
+        const role = userRole || 'PATIENT'; // Default to PATIENT if not specified
+
+        user = await this.prisma.user.create({
+          data: {
+            email,
+            firstName: given_name || name?.split(' ')[0] || 'User',
+            lastName: family_name || name?.split(' ')[1] || '',
+            fullName: name || `${given_name || ''} ${family_name || ''}`.trim(),
+            phoneNumber: email, // Temporary - user should update this
+            passwordHash: await bcrypt.hash(Math.random().toString(36), this.BCRYPT_ROUNDS),
+            role,
+            accountStatus: 'ACTIVE',
+            profilePictureUrl: picture,
+          },
+        });
+
+        // Create default subscription for patients
+        if (role === 'PATIENT') {
+          await this.prisma.subscription.create({
+            data: {
+              userId: user.id,
+              tier: 'FREEMIUM',
+              storageQuota: 5368709120, // 5GB
+              storageUsed: 0,
+            },
+          });
+        }
+      } else {
+        // Update profile picture if changed
+        if (picture && picture !== user.profilePictureUrl) {
+          await this.prisma.user.update({
+            where: { id: user.id },
+            data: { profilePictureUrl: picture },
+          });
+        }
+      }
+
+      const { passwordHash, ...result } = user;
+      return this.login(result);
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new UnauthorizedException('Invalid Google token: ' + error.message);
     }
   }
 
@@ -263,7 +341,7 @@ export class AuthService {
       });
     }
 
-    const { passwordHash, pinCodeHash, ...result } = user;
+    const { passwordHash, ...result } = user;
     return this.login(result);
   }
 }
