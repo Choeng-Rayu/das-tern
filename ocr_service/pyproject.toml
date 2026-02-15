@@ -1,0 +1,14 @@
+[project]
+name = "das-tern-ocr"
+version = "1.0.0"
+description = "OCR Prescription Scanning Service for Cambodian prescriptions"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["tests/*"]

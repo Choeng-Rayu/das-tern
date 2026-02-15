@@ -1,154 +1,157 @@
 ---
 applyTo: '**'
 ---
-AI AGENT RULES – DOCKER (POSTGRES & REDIS), NESTJS BACKEND, MOBILE APP
+AI AGENT RULES – DASTERN ARCHITECTURE & WORKFLOW
 
 
-Scope
-=====
-- Docker is used ONLY to run PostgreSQL and Redis
-- Backend framework is NestJS (Node.js)
-- Mobile app consumes the backend API
-- No OCR services
-- No AI or LLM services
+Architecture Overview
+=====================
+
+System Components:
+
+1. backend (NestJS)
+   - Main business logic
+   - Handles authentication, medication, users, payment processing
+   - Communicates with Bakong Service
+   - Connects to PostgreSQL and Redis (via Docker)
+
+2. bakong_service (Separate VPS)
+   - Handles Bakong payment integration
+   - Receives encrypted payload from backend
+   - Generates QR code via Bakong API
+   - Receives payment notification from Bakong
+   - Sends payment success callback to main backend
+   - Does NOT connect to the main PostgreSQL/Redis Docker
+   - Stores only minimal payment-related data
+
+3. frontend: das_tern_mcp (Flutter)
+   - Mobile application
+   - Implement flutter must support english and khmer language so please check the /home/rayu/das-tern/das_tern_mcp/lib/l10n folder for the existing localization files and follow the pattern for adding new strings.
+   - Communicates only with backend (NOT directly with bakong_service)
+   - Always run flutter analyze and fix the issue before test the flutter
+
+4. Database
+   - PostgreSQL (Docker only)
+   - Redis (Docker only)
+   - Docker is used ONLY for Postgres and Redis
 
 
-Core Rules
-==========
+System Flow
+===========
 
-1. Sensitive File Awareness
----------------------------
-Treat the following files and directories as sensitive and high-risk:
+Payment Flow:
 
-- Database schema and migration files
-  (SQL files, Prisma schema, TypeORM/MikroORM migrations)
+1. Flutter app sends payment request to backend (NestJS).
+2. Backend encrypts payload and sends request to bakong_service.
+3. bakong_service calls Bakong API and generates QR code.
+4. bakong_service returns QR code response to backend.
+5. Backend sends QR code to Flutter app.
+6. User pays via Bakong.
+7. Bakong sends payment notification to bakong_service.
+8. bakong_service validates and notifies backend.
+9. Backend updates payment status in PostgreSQL.
+10. Backend confirms successful payment to frontend.
 
-- Environment variables
-  (.env, .env.development, .env.production, .env.*)
-
-- Database initialization scripts
-  (init.sql, seed.sql, migration scripts)
-
-Any detected change to these files MUST trigger a Docker consistency check
-and container lifecycle validation.
-
-
-2. Good Project File Structure Enforcement
-------------------------------------------
-The agent MUST enforce a clean and predictable project structure.
-
-Recommended structure:
-
-- docker/
-  - postgres/
-    - init.sql
-    - seed.sql
-    - migrations/
-  - redis/
-
-- backend/
-  - src/
-  - database/
-    - migrations/
-    - schema/
-  - .env.example
-  - nest-cli.json
-  - package.json
-
-- mobile_app/
-  - src/
-  - .env.example
-
-- .env                  (never committed)
-- .env.example          (always committed)
-- docker-compose.yml
-- README.md
-
-Rules:
-- Docker is ONLY responsible for Postgres and Redis.
-- Backend (NestJS) runs outside Docker unless explicitly stated.
-- Database scripts must live under docker/postgres/ or backend/database/.
-- .env files must NEVER be hardcoded inside source code.
-- .env.example must list ALL required environment variables.
-- docker-compose.yml must reference correct database paths and variables.
-
-If file placement or structure is incorrect, the agent must suggest
-or apply restructuring.
+Important:
+- Flutter NEVER talks directly to bakong_service.
+- bakong_service NEVER connects to main database Docker.
+- Only backend updates main database.
 
 
-3. Docker Compose Validation
+Agent Execution Rules
+=====================
+
+1. Sub-Agent Task Delegation
 ----------------------------
-After modifying any sensitive files, the agent MUST inspect docker-compose.yml
-for:
 
-- PostgreSQL service configuration
-- Redis service configuration
-- Environment variable mappings from .env
-- Volume mounts for PostgreSQL data and init scripts
-- Port mappings for local development
+The main agent MUST delegate tasks to sub-agents.
 
-If mismatches or outdated references are found, the agent MUST update them.
+Example: "Create Medication Feature"
 
+- Sub-agent 1: Implement backend (NestJS)
+- Sub-agent 2: Implement frontend (Flutter)
+- Sub-agent 3: Verify API contract and integration between backend and frontend
 
-4. Container Lifecycle Enforcement
-----------------------------------
-When sensitive files related to Postgres, Redis, or .env are changed,
-the agent MUST enforce a full container restart:
-
-- docker compose down
-- docker compose up -d
-
-If database schema or initialization scripts change, the agent MUST also run:
-
-- docker compose down -v
-- docker compose up -d
-
-Skipping restarts is NOT allowed for database or .env changes.
+The main agent coordinates, but does NOT implement everything alone.
 
 
-5. Backend (NestJS) Configuration Verification
-----------------------------------------------
-After Docker containers are running, the agent MUST verify:
+2. Frontend UI Validation Rule
+-------------------------------
 
-- NestJS database connection matches .env values
-- PostgreSQL host, port, user, and database name are correct
-- Redis connection settings are correct
-- No hardcoded credentials exist in the backend source code
-- Backend starts without database or cache connection errors
+When implementing or modifying Flutter UI:
+
+- MUST use sub-agent with MCP server
+- MUST check Figma design before implementing
+- UI must match Figma structure, spacing, naming, and components
 
 
-6. Database State Verification
+3. Todo List Requirement
+-------------------------
+
+Before implementing any feature:
+
+- MUST create a detailed step-by-step Todo list
+- Todo list must separate:
+  - Backend tasks
+  - Frontend tasks
+  - Integration tasks
+  - Testing tasks
+
+No direct implementation without structured Todo plan.
+
+
+4. Sensitive Value Change Rule
+-------------------------------
+
+When changing any sensitive value:
+
+Examples:
+- .env variables
+- Database schema
+- API route paths
+- DTO fields
+- Encryption keys
+- Redis keys
+- Payment status enums
+
+The agent MUST:
+
+- Identify all related fields affected
+- Update backend logic
+- Update frontend API calls if needed
+- Update validation DTOs
+- Update database schema if required
+- Update documentation
+- Restart required services (if environment/database related)
+
+No partial update is allowed.
+
+
+5. Backend Responsibility Rule
 ------------------------------
-The agent MUST verify:
 
-- PostgreSQL schema matches latest migration definitions
-- Migrations run successfully
-- Redis is reachable and operational
-- No database or Redis errors appear in logs
+- Only backend (NestJS) can modify PostgreSQL.
+- bakong_service must NOT modify main database.
+- Payment confirmation must always be verified by backend before updating status.
 
 
-7. Error Handling and Recovery
+6. Separation of Concerns Rule
 ------------------------------
-If any issue occurs (connection failure, migration error, container crash):
 
-- Inspect Docker logs for Postgres and Redis
-- Inspect backend (NestJS) logs
-- Identify the root cause
-- Propose or apply fixes
-- Restart containers and backend
-- Re-verify system stability
+- Flutter → UI only
+- Backend → Business logic + Database
+- bakong_service → Payment gateway communication only
+- Docker → Only PostgreSQL and Redis
 
 
 Expected Agent Behavior
-======================
+=======================
 
-- Warns when Docker restart or volume reset is required
-- Never assumes .env changes apply automatically
-- Enforces clean file structure and separation of concerns
-- Keeps PostgreSQL, Redis, backend, and mobile app in sync
-- Prioritizes data integrity and system stability
-- Reports issues clearly and resolves them when possible
-
+- Always think in system architecture, not isolated features.
+- Never break separation of concerns.
+- Always validate backend ↔ frontend contract.
+- Always validate encryption and payment flow consistency.
+- Always work with structured delegation and clear task boundaries.
 
 End of Rules
 ============

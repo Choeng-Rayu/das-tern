@@ -1,7 +1,7 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
 
 export class SkipDoseDto {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  reason: string;
+  reason?: string;
 }

@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../services/api_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
+import '../services/logger_service.dart';
 
 /// Manages authentication state: login, register, logout, token storage.
 class AuthProvider extends ChangeNotifier {
   final ApiService _api = ApiService.instance;
+  final LoggerService _log = LoggerService.instance;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
   );
 
   bool _isLoading = false;
@@ -29,14 +35,18 @@ class AuthProvider extends ChangeNotifier {
 
   /// Load stored auth state on app start.
   Future<void> loadAuthState() async {
+    _log.info('AuthProvider', 'Loading auth state from storage');
     _accessToken = await _secureStorage.read(key: 'accessToken');
     _refreshToken = await _secureStorage.read(key: 'refreshToken');
 
     if (_accessToken != null) {
+      _log.debug('AuthProvider', 'Access token found, verifying with server');
       try {
         _user = await _api.getProfile(_accessToken!);
         _isAuthenticated = true;
-      } catch (_) {
+        _log.success('AuthProvider', 'User authenticated', {'userId': _user?['id'], 'role': _user?['role']});
+      } catch (e) {
+        _log.warning('AuthProvider', 'Access token invalid, trying refresh', e);
         // Token expired – try refresh
         if (_refreshToken != null) {
           try {
@@ -44,17 +54,22 @@ class AuthProvider extends ChangeNotifier {
             await _saveTokens(result);
             _user = result['user'];
             _isAuthenticated = true;
-          } catch (_) {
+            _log.success('AuthProvider', 'Token refreshed, user authenticated');
+          } catch (e2) {
+            _log.error('AuthProvider', 'Token refresh failed, clearing tokens', e2);
             await _clearTokens();
           }
         }
       }
+    } else {
+      _log.info('AuthProvider', 'No stored tokens found');
     }
     notifyListeners();
   }
 
   /// Login with phone number and password.
   Future<bool> login(String phoneNumber, String password) async {
+    _log.info('AuthProvider', 'Login attempt', {'phoneNumber': phoneNumber});
     _setLoading(true);
     _error = null;
     try {
@@ -62,10 +77,74 @@ class AuthProvider extends ChangeNotifier {
       await _saveTokens(result);
       _user = result['user'];
       _isAuthenticated = true;
+      _log.success('AuthProvider', 'Login successful', {'userId': _user?['id'], 'role': _user?['role']});
       notifyListeners();
       return true;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
+      _log.error('AuthProvider', 'Login failed', e);
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Sign in with Google OAuth.
+  /// Optional userRole parameter for doctor registration flow.
+  Future<bool> signInWithGoogle({String? userRole}) async {
+    _log.info('AuthProvider', 'Google Sign-In attempt', {'userRole': userRole});
+    _setLoading(true);
+    _error = null;
+    try {
+      // Sign out first to ensure account picker is shown
+      await _googleSignIn.signOut();
+
+      // Trigger Google Sign-In flow
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        _log.warning('AuthProvider', 'Google Sign-In cancelled by user');
+        _error = 'Sign in cancelled';
+        notifyListeners();
+        return false;
+      }
+
+      _log.debug('AuthProvider', 'Google account selected', {'email': googleUser.email});
+
+      // Get authentication tokens
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      if (googleAuth.idToken == null) {
+        _log.error('AuthProvider', 'Failed to get Google ID token', {});
+        _error = 'Failed to authenticate with Google';
+        notifyListeners();
+        return false;
+      }
+
+      _log.debug('AuthProvider', 'Got Google ID token, sending to backend');
+
+      // Send to backend
+      final result = await _api.googleLogin(googleAuth.idToken!, userRole: userRole);
+      await _saveTokens(result);
+      _user = result['user'];
+      _isAuthenticated = true;
+
+      _log.success('AuthProvider', 'Google Sign-In successful', {
+        'userId': _user?['id'],
+        'role': _user?['role'],
+        'email': _user?['email']
+      });
+
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '').replaceFirst('ApiException: ', '');
+      _log.error('AuthProvider', 'Google Sign-In failed', e);
+
+      // Sign out Google account on failure
+      await _googleSignIn.signOut();
+
       notifyListeners();
       return false;
     } finally {
@@ -79,10 +158,9 @@ class AuthProvider extends ChangeNotifier {
     required String lastName,
     required String gender,
     required String dateOfBirth,
-    required String idCardNumber,
+    String? idCardNumber,
     required String phoneNumber,
     required String password,
-    required String pinCode,
   }) async {
     _setLoading(true);
     _error = null;
@@ -95,7 +173,6 @@ class AuthProvider extends ChangeNotifier {
         idCardNumber: idCardNumber,
         phoneNumber: phoneNumber,
         password: password,
-        pinCode: pinCode,
       );
       notifyListeners();
       return result;
@@ -178,11 +255,13 @@ class AuthProvider extends ChangeNotifier {
 
   /// Logout – clear tokens, local DB, and notifications.
   Future<void> logout() async {
+    _log.info('AuthProvider', 'Logout initiated');
     await _clearTokens();
     await DatabaseService.instance.clearAll();
     await NotificationService.instance.cancelAllReminders();
     _user = null;
     _isAuthenticated = false;
+    _log.success('AuthProvider', 'Logout complete');
     notifyListeners();
   }
 
@@ -195,6 +274,7 @@ class AuthProvider extends ChangeNotifier {
 
   void _setLoading(bool v) {
     _isLoading = v;
+    _log.stateChange('AuthProvider', _isLoading ? 'idle' : 'loading', v ? 'loading' : 'idle');
     notifyListeners();
   }
 

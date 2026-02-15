@@ -197,24 +197,20 @@ void main() {
     test('fromJson parses permission levels', () {
       final conn = Connection.fromJson({
         'id': 'conn-002',
-        'doctorId': 'd-001',
-        'patientId': 'p-001',
+        'initiatorId': 'd-001',
+        'recipientId': 'p-001',
         'status': 'ACCEPTED',
-        'prescriptionPermission': 'ALLOWED',
-        'healthDataPermission': 'SELECTED',
-        'personalInfoPermission': 'NOT_ALLOWED',
+        'permissionLevel': 'ALLOWED',
         'createdAt': '2025-01-15T00:00:00.000Z',
       });
-      expect(conn.prescriptionPermission, enums.PermissionLevel.allowed);
-      expect(conn.healthDataPermission, enums.PermissionLevel.selected);
-      expect(conn.personalInfoPermission, enums.PermissionLevel.notAllowed);
+      expect(conn.permissionLevel, enums.PermissionLevel.allowed);
     });
 
     test('fromJson handles accepted connection with dates', () {
       final conn = Connection.fromJson({
         'id': 'conn-003',
-        'doctorId': 'd-001',
-        'patientId': 'p-001',
+        'initiatorId': 'd-001',
+        'recipientId': 'p-001',
         'status': 'ACCEPTED',
         'acceptedAt': '2025-01-16T10:00:00.000Z',
         'createdAt': '2025-01-15T00:00:00.000Z',
@@ -226,14 +222,12 @@ void main() {
     test('defaults missing permissions to NOT_ALLOWED', () {
       final conn = Connection.fromJson({
         'id': 'conn-004',
-        'doctorId': 'd-001',
-        'patientId': 'p-001',
+        'initiatorId': 'd-001',
+        'recipientId': 'p-001',
         'status': 'PENDING',
         'createdAt': '2025-01-15T00:00:00.000Z',
       });
-      expect(conn.prescriptionPermission, enums.PermissionLevel.notAllowed);
-      expect(conn.healthDataPermission, enums.PermissionLevel.notAllowed);
-      expect(conn.personalInfoPermission, enums.PermissionLevel.notAllowed);
+      expect(conn.permissionLevel, enums.PermissionLevel.notAllowed);
     });
   });
 

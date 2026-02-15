@@ -1,0 +1,185 @@
+{
+  "prescriptions": [
+    {
+      "prescription_id": 1,
+      "metadata": {
+        "hospital": {
+          "name": "Khmer-Soviet Friendship Hospital",
+          "name_khmer": "មន្ទីរពេទ្យមិត្តភាពខ្មែរ-សូវៀត",
+          "system": "H-EQIP"
+        },
+        "patient": {
+          "id": "HAKF1354164",
+          "reference": "មូលនិធិសហព័ / 20051002-0409",
+          "age": 19,
+          "age_unit": "years",
+          "gender": "Female",
+          "gender_khmer": "ស្រី"
+        },
+        "visit": {
+          "location": "ព័ត្យកា:ដីបិណ្ឌុល - បន្ទប់លេខ 5",
+          "date": "2025-06-15",
+          "time": "14:20",
+          "timestamp": "15/06/2025 14:20"
+        },
+        "diagnosis": [
+          {
+            "condition": "Chronic Cystitis",
+            "code": null
+          }
+        ],
+        "prescriber": {
+          "name": "Sry Heng",
+          "signature": true
+        }
+      },
+      "medications": [
+        {
+          "item_number": 1,
+          "medication": {
+            "name": "Butylscopolamine",
+            "strength": "10mg",
+            "form": "tablet"
+          },
+          "duration": {
+            "value": 14,
+            "unit": "days",
+            "khmer": "14 ថ្ងៃ"
+          },
+          "schedule": {
+            "morning": {
+              "time_range": "06:00-08:00",
+              "dose": 1,
+              "enabled": true
+            },
+            "lunch": {
+              "time_range": "11:00-12:00",
+              "dose": 0,
+              "enabled": false
+            },
+            "afternoon": {
+              "time_range": "17:00-18:00",
+              "dose": 1,
+              "enabled": true
+            },
+            "evening": {
+              "time_range": "20:00-22:00",
+              "dose": 0,
+              "enabled": false
+            }
+          },
+          "total_daily_dose": 2
+        },
+        {
+          "item_number": 2,
+          "medication": {
+            "name": "Celcoxx",
+            "strength": "100mg",
+            "form": "tablet"
+          },
+          "duration": {
+            "value": 14,
+            "unit": "days",
+            "note": "រួសាប់",
+            "khmer": "14 ថ្ងៃរួសាប់"
+          },
+          "schedule": {
+            "morning": {
+              "time_range": "06:00-08:00",
+              "dose": 1,
+              "enabled": true
+            },
+            "lunch": {
+              "time_range": "11:00-12:00",
+              "dose": 0,
+              "enabled": false
+            },
+            "afternoon": {
+              "time_range": "17:00-18:00",
+              "dose": 1,
+              "enabled": true
+            },
+            "evening": {
+              "time_range": "20:00-22:00",
+              "dose": 0,
+              "enabled": false
+            }
+          },
+          "total_daily_dose": 2
+        },
+        {
+          "item_number": 3,
+          "medication": {
+            "name": "Omeprazole",
+            "strength": "20mg",
+            "form": "tablet"
+          },
+          "duration": {
+            "value": 14,
+            "unit": "days",
+            "khmer": "14 ថ្ងៃ"
+          },
+          "schedule": {
+            "morning": {
+              "time_range": "06:00-08:00",
+              "dose": 1,
+              "enabled": true
+            },
+            "lunch": {
+              "time_range": "11:00-12:00",
+              "dose": 0,
+              "enabled": false
+            },
+            "afternoon": {
+              "time_range": "17:00-18:00",
+              "dose": 1,
+              "enabled": true
+            },
+            "evening": {
+              "time_range": "20:00-22:00",
+              "dose": 0,
+              "enabled": false
+            }
+          },
+          "total_daily_dose": 2
+        },
+        {
+          "item_number": 4,
+          "medication": {
+            "name": "Multivitamine",
+            "strength": null,
+            "form": "tablet"
+          },
+          "duration": {
+            "value": 21,
+            "unit": "days",
+            "khmer": "21 ថ្ងៃ"
+          },
+          "schedule": {
+            "morning": {
+              "time_range": "06:00-08:00",
+              "dose": 1,
+              "enabled": true
+            },
+            "lunch": {
+              "time_range": "11:00-12:00",
+              "dose": 1,
+              "enabled": true
+            },
+            "afternoon": {
+              "time_range": "17:00-18:00",
+              "dose": 1,
+              "enabled": true
+            },
+            "evening": {
+              "time_range": "20:00-22:00",
+              "dose": 0,
+              "enabled": false
+            }
+          },
+          "total_daily_dose": 3
+        }
+      ]
+    }
+  ]
+}

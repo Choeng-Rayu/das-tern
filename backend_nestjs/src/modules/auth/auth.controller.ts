@@ -3,13 +3,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { OtpService } from './otp.service';
-import { 
-  LoginDto, 
-  RegisterPatientDto, 
-  RegisterDoctorDto, 
+import {
+  LoginDto,
+  RegisterPatientDto,
+  RegisterDoctorDto,
   RefreshTokenDto,
   SendOtpDto,
-  VerifyOtpDto 
+  VerifyOtpDto,
+  GoogleLoginDto
 } from './dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
@@ -61,6 +62,12 @@ export class AuthController {
   @Post('refresh')
   async refresh(@Body() dto: RefreshTokenDto) {
     return this.authService.refreshToken(dto.refreshToken);
+  }
+
+  @Post('google')
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 attempts per minute
+  async googleLoginMobile(@Body() dto: GoogleLoginDto) {
+    return this.authService.googleLoginMobile(dto.idToken, dto.userRole);
   }
 
   @Get('google')

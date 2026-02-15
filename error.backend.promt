@@ -1,0 +1,80 @@
+prisma:query SELECT "public"."users"."id", "public"."users"."role"::text, "public"."users"."phoneNumber", "public"."users"."email", "public"."users"."firstName", "public"."users"."lastName", "public"."users"."fullName", "public"."users"."accountStatus"::text FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:error 
+Invalid `this.prisma.auditLog.findMany()` invocation in
+/home/rayu/das-tern/backend_nestjs/dist/main.js:2992:37
+
+  2989     'CONNECTION_REVOKE',
+  2990     'PERMISSION_CHANGE',
+  2991 ];
+→ 2992 return this.prisma.auditLog.findMany({
+         where: {
+           actorId: "1c36aa21-acf1-4a90-a61d-553b7f5d30ac",
+           actionType: {
+             in: [
+               "ACCEPTED"
+             ]
+             ~~~~~~~~~~~~
+           }
+         },
+         orderBy: {
+           createdAt: "desc"
+         },
+         take: 50
+       })
+
+Invalid value for argument `in`. Expected AuditActionType.
+[Nest] 50747  - 02/14/2026, 5:11:09 PM   ERROR [ExceptionsHandler] 
+Invalid `this.prisma.auditLog.findMany()` invocation in
+/home/rayu/das-tern/backend_nestjs/dist/main.js:2992:37
+
+  2989     'CONNECTION_REVOKE',
+  2990     'PERMISSION_CHANGE',
+  2991 ];
+→ 2992 return this.prisma.auditLog.findMany({
+         where: {
+           actorId: "1c36aa21-acf1-4a90-a61d-553b7f5d30ac",
+           actionType: {
+             in: [
+               "ACCEPTED"
+             ]
+             ~~~~~~~~~~~~
+           }
+         },
+         orderBy: {
+           createdAt: "desc"
+         },
+         take: 50
+       })
+
+Invalid value for argument `in`. Expected AuditActionType.
+PrismaClientValidationError: 
+Invalid `this.prisma.auditLog.findMany()` invocation in
+/home/rayu/das-tern/backend_nestjs/dist/main.js:2992:37
+
+  2989     'CONNECTION_REVOKE',
+  2990     'PERMISSION_CHANGE',
+  2991 ];
+→ 2992 return this.prisma.auditLog.findMany({
+         where: {
+           actorId: "1c36aa21-acf1-4a90-a61d-553b7f5d30ac",
+           actionType: {
+             in: [
+               "ACCEPTED"
+             ]
+             ~~~~~~~~~~~~
+           }
+         },
+         orderBy: {
+           createdAt: "desc"
+         },
+         take: 50
+       })
+
+Invalid value for argument `in`. Expected AuditActionType.
+    at wn (/home/rayu/das-tern/backend_nestjs/node_modules/@prisma/client/runtime/library.js:29:1363)
+    at Vn.handleRequestError (/home/rayu/das-tern/backend_nestjs/node_modules/@prisma/client/runtime/library.js:121:6982)
+    at Vn.handleAndLogRequestError (/home/rayu/das-tern/backend_nestjs/node_modules/@prisma/client/runtime/library.js:121:6663)
+    at Vn.request (/home/rayu/das-tern/backend_nestjs/node_modules/@prisma/client/runtime/library.js:121:6370)
+    at async l (/home/rayu/das-tern/backend_nestjs/node_modules/@prisma/client/runtime/library.js:130:9617)
+    at async /home/rayu/das-tern/backend_nestjs/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /home/rayu/das-tern/backend_nestjs/node_modules/@nestjs/core/router/router-proxy.js:9:17

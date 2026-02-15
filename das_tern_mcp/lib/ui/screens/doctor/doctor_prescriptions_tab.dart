@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/prescription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
+import '../../../utils/app_router.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Doctor prescriptions tab – manage all prescriptions.
@@ -24,17 +26,18 @@ class _DoctorPrescriptionsTabState extends State<DoctorPrescriptionsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<PrescriptionProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Prescriptions'),
+        title: Text(l10n.prescriptions),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              // TODO: Navigate to create prescription
+              Navigator.pushNamed(context, AppRouter.doctorCreatePrescription);
             },
           ),
         ],
@@ -51,13 +54,13 @@ class _DoctorPrescriptionsTabState extends State<DoctorPrescriptionsTab> {
                         Icon(Icons.description_outlined,
                             size: 64, color: AppColors.neutral300),
                         const SizedBox(height: AppSpacing.md),
-                        Text('No prescriptions',
+                        Text(l10n.noPrescriptions,
                             style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(height: AppSpacing.md),
                         PrimaryButton(
-                          text: 'Create Prescription',
+                          text: l10n.createPrescription,
                           onPressed: () {
-                            // TODO: Navigate to create prescription
+                            Navigator.pushNamed(context, AppRouter.doctorCreatePrescription);
                           },
                         ),
                       ],
@@ -75,7 +78,11 @@ class _DoctorPrescriptionsTabState extends State<DoctorPrescriptionsTab> {
                         padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: AppCard(
                           onTap: () {
-                            // TODO: Navigate to prescription detail
+                            Navigator.pushNamed(
+                              context,
+                              AppRouter.prescriptionDetail,
+                              arguments: {'prescriptionId': rx.id},
+                            );
                           },
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

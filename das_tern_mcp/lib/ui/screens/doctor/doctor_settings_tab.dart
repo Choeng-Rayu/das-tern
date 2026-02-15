@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/locale_provider.dart';
 import '../../../ui/theme/app_colors.dart';
@@ -29,13 +30,14 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final auth = context.watch<AuthProvider>();
     final themeProvider = context.watch<ThemeProvider>();
     final localeProvider = context.watch<LocaleProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ការកំណត់'),
+        title: Text(l10n.settings),
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
@@ -75,7 +77,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            auth.user?['specialty'] ?? 'Doctor',
+                            auth.user?['specialty'] ?? l10n.doctorRole,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
@@ -94,11 +96,11 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             _buildSection(
               context,
               icon: Icons.security,
-              title: 'សុវត្ថិភាព',
+              title: l10n.security,
               children: [
                 ListTile(
                   leading: const Icon(Icons.lock_outline),
-                  title: const Text('ប្តូរលេខសម្ងាត់'),
+                  title: Text(l10n.changePassword),
                   trailing: Icon(
                     _showChangePassword
                         ? Icons.expand_less
@@ -118,8 +120,8 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                         TextField(
                           controller: _oldPasswordController,
                           obscureText: true,
-                          decoration: const InputDecoration(
-                            hintText: 'បំពេញលេខសម្ងាត់ចាស់',
+                          decoration: InputDecoration(
+                            hintText: l10n.oldPasswordHint,
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -127,8 +129,8 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                         TextField(
                           controller: _newPasswordController,
                           obscureText: true,
-                          decoration: const InputDecoration(
-                            hintText: 'បំពេញលេខសម្ងាត់ថ្មី',
+                          decoration: InputDecoration(
+                            hintText: l10n.newPasswordHint,
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -138,12 +140,12 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                           child: ElevatedButton(
                             onPressed: () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Password change coming soon'),
+                                SnackBar(
+                                  content: Text(l10n.passwordChangeComingSoon),
                                 ),
                               );
                             },
-                            child: const Text('ប្តូរលេខសម្ងាត់'),
+                            child: Text(l10n.changePassword),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.sm),
@@ -159,11 +161,11 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             _buildSection(
               context,
               icon: Icons.tune,
-              title: 'Preferences',
+              title: l10n.preferences,
               children: [
                 ListTile(
                   leading: const Icon(Icons.brightness_6),
-                  title: const Text('Theme'),
+                  title: Text(l10n.theme),
                   trailing: SegmentedButton<ThemeMode>(
                     segments: const [
                       ButtonSegment(
@@ -189,7 +191,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.language),
-                  title: const Text('Language'),
+                  title: Text(l10n.language),
                   trailing: DropdownButton<String>(
                     value: localeProvider.locale.languageCode,
                     underline: const SizedBox(),
@@ -210,11 +212,11 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             _buildSection(
               context,
               icon: Icons.person_outline,
-              title: 'Account',
+              title: l10n.account,
               children: [
                 ListTile(
                   leading: const Icon(Icons.edit),
-                  title: const Text('Edit Profile'),
+                  title: Text(l10n.editProfile),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     // TODO: Navigate to edit profile
@@ -223,7 +225,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 ListTile(
                   leading: Icon(Icons.logout, color: AppColors.statusError),
                   title: Text(
-                    'Logout',
+                    l10n.logout,
                     style: TextStyle(color: AppColors.statusError),
                   ),
                   onTap: () => _confirmLogout(context, auth),
@@ -280,15 +282,16 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
   }
 
   void _confirmLogout(BuildContext context, AuthProvider auth) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(l10n.logout),
+        content: Text(l10n.logoutConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -303,7 +306,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             style: TextButton.styleFrom(
               foregroundColor: AppColors.statusError,
             ),
-            child: const Text('Logout'),
+            child: Text(l10n.logout),
           ),
         ],
       ),
