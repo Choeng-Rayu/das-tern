@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
@@ -47,9 +48,10 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ប្រវត្តិការតភ្ជាប់'),
+        title: Text(l10n.connectionHistory),
         centerTitle: true,
       ),
       body: Column(
@@ -59,13 +61,13 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Row(
               children: [
-                _buildFilterChip('all', 'ទាំងអស់'),
+                _buildFilterChip('all', l10n.all),
                 const SizedBox(width: AppSpacing.sm),
-                _buildFilterChip('ACCEPTED', 'បានទទួល'),
+                _buildFilterChip('ACCEPTED', l10n.filterAccepted),
                 const SizedBox(width: AppSpacing.sm),
-                _buildFilterChip('REVOKED', 'បានដកហូត'),
+                _buildFilterChip('REVOKED', l10n.filterRevoked),
                 const SizedBox(width: AppSpacing.sm),
-                _buildFilterChip('PENDING', 'រង់ចាំ'),
+                _buildFilterChip('PENDING', l10n.pending),
               ],
             ),
           ),
@@ -83,7 +85,7 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
                                 size: 48, color: AppColors.neutral300),
                             const SizedBox(height: AppSpacing.md),
                             Text(
-                              'មិនមានប្រវត្តិ',
+                              l10n.noHistoryFound,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -126,6 +128,7 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
 
   Widget _buildHistoryItem(
       BuildContext context, Map<String, dynamic> item) {
+    final l10n = AppLocalizations.of(context)!;
     final status = item['status'] ?? 'PENDING';
     final createdAt = item['createdAt'] != null
         ? DateTime.parse(item['createdAt'])
@@ -171,7 +174,7 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
                   Text(
                     initiatorName.isNotEmpty
                         ? '$initiatorName → $recipientName'
-                        : 'Connection',
+                        : l10n.connectionLabel,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),

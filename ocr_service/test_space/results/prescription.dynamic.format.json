@@ -1,0 +1,164 @@
+{
+  "$schema": "cambodia-prescription-v1.0",
+  "prescription": {
+    "metadata": {
+      "prescription_id": "string",
+      "version": "string",
+      "extracted_date": "ISO8601 datetime",
+      "language_detected": ["khmer", "english", "french"],
+      "confidence_score": "float 0-1"
+    },
+    
+    "healthcare_facility": {
+      "name": "string",
+      "name_khmer": "string | null",
+      "code": "string | null",
+      "logo_bbox": "[x1, y1, x2, y2] | null",
+      "address": "string | null",
+      "contact": {
+        "phone": "string | null",
+        "email": "string | null"
+      }
+    },
+    
+    "patient": {
+      "id": "string",
+      "national_id": "string | null",
+      "name": "string | null",
+      "name_khmer": "string | null",
+      "dob": "string | null",
+      "age": "integer | null",
+      "gender": "M | F | Other | null",
+      "contact": {
+        "phone": "string | null",
+        "address": "string | null"
+      },
+      "insurance": {
+        "provider": "string | null",
+        "number": "string | null"
+      }
+    },
+    
+    "prescription_details": {
+      "issue_date": "string",
+      "issue_datetime": "ISO8601 datetime | null",
+      "expiry_date": "string | null",
+      "prescription_number": "string | null",
+      "visit_type": "outpatient | inpatient | emergency | null",
+      "department": "string | null",
+      "room_number": "string | null"
+    },
+    
+    "clinical_information": {
+      "diagnoses": [
+        {
+          "code": "ICD-10 code | null",
+          "description": "string",
+          "description_khmer": "string | null",
+          "description_french": "string | null",
+          "primary": "boolean",
+          "bbox": "[x1, y1, x2, y2] | null"
+        }
+      ],
+      "symptoms": ["string"],
+      "allergies": ["string"],
+      "vital_signs": {
+        "blood_pressure": "string | null",
+        "temperature": "string | null",
+        "weight": "string | null"
+      }
+    },
+    
+    "medications": [
+      {
+        "item_number": "integer",
+        "medication": {
+          "name": "string",
+          "name_generic": "string | null",
+          "strength": "string",
+          "form": "tablet | capsule | syrup | injection | cream | drops | inhaler | null",
+          "route": "PO | IV | IM | SC | topical | null",
+          "bbox": "[x1, y1, x2, y2] | null"
+        },
+        
+        "dosing": {
+          "duration": {
+            "value": "integer | null",
+            "unit": "days | weeks | months | null",
+            "text": "string"
+          },
+          "frequency": "string | null",
+          "total_quantity": "integer | null",
+          
+          "schedule": {
+            "type": "time_based | fixed_times | as_needed | null",
+            "times": [
+              {
+                "period": "morning | midday | afternoon | evening | night | custom",
+                "time_range": "string (e.g., '6-8', '11-12')",
+                "dose": "string (e.g., '1', '2', '1/2')",
+                "unit": "tablet | ml | mg | null",
+                "instructions": "string | null",
+                "instructions_khmer": "string | null"
+              }
+            ],
+            "as_needed": {
+              "condition": "string | null",
+              "max_daily_dose": "string | null"
+            }
+          }
+        },
+        
+        "instructions": {
+          "before_food": "boolean | null",
+          "after_food": "boolean | null",
+          "with_food": "boolean | null",
+          "special_instructions": "string | null",
+          "special_instructions_khmer": "string | null",
+          "warnings": ["string"]
+        },
+        
+        "substitution_allowed": "boolean | null",
+        "refills": "integer | null"
+      }
+    ],
+    
+    "prescriber": {
+      "name": "string | null",
+      "name_khmer": "string | null",
+      "license_number": "string | null",
+      "specialty": "string | null",
+      "signature_bbox": "[x1, y1, x2, y2] | null",
+      "stamp_bbox": "[x1, y1, x2, y2] | null",
+      "contact": {
+        "phone": "string | null",
+        "email": "string | null"
+      }
+    },
+    
+    "pharmacy_information": {
+      "dispenser_name": "string | null",
+      "dispensing_date": "string | null",
+      "pharmacy_notes": "string | null"
+    },
+    
+    "additional_information": {
+      "follow_up_date": "string | null",
+      "referral": "string | null",
+      "medical_certificate": "boolean",
+      "notes": "string | null",
+      "qr_code_data": "string | null",
+      "barcode_data": "string | null"
+    },
+    
+    "raw_data": {
+      "ocr_confidence": "float 0-1",
+      "full_text": "string",
+      "image_metadata": {
+        "width": "integer",
+        "height": "integer",
+        "format": "string"
+      }
+    }
+  }
+}

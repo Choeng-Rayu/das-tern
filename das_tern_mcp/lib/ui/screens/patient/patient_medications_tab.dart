@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/prescription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
+import '../../../utils/app_router.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Medications tab – lists active prescriptions and their medications.
@@ -24,12 +26,20 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<PrescriptionProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Medications'),
+        title: Text(l10n.medications),
         automaticallyImplyLeading: false,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, AppRouter.patientCreateMedicine);
+        },
+        backgroundColor: AppColors.primaryBlue,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       body: RefreshIndicator(
         onRefresh: () => provider.fetchPrescriptions(status: 'ACTIVE'),
@@ -44,12 +54,12 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                             size: 64, color: AppColors.neutral300),
                         const SizedBox(height: AppSpacing.md),
                         Text(
-                          'No active prescriptions',
+                          l10n.noActivePrescriptions,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
-                          'Your prescriptions will appear here\nonce added by your doctor.',
+                          l10n.prescriptionsAppearHere,
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
@@ -68,7 +78,11 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                         padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: AppCard(
                           onTap: () {
-                            // TODO: Navigate to prescription detail
+                            Navigator.pushNamed(
+                              context,
+                              AppRouter.prescriptionDetail,
+                              arguments: {'prescriptionId': rx.id},
+                            );
                           },
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +122,7 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                               ),
                               const SizedBox(height: AppSpacing.sm),
                               Text(
-                                '${rx.medications.length} medication${rx.medications.length != 1 ? 's' : ''}',
+                                l10n.medicationCountLabel(rx.medications.length),
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium

@@ -253,17 +253,31 @@ export class ConnectionsService {
    * Get connection history from audit logs.
    */
   async getConnectionHistory(userId: string, filter?: string) {
-    const actionTypes = filter ? [filter as any] : [
-      'CONNECTION_REQUEST',
-      'CONNECTION_ACCEPT',
-      'CONNECTION_REVOKE',
-      'PERMISSION_CHANGE',
-    ];
+    // Map ConnectionStatus values to AuditActionType values
+    const statusToActionTypeMap: Record<string, string> = {
+      'PENDING': 'CONNECTION_REQUEST',
+      'ACCEPTED': 'CONNECTION_ACCEPT',
+      'REVOKED': 'CONNECTION_REVOKE',
+    };
+
+    let actionTypes: string[];
+    if (filter) {
+      // Map the filter to the correct audit action type
+      const mappedType = statusToActionTypeMap[filter] || filter;
+      actionTypes = [mappedType];
+    } else {
+      actionTypes = [
+        'CONNECTION_REQUEST',
+        'CONNECTION_ACCEPT',
+        'CONNECTION_REVOKE',
+        'PERMISSION_CHANGE',
+      ];
+    }
 
     return this.prisma.auditLog.findMany({
       where: {
         actorId: userId,
-        actionType: { in: actionTypes },
+        actionType: { in: actionTypes as any },
       },
       orderBy: { createdAt: 'desc' },
       take: 50,

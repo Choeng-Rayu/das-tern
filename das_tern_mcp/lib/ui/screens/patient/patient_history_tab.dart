@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/dose_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
@@ -28,11 +29,12 @@ class _PatientHistoryTabState extends State<PatientHistoryTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<DoseProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('History'),
+        title: Text(l10n.history),
         automaticallyImplyLeading: false,
       ),
       body: provider.isLoading
@@ -45,12 +47,12 @@ class _PatientHistoryTabState extends State<PatientHistoryTab> {
                       Icon(Icons.history, size: 64, color: AppColors.neutral300),
                       const SizedBox(height: AppSpacing.md),
                       Text(
-                        'No history yet',
+                        l10n.noHistoryYet,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text(
-                        'Your dose history will appear here.',
+                        l10n.doseHistoryAppearHere,
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall

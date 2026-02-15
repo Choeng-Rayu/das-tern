@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/connection_model/connection.dart';
 import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
@@ -46,10 +47,12 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_connection == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('ផ្ទាំងត្រួតពិនិត្យ')),
-        body: const Center(child: Text('Connection not found')),
+        appBar: AppBar(title: Text(l10n.dashboard)),
+        body: Center(child: Text(l10n.connectionNotFound)),
       );
     }
 
@@ -59,7 +62,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(patientName.isEmpty ? 'ផ្ទាំងត្រួតពិនិត្យ' : patientName),
+        title: Text(patientName.isEmpty ? l10n.dashboard : patientName),
         centerTitle: true,
         actions: [
           PopupMenuButton<String>(
@@ -69,13 +72,13 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
               }
             },
             itemBuilder: (_) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'revoke',
                 child: Row(
                   children: [
-                    Icon(Icons.link_off, color: AppColors.alertRed, size: 20),
-                    SizedBox(width: AppSpacing.sm),
-                    Text('ផ្តាច់ការតភ្ជាប់'),
+                    const Icon(Icons.link_off, color: AppColors.alertRed, size: 20),
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(l10n.disconnectConnection),
                   ],
                 ),
               ),
@@ -103,7 +106,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
 
                     // Dose overview
                     Text(
-                      'តារាងថ្នាំថ្ងៃនេះ',
+                      l10n.todayMedicationSchedule,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -127,6 +130,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   }
 
   Widget _buildPatientHeader(BuildContext context, String name) {
+    final l10n = AppLocalizations.of(context)!;
     return AppCard(
       child: Row(
         children: [
@@ -142,7 +146,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name.isEmpty ? 'Patient' : name,
+                  name.isEmpty ? l10n.patient : name,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -160,7 +164,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'តភ្ជាប់រួចរាល់',
+                      l10n.connectionConnected,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.successGreen,
                           ),
@@ -183,7 +187,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                 activeTrackColor: AppColors.primaryBlue,
               ),
               Text(
-                'ការជូនដំណឹង',
+                l10n.notifications,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: AppColors.textSecondary,
                       fontSize: 10,
@@ -197,6 +201,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   }
 
   Widget _buildPermissionCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -216,7 +221,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'កម្រិតការចូលប្រើ',
+                  l10n.accessLevelTitle,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -238,6 +243,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   }
 
   Widget _buildDoseOverview(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_doses.isEmpty) {
       return AppCard(
         child: Center(
@@ -249,7 +255,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                     size: 40, color: AppColors.neutral300),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'មិនមានទិន្នន័យថ្នាំ',
+                  l10n.noMedicationData,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -269,7 +275,8 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   }
 
   Widget _buildDoseCard(BuildContext context, Map<String, dynamic> dose) {
-    final name = dose['medicationName'] ?? 'Unknown';
+    final l10n = AppLocalizations.of(context)!;
+    final name = dose['medicationName'] ?? l10n.unknown;
     final status = dose['status'] ?? 'DUE';
     final time = dose['scheduledTime'] ?? '';
 
@@ -278,19 +285,19 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
     switch (status) {
       case 'TAKEN_ON_TIME':
         statusColor = AppColors.successGreen;
-        statusLabel = 'ទទួលទានថ្នាំ';
+        statusLabel = l10n.taken;
         break;
       case 'MISSED':
         statusColor = AppColors.alertRed;
-        statusLabel = 'ខកខាន';
+        statusLabel = l10n.missed;
         break;
       case 'SKIPPED':
         statusColor = AppColors.warningOrange;
-        statusLabel = 'រំលង';
+        statusLabel = l10n.skipped;
         break;
       default:
         statusColor = AppColors.primaryBlue;
-        statusLabel = 'កំពុងរង់ចាំ';
+        statusLabel = l10n.pending;
     }
 
     return Padding(
@@ -346,6 +353,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   }
 
   Widget _buildMissedDosesSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -354,7 +362,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
             const Icon(Icons.warning_amber, color: AppColors.alertRed, size: 20),
             const SizedBox(width: AppSpacing.xs),
             Text(
-              'ថ្នាំខកខាន',
+              l10n.missedDosesSection,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppColors.alertRed,
@@ -368,7 +376,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Text(
-                'មិនមានថ្នាំខកខាន ✓',
+                '${l10n.noMissedDoses} \u2713',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.successGreen,
                       fontWeight: FontWeight.w500,
@@ -382,6 +390,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   }
 
   Widget _buildNudgeSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AppCard(
       child: Column(
         children: [
@@ -389,14 +398,14 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
               size: 32, color: AppColors.warningOrange),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'ផ្ញើការរំលឹក',
+            l10n.sendNudge,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'រំលឹកអ្នកជំងឺពីការទទួលទានថ្នាំ',
+            l10n.nudgeRemindPatient,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -404,7 +413,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
           ),
           const SizedBox(height: AppSpacing.md),
           PrimaryButton(
-            text: 'ផ្ញើការរំលឹក',
+            text: l10n.sendNudge,
             icon: Icons.send,
             onPressed: () => _sendNudge(context),
           ),
@@ -416,6 +425,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   Future<void> _sendNudge(BuildContext context) async {
     if (_connection == null) return;
 
+    final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
     final provider = context.read<ConnectionProvider>();
     final success = await provider.sendNudge(
@@ -427,7 +437,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            success ? 'ការរំលឹកត្រូវបានផ្ញើ' : 'មិនអាចផ្ញើការរំលឹក',
+            success ? l10n.nudgeSentSuccess : l10n.nudgeSentFailed,
           ),
           backgroundColor:
               success ? AppColors.successGreen : AppColors.alertRed,
@@ -437,17 +447,18 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   }
 
   void _showRevokeDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('ផ្តាច់ការតភ្ជាប់?'),
-        content: const Text(
-          'អ្នកនឹងមិនអាចមើលព័ត៌មានថ្នាំរបស់អ្នកជំងឺនេះទៀតទេ។',
+        title: Text(l10n.disconnectDialogTitle),
+        content: Text(
+          l10n.disconnectDialogContent,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('បោះបង់'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -458,7 +469,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.alertRed),
-            child: const Text('ផ្តាច់'),
+            child: Text(l10n.disconnectButton),
           ),
         ],
       ),

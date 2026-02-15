@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
@@ -19,34 +20,6 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
   int _selectedMinutes = 30;
   bool _isSaving = false;
 
-  static const _options = [
-    _GracePeriodOption(
-      minutes: 10,
-      label: '10 នាទី',
-      description: 'ជូនដំណឹងភ្លាមបន្ទាប់ពីខកខាន',
-      icon: Icons.timer,
-    ),
-    _GracePeriodOption(
-      minutes: 20,
-      label: '20 នាទី',
-      description: 'ផ្តល់ពេលបន្តិចសម្រាប់ការពន្យឺត',
-      icon: Icons.timer,
-    ),
-    _GracePeriodOption(
-      minutes: 30,
-      label: '30 នាទី',
-      description: 'ការកំណត់ដើម (ណែនាំ)',
-      icon: Icons.timer,
-      isRecommended: true,
-    ),
-    _GracePeriodOption(
-      minutes: 60,
-      label: '1 ម៉ោង',
-      description: 'ផ្តល់ពេលវេលាបន្ថែម',
-      icon: Icons.timer,
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -63,14 +36,16 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
   Future<void> _save() async {
     setState(() => _isSaving = true);
 
+    final l10n = AppLocalizations.of(context)!;
+
     try {
       final provider = context.read<ConnectionProvider>();
       final success = await provider.updateGracePeriod(_selectedMinutes);
       if (mounted) {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('បានរក្សាទុកការកំណត់'),
+            SnackBar(
+              content: Text(l10n.settingsSaved),
               backgroundColor: AppColors.successGreen,
             ),
           );
@@ -78,7 +53,7 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(provider.error ?? 'បរាជ័យក្នុងការរក្សាទុក'),
+              content: Text(provider.error ?? l10n.failedToSave),
               backgroundColor: AppColors.alertRed,
             ),
           );
@@ -91,9 +66,39 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    final options = [
+      _GracePeriodOption(
+        minutes: 10,
+        label: l10n.gracePeriod10Min,
+        description: l10n.notifyImmediatelyAfterMiss,
+        icon: Icons.timer,
+      ),
+      _GracePeriodOption(
+        minutes: 20,
+        label: l10n.gracePeriod20Min,
+        description: l10n.allowSomeDelay,
+        icon: Icons.timer,
+      ),
+      _GracePeriodOption(
+        minutes: 30,
+        label: l10n.gracePeriod30Min,
+        description: l10n.defaultRecommended,
+        icon: Icons.timer,
+        isRecommended: true,
+      ),
+      _GracePeriodOption(
+        minutes: 60,
+        label: l10n.gracePeriod1Hour,
+        description: l10n.allowAdditionalTime,
+        icon: Icons.timer,
+      ),
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ពេលវេលាផុតកំណត់'),
+        title: Text(l10n.gracePeriodTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -124,7 +129,7 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'ពេលវេលាអនុគ្រោះ',
+                            l10n.gracePeriodLabel,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleSmall
@@ -132,7 +137,7 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'ពេលវេលារង់ចាំមុនពេលជូនដំណឹងគ្រួសារ\nពីថ្នាំដែលខកខាន',
+                            l10n.gracePeriodDescription,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
@@ -147,8 +152,8 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
               const SizedBox(height: AppSpacing.lg),
 
               // Options
-              ...List.generate(_options.length, (index) {
-                final option = _options[index];
+              ...List.generate(options.length, (index) {
+                final option = options[index];
                 final isSelected = _selectedMinutes == option.minutes;
 
                 return Padding(
@@ -161,7 +166,7 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
 
               // Save button
               PrimaryButton(
-                text: 'រក្សាទុក',
+                text: l10n.save,
                 isLoading: _isSaving,
                 onPressed: _save,
               ),
@@ -179,6 +184,7 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
     _GracePeriodOption option,
     bool isSelected,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => setState(() => _selectedMinutes = option.minutes),
       child: AnimatedContainer(
@@ -225,9 +231,9 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
                             color: AppColors.primaryBlue,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text(
-                            'ណែនាំ',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.recommendedBadge,
+                            style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: AppColors.white,

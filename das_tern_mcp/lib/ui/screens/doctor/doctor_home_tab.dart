@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/doctor_dashboard_provider.dart';
 import '../../../ui/theme/app_colors.dart';
@@ -28,6 +29,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final auth = context.watch<AuthProvider>();
     final dashboard = context.watch<DoctorDashboardProvider>();
     final user = auth.user;
@@ -54,7 +56,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _greeting(),
+                            _greeting(context),
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
@@ -62,7 +64,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Dr. ${user?['fullName'] ?? user?['firstName'] ?? 'Doctor'}',
+                            'Dr. ${user?['fullName'] ?? user?['firstName'] ?? l10n.doctorRole}',
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineSmall
@@ -93,14 +95,14 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                     children: [
                       _StatCard(
                         icon: Icons.people,
-                        label: 'Total Patients',
+                        label: l10n.totalPatients,
                         value: '${overview?.totalPatients ?? 0}',
                         color: AppColors.primaryBlue,
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       _StatCard(
                         icon: Icons.warning_amber,
-                        label: 'Need Attention',
+                        label: l10n.needAttention,
                         value: '${overview?.patientsNeedingAttention ?? 0}',
                         color: AppColors.alertRed,
                       ),
@@ -111,14 +113,14 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                     children: [
                       _StatCard(
                         icon: Icons.pending_actions,
-                        label: 'Pending Requests',
+                        label: l10n.pendingRequests,
                         value: '${overview?.pendingRequests ?? dashboard.pendingConnections.length}',
                         color: AppColors.warningOrange,
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       _StatCard(
                         icon: Icons.notifications_active,
-                        label: 'Today Alerts',
+                        label: l10n.todayAlerts,
                         value: '${overview?.todayAlerts.length ?? 0}',
                         color: AppColors.nightPurple,
                       ),
@@ -129,7 +131,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                   // Today's Alerts
                   if (overview?.todayAlerts.isNotEmpty ?? false) ...[
                     Text(
-                      'Critical Alerts',
+                      l10n.criticalAlerts,
                       style: Theme.of(context)
                           .textTheme
                           .titleMedium
@@ -153,7 +155,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                           ),
                           title: Text(alert.patientName),
                           subtitle: Text(
-                            '${alert.consecutiveMissed} consecutive missed doses',
+                            l10n.consecutiveMissedDoses(alert.consecutiveMissed),
                           ),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () {
@@ -172,7 +174,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                   // Pending Requests
                   if (dashboard.pendingConnections.isNotEmpty) ...[
                     Text(
-                      'Pending Connection Requests',
+                      l10n.pendingConnectionRequests,
                       style: Theme.of(context)
                           .textTheme
                           .titleMedium
@@ -204,7 +206,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                                           ?.copyWith(fontWeight: FontWeight.w600),
                                     ),
                                     Text(
-                                      conn.initiator?.phoneNumber ?? 'Connection request',
+                                      conn.initiator?.phoneNumber ?? l10n.connectionRequest,
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodySmall
@@ -237,7 +239,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
 
                   // Quick actions
                   Text(
-                    'Quick Actions',
+                    l10n.quickActions,
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
@@ -249,7 +251,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                       Expanded(
                         child: _ActionCard(
                           icon: Icons.description,
-                          label: 'New Prescription',
+                          label: l10n.newPrescription,
                           onTap: () {
                             widget.onSwitchTab?.call(2);
                           },
@@ -259,7 +261,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                       Expanded(
                         child: _ActionCard(
                           icon: Icons.search,
-                          label: 'Find Patient',
+                          label: l10n.findPatient,
                           onTap: () {
                             widget.onSwitchTab?.call(1);
                           },
@@ -276,11 +278,12 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
     );
   }
 
-  String _greeting() {
+  String _greeting(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return l10n.goodMorning;
+    if (hour < 17) return l10n.goodAfternoon;
+    return l10n.goodEvening;
   }
 }
 

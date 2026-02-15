@@ -1,4 +1,4 @@
-import * as QRCode from 'qrcode-generator';
+import QRCode from 'qrcode-generator';
 import { md5 } from '../utils/encryption';
 import logger from '../utils/logger';
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/locale_provider.dart';
 import '../../../ui/theme/app_colors.dart';
@@ -12,6 +13,7 @@ class DoctorProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final auth = context.watch<AuthProvider>();
     final themeProvider = context.watch<ThemeProvider>();
     final localeProvider = context.watch<LocaleProvider>();
@@ -19,7 +21,7 @@ class DoctorProfileTab extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(l10n.profile),
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
@@ -34,7 +36,7 @@ class DoctorProfileTab extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Dr. ${user?['fullName'] ?? 'Doctor'}',
+              'Dr. ${user?['fullName'] ?? l10n.doctorRole}',
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
@@ -62,7 +64,7 @@ class DoctorProfileTab extends StatelessWidget {
             Card(
               child: ListTile(
                 leading: const Icon(Icons.brightness_6),
-                title: const Text('Theme'),
+                title: Text(l10n.theme),
                 trailing: SegmentedButton<ThemeMode>(
                   segments: const [
                     ButtonSegment(
@@ -88,7 +90,7 @@ class DoctorProfileTab extends StatelessWidget {
             Card(
               child: ListTile(
                 leading: const Icon(Icons.language),
-                title: const Text('Language'),
+                title: Text(l10n.language),
                 trailing: DropdownButton<String>(
                   value: localeProvider.locale.languageCode,
                   underline: const SizedBox(),
@@ -117,7 +119,7 @@ class DoctorProfileTab extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.logout, color: AppColors.alertRed),
-                label: const Text('Log Out',
+                label: Text(l10n.logOut,
                     style: TextStyle(color: AppColors.alertRed)),
               ),
             ),

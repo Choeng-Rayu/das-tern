@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 
@@ -9,9 +10,11 @@ class PatientScanTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ស្កេនវេជ្ជបញ្ជា'),
+        title: Text(l10n.scanPrescriptionTitle),
         automaticallyImplyLeading: false,
       ),
       body: Center(
@@ -33,7 +36,7 @@ class PatientScanTab extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              'Scan Prescription',
+              l10n.scanPrescriptionTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -42,7 +45,7 @@ class PatientScanTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
               child: Text(
-                'Use your camera to scan a prescription\nfrom your doctor.',
+                l10n.scanPrescriptionDescription,
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium
@@ -55,13 +58,13 @@ class PatientScanTab extends StatelessWidget {
               onPressed: () {
                 // TODO: Implement camera/scanner
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Scanner feature coming soon'),
+                  SnackBar(
+                    content: Text(l10n.scannerComingSoon),
                   ),
                 );
               },
               icon: const Icon(Icons.camera_alt),
-              label: const Text('Open Scanner'),
+              label: Text(l10n.openScanner),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.xl,

@@ -15,7 +15,7 @@ export class MedicinesController {
     @CurrentUser() user: any,
     @Body() dto: CreateMedicineDto,
   ) {
-    return this.medicinesService.addMedicine(prescriptionId, user.id, dto);
+    return this.medicinesService.addMedicine(prescriptionId, user.id, dto, user.role);
   }
 
   @Get('prescriptions/:prescriptionId/medicines')
@@ -37,12 +37,12 @@ export class MedicinesController {
     @CurrentUser() user: any,
     @Body() dto: UpdateMedicineDto,
   ) {
-    return this.medicinesService.updateMedicine(id, user.id, dto);
+    return this.medicinesService.updateMedicine(id, user.id, dto, user.role);
   }
 
   @Delete('medicines/:id')
   async deleteMedicine(@Param('id') id: string, @CurrentUser() user: any) {
-    return this.medicinesService.deleteMedicine(id, user.id);
+    return this.medicinesService.deleteMedicine(id, user.id, user.role);
   }
 
   @Get('medicines/archived')

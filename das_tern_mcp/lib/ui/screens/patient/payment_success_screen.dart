@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/subscription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
@@ -45,6 +46,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final sub = context.watch<SubscriptionProvider>();
 
     return PopScope(
@@ -83,7 +85,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                   child: Column(
                     children: [
                       Text(
-                        'Payment Successful!',
+                        l10n.paymentSuccessful,
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -91,7 +93,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Your subscription has been upgraded',
+                        l10n.subscriptionUpgraded,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -136,7 +138,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'All premium features are now unlocked',
+                          l10n.allPremiumFeaturesUnlocked,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Colors.white70,
                               ),
@@ -145,9 +147,9 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _featureBadge(Icons.all_inclusive, '∞ Prescriptions'),
-                            _featureBadge(Icons.storage, '20 GB'),
-                            _featureBadge(Icons.support_agent, 'Priority'),
+                            _featureBadge(Icons.all_inclusive, l10n.unlimitedPrescriptions),
+                            _featureBadge(Icons.storage, l10n.storageAmount),
+                            _featureBadge(Icons.support_agent, l10n.priorityLabel),
                           ],
                         ),
                       ],
@@ -177,9 +179,9 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                       ),
                       elevation: 2,
                     ),
-                    child: const Text(
-                      'Go to Home',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    child: Text(
+                      l10n.goToHome,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

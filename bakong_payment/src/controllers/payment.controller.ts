@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Body, Param, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { PaymentService } from '../services/payment.service';
 import { SubscriptionService } from '../services/subscription.service';
-import { PaymentInitiationParams, MonitorOptions } from '../types/payment.types';
+import type { PaymentInitiationParams, MonitorOptions } from '../types/payment.types';
 import logger from '../utils/logger';
 
 @Controller('api/payments')

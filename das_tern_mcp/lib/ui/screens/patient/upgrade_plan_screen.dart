@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/subscription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
@@ -17,19 +18,22 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () => context.read<SubscriptionProvider>().loadSubscription(),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<SubscriptionProvider>().loadSubscription();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final sub = context.watch<SubscriptionProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Upgrade Plan'),
+        title: Text(l10n.upgradePlan),
         centerTitle: true,
       ),
       body: sub.isLoading
@@ -45,7 +49,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
 
                   // Section title
                   Text(
-                    'Choose a Plan',
+                    l10n.choosePlan,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -161,6 +165,7 @@ class _CurrentPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isPremium = tier == 'PREMIUM' || tier == 'FAMILY_PREMIUM';
     return Container(
       width: double.infinity,
@@ -194,7 +199,7 @@ class _CurrentPlanCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Current Plan',
+                l10n.currentPlan,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.white70,
                     ),
@@ -212,7 +217,7 @@ class _CurrentPlanCard extends StatelessWidget {
           if (!isPremium) ...[
             const SizedBox(height: 4),
             Text(
-              'Upgrade to unlock all features',
+              l10n.upgradeToUnlock,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.white60,
                   ),
@@ -238,6 +243,7 @@ class _PlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final features = (plan['features'] as List?)?.cast<String>() ?? [];
     final price = plan['price'] ?? 0;
 
@@ -270,9 +276,9 @@ class _PlanCard extends StatelessWidget {
                       color: AppColors.successGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text(
-                      'Current',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.currentLabel,
+                      style: const TextStyle(
                         color: AppColors.successGreen,
                         fontWeight: FontWeight.w600,
                         fontSize: 12,
@@ -326,9 +332,9 @@ class _PlanCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Upgrade Now',
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  child: Text(
+                    l10n.upgradeNow,
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                   ),
                 ),
               ),
@@ -347,11 +353,12 @@ class _FeatureComparisonTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Feature Comparison',
+          l10n.featureComparison,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -361,17 +368,17 @@ class _FeatureComparisonTable extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Column(
             children: [
-              _comparisonRow(context, 'Prescriptions', '1', '∞', '∞'),
+              _comparisonRow(context, l10n.prescriptionsFeature, '1', '\u221e', '\u221e'),
               const Divider(height: 1),
-              _comparisonRow(context, 'Medicines', '3', '∞', '∞'),
+              _comparisonRow(context, l10n.medicinesFeature, '3', '\u221e', '\u221e'),
               const Divider(height: 1),
-              _comparisonRow(context, 'Family Links', '1', '5', '10'),
+              _comparisonRow(context, l10n.familyLinksFeature, '1', '5', '10'),
               const Divider(height: 1),
-              _comparisonRow(context, 'Storage', '5 GB', '20 GB', '20 GB'),
+              _comparisonRow(context, l10n.storageFeature, '5 GB', '20 GB', '20 GB'),
               const Divider(height: 1),
-              _comparisonRow(context, 'Priority Support', '✕', '✓', '✓'),
+              _comparisonRow(context, l10n.prioritySupportFeature, '\u2715', '\u2713', '\u2713'),
               const Divider(height: 1),
-              _comparisonRow(context, 'Family Plan', '✕', '✕', '✓ (3)'),
+              _comparisonRow(context, l10n.familyPlanFeature, '\u2715', '\u2715', '\u2713 (3)'),
             ],
           ),
         ),

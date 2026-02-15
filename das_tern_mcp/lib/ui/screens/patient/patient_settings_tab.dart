@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/locale_provider.dart';
 import '../../../ui/theme/app_colors.dart';
@@ -32,10 +33,11 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     final auth = context.watch<AuthProvider>();
     final themeProvider = context.watch<ThemeProvider>();
     final localeProvider = context.watch<LocaleProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ការកំណត់'),
+        title: Text(l10n.settings),
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
@@ -47,11 +49,11 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             _buildSection(
               context,
               icon: Icons.security,
-              title: 'សុវត្ថិភាព',
+              title: l10n.security,
               children: [
                 ListTile(
                   leading: const Icon(Icons.lock_outline),
-                  title: const Text('ប្តូរលេខសម្ងាត់'),
+                  title: Text(l10n.changePassword),
                   trailing: Icon(
                     _showChangePassword
                         ? Icons.expand_less
@@ -71,18 +73,18 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                         TextField(
                           controller: _oldPasswordController,
                           obscureText: true,
-                          decoration: const InputDecoration(
-                            hintText: 'បំពេញលេខសម្ងាត់ចាស់',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            hintText: l10n.oldPasswordHint,
+                            border: const OutlineInputBorder(),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         TextField(
                           controller: _newPasswordController,
                           obscureText: true,
-                          decoration: const InputDecoration(
-                            hintText: 'បំពេញលេខសម្ងាត់ថ្មី',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            hintText: l10n.newPasswordHint,
+                            border: const OutlineInputBorder(),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.md),
@@ -92,12 +94,12 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                             onPressed: () {
                               // TODO: Implement change password API
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Password change coming soon'),
+                                SnackBar(
+                                  content: Text(l10n.passwordChangeComingSoon),
                                 ),
                               );
                             },
-                            child: const Text('ប្តូរលេខសម្ងាត់'),
+                            child: Text(l10n.changePassword),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.sm),
@@ -113,11 +115,11 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             _buildSection(
               context,
               icon: Icons.tune,
-              title: 'Preferences',
+              title: l10n.preferences,
               children: [
                 ListTile(
                   leading: const Icon(Icons.brightness_6),
-                  title: const Text('Theme'),
+                  title: Text(l10n.theme),
                   trailing: SegmentedButton<ThemeMode>(
                     segments: const [
                       ButtonSegment(
@@ -143,7 +145,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.language),
-                  title: const Text('Language'),
+                  title: Text(l10n.language),
                   trailing: DropdownButton<String>(
                     value: localeProvider.locale.languageCode,
                     underline: const SizedBox(),
@@ -164,11 +166,11 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             _buildSection(
               context,
               icon: Icons.person_outline,
-              title: 'Account',
+              title: l10n.account,
               children: [
                 ListTile(
                   leading: const Icon(Icons.edit),
-                  title: const Text('Edit Profile'),
+                  title: Text(l10n.editProfile),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     // TODO: Navigate to edit profile
@@ -177,7 +179,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 ListTile(
                   leading: Icon(Icons.logout, color: AppColors.statusError),
                   title: Text(
-                    'Logout',
+                    l10n.logout,
                     style: TextStyle(color: AppColors.statusError),
                   ),
                   onTap: () => _confirmLogout(context, auth),
@@ -227,15 +229,16 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
   }
 
   void _confirmLogout(BuildContext context, AuthProvider auth) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(l10n.logout),
+        content: Text(l10n.logoutConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -250,7 +253,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             style: TextButton.styleFrom(
               foregroundColor: AppColors.statusError,
             ),
-            child: const Text('Logout'),
+            child: Text(l10n.logout),
           ),
         ],
       ),

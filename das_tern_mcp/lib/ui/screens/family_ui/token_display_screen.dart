@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart' show Share;
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
@@ -35,6 +36,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final permissionLevel = args?['permissionLevel'] ?? 'REQUEST';
+    final l10n = AppLocalizations.of(context)!;
 
     setState(() {
       _isGenerating = true;
@@ -54,7 +56,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
         });
       } else if (mounted) {
         setState(() {
-          _error = provider.error ?? 'Failed to generate token';
+          _error = provider.error ?? l10n.failedToGenerateToken;
           _isGenerating = false;
         });
       }
@@ -68,20 +70,22 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
     }
   }
 
-  String get _timeRemaining {
+  String _getTimeRemaining(AppLocalizations l10n) {
     if (_expiresAt == null) return '';
     final diff = _expiresAt!.difference(DateTime.now());
-    if (diff.isNegative) return 'Expired';
+    if (diff.isNegative) return l10n.tokenExpired;
     final hours = diff.inHours;
     final minutes = diff.inMinutes % 60;
-    return '${hours}h ${minutes}m remaining';
+    return l10n.timeRemaining(hours, minutes);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('កូដតភ្ជាប់'),
+        title: Text(l10n.connectionCodeTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -98,6 +102,8 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
   }
 
   Widget _buildErrorState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -105,7 +111,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
           Icon(Icons.error_outline, size: 64, color: AppColors.alertRed),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'មិនអាចបង្កើតកូដ',
+            l10n.cannotGenerateCode,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -118,7 +124,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
           ),
           const SizedBox(height: AppSpacing.lg),
           PrimaryButton(
-            text: 'ព្យាយាមម្តងទៀត',
+            text: l10n.retry,
             onPressed: _generateToken,
           ),
         ],
@@ -127,6 +133,8 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
   }
 
   Widget _buildTokenDisplay(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -171,7 +179,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
                       padding:
                           const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                       child: Text(
-                        'ឬប្រើកូដ',
+                        l10n.orUseCode,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -231,7 +239,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
                   size: 16, color: AppColors.textSecondary),
               const SizedBox(width: AppSpacing.xs),
               Text(
-                _timeRemaining,
+                _getTimeRemaining(l10n),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -246,15 +254,15 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'ការណែនាំ',
+                  l10n.instructions,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                _buildStep(context, '1', 'បើកកម្មវិធីនៅលើទូរស័ព្ទគ្រួសារ'),
-                _buildStep(context, '2', 'ចុច "ស្កេនកូដ QR" ឬ "បញ្ចូលកូដ"'),
-                _buildStep(context, '3', 'ស្កេនកូដ QR នេះ ឬបញ្ចូលកូដ'),
+                _buildStep(context, '1', l10n.instructionStep1Family),
+                _buildStep(context, '2', l10n.instructionStep2Family),
+                _buildStep(context, '3', l10n.instructionStep3Family),
               ],
             ),
           ),
@@ -262,15 +270,15 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
 
           // Share button
           PrimaryButton(
-            text: 'ចែករំលែកកូដ',
+            text: l10n.shareCodeButton,
             icon: Icons.share,
             onPressed: () {
-              Share.share('កូដតភ្ជាប់ DasTern: $_token');
+              Share.share(l10n.shareCodeMessage(_token ?? ''));
             },
           ),
           const SizedBox(height: AppSpacing.sm),
           PrimaryButton(
-            text: 'បង្កើតកូដថ្មី',
+            text: l10n.generateNewCode,
             icon: Icons.refresh,
             isOutlined: true,
             onPressed: _generateToken,
@@ -321,9 +329,10 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
 
   void _copyToken() {
     if (_token != null) {
+      final l10n = AppLocalizations.of(context)!;
       Clipboard.setData(ClipboardData(text: _token!));
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('កូដត្រូវបានចម្លង')),
+        SnackBar(content: Text(l10n.codeCopied)),
       );
     }
   }

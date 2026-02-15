@@ -11,7 +11,7 @@ import '../services/logger_service.dart';
 /// - Payment status polling (every 5s)
 /// - Success/failure state transitions
 class SubscriptionProvider extends ChangeNotifier {
-  final _api = ApiService();
+  final _api = ApiService.instance;
   final _log = LoggerService.instance;
 
   // Subscription state
@@ -89,7 +89,7 @@ class SubscriptionProvider extends ChangeNotifier {
       _currentPayment = await _api.createBakongPayment(planType);
       _paymentStatus = 'PENDING';
 
-      _log.info('Payment', 'Created payment: md5=${md5Hash}');
+      _log.info('Payment', 'Created payment: md5=$md5Hash');
 
       // Start polling
       _startPolling();

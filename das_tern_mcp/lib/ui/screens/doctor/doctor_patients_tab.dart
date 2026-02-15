@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/doctor_dashboard_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
@@ -31,11 +32,12 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<DoctorDashboardProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Patients'),
+        title: Text(l10n.myPatients),
         automaticallyImplyLeading: false,
       ),
       body: Column(
@@ -47,7 +49,7 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search patients...',
+                hintText: l10n.searchPatients,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -78,27 +80,27 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
               child: Row(
                 children: [
                   _FilterChip(
-                    label: 'All',
+                    label: l10n.all,
                     selected: provider.adherenceFilter == null,
                     onTap: () => provider.setAdherenceFilter(null),
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   _FilterChip(
-                    label: 'Good',
+                    label: l10n.adherenceGood,
                     selected: provider.adherenceFilter == 'GREEN',
                     color: AppColors.successGreen,
                     onTap: () => provider.setAdherenceFilter('GREEN'),
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   _FilterChip(
-                    label: 'Moderate',
+                    label: l10n.adherenceModerate,
                     selected: provider.adherenceFilter == 'YELLOW',
                     color: AppColors.warningOrange,
                     onTap: () => provider.setAdherenceFilter('YELLOW'),
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   _FilterChip(
-                    label: 'Poor',
+                    label: l10n.adherencePoor,
                     selected: provider.adherenceFilter == 'RED',
                     color: AppColors.alertRed,
                     onTap: () => provider.setAdherenceFilter('RED'),
@@ -122,14 +124,14 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
                               Icon(Icons.people_outline,
                                   size: 64, color: AppColors.neutral300),
                               const SizedBox(height: AppSpacing.md),
-                              Text('No patients found',
+                              Text(l10n.noPatientsFound,
                                   style:
                                       Theme.of(context).textTheme.titleMedium),
                               const SizedBox(height: AppSpacing.sm),
                               Text(
                                 (provider.searchQuery?.isNotEmpty ?? false)
-                                    ? 'Try a different search.'
-                                    : 'Connected patients will appear here.',
+                                    ? l10n.tryDifferentSearch
+                                    : l10n.connectedPatientsAppearHere,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
@@ -238,6 +240,7 @@ class _AdherenceBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     Color bgColor;
     Color textColor;
     String text;
@@ -246,17 +249,17 @@ class _AdherenceBadge extends StatelessWidget {
       case 'GREEN':
         bgColor = AppColors.successGreen.withValues(alpha: 0.15);
         textColor = AppColors.successGreen;
-        text = 'Good';
+        text = l10n.adherenceGood;
         break;
       case 'YELLOW':
         bgColor = AppColors.warningOrange.withValues(alpha: 0.15);
         textColor = AppColors.warningOrange;
-        text = 'Moderate';
+        text = l10n.adherenceModerate;
         break;
       case 'RED':
         bgColor = AppColors.alertRed.withValues(alpha: 0.15);
         textColor = AppColors.alertRed;
-        text = 'Poor';
+        text = l10n.adherencePoor;
         break;
       default:
         bgColor = AppColors.neutral300.withValues(alpha: 0.15);

@@ -1,0 +1,670 @@
+{
+    "$schema": "cambodia-prescription-static-v1.0",
+    "extraction_metadata": {
+        "extracted_at": "2026-02-15T14:53:56+07:00",
+        "image_dimensions": {
+            "width": 766,
+            "height": 1080
+        },
+        "ocr_engine": "manual_extraction",
+        "confidence_score": 0.95,
+        "languages_detected": [
+            "khmer",
+            "english"
+        ]
+    },
+    "header_section": {
+        "hospital_logo": {
+            "value": "Khmer-Soviet Friendship Hospital Logo",
+            "bbox": [
+                40,
+                55,
+                125,
+                115
+            ],
+            "confidence": 0.98
+        },
+        "hospital_name_khmer": {
+            "value": "មន្ទីរពេទ្យមិត្តភាពខ្មែរ-សូវៀត",
+            "bbox": [
+                105,
+                75,
+                230,
+                95
+            ],
+            "confidence": 0.96
+        },
+        "hospital_name_english": {
+            "value": "Khmer-Soviet Friendship Hospital",
+            "bbox": [
+                105,
+                95,
+                230,
+                105
+            ],
+            "confidence": 0.97
+        },
+        "system_name": {
+            "value": "H-EQIP",
+            "bbox": [
+                495,
+                55,
+                655,
+                115
+            ],
+            "confidence": 0.99
+        }
+    },
+    "patient_section": {
+        "patient_id": {
+            "label": "លេខកូដ",
+            "value": "HAKF1354164",
+            "bbox": [
+                35,
+                145,
+                200,
+                165
+            ],
+            "confidence": 0.98
+        },
+        "reference_number": {
+            "label": "ប្រភេទប្រាក់",
+            "value": "មូលនិធិសហព័ / 20051002-0409",
+            "bbox": [
+                35,
+                185,
+                395,
+                210
+            ],
+            "confidence": 0.94
+        },
+        "gender": {
+            "label": "ភេទ",
+            "value_khmer": "ស្រី",
+            "value_english": "F",
+            "bbox": [
+                300,
+                145,
+                385,
+                165
+            ],
+            "confidence": 0.97
+        },
+        "age": {
+            "label": "អាយុ",
+            "value": "19",
+            "unit": "ឆ្នាំ",
+            "bbox": [
+                520,
+                145,
+                610,
+                165
+            ],
+            "confidence": 0.99
+        },
+        "classification": {
+            "label": "អ្នកជំងឺ",
+            "value": "អ្នកជំងឺ",
+            "bbox": [
+                630,
+                175,
+                730,
+                210
+            ],
+            "confidence": 0.92
+        },
+        "qr_code": {
+            "value": "QR_CODE_DATA",
+            "bbox": [
+                645,
+                235,
+                730,
+                285
+            ],
+            "confidence": 0.88
+        }
+    },
+    "clinical_section": {
+        "diagnosis": {
+            "label": "រោគវិនិច្ឆ័យ",
+            "value": "Chronic Cystitis",
+            "bbox": [
+                35,
+                245,
+                272,
+                265
+            ],
+            "confidence": 0.96
+        },
+        "location": {
+            "label": "ឈ្មោះ",
+            "value": "ព័ត្យកា:ដីបិណ្ឌុល - បន្ទប់លេខ 5",
+            "bbox": [
+                35,
+                295,
+                310,
+                320
+            ],
+            "confidence": 0.93
+        }
+    },
+    "prescription_header": {
+        "title": {
+            "value": "ទំរប់មុខ",
+            "bbox": [
+                350,
+                330,
+                425,
+                355
+            ],
+            "confidence": 0.94
+        }
+    },
+    "medication_table": {
+        "table_bbox": [
+            35,
+            380,
+            745,
+            650
+        ],
+        "headers": {
+            "item_number": {
+                "label": "ល.រ",
+                "bbox": [
+                    40,
+                    387,
+                    70,
+                    428
+                ],
+                "confidence": 0.98
+            },
+            "medication_name": {
+                "label": "ឈ្មោះថ្នាំ",
+                "bbox": [
+                    75,
+                    387,
+                    265,
+                    428
+                ],
+                "confidence": 0.97
+            },
+            "duration": {
+                "label": "ថ្ងៃផុត",
+                "bbox": [
+                    270,
+                    387,
+                    360,
+                    428
+                ],
+                "confidence": 0.96
+            },
+            "instructions": {
+                "label": "វិធីប្រើ",
+                "bbox": [
+                    365,
+                    387,
+                    438,
+                    428
+                ],
+                "confidence": 0.95
+            },
+            "morning_6_8": {
+                "label": "ព្រឹក (6-8)",
+                "bbox": [
+                    443,
+                    387,
+                    494,
+                    428
+                ],
+                "confidence": 0.97
+            },
+            "lunch_11_12": {
+                "label": "ថ្ងៃត្រង់ (11-12)",
+                "bbox": [
+                    499,
+                    387,
+                    560,
+                    428
+                ],
+                "confidence": 0.96
+            },
+            "afternoon_5_6": {
+                "label": "ល្ងាច (05-06)",
+                "bbox": [
+                    565,
+                    387,
+                    667,
+                    428
+                ],
+                "confidence": 0.96
+            },
+            "evening_8_10": {
+                "label": "យប់ (08-10)",
+                "bbox": [
+                    672,
+                    387,
+                    740,
+                    428
+                ],
+                "confidence": 0.95
+            }
+        },
+        "medications": [
+            {
+                "item_number": {
+                    "value": "1",
+                    "bbox": [
+                        40,
+                        438,
+                        70,
+                        500
+                    ],
+                    "confidence": 0.99
+                },
+                "medication_name": {
+                    "value": "Butylscopolamine 10mg",
+                    "name": "Butylscopolamine",
+                    "strength": "10mg",
+                    "bbox": [
+                        75,
+                        438,
+                        265,
+                        500
+                    ],
+                    "confidence": 0.96
+                },
+                "duration": {
+                    "value": "14 ថ្ងៃ",
+                    "value_numeric": 14,
+                    "unit": "days",
+                    "bbox": [
+                        270,
+                        438,
+                        360,
+                        500
+                    ],
+                    "confidence": 0.98
+                },
+                "instructions": {
+                    "value": "",
+                    "bbox": [
+                        365,
+                        438,
+                        438,
+                        500
+                    ],
+                    "confidence": 0.0
+                },
+                "morning_6_8": {
+                    "value": "1",
+                    "value_numeric": 1,
+                    "bbox": [
+                        443,
+                        438,
+                        494,
+                        500
+                    ],
+                    "confidence": 0.99
+                },
+                "lunch_11_12": {
+                    "value": "-",
+                    "value_numeric": 0,
+                    "bbox": [
+                        499,
+                        438,
+                        560,
+                        500
+                    ],
+                    "confidence": 0.98
+                },
+                "afternoon_5_6": {
+                    "value": "1",
+                    "value_numeric": 1,
+                    "bbox": [
+                        565,
+                        438,
+                        667,
+                        500
+                    ],
+                    "confidence": 0.99
+                },
+                "evening_8_10": {
+                    "value": "-",
+                    "value_numeric": 0,
+                    "bbox": [
+                        672,
+                        438,
+                        740,
+                        500
+                    ],
+                    "confidence": 0.98
+                }
+            },
+            {
+                "item_number": {
+                    "value": "2",
+                    "bbox": [
+                        40,
+                        505,
+                        70,
+                        555
+                    ],
+                    "confidence": 0.99
+                },
+                "medication_name": {
+                    "value": "Celcoxx 100mg",
+                    "name": "Celcoxx",
+                    "strength": "100mg",
+                    "bbox": [
+                        75,
+                        505,
+                        265,
+                        555
+                    ],
+                    "confidence": 0.96
+                },
+                "duration": {
+                    "value": "14 ថ្ងៃរួសាប់",
+                    "value_numeric": 14,
+                    "unit": "days",
+                    "note": "រួសាប់",
+                    "bbox": [
+                        270,
+                        505,
+                        360,
+                        555
+                    ],
+                    "confidence": 0.95
+                },
+                "instructions": {
+                    "value": "",
+                    "bbox": [
+                        365,
+                        505,
+                        438,
+                        555
+                    ],
+                    "confidence": 0.0
+                },
+                "morning_6_8": {
+                    "value": "1",
+                    "value_numeric": 1,
+                    "bbox": [
+                        443,
+                        505,
+                        494,
+                        555
+                    ],
+                    "confidence": 0.99
+                },
+                "lunch_11_12": {
+                    "value": "-",
+                    "value_numeric": 0,
+                    "bbox": [
+                        499,
+                        505,
+                        560,
+                        555
+                    ],
+                    "confidence": 0.98
+                },
+                "afternoon_5_6": {
+                    "value": "1",
+                    "value_numeric": 1,
+                    "bbox": [
+                        565,
+                        505,
+                        667,
+                        555
+                    ],
+                    "confidence": 0.99
+                },
+                "evening_8_10": {
+                    "value": "-",
+                    "value_numeric": 0,
+                    "bbox": [
+                        672,
+                        505,
+                        740,
+                        555
+                    ],
+                    "confidence": 0.98
+                }
+            },
+            {
+                "item_number": {
+                    "value": "3",
+                    "bbox": [
+                        40,
+                        560,
+                        70,
+                        600
+                    ],
+                    "confidence": 0.99
+                },
+                "medication_name": {
+                    "value": "Omeprazole 20mg",
+                    "name": "Omeprazole",
+                    "strength": "20mg",
+                    "bbox": [
+                        75,
+                        560,
+                        265,
+                        600
+                    ],
+                    "confidence": 0.97
+                },
+                "duration": {
+                    "value": "14 ថ្ងៃ",
+                    "value_numeric": 14,
+                    "unit": "days",
+                    "bbox": [
+                        270,
+                        560,
+                        360,
+                        600
+                    ],
+                    "confidence": 0.98
+                },
+                "instructions": {
+                    "value": "",
+                    "bbox": [
+                        365,
+                        560,
+                        438,
+                        600
+                    ],
+                    "confidence": 0.0
+                },
+                "morning_6_8": {
+                    "value": "1",
+                    "value_numeric": 1,
+                    "bbox": [
+                        443,
+                        560,
+                        494,
+                        600
+                    ],
+                    "confidence": 0.99
+                },
+                "lunch_11_12": {
+                    "value": "-",
+                    "value_numeric": 0,
+                    "bbox": [
+                        499,
+                        560,
+                        560,
+                        600
+                    ],
+                    "confidence": 0.98
+                },
+                "afternoon_5_6": {
+                    "value": "1",
+                    "value_numeric": 1,
+                    "bbox": [
+                        565,
+                        560,
+                        667,
+                        600
+                    ],
+                    "confidence": 0.99
+                },
+                "evening_8_10": {
+                    "value": "-",
+                    "value_numeric": 0,
+                    "bbox": [
+                        672,
+                        560,
+                        740,
+                        600
+                    ],
+                    "confidence": 0.98
+                }
+            },
+            {
+                "item_number": {
+                    "value": "4",
+                    "bbox": [
+                        40,
+                        605,
+                        70,
+                        645
+                    ],
+                    "confidence": 0.99
+                },
+                "medication_name": {
+                    "value": "Multivitamine",
+                    "name": "Multivitamine",
+                    "strength": null,
+                    "bbox": [
+                        75,
+                        605,
+                        265,
+                        645
+                    ],
+                    "confidence": 0.96
+                },
+                "duration": {
+                    "value": "21 ថ្ងៃ",
+                    "value_numeric": 21,
+                    "unit": "days",
+                    "bbox": [
+                        270,
+                        605,
+                        360,
+                        645
+                    ],
+                    "confidence": 0.98
+                },
+                "instructions": {
+                    "value": "",
+                    "bbox": [
+                        365,
+                        605,
+                        438,
+                        645
+                    ],
+                    "confidence": 0.0
+                },
+                "morning_6_8": {
+                    "value": "1",
+                    "value_numeric": 1,
+                    "bbox": [
+                        443,
+                        605,
+                        494,
+                        645
+                    ],
+                    "confidence": 0.99
+                },
+                "lunch_11_12": {
+                    "value": "1",
+                    "value_numeric": 1,
+                    "bbox": [
+                        499,
+                        605,
+                        560,
+                        645
+                    ],
+                    "confidence": 0.99
+                },
+                "afternoon_5_6": {
+                    "value": "1",
+                    "value_numeric": 1,
+                    "bbox": [
+                        565,
+                        605,
+                        667,
+                        645
+                    ],
+                    "confidence": 0.99
+                },
+                "evening_8_10": {
+                    "value": "-",
+                    "value_numeric": 0,
+                    "bbox": [
+                        672,
+                        605,
+                        740,
+                        645
+                    ],
+                    "confidence": 0.98
+                }
+            }
+        ]
+    },
+    "footer_section": {
+        "issue_datetime": {
+            "label": "រដ្ឋប្រធានបទ្យ្ងៃទី",
+            "value": "15/06/2025 14:20",
+            "bbox": [
+                440,
+                680,
+                705,
+                700
+            ],
+            "confidence": 0.97
+        },
+        "prescriber_title": {
+            "value": "ព្រាយជ្រាប្ត្យាប",
+            "bbox": [
+                605,
+                720,
+                695,
+                740
+            ],
+            "confidence": 0.91
+        },
+        "prescriber_signature": {
+            "value": "Sry Heng",
+            "bbox": [
+                505,
+                750,
+                645,
+                805
+            ],
+            "confidence": 0.89,
+            "is_handwritten": true
+        },
+        "footer_note_left": {
+            "value": "សូមមេត្តករក្សាការកំណត់ទុកអស់ការព្យាបាល",
+            "bbox": [
+                55,
+                815,
+                385,
+                840
+            ],
+            "confidence": 0.88
+        },
+        "footer_note_right": {
+            "value": "អកនុស្សកាត យល់ សុីហាន់",
+            "bbox": [
+                525,
+                815,
+                700,
+                840
+            ],
+            "confidence": 0.87
+        }
+    }
+}

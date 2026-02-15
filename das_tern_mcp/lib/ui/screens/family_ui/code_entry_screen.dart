@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
@@ -42,9 +43,11 @@ class _CodeEntryScreenState extends State<CodeEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('បញ្ចូលកូដ'),
+        title: Text(l10n.enterCodeTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -74,14 +77,14 @@ class _CodeEntryScreenState extends State<CodeEntryScreen> {
                 const SizedBox(height: AppSpacing.lg),
 
                 Text(
-                  'បញ្ចូលកូដតភ្ជាប់',
+                  l10n.enterConnectionCode,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'សូមបញ្ចូលកូដ ៨ ខ្ទង់ពីអ្នកជំងឺ',
+                  l10n.enterEightDigitFromPatient,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -103,7 +106,7 @@ class _CodeEntryScreenState extends State<CodeEntryScreen> {
                     UpperCaseTextFormatter(),
                   ],
                   decoration: InputDecoration(
-                    hintText: 'XXXXXXXX',
+                    hintText: l10n.codeHintPlaceholder,
                     hintStyle:
                         Theme.of(context).textTheme.headlineMedium?.copyWith(
                               color: AppColors.neutral300,
@@ -127,10 +130,10 @@ class _CodeEntryScreenState extends State<CodeEntryScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'សូមបញ្ចូលកូដ';
+                      return l10n.pleaseEnterCode;
                     }
                     if (value.trim().length < 6) {
-                      return 'កូដមិនត្រឹមត្រូវ';
+                      return l10n.invalidCode;
                     }
                     return null;
                   },
@@ -146,19 +149,19 @@ class _CodeEntryScreenState extends State<CodeEntryScreen> {
                     }
                   },
                   icon: const Icon(Icons.content_paste, size: 18),
-                  label: const Text('បិទភ្ជាប់ពីក្ដារចម្លង'),
+                  label: Text(l10n.pasteFromClipboard),
                 ),
 
                 const Spacer(),
 
                 PrimaryButton(
-                  text: 'បន្ត',
+                  text: l10n.continueButton,
                   isLoading: _isValidating,
                   onPressed: _submit,
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 PrimaryButton(
-                  text: 'ស្កេនកូដ QR ជំនួស',
+                  text: l10n.scanQrInstead,
                   isOutlined: true,
                   icon: Icons.qr_code_scanner,
                   onPressed: () {

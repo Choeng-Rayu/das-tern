@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './prisma/prisma.service';
 import { PaymentService } from './services/payment.service';
@@ -42,7 +42,9 @@ export class AppModule implements NestModule {
     consumer
       .apply(AuthMiddleware)
       .exclude(
-        'api/health(.*)',  // Exclude all health endpoints
+        { path: 'api/health', method: RequestMethod.ALL },
+        { path: 'api/health/ready', method: RequestMethod.ALL },
+        { path: 'api/health/live', method: RequestMethod.ALL },
       )
       .forRoutes('api/*');
 

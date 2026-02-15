@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 
@@ -45,9 +46,11 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ស្កេនកូដ QR'),
+        title: Text(l10n.scanQrTitle),
         centerTitle: true,
         actions: [
           IconButton(
@@ -99,7 +102,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'ដាក់កូដ QR នៅក្នុងប្រអប់',
+                      l10n.positionQrInFrame,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: AppColors.white,
                             fontWeight: FontWeight.w600,
@@ -107,7 +110,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'កូដ QR នឹងត្រូវស្កេនដោយស្វ័យប្រវត្តិ',
+                      l10n.qrWillScanAutomatically,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.white.withValues(alpha: 0.7),
                           ),
@@ -122,7 +125,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                       icon: const Icon(Icons.keyboard,
                           color: AppColors.white, size: 18),
                       label: Text(
-                        'បញ្ចូលកូដដោយដៃ',
+                        l10n.enterCodeManually,
                         style:
                             Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: AppColors.white,

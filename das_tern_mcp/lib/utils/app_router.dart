@@ -23,6 +23,14 @@ import '../ui/screens/patient/payment_method_screen.dart';
 import '../ui/screens/patient/bakong_payment_screen.dart';
 import '../ui/screens/patient/payment_qr_screen.dart';
 import '../ui/screens/patient/payment_success_screen.dart';
+import '../ui/screens/doctor/create_prescription_screen.dart';
+import '../ui/screens/patient/create_patient_medicine_screen.dart';
+import '../ui/screens/prescription_detail_screen.dart';
+import '../ui/screens/patient/record_vital_screen.dart';
+import '../ui/screens/patient/vital_trend_screen.dart';
+import '../ui/screens/patient/vital_thresholds_screen.dart';
+import '../ui/screens/patient/emergency_screen.dart';
+import '../models/enums_model/medication_type.dart';
 
 /// Centralized route definitions.
 class AppRouter {
@@ -54,6 +62,17 @@ class AppRouter {
   static const String subscriptionBakongPayment = '/subscription/bakong-payment';
   static const String subscriptionQrCode = '/subscription/qr-code';
   static const String subscriptionSuccess = '/subscription/success';
+
+  // Prescription routes
+  static const String doctorCreatePrescription = '/doctor/create-prescription';
+  static const String patientCreateMedicine = '/patient/create-medicine';
+  static const String prescriptionDetail = '/prescription/detail';
+
+  // Health monitoring routes
+  static const String patientRecordVital = '/patient/vitals/record';
+  static const String patientVitalTrend = '/patient/vitals/trend';
+  static const String patientVitalThresholds = '/patient/vitals/thresholds';
+  static const String patientEmergency = '/patient/emergency';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -116,6 +135,30 @@ class AppRouter {
         return _buildRoute(const PaymentQrScreen(), settings: settings);
       case subscriptionSuccess:
         return _buildRoute(const PaymentSuccessScreen());
+
+      // Prescription routes
+      case doctorCreatePrescription:
+        return _buildRoute(const CreatePrescriptionScreen());
+      case patientCreateMedicine:
+        return _buildRoute(const CreatePatientMedicineScreen());
+      case prescriptionDetail:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(PrescriptionDetailScreen(
+          prescriptionId: args?['prescriptionId'] ?? '',
+        ));
+
+      // Health monitoring routes
+      case patientRecordVital:
+        return _buildRoute(const RecordVitalScreen());
+      case patientVitalTrend:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(VitalTrendScreen(
+          vitalType: args?['vitalType'] as VitalType? ?? VitalType.heartRate,
+        ));
+      case patientVitalThresholds:
+        return _buildRoute(const VitalThresholdsScreen());
+      case patientEmergency:
+        return _buildRoute(const EmergencyScreen());
 
       default:
         return _buildRoute(const Scaffold(

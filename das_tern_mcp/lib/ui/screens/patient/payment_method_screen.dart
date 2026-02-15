@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 
@@ -9,6 +10,7 @@ class PaymentMethodScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
     final planType = args['planType'] as String? ?? 'PREMIUM';
@@ -18,7 +20,7 @@ class PaymentMethodScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Payment Method'),
+        title: Text(l10n.paymentMethod),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -31,7 +33,7 @@ class PaymentMethodScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
 
             Text(
-              'Select Payment Method',
+              l10n.selectPaymentMethod,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -42,9 +44,9 @@ class PaymentMethodScreen extends StatelessWidget {
             _PaymentMethodCard(
               icon: Icons.qr_code_2,
               iconColor: const Color(0xFF0066CC),
-              title: 'Bakong (KHQR)',
-              subtitle: 'Pay with any Cambodian banking app',
-              description: 'Scan QR code with ABA, ACLEDA, Wing, or any KHQR-supported bank',
+              title: l10n.bakongKHQR,
+              subtitle: l10n.payWithCambodiaBank,
+              description: l10n.scanQRWithBank,
               isAvailable: true,
               onTap: () {
                 Navigator.pushNamed(
@@ -63,9 +65,9 @@ class PaymentMethodScreen extends StatelessWidget {
             _PaymentMethodCard(
               icon: Icons.credit_card,
               iconColor: const Color(0xFF1A1F71),
-              title: 'Visa / Mastercard',
-              subtitle: 'International credit or debit card',
-              description: 'Support for Visa, Mastercard, and other international cards',
+              title: l10n.visaMastercard,
+              subtitle: l10n.internationalCard,
+              description: l10n.internationalCardSupport,
               isAvailable: false,
               onTap: null,
             ),
@@ -85,6 +87,7 @@ class _OrderSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -97,7 +100,7 @@ class _OrderSummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Order Summary',
+            l10n.orderSummary,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
@@ -150,6 +153,7 @@ class _PaymentMethodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Opacity(
       opacity: isAvailable ? 1.0 : 0.5,
       child: Card(
@@ -201,9 +205,9 @@ class _PaymentMethodCard extends StatelessWidget {
                                     color: AppColors.warningOrange.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Text(
-                                    'Coming Soon',
-                                    style: TextStyle(
+                                  child: Text(
+                                    l10n.comingSoon,
+                                    style: const TextStyle(
                                       color: AppColors.warningOrange,
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,

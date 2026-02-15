@@ -15,7 +15,7 @@ export class RegisterDoctorDto {
 
   @IsString()
   @IsNotEmpty()
-  @Matches(/^\+855\d{8,9}$/, { message: 'Phone number must start with +855' })
+  @Matches(/^\+\d{1,4}\d{6,14}$/, { message: 'Phone number must include country code (e.g. +855...)' })
   phoneNumber: string;
 
   @IsString()

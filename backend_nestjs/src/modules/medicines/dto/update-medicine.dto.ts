@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsBoolean, IsArray, IsEnum } from 'class-validator';
+import { MedicineType, MedicineUnit } from '@prisma/client';
 
 export class UpdateMedicineDto {
   @IsOptional()
@@ -8,6 +9,14 @@ export class UpdateMedicineDto {
   @IsOptional()
   @IsString()
   medicineNameKhmer?: string;
+
+  @IsOptional()
+  @IsEnum(MedicineType)
+  medicineType?: MedicineType;
+
+  @IsOptional()
+  @IsEnum(MedicineUnit)
+  unit?: MedicineUnit;
 
   @IsOptional()
   @IsNumber()
@@ -30,7 +39,16 @@ export class UpdateMedicineDto {
   scheduleTimes?: { timePeriod: string; time: string }[];
 
   @IsOptional()
-  duration?: { type: string; value?: number | string };
+  @IsNumber()
+  durationDays?: number;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  additionalNote?: string;
 
   @IsOptional()
   @IsString()

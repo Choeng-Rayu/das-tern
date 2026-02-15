@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
@@ -10,9 +11,11 @@ class FamilyConnectIntroScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ភ្ជាប់គ្រួសារ'),
+        title: Text(l10n.connectFamilyTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -39,7 +42,7 @@ class FamilyConnectIntroScreen extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
 
               Text(
-                'ភ្ជាប់ជាមួយគ្រួសារ',
+                l10n.connectWithFamily,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
@@ -47,7 +50,7 @@ class FamilyConnectIntroScreen extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'ចែករំលែកព័ត៌មានថ្នាំរបស់អ្នកជាមួយគ្រួសារ\nដើម្បីឱ្យពួកគេអាចជួយត្រួតពិនិត្យ',
+                l10n.shareMedicationWithFamily,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
@@ -60,8 +63,8 @@ class FamilyConnectIntroScreen extends StatelessWidget {
               _buildOptionCard(
                 context,
                 icon: Icons.qr_code_2,
-                title: 'ចែករំលែកកូដ QR',
-                subtitle: 'បង្កើតកូដដើម្បីឱ្យគ្រួសារស្កេន',
+                title: l10n.shareQrCode,
+                subtitle: l10n.generateCodeForFamily,
                 color: AppColors.primaryBlue,
                 onTap: () {
                   Navigator.pushNamed(
@@ -76,8 +79,8 @@ class FamilyConnectIntroScreen extends StatelessWidget {
               _buildOptionCard(
                 context,
                 icon: Icons.qr_code_scanner,
-                title: 'ស្កេនកូដ QR',
-                subtitle: 'ស្កេនកូដពីអ្នកជំងឺដើម្បីភ្ជាប់',
+                title: l10n.scanQrCode,
+                subtitle: l10n.scanCodeFromPatient,
                 color: AppColors.successGreen,
                 onTap: () {
                   Navigator.pushNamed(context, '/family/scan');
@@ -89,8 +92,8 @@ class FamilyConnectIntroScreen extends StatelessWidget {
               _buildOptionCard(
                 context,
                 icon: Icons.keyboard,
-                title: 'បញ្ចូលកូដដោយដៃ',
-                subtitle: 'បញ្ចូលកូដតភ្ជាប់ ៨ ខ្ទង់',
+                title: l10n.enterCodeManually,
+                subtitle: l10n.enterEightDigitConnectionCode,
                 color: AppColors.warningOrange,
                 onTap: () {
                   Navigator.pushNamed(context, '/family/enter-code');
@@ -108,7 +111,7 @@ class FamilyConnectIntroScreen extends StatelessWidget {
                   const SizedBox(width: AppSpacing.xs),
                   Flexible(
                     child: Text(
-                      'កូដមានសុពលភាព ២៤ ម៉ោង',
+                      l10n.codeValidFor24Hours,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.textSecondary,
                           ),

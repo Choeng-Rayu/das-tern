@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/connection_model/connection.dart';
 import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
@@ -29,10 +30,11 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
   @override
   Widget build(BuildContext context) {
     final connectionProvider = context.watch<ConnectionProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('មុខងារគ្រួសារ'),
+        title: Text(l10n.family),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -40,14 +42,14 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
             onPressed: () {
               Navigator.pushNamed(context, '/family/grace-period');
             },
-            tooltip: 'ការកំណត់ពេលវេលា',
+            tooltip: l10n.gracePeriodSettings,
           ),
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
               Navigator.pushNamed(context, '/family/history');
             },
-            tooltip: 'ប្រវត្តិ',
+            tooltip: l10n.history,
           ),
         ],
       ),
@@ -64,7 +66,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
             children: [
               // My Caregivers section
               Text(
-                'អ្នកថែទាំរបស់ខ្ញុំ',
+                l10n.myCaregivers,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -92,7 +94,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                 if (connectionProvider.connectedPatients.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.lg),
                   Text(
-                    'អ្នកជំងឺដែលខ្ញុំតាមដាន',
+                    l10n.patientsIMonitor,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -109,7 +111,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
               // Connect button
               Center(
                 child: PrimaryButton(
-                  text: 'ភ្ជាប់ពេលនេះ',
+                  text: l10n.connectNow,
                   icon: Icons.link,
                   onPressed: () {
                     Navigator.pushNamed(context, '/family/connect');
@@ -122,7 +124,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
               // View all connections
               Center(
                 child: PrimaryButton(
-                  text: 'មើលការតភ្ជាប់ទាំងអស់',
+                  text: l10n.viewAllConnections,
                   icon: Icons.people_outline,
                   isOutlined: true,
                   onPressed: () {
@@ -138,6 +140,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
       child: Center(
@@ -147,14 +150,14 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                 size: 64, color: AppColors.neutral300),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'មិនមានដំណរភ្ជាប់',
+              l10n.noConnections,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'ភ្ជាប់ជាមួយគ្រួសារដើម្បី\nត្រួតពិនិត្យការទទួលទានថ្នាំ',
+              l10n.connectWithFamily,
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
@@ -168,6 +171,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
   }
 
   Widget _buildFamilyMemberCard(BuildContext context, Connection connection) {
+    final l10n = AppLocalizations.of(context)!;
     final name = connection.getOtherUserName(connection.recipientId);
 
     return Padding(
@@ -192,7 +196,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name.isEmpty ? 'Unknown' : name,
+                    name.isEmpty ? l10n.unknown : name,
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
@@ -221,7 +225,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                connection.status.name == 'accepted' ? 'សកម្ម' : 'រង់ចាំ',
+                connection.status.name == 'accepted' ? l10n.activeStatus : l10n.waitingStatus,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -238,6 +242,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
   }
 
   Widget _buildPatientCard(BuildContext context, Connection connection) {
+    final l10n = AppLocalizations.of(context)!;
     final name = connection.getOtherUserName(connection.initiatorId);
 
     return Padding(
@@ -267,7 +272,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name.isEmpty ? 'Patient' : name,
+                    name.isEmpty ? l10n.patient : name,
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium

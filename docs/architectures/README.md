@@ -9,6 +9,7 @@
 - [Architecture Overview](#-architecture-overview)
 - [Technology Stack](#-technology-stack)
 - [System Components](#-system-components)
+- [OCR Prescription Service](#-ocr-prescription-scanning-service)
 - [Security Architecture](#-security-architecture)
 - [Data Architecture](#-data-architecture)
 - [Offline-First Strategy](#-offline-first-strategy)
@@ -109,6 +110,22 @@
 │                          └─► Communicates via REST API         │
 │                              with Main Backend (API Key)        │
 │                                                                 │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │        OCR Prescription Service (Standalone Python)      │  │
+│  │                    FastAPI Service                       │  │
+│  │                                                          │  │
+│  │  • PaddleOCR PP-OCRv5     • Tesseract khm+eng+fra       │  │
+│  │  • PP-StructureV3 Table   • OpenCV Preprocessing        │  │
+│  │  • Mixed Khmer/English    • Medical Lexicon Match        │  │
+│  │  • Dynamic Universal v2.0 • Confidence Scoring           │  │
+│  │  • CPU-Optimized (MKL-DNN)• < 4s per image              │  │
+│  │                                                          │  │
+│  │  🔬 Self-Hosted • Port: 8000 • Apache-2.0 Stack          │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                          │                                     │
+│                          └─► Communicates via REST API         │
+│                              with Main Backend (API Key)        │
+│                                                                 │
 └─────────────────────────┬───────────────────────────────────────┘
                           │
 ┌─────────────────────────┼───────────────────────────────────────┐
@@ -154,6 +171,14 @@ External Services:
 │  Bakong API (National Bank of Cambodia)                     │
 │  • Payment Status Checking    • KHQR Verification           │
 │  • Cambodia IP Required       • Developer Token Auth        │
+└──────────────────────────────────────────────────────────────┘
+
+OCR Prescription Flow:
+┌──────────────────────────────────────────────────────────────┐
+│  Flutter → NestJS Backend → OCR Service (FastAPI :8000)     │
+│                                                              │
+│  Image Upload → Preprocess → Layout Detect → OCR → JSON    │
+│  PaddleOCR (English) + Tesseract (Khmer) → Universal v2.0  │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -872,6 +897,108 @@ audit_logs (
 - **Audit Logging**: All data access logged
 - **Connection Pooling**: PgBouncer for efficiency
 - **Backup Strategy**: Automated daily backups
+
+---
+
+## 🔬 OCR Prescription Scanning Service
+
+### Overview
+
+The OCR Prescription Scanning Service is a **standalone Python microservice** that extracts structured prescription data from images of Cambodian medical prescriptions. It handles mixed Khmer, English, and French text using a dual-engine OCR approach.
+
+**Key characteristics:**
+- Self-hosted, CPU-only (GPU upgrade path available)
+- All open-source stack (Apache-2.0 compatible)
+- Communicates with NestJS backend via REST API
+- Output follows Dynamic Universal v2.0 schema
+
+### Architecture
+
+```
+[Flutter App] ──upload──▶ [NestJS Backend :3001]
+                                  │
+                         HTTP POST multipart
+                                  │
+                         [FastAPI OCR :8000]
+                                  │
+                    ┌─────────────┴──────────────┐
+                    │                            │
+              Preprocessor                  Config
+              (OpenCV)                   (thresholds)
+                    │
+             Layout Analyzer
+         (PP-StructureV3 + OpenCV)
+                    │
+          ┌─────────┴──────────┐
+          │                    │
+    Table Cells          Header/Footer
+    PaddleOCR            Tesseract
+    (English,            (Khmer labels,
+     numbers)             footer notes)
+          │                    │
+          └─────────┬──────────┘
+                    │
+             Post-Processor
+         (normalize, lexicon,
+          dosing calc)
+                    │
+             Formatter
+         (Static → Dynamic
+          Universal v2.0)
+                    │
+             API Response
+```
+
+### Technology Stack
+
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **API Framework** | FastAPI (Python 3.10+) | Async REST API, auto-docs |
+| **English OCR** | PaddleOCR PP-OCRv5 | Latin text (medication names, IDs) |
+| **Khmer OCR** | Tesseract 5.x (khm) | Khmer script labels and headers |
+| **Table Detection** | PP-StructureV3 | Table/layout structure extraction |
+| **Image Processing** | OpenCV 4.8+ | Denoise, deskew, CLAHE contrast |
+| **Text Matching** | RapidFuzz | Fuzzy medication name matching |
+
+### OCR Prescription Scanning Flow
+
+```
+1. Flutter app captures/uploads prescription image
+2. NestJS backend receives image, forwards to OCR service
+3. OCR service preprocesses (blur fix, contrast, deskew)
+4. Layout analyzer detects table, header, footer regions
+5. Per-region OCR: PaddleOCR for English, Tesseract for Khmer
+6. Post-processor normalizes text, matches medication names
+7. Formatter produces Dynamic Universal v2.0 JSON
+8. Response returned to NestJS backend
+9. Backend maps JSON to Prescription + Medication[] Prisma models
+10. Backend stores in PostgreSQL, returns data to Flutter
+```
+
+### Confidence Thresholds
+
+| Confidence | Action |
+|-----------|--------|
+| ≥ 0.80 | Auto-accept |
+| 0.60–0.80 | Accept but flag for review |
+| < 0.60 | Mark needs_review: true |
+
+### Integration Rules
+
+- Flutter NEVER talks directly to OCR service
+- OCR service NEVER accesses the main database
+- Only NestJS backend stores prescription data in PostgreSQL
+- OCR service is stateless — no persistent storage needed
+- Backend validates OCR output before storing
+
+### Performance Targets
+
+| Metric | Target |
+|--------|--------|
+| End-to-end extraction | < 4 seconds |
+| Memory usage | < 2 GB |
+| Supported formats | PNG, JPEG, PDF |
+| Max image size | 10 MB |
 
 ---
 

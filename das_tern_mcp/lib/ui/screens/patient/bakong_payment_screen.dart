@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/subscription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
@@ -11,6 +12,7 @@ class BakongPaymentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
     final planType = args['planType'] as String? ?? 'PREMIUM';
@@ -21,7 +23,7 @@ class BakongPaymentScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bakong Payment'),
+        title: Text(l10n.bakongPaymentTitle),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -46,7 +48,7 @@ class BakongPaymentScreen extends StatelessWidget {
                   const Icon(Icons.qr_code_2, color: Colors.white, size: 48),
                   const SizedBox(height: 12),
                   Text(
-                    'Bakong KHQR Payment',
+                    l10n.bakongKHQRPayment,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -54,7 +56,7 @@ class BakongPaymentScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'National Bank of Cambodia',
+                    l10n.nationalBankOfCambodia,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.white60,
                         ),
@@ -66,7 +68,7 @@ class BakongPaymentScreen extends StatelessWidget {
 
             // Plan Summary
             Text(
-              'Plan Summary',
+              l10n.planSummary,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -80,13 +82,13 @@ class BakongPaymentScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: Column(
                   children: [
-                    _summaryRow(context, 'Plan', planName),
+                    _summaryRow(context, l10n.plan, planName),
                     const Divider(),
-                    _summaryRow(context, 'Price', '\$$price USD'),
+                    _summaryRow(context, l10n.price, '\$$price USD'),
                     const Divider(),
-                    _summaryRow(context, 'Billing', 'Monthly'),
+                    _summaryRow(context, l10n.billingLabel, l10n.monthlyBilling),
                     const Divider(),
-                    _summaryRow(context, 'Payment', 'Bakong KHQR'),
+                    _summaryRow(context, l10n.paymentLabel, 'Bakong KHQR'),
                   ],
                 ),
               ),
@@ -95,17 +97,17 @@ class BakongPaymentScreen extends StatelessWidget {
 
             // How it works
             Text(
-              'How it Works',
+              l10n.howItWorks,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: AppSpacing.sm),
-            _stepItem(context, '1', 'Click "Confirm & Get QR Code" below'),
-            _stepItem(context, '2', 'Open your banking app (ABA, ACLEDA, Wing, etc.)'),
-            _stepItem(context, '3', 'Scan the QR code displayed on screen'),
-            _stepItem(context, '4', 'Confirm payment in your banking app'),
-            _stepItem(context, '5', 'Your plan will be upgraded automatically'),
+            _stepItem(context, '1', l10n.bakongStep1),
+            _stepItem(context, '2', l10n.bakongStep2),
+            _stepItem(context, '3', l10n.bakongStep3),
+            _stepItem(context, '4', l10n.bakongStep4),
+            _stepItem(context, '5', l10n.bakongStep5),
 
             const SizedBox(height: AppSpacing.sm),
             Container(
@@ -122,7 +124,7 @@ class BakongPaymentScreen extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Your payment is processed securely through the Bakong system by the National Bank of Cambodia.',
+                      l10n.paymentSecureNotice,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.successGreen,
                           ),
@@ -184,9 +186,9 @@ class BakongPaymentScreen extends StatelessWidget {
                           color: Colors.white,
                         ),
                       )
-                    : const Text(
-                        'Confirm & Get QR Code',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    : Text(
+                        l10n.confirmAndGetQR,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
               ),
             ),
