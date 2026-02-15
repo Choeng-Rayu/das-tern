@@ -1754,6 +1754,42 @@ abstract class AppLocalizations {
   /// **'Scanner feature coming soon'**
   String get scannerComingSoon;
 
+  /// No description provided for @scanFromCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get scanFromCamera;
+
+  /// No description provided for @scanFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get scanFromGallery;
+
+  /// No description provided for @scanProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning prescription...'**
+  String get scanProcessing;
+
+  /// No description provided for @scanSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription scanned successfully!'**
+  String get scanSuccess;
+
+  /// No description provided for @scanFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan failed. Please try again.'**
+  String get scanFailed;
+
+  /// No description provided for @scanMedicationsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} medications found'**
+  String scanMedicationsFound(int count);
+
   /// No description provided for @doseHistoryAppearHere.
   ///
   /// In en, this message translates to:

@@ -859,6 +859,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scannerComingSoon => 'Scanner feature coming soon';
 
   @override
+  String get scanFromCamera => 'Take Photo';
+
+  @override
+  String get scanFromGallery => 'Choose from Gallery';
+
+  @override
+  String get scanProcessing => 'Scanning prescription...';
+
+  @override
+  String get scanSuccess => 'Prescription scanned successfully!';
+
+  @override
+  String get scanFailed => 'Scan failed. Please try again.';
+
+  @override
+  String scanMedicationsFound(int count) {
+    return '$count medications found';
+  }
+
+  @override
   String get doseHistoryAppearHere => 'Your dose history will appear here.';
 
   @override

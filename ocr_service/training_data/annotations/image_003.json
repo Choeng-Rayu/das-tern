@@ -1,0 +1,116 @@
+{
+  "annotation": {
+    "image_file": "image2.png",
+    "annotator": "ocr_pipeline_validated",
+    "annotated_at": "2026-02-16T04:00:00+07:00",
+    "image_quality": "fair",
+    "prescription_format": "H-EQIP",
+    "regions": {
+      "header": {
+        "bbox": [0, 0, 930, 180],
+        "text": {
+          "hospital_name_en": null,
+          "hospital_name_km": null,
+          "system_name": null
+        }
+      },
+      "patient_info": {
+        "bbox": [0, 180, 930, 400],
+        "fields": {
+          "patient_id": { "value": null, "bbox": null },
+          "patient_name": { "value": null, "bbox": null },
+          "gender": { "value": null, "bbox": null },
+          "age": { "value": null, "bbox": null },
+          "diagnosis": { "value": null, "bbox": null },
+          "date": { "value": null, "bbox": null }
+        }
+      },
+      "medication_table": {
+        "bbox": [0, 400, 930, 900],
+        "column_boundaries": [],
+        "rows": [
+          {
+            "row_number": 1,
+            "bbox": null,
+            "cells": {
+              "item_number": { "text": "1", "bbox": null },
+              "medication_name": { "text": "Brufen", "bbox": null },
+              "duration": { "text": "", "bbox": null },
+              "instructions": { "text": "", "bbox": null },
+              "morning": { "value": "-", "bbox": null },
+              "midday": { "value": "1", "bbox": null },
+              "afternoon": { "value": "1", "bbox": null },
+              "evening": { "value": "1", "bbox": null }
+            }
+          },
+          {
+            "row_number": 2,
+            "bbox": null,
+            "cells": {
+              "item_number": { "text": "2", "bbox": null },
+              "medication_name": { "text": "Butylscopolamine", "bbox": null },
+              "duration": { "text": "14 គ្រាប់", "bbox": null },
+              "instructions": { "text": "", "bbox": null },
+              "morning": { "value": "-", "bbox": null },
+              "midday": { "value": "1", "bbox": null },
+              "afternoon": { "value": "1", "bbox": null },
+              "evening": { "value": "1", "bbox": null }
+            }
+          },
+          {
+            "row_number": 3,
+            "bbox": null,
+            "cells": {
+              "item_number": { "text": "3", "bbox": null },
+              "medication_name": { "text": "Multivitamine", "bbox": null },
+              "duration": { "text": "10 គ្រាប់", "bbox": null },
+              "instructions": { "text": "", "bbox": null },
+              "morning": { "value": "-", "bbox": null },
+              "midday": { "value": "1", "bbox": null },
+              "afternoon": { "value": "1", "bbox": null },
+              "evening": { "value": "1", "bbox": null }
+            }
+          },
+          {
+            "row_number": 4,
+            "bbox": null,
+            "cells": {
+              "item_number": { "text": "4", "bbox": null },
+              "medication_name": { "text": "Esomeprazole 20mg", "bbox": null },
+              "duration": { "text": "7 គ្រាប់", "bbox": null },
+              "instructions": { "text": "PO", "bbox": null },
+              "morning": { "value": "1", "bbox": null },
+              "midday": { "value": "1", "bbox": null },
+              "afternoon": { "value": "-", "bbox": null },
+              "evening": { "value": "1", "bbox": null }
+            }
+          },
+          {
+            "row_number": 5,
+            "bbox": null,
+            "cells": {
+              "item_number": { "text": "5", "bbox": null },
+              "medication_name": { "text": "Paracetamol 500mg", "bbox": null },
+              "duration": { "text": "5 គ្រាប់", "bbox": null },
+              "instructions": { "text": "PO", "bbox": null },
+              "morning": { "value": "1", "bbox": null },
+              "midday": { "value": "1", "bbox": null },
+              "afternoon": { "value": "1", "bbox": null },
+              "evening": { "value": "1", "bbox": null }
+            }
+          }
+        ]
+      },
+      "prescriber": {
+        "bbox": null,
+        "name": null,
+        "signature_present": false,
+        "stamp_present": false
+      },
+      "footer": {
+        "bbox": null,
+        "text": null
+      }
+    }
+  }
+}

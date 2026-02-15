@@ -1,42 +1,54 @@
 {
-  "item_number": {
-    "known_labels": ["ល.រ", "លេខរៀង"],
-    "english": "Item Number"
-  },
-  "medication_name": {
-    "known_labels": ["ឈ្មោះថ្នាំ", "ថ្នាំ"],
-    "english": "Medication Name"
-  },
-  "duration": {
-    "known_labels": ["ថ្ងៃផុត", "រយៈពេល"],
-    "english": "Duration"
-  },
-  "instructions": {
-    "known_labels": ["វិធីប្រើ", "របៀបប្រើ"],
-    "english": "Instructions"
-  },
-  "morning": {
-    "known_labels": ["ព្រឹក (6-8)", "ព្រឹក", "ព្រឹក(6-8)"],
-    "english": "Morning (6-8)",
-    "time_range": "06:00-08:00",
-    "period": "morning"
-  },
-  "midday": {
-    "known_labels": ["ថ្ងៃត្រង់ (11-12)", "ថ្ងៃត្រង់", "ថ្ងៃត្រង់(11-12)"],
-    "english": "Midday (11-12)",
-    "time_range": "11:00-12:00",
-    "period": "midday"
-  },
-  "afternoon": {
-    "known_labels": ["ល្ងាច (05-06)", "ល្ងាច", "ល្ងាច(5-6)"],
-    "english": "Afternoon (5-6)",
-    "time_range": "17:00-18:00",
-    "period": "afternoon"
-  },
-  "evening": {
-    "known_labels": ["យប់ (08-10)", "យប់", "យប់(8-10)"],
-    "english": "Evening (8-10)",
-    "time_range": "20:00-22:00",
-    "period": "evening"
-  }
+    "headers": {
+        "item_number": {
+            "khmer": ["\u179b.\u179a", "\u179b\u17c1\u1781\u179a\u17c0\u1784"],
+            "english": ["No.", "No", "#", "Item"],
+            "position": 0
+        },
+        "medication_name": {
+            "khmer": ["\u1788\u17d2\u1798\u17c4\u17c7\u178f\u17d2\u1793\u17b6\u17c6"],
+            "english": ["Medicine", "Medication", "Drug", "Name"],
+            "position": 1
+        },
+        "duration": {
+            "khmer": ["\u1790\u17d2\u1784\u17c3\u1795\u17bb\u178f"],
+            "english": ["Duration", "Days"],
+            "position": 2
+        },
+        "instructions": {
+            "khmer": ["\u179c\u17b7\u1792\u17b8\u1794\u17d2\u179a\u17be"],
+            "english": ["Instructions", "Method", "Usage"],
+            "position": 3
+        },
+        "morning": {
+            "khmer": ["\u1796\u17d2\u179a\u17b9\u1780"],
+            "english": ["Morning", "AM"],
+            "time_range": "06:00-08:00",
+            "position": 4
+        },
+        "midday": {
+            "khmer": ["\u1790\u17d2\u1784\u17c3\u178f\u17d2\u179a\u1784\u17cb"],
+            "english": ["Midday", "Noon"],
+            "time_range": "11:00-12:00",
+            "position": 5
+        },
+        "afternoon": {
+            "khmer": ["\u179b\u17d2\u1784\u17b6\u1785"],
+            "english": ["Afternoon", "Evening", "PM"],
+            "time_range": "17:00-18:00",
+            "position": 6
+        },
+        "evening": {
+            "khmer": ["\u1799\u1794\u17cb"],
+            "english": ["Night", "Bedtime"],
+            "time_range": "20:00-22:00",
+            "position": 7
+        }
+    },
+    "time_slots": [
+        {"period": "morning", "label": "\u1796\u17d2\u179a\u17b9\u1780 (6-8)", "time_range": "06:00-08:00"},
+        {"period": "midday", "label": "\u1790\u17d2\u1784\u17c3\u178f\u17d2\u179a\u1784\u17cb (11-12)", "time_range": "11:00-12:00"},
+        {"period": "afternoon", "label": "\u179b\u17d2\u1784\u17b6\u1785 (05-06)", "time_range": "17:00-18:00"},
+        {"period": "evening", "label": "\u1799\u1794\u17cb (08-10)", "time_range": "20:00-22:00"}
+    ]
 }

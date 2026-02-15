@@ -315,6 +315,15 @@
   "scanPrescriptionDescription": "ប្រើកាមេរ៉ារបស់អ្នកដើម្បីស្កេនវេជ្ជបញ្ជា\nពីវេជ្ជបណ្ឌិតរបស់អ្នក។",
   "openScanner": "បើកស្កេនន័រ",
   "scannerComingSoon": "មុខងារស្កេនន័រនឹងមកដល់ឆាប់ៗ",
+  "scanFromCamera": "ថតរូប",
+  "scanFromGallery": "ជ្រើសពីវិចិត្រសាល",
+  "scanProcessing": "កំពុងស្កេនវេជ្ជបញ្ជា...",
+  "scanSuccess": "ស្កេនវេជ្ជបញ្ជាបានជោគជ័យ!",
+  "scanFailed": "ស្កេនបរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
+  "scanMedicationsFound": "រកឃើញថ្នាំ {count} មុខ",
+  "@scanMedicationsFound": {
+    "placeholders": { "count": { "type": "int" } }
+  },
 
   "doseHistoryAppearHere": "ប្រវត្តិការប្រើថ្នាំរបស់អ្នកនឹងបង្ហាញនៅទីនេះ។",
   "noNotifications": "គ្មានការជូនដំណឹង",
