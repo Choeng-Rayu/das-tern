@@ -6,13 +6,16 @@ class Prescription {
   final String patientGender;
   final int patientAge;
   final String symptoms;
+  final String? diagnosis;
+  final String? clinicalNote;
+  final String? followUpDate;
   final String status;
   final List<PrescriptionMedication> medications;
   final int currentVersion;
   final bool isUrgent;
   final String? urgentReason;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   Prescription({
     this.id,
@@ -22,13 +25,16 @@ class Prescription {
     required this.patientGender,
     required this.patientAge,
     required this.symptoms,
+    this.diagnosis,
+    this.clinicalNote,
+    this.followUpDate,
     required this.status,
     required this.medications,
     this.currentVersion = 1,
     this.isUrgent = false,
     this.urgentReason,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory Prescription.fromJson(Map<String, dynamic> json) {
@@ -36,22 +42,32 @@ class Prescription {
       id: json['id'] as String?,
       patientId: json['patientId'] as String,
       doctorId: json['doctorId'] as String?,
-      patientName: json['patientName'] as String,
-      patientGender: json['patientGender'] as String,
-      patientAge: json['patientAge'] as int,
-      symptoms: json['symptoms'] as String,
-      status: json['status'] as String,
-      medications: (json['medications'] as List)
-          .map((m) => PrescriptionMedication.fromJson(m))
-          .toList(),
+      patientName: json['patientName'] as String? ?? '',
+      patientGender: json['patientGender'] as String? ?? 'OTHER',
+      patientAge: json['patientAge'] as int? ?? 0,
+      symptoms: json['symptoms'] as String? ?? '',
+      diagnosis: json['diagnosis'] as String?,
+      clinicalNote: json['clinicalNote'] as String?,
+      followUpDate: json['followUpDate'] as String?,
+      status: json['status'] as String? ?? 'DRAFT',
+      medications: json['medications'] != null
+          ? (json['medications'] as List)
+              .map((m) => PrescriptionMedication.fromJson(m))
+              .toList()
+          : [],
       currentVersion: json['currentVersion'] as int? ?? 1,
       isUrgent: json['isUrgent'] as bool? ?? false,
       urgentReason: json['urgentReason'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : null,
     );
   }
 
+  /// Converts to JSON for reading/display purposes.
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
@@ -61,13 +77,12 @@ class Prescription {
       'patientGender': patientGender,
       'patientAge': patientAge,
       'symptoms': symptoms,
-      'status': status,
+      if (diagnosis != null) 'diagnosis': diagnosis,
+      if (clinicalNote != null) 'clinicalNote': clinicalNote,
+      if (followUpDate != null) 'followUpDate': followUpDate,
       'medications': medications.map((m) => m.toJson()).toList(),
-      'currentVersion': currentVersion,
       'isUrgent': isUrgent,
       if (urgentReason != null) 'urgentReason': urgentReason,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 }
@@ -77,47 +92,86 @@ class PrescriptionMedication {
   final String? prescriptionId;
   final int rowNumber;
   final String medicineName;
-  final String medicineNameKhmer;
+  final String? medicineNameKhmer;
+  final String? medicineType;
+  final String? unit;
+  final double? dosageAmount;
+  final String? description;
+  final String? additionalNote;
   final String? imageUrl;
-  final double morningDosage;
-  final double daytimeDosage;
-  final double nightDosage;
-  final String frequency;
-  final String timing;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String? frequency;
+  final int? duration;
+  final String? timing;
+  final bool isPRN;
+  final bool beforeMeal;
+  final Map<String, dynamic>? morningDosage;
+  final Map<String, dynamic>? daytimeDosage;
+  final Map<String, dynamic>? nightDosage;
+  final String? createdBy;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   PrescriptionMedication({
     this.id,
     this.prescriptionId,
     required this.rowNumber,
     required this.medicineName,
-    required this.medicineNameKhmer,
+    this.medicineNameKhmer,
+    this.medicineType,
+    this.unit,
+    this.dosageAmount,
+    this.description,
+    this.additionalNote,
     this.imageUrl,
-    required this.morningDosage,
-    required this.daytimeDosage,
-    required this.nightDosage,
-    required this.frequency,
-    required this.timing,
-    required this.createdAt,
-    required this.updatedAt,
+    this.frequency,
+    this.duration,
+    this.timing,
+    this.isPRN = false,
+    this.beforeMeal = false,
+    this.morningDosage,
+    this.daytimeDosage,
+    this.nightDosage,
+    this.createdBy,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory PrescriptionMedication.fromJson(Map<String, dynamic> json) {
     return PrescriptionMedication(
       id: json['id'] as String?,
       prescriptionId: json['prescriptionId'] as String?,
-      rowNumber: json['rowNumber'] as int,
-      medicineName: json['medicineName'] as String,
-      medicineNameKhmer: json['medicineNameKhmer'] as String,
+      rowNumber: json['rowNumber'] as int? ?? 0,
+      medicineName: json['medicineName'] as String? ?? '',
+      medicineNameKhmer: json['medicineNameKhmer'] as String?,
+      medicineType: json['medicineType'] as String?,
+      unit: json['unit'] as String?,
+      dosageAmount: json['dosageAmount'] != null
+          ? (json['dosageAmount'] as num).toDouble()
+          : null,
+      description: json['description'] as String?,
+      additionalNote: json['additionalNote'] as String?,
       imageUrl: json['imageUrl'] as String?,
-      morningDosage: (json['morningDosage'] as num).toDouble(),
-      daytimeDosage: (json['daytimeDosage'] as num).toDouble(),
-      nightDosage: (json['nightDosage'] as num).toDouble(),
-      frequency: json['frequency'] as String,
-      timing: json['timing'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      frequency: json['frequency'] as String?,
+      duration: json['duration'] as int?,
+      timing: json['timing'] as String?,
+      isPRN: json['isPRN'] as bool? ?? false,
+      beforeMeal: json['beforeMeal'] as bool? ?? false,
+      morningDosage: json['morningDosage'] != null
+          ? Map<String, dynamic>.from(json['morningDosage'] as Map)
+          : null,
+      daytimeDosage: json['daytimeDosage'] != null
+          ? Map<String, dynamic>.from(json['daytimeDosage'] as Map)
+          : null,
+      nightDosage: json['nightDosage'] != null
+          ? Map<String, dynamic>.from(json['nightDosage'] as Map)
+          : null,
+      createdBy: json['createdBy'] as String?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : null,
     );
   }
 
@@ -127,15 +181,20 @@ class PrescriptionMedication {
       if (prescriptionId != null) 'prescriptionId': prescriptionId,
       'rowNumber': rowNumber,
       'medicineName': medicineName,
-      'medicineNameKhmer': medicineNameKhmer,
+      if (medicineNameKhmer != null) 'medicineNameKhmer': medicineNameKhmer,
+      if (medicineType != null) 'medicineType': medicineType,
+      if (unit != null) 'unit': unit,
+      if (dosageAmount != null) 'dosageAmount': dosageAmount,
+      if (description != null) 'description': description,
+      if (additionalNote != null) 'additionalNote': additionalNote,
       if (imageUrl != null) 'imageUrl': imageUrl,
-      'morningDosage': morningDosage,
-      'daytimeDosage': daytimeDosage,
-      'nightDosage': nightDosage,
-      'frequency': frequency,
-      'timing': timing,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      if (frequency != null) 'frequency': frequency,
+      if (duration != null) 'durationDays': duration,
+      'isPRN': isPRN,
+      'beforeMeal': beforeMeal,
+      if (morningDosage != null) 'morningDosage': morningDosage,
+      if (daytimeDosage != null) 'daytimeDosage': daytimeDosage,
+      if (nightDosage != null) 'nightDosage': nightDosage,
     };
   }
 }

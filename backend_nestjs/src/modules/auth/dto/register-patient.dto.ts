@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEnum, IsDateString, Matches, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsDateString, Matches, IsOptional, IsEmail, MinLength } from 'class-validator';
 import { Gender } from '@prisma/client';
 
 export class RegisterPatientDto {
@@ -20,13 +20,17 @@ export class RegisterPatientDto {
   @IsOptional()
   idCardNumber?: string;
 
-  @IsString()
+  @IsEmail()
   @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsOptional()
   @Matches(/^\+\d{1,4}\d{6,14}$/, { message: 'Phone number must include country code (e.g. +855...)' })
-  phoneNumber: string;
+  phoneNumber?: string;
 
   @IsString()
   @IsNotEmpty()
-  @Matches(/^.{6,}$/, { message: 'Password must be at least 6 characters' })
+  @MinLength(6, { message: 'Password must be at least 6 characters' })
   password: string;
 }

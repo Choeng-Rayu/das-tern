@@ -4,9 +4,10 @@ import '../../../l10n/app_localizations.dart';
 import '../../../services/api_service.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
+import '../../../utils/app_router.dart';
 
-/// Scan Prescription tab – captures/picks prescription image and sends to OCR.
-/// Matches Figma center tab: ស្កេនវេជ្ជបញ្ជា
+/// Scan Prescription tab – captures/picks prescription image, extracts via OCR,
+/// then navigates to an editable preview screen before saving.
 class PatientScanTab extends StatefulWidget {
   const PatientScanTab({super.key});
 
@@ -17,7 +18,6 @@ class PatientScanTab extends StatefulWidget {
 class _PatientScanTabState extends State<PatientScanTab> {
   final ImagePicker _picker = ImagePicker();
   bool _isProcessing = false;
-  Map<String, dynamic>? _lastResult;
   String? _errorMessage;
 
   Future<void> _scanImage(ImageSource source) async {
@@ -36,27 +36,59 @@ class _PatientScanTabState extends State<PatientScanTab> {
       setState(() {
         _isProcessing = true;
         _errorMessage = null;
-        _lastResult = null;
       });
 
       final bytes = await image.readAsBytes();
-      final result = await ApiService.instance.scanPrescription(
+
+      // Ensure filename has a valid image extension
+      String filename = image.name;
+      final knownExts = ['jpg', 'jpeg', 'png', 'webp', 'pdf'];
+      final hasValidExt = filename.contains('.') &&
+          knownExts.contains(filename.toLowerCase().split('.').last);
+
+      if (!hasValidExt) {
+        String ext = 'jpg';
+        if (bytes.length >= 4) {
+          if (bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47) {
+            ext = 'png';
+          } else if (bytes.length >= 12 &&
+              bytes[8] == 0x57 && bytes[9] == 0x45 && bytes[10] == 0x42 && bytes[11] == 0x50) {
+            ext = 'webp';
+          } else if (bytes[0] == 0x25 && bytes[1] == 0x50 && bytes[2] == 0x44 && bytes[3] == 0x46) {
+            ext = 'pdf';
+          }
+        }
+
+        final mime = image.mimeType;
+        if (mime != null) {
+          if (mime.contains('png')) {
+            ext = 'png';
+          } else if (mime.contains('webp')) {
+            ext = 'webp';
+          } else if (mime.contains('pdf')) {
+            ext = 'pdf';
+          }
+        }
+
+        final baseName = filename.replaceAll(RegExp(r'[^\w]'), '_');
+        filename = '$baseName.$ext';
+      }
+
+      // Use extract (preview only) instead of scan (auto-save)
+      final result = await ApiService.instance.extractPrescription(
         bytes.toList(),
-        image.name,
+        filename,
       );
 
       if (!mounted) return;
 
-      setState(() {
-        _isProcessing = false;
-        _lastResult = result;
-      });
+      setState(() => _isProcessing = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.scanSuccess),
-          backgroundColor: AppColors.successGreen,
-        ),
+      // Navigate to editable preview screen with extracted data
+      Navigator.pushNamed(
+        context,
+        AppRouter.ocrPreview,
+        arguments: result,
       );
     } catch (e) {
       if (!mounted) return;
@@ -175,10 +207,6 @@ class _PatientScanTabState extends State<PatientScanTab> {
                         ),
                       ),
                     ),
-                    if (_lastResult != null) ...[
-                      const SizedBox(height: AppSpacing.xl),
-                      _buildResultSummary(),
-                    ],
                     if (_errorMessage != null) ...[
                       const SizedBox(height: AppSpacing.lg),
                       Padding(
@@ -198,50 +226,6 @@ class _PatientScanTabState extends State<PatientScanTab> {
                   ],
                 ),
               ),
-      ),
-    );
-  }
-
-  Widget _buildResultSummary() {
-    final summary = _lastResult?['ocr_summary'] as Map<String, dynamic>?;
-    if (summary == null) return const SizedBox.shrink();
-
-    final medCount = summary['total_medications'] ?? 0;
-    final confidence = ((summary['confidence_score'] ?? 0) * 100).toInt();
-    final needsReview = summary['needs_review'] ?? false;
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  needsReview ? Icons.warning_amber : Icons.check_circle,
-                  color: needsReview
-                      ? AppColors.warningOrange
-                      : AppColors.successGreen,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  '$medCount medications found',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              'Confidence: $confidence%',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: AppColors.textSecondary),
-            ),
-          ],
-        ),
       ),
     );
   }

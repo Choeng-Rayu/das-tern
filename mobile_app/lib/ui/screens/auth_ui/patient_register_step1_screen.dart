@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../../theme/design_tokens.dart';
 import '../../../services/google_auth_service.dart';
 
+class PatientRegistrationData {
+  String? fullName;
+  String? firstName;
+  String? lastName;
+  String? gender;
+  DateTime? dateOfBirth;
+  String? email;
+  String? phoneNumber;
+  String? password;
+  bool isGoogleSignUp;
+  String? googleIdToken;
+
+  PatientRegistrationData({this.isGoogleSignUp = false});
+}
+
 class PatientRegisterStep1Screen extends StatefulWidget {
   final Map<String, dynamic>? googleUserData;
-  
+
   const PatientRegisterStep1Screen({super.key, this.googleUserData});
 
   @override
@@ -17,6 +33,7 @@ class _PatientRegisterStep1ScreenState extends State<PatientRegisterStep1Screen>
   String? _gender;
   DateTime? _dob;
   bool _isGoogleSignUp = false;
+  String? _googleIdToken;
 
   @override
   void initState() {
@@ -29,26 +46,55 @@ class _PatientRegisterStep1ScreenState extends State<PatientRegisterStep1Screen>
 
   Future<void> _handleGoogleSignUp() async {
     setState(() => _isGoogleSignUp = true);
-    
+
     try {
-      final account = await GoogleAuthService.instance.signIn();
-      
+      final googleData = await GoogleAuthService.instance.signInAndGetToken();
+      final account = googleData != null ? googleData['account'] as GoogleSignInAccount? : null;
+
       if (account != null && mounted) {
-        // Pre-fill name from Google
         setState(() {
           _nameController.text = account.displayName ?? '';
+          _googleIdToken = googleData!['idToken'] as String?;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Signed in as ${account.email}')),
         );
+      } else {
+        if (mounted) setState(() => _isGoogleSignUp = false);
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _isGoogleSignUp = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Google Sign-In failed')),
         );
       }
+    }
+  }
+
+  void _proceed() {
+    if (!_formKey.currentState!.validate()) return;
+    if (_dob == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select your date of birth')),
+      );
+      return;
+    }
+
+    final nameParts = _nameController.text.trim().split(' ');
+    final data = PatientRegistrationData(isGoogleSignUp: _isGoogleSignUp)
+      ..fullName = _nameController.text.trim()
+      ..firstName = nameParts.first
+      ..lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : ''
+      ..gender = _gender!.toUpperCase()
+      ..dateOfBirth = _dob
+      ..googleIdToken = _googleIdToken;
+
+    if (_isGoogleSignUp) {
+      Navigator.pushNamed(context, '/register/step3', arguments: data);
+    } else {
+      Navigator.pushNamed(context, '/register/step2', arguments: data);
     }
   }
 
@@ -87,9 +133,8 @@ class _PatientRegisterStep1ScreenState extends State<PatientRegisterStep1Screen>
                   style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
                 const SizedBox(height: AppSpacing.xl),
-                
+
                 if (!_isGoogleSignUp) ...[
-                  // Google Sign-Up Button
                   OutlinedButton.icon(
                     onPressed: _handleGoogleSignUp,
                     icon: Icon(Icons.login, color: AppColors.primaryBlue),
@@ -107,8 +152,6 @@ class _PatientRegisterStep1ScreenState extends State<PatientRegisterStep1Screen>
                     ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  
-                  // Divider
                   Row(
                     children: [
                       Expanded(child: Divider(color: Colors.white30, thickness: 1)),
@@ -121,13 +164,13 @@ class _PatientRegisterStep1ScreenState extends State<PatientRegisterStep1Screen>
                   ),
                   const SizedBox(height: AppSpacing.lg),
                 ],
-                
+
                 if (_isGoogleSignUp)
                   Container(
                     padding: const EdgeInsets.all(AppSpacing.sm),
                     margin: const EdgeInsets.only(bottom: AppSpacing.md),
                     decoration: BoxDecoration(
-                      color: AppColors.successGreen.withValues(alpha: 0.2),
+                      color: AppColors.successGreen.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                       border: Border.all(color: AppColors.successGreen),
                     ),
@@ -144,7 +187,7 @@ class _PatientRegisterStep1ScreenState extends State<PatientRegisterStep1Screen>
                       ],
                     ),
                   ),
-                
+
                 TextFormField(
                   controller: _nameController,
                   style: const TextStyle(color: Colors.white),
@@ -164,7 +207,7 @@ class _PatientRegisterStep1ScreenState extends State<PatientRegisterStep1Screen>
                 ),
                 const SizedBox(height: AppSpacing.md),
                 DropdownButtonFormField<String>(
-                  initialValue: _gender,
+                  value: _gender,
                   dropdownColor: AppColors.darkBlue,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
@@ -220,16 +263,7 @@ class _PatientRegisterStep1ScreenState extends State<PatientRegisterStep1Screen>
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate() && _dob != null) {
-                        // If Google sign-up, skip credentials step
-                        if (_isGoogleSignUp) {
-                          Navigator.pushNamed(context, '/register/step3');
-                        } else {
-                          Navigator.pushNamed(context, '/register/step2');
-                        }
-                      }
-                    },
+                    onPressed: _proceed,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryBlue,
                       shape: RoundedRectangleBorder(

@@ -6,9 +6,8 @@ import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/auth_widgets.dart';
 import '../../widgets/language_switcher.dart';
-import '../../widgets/telegram_phone_field.dart';
 
-/// Login screen – blue gradient background, phone + password fields,
+/// Login screen – blue gradient background, email/phone + password fields,
 /// Google Sign-In, register link.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,14 +18,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
-  final _phoneFieldKey = GlobalKey<TelegramStylePhoneFieldState>();
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -35,8 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
-    final phone = _phoneFieldKey.currentState!.fullPhoneNumber;
-    final success = await auth.login(phone, _passwordController.text);
+    final identifier = _identifierController.text.trim();
+    final success = await auth.login(identifier, _passwordController.text);
 
     if (!mounted) return;
     if (success) {
@@ -142,22 +140,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Phone number
-                      AuthFieldLabel(l10n.phoneNumber),
+                      // Email or Phone number
+                      AuthFieldLabel(l10n.emailOrPhone),
                       const SizedBox(height: AppSpacing.xs),
-                      TelegramStylePhoneField(
-                        key: _phoneFieldKey,
-                        controller: _phoneController,
+                      AuthTextField(
+                        controller: _identifierController,
+                        hintText: l10n.emailOrPhoneHint,
+                        keyboardType: TextInputType.emailAddress,
                         validator: (v) {
-                          if (v == null || v.isEmpty) {
-                            return l10n.phoneNumberEmpty;
-                          }
-                          final digits = v.replaceAll(RegExp(r'\D'), '');
-                          final country =
-                              _phoneFieldKey.currentState?.selectedCountry;
-                          if (country != null &&
-                              !country.validationPattern.hasMatch(digits)) {
-                            return l10n.phoneNumberInvalid;
+                          if (v == null || v.trim().isEmpty) {
+                            return l10n.emailOrPhoneEmpty;
                           }
                           return null;
                         },
@@ -197,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: () {
-                            // TODO: Implement forgot password
+                            Navigator.of(context).pushNamed('/forgot-password');
                           },
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.only(top: AppSpacing.xs),

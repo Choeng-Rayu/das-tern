@@ -109,6 +109,8 @@
   "family": "Family",
   "profile": "Profile",
   "settings": "Settings",
+  "subscription": "Subscription",
+  "unlockPremiumFeatures": "Unlock premium features",
 
   "todaySchedule": "Today's Schedule",
   "todayMedications": "Today's Medications",
@@ -748,6 +750,121 @@
   "@phoneExample": {
     "placeholders": {
       "example": {"type": "String"}
+    }
+  },
+
+  "registerWithGoogle": "Register with Google",
+  "orRegisterWith": "or register with",
+
+  "email": "Email",
+  "emailHint": "Enter your email address",
+  "emailEmpty": "Please enter email address",
+  "emailInvalid": "Please enter a valid email address",
+  "emailOrPhone": "Email or Phone Number",
+  "emailOrPhoneHint": "Enter your email or phone number",
+  "emailOrPhoneEmpty": "Please enter email or phone number",
+
+  "forgotPasswordTitle": "Forgot Password",
+  "forgotPasswordSubtitle": "Enter your email or phone number and we'll send you a code to reset your password",
+  "sendResetCode": "Send Reset Code",
+  "resetCodeSent": "Reset code sent successfully",
+  "resetPassword": "Reset Password",
+  "resetPasswordTitle": "Reset Password",
+  "resetPasswordSubtitle": "Enter the code sent to your email/phone and your new password",
+  "newPassword": "New Password",
+  "newPasswordHint": "Enter your new password",
+  "newPasswordEmpty": "Please enter new password",
+  "confirmNewPassword": "Confirm New Password",
+  "confirmNewPasswordHint": "Re-enter your new password",
+  "passwordResetSuccess": "Password reset successfully! You can now login with your new password.",
+  "backToLogin": "Back to Login",
+
+  "selectSpecialty": "Select Specialty",
+  "specialtyGeneralPractice": "General Practice",
+  "specialtyInternalMedicine": "Internal Medicine",
+  "specialtyCardiology": "Cardiology",
+  "specialtyEndocrinology": "Endocrinology",
+  "specialtyDermatology": "Dermatology",
+  "specialtyPediatrics": "Pediatrics",
+  "specialtyPsychiatry": "Psychiatry",
+  "specialtySurgery": "Surgery",
+  "specialtyNeurology": "Neurology",
+  "specialtyOphthalmology": "Ophthalmology",
+  "specialtyOther": "Other",
+  "hospitalClinicOptional": "(Optional - can fill later)",
+  "medicalLicenseOptional": "(Optional - can verify later)",
+  "licenseNotVerified": "License not yet verified",
+  "skipForNow": "Skip for now",
+
+  "verifyEmail": "Verify Email",
+  "emailVerificationSent": "A verification code has been sent to your email",
+  "phoneOptional": "(Optional)",
+
+  "singleMedicine": "Single Medicine",
+  "createBatchGroup": "Create Batch Group",
+  "batchName": "Batch Name",
+  "batchNameHint": "e.g., After Dinner",
+  "selectTime": "Select Time",
+  "batchScheduledTime": "Scheduled Time: {time}",
+  "@batchScheduledTime": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "reviewAndSave": "Review & Save",
+  "batchCreated": "Batch group created successfully",
+  "batchUpdated": "Batch group updated successfully",
+  "batchDeleted": "Batch group deleted",
+  "deleteBatch": "Delete Batch",
+  "noBatchGroups": "No batch groups yet",
+  "batchGroupsTitle": "Batch Groups",
+  "addToBatch": "Add to Batch",
+  "removeFromBatch": "Remove from Batch",
+  "batchMedicineCount": "{count} medicine(s) in batch",
+  "@batchMedicineCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "deleteBatchConfirmation": "Are you sure you want to delete this batch group?",
+  "ocrPreviewTitle": "Review Scanned Prescription",
+  "ocrPreviewDescription": "Review and edit the extracted information before saving",
+  "confirmAndSave": "Confirm & Save",
+  "editExtractedData": "Edit Extracted Data",
+  "extractedMedications": "Extracted Medications",
+  "noMedicationsExtracted": "No medications were extracted. Add medicines manually.",
+  "addRow": "Add Row",
+  "chooseCreationMethod": "How would you like to add medication?",
+  "singleMedicineDescription": "Add one medicine at a time with its own schedule",
+  "batchGroupDescription": "Group multiple medicines taken at the same time",
+  "submitPrescription": "Submit Prescription",
+  "medicationTableTitle": "Medications",
+  "expandToEdit": "Tap to edit",
+  "collapseRow": "Collapse",
+  "removeMedicine": "Remove",
+  "medicineNumber": "Medicine #{number}",
+  "@medicineNumber": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "prescriptionSummary": "Prescription Summary",
+  "batchReminderTitle": "Batch Reminder: {name}",
+  "@batchReminderTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "batchReminderBody": "Time to take: {medicines}",
+  "@batchReminderBody": {
+    "placeholders": {
+      "medicines": {"type": "String"}
+    }
+  },
+  "timeToTakeMedicine": "Time to take {name}",
+  "@timeToTakeMedicine": {
+    "placeholders": {
+      "name": {"type": "String"}
     }
   }
 }

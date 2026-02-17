@@ -3,8 +3,7 @@ import { IsString, IsNotEmpty, Matches, Length } from 'class-validator';
 export class VerifyOtpDto {
   @IsString()
   @IsNotEmpty()
-  @Matches(/^\+855\d{8,9}$/, { message: 'Phone number must start with +855' })
-  phoneNumber: string;
+  identifier: string;
 
   @IsString()
   @Length(4, 4)

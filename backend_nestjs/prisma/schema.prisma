@@ -167,9 +167,10 @@ model User {
   firstName            String?        @db.VarChar(100)
   lastName             String?        @db.VarChar(100)
   fullName             String?        @db.VarChar(200)
-  phoneNumber          String         @unique @db.VarChar(20)
+  phoneNumber          String?        @unique @db.VarChar(20)
   email                String?        @unique @db.VarChar(255)
   passwordHash         String         @db.VarChar(255)
+  googleId             String?        @unique @db.VarChar(255)
 
   // Personal Details
   gender               Gender?
@@ -194,6 +195,8 @@ model User {
   accountStatus        AccountStatus  @default(ACTIVE)
   failedLoginAttempts  Int            @default(0)
   lockedUntil          DateTime?      @db.Timestamptz(3)
+  resetToken           String?        @db.VarChar(255)
+  resetTokenExpiry     DateTime?      @db.Timestamptz(3)
   
   // Timestamps
   createdAt            DateTime       @default(now()) @db.Timestamptz(3)
@@ -217,6 +220,7 @@ model User {
   healthVitals         HealthVital[]         @relation("PatientVitals")
   vitalThresholds      VitalThreshold[]      @relation("PatientThresholds")
   healthAlerts         HealthAlert[]         @relation("PatientAlerts")
+  medicationBatches    MedicationBatch[]
   
   @@index([phoneNumber])
   @@index([email])
@@ -328,6 +332,7 @@ model Medication {
   id               String       @id @default(uuid()) @db.Uuid
   prescriptionId   String       @db.Uuid
   rowNumber        Int
+  batchId          String?      @db.Uuid
 
   // Medication Details
   medicineName     String       @db.VarChar(255)
@@ -358,9 +363,11 @@ model Medication {
 
   // Relations
   prescription     Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  batch            MedicationBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
   doseEvents       DoseEvent[]
 
   @@index([prescriptionId])
+  @@index([batchId])
   @@map("medications")
 }
 
@@ -653,4 +660,28 @@ model HealthAlert {
   @@index([isResolved])
   @@index([createdAt])
   @@map("health_alerts")
+}
+
+// ============================================
+// MEDICATION BATCH MODEL
+// ============================================
+
+model MedicationBatch {
+  id             String       @id @default(uuid()) @db.Uuid
+  patientId      String       @db.Uuid
+  name           String       @db.VarChar(255)
+  scheduledTime  String       @db.VarChar(10)  // Format: "HH:mm"
+  isActive       Boolean      @default(true)
+
+  // Timestamps
+  createdAt      DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime     @updatedAt @db.Timestamptz(3)
+
+  // Relations
+  patient        User         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  medications    Medication[]
+
+  @@index([patientId])
+  @@index([patientId, isActive])
+  @@map("medication_batches")
 }

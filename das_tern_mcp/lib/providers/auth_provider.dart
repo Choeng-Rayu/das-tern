@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../services/api_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
@@ -14,8 +15,9 @@ class AuthProvider extends ChangeNotifier {
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
+  late final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
+    serverClientId: dotenv.env['GOOGLE_CLIENT_ID'],
   );
 
   bool _isLoading = false;
@@ -67,13 +69,13 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Login with phone number and password.
-  Future<bool> login(String phoneNumber, String password) async {
-    _log.info('AuthProvider', 'Login attempt', {'phoneNumber': phoneNumber});
+  /// Login with phone number or email and password.
+  Future<bool> login(String identifier, String password) async {
+    _log.info('AuthProvider', 'Login attempt', {'identifier': identifier});
     _setLoading(true);
     _error = null;
     try {
-      final result = await _api.login(phoneNumber, password);
+      final result = await _api.login(identifier, password);
       await _saveTokens(result);
       _user = result['user'];
       _isAuthenticated = true;
@@ -159,7 +161,8 @@ class AuthProvider extends ChangeNotifier {
     required String gender,
     required String dateOfBirth,
     String? idCardNumber,
-    required String phoneNumber,
+    required String email,
+    String? phoneNumber,
     required String password,
   }) async {
     _setLoading(true);
@@ -171,6 +174,7 @@ class AuthProvider extends ChangeNotifier {
         gender: gender,
         dateOfBirth: dateOfBirth,
         idCardNumber: idCardNumber,
+        email: email,
         phoneNumber: phoneNumber,
         password: password,
       );
@@ -188,10 +192,11 @@ class AuthProvider extends ChangeNotifier {
   /// Register a new doctor.
   Future<Map<String, dynamic>?> registerDoctor({
     required String fullName,
-    required String phoneNumber,
-    required String hospitalClinic,
-    required String specialty,
-    required String licenseNumber,
+    required String email,
+    String? phoneNumber,
+    String? hospitalClinic,
+    String? specialty,
+    String? licenseNumber,
     required String password,
   }) async {
     _setLoading(true);
@@ -199,6 +204,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final result = await _api.registerDoctor(
         fullName: fullName,
+        email: email,
         phoneNumber: phoneNumber,
         hospitalClinic: hospitalClinic,
         specialty: specialty,
@@ -217,11 +223,11 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Verify OTP after registration.
-  Future<bool> verifyOtp(String phoneNumber, String otp) async {
+  Future<bool> verifyOtp(String identifier, String otp) async {
     _setLoading(true);
     _error = null;
     try {
-      final result = await _api.verifyOtp(phoneNumber, otp);
+      final result = await _api.verifyOtp(identifier, otp);
       await _saveTokens(result);
       _user = result['user'];
       _isAuthenticated = true;
@@ -236,12 +242,46 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Send OTP to phone number.
-  Future<bool> sendOtp(String phoneNumber) async {
+  /// Send OTP to email or phone number.
+  Future<bool> sendOtp(String identifier) async {
     _setLoading(true);
     _error = null;
     try {
-      await _api.sendOtp(phoneNumber);
+      await _api.sendOtp(identifier);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Forgot password – sends reset code to email or phone.
+  Future<bool> forgotPassword(String identifier) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _api.forgotPassword(identifier);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Reset password with OTP code.
+  Future<bool> resetPasswordWithOtp(String identifier, String otp, String newPassword) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _api.resetPasswordWithOtp(identifier, otp, newPassword);
       notifyListeners();
       return true;
     } catch (e) {

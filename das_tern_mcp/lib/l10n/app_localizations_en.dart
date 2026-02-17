@@ -280,6 +280,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
+  String get subscription => 'Subscription';
+
+  @override
+  String get unlockPremiumFeatures => 'Unlock premium features';
+
+  @override
   String get todaySchedule => 'Today\'s Schedule';
 
   @override
@@ -800,7 +806,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get oldPasswordHint => 'Enter old password';
 
   @override
-  String get newPasswordHint => 'Enter new password';
+  String get newPasswordHint => 'Enter your new password';
 
   @override
   String get passwordChangeComingSoon => 'Password change coming soon';
@@ -1786,5 +1792,260 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String phoneExample(String example) {
     return 'e.g. $example';
+  }
+
+  @override
+  String get registerWithGoogle => 'Register with Google';
+
+  @override
+  String get orRegisterWith => 'or register with';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get emailHint => 'Enter your email address';
+
+  @override
+  String get emailEmpty => 'Please enter email address';
+
+  @override
+  String get emailInvalid => 'Please enter a valid email address';
+
+  @override
+  String get emailOrPhone => 'Email or Phone Number';
+
+  @override
+  String get emailOrPhoneHint => 'Enter your email or phone number';
+
+  @override
+  String get emailOrPhoneEmpty => 'Please enter email or phone number';
+
+  @override
+  String get forgotPasswordTitle => 'Forgot Password';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'Enter your email or phone number and we\'ll send you a code to reset your password';
+
+  @override
+  String get sendResetCode => 'Send Reset Code';
+
+  @override
+  String get resetCodeSent => 'Reset code sent successfully';
+
+  @override
+  String get resetPassword => 'Reset Password';
+
+  @override
+  String get resetPasswordTitle => 'Reset Password';
+
+  @override
+  String get resetPasswordSubtitle =>
+      'Enter the code sent to your email/phone and your new password';
+
+  @override
+  String get newPassword => 'New Password';
+
+  @override
+  String get newPasswordEmpty => 'Please enter new password';
+
+  @override
+  String get confirmNewPassword => 'Confirm New Password';
+
+  @override
+  String get confirmNewPasswordHint => 'Re-enter your new password';
+
+  @override
+  String get passwordResetSuccess =>
+      'Password reset successfully! You can now login with your new password.';
+
+  @override
+  String get backToLogin => 'Back to Login';
+
+  @override
+  String get selectSpecialty => 'Select Specialty';
+
+  @override
+  String get specialtyGeneralPractice => 'General Practice';
+
+  @override
+  String get specialtyInternalMedicine => 'Internal Medicine';
+
+  @override
+  String get specialtyCardiology => 'Cardiology';
+
+  @override
+  String get specialtyEndocrinology => 'Endocrinology';
+
+  @override
+  String get specialtyDermatology => 'Dermatology';
+
+  @override
+  String get specialtyPediatrics => 'Pediatrics';
+
+  @override
+  String get specialtyPsychiatry => 'Psychiatry';
+
+  @override
+  String get specialtySurgery => 'Surgery';
+
+  @override
+  String get specialtyNeurology => 'Neurology';
+
+  @override
+  String get specialtyOphthalmology => 'Ophthalmology';
+
+  @override
+  String get specialtyOther => 'Other';
+
+  @override
+  String get hospitalClinicOptional => '(Optional - can fill later)';
+
+  @override
+  String get medicalLicenseOptional => '(Optional - can verify later)';
+
+  @override
+  String get licenseNotVerified => 'License not yet verified';
+
+  @override
+  String get skipForNow => 'Skip for now';
+
+  @override
+  String get verifyEmail => 'Verify Email';
+
+  @override
+  String get emailVerificationSent =>
+      'A verification code has been sent to your email';
+
+  @override
+  String get phoneOptional => '(Optional)';
+
+  @override
+  String get singleMedicine => 'Single Medicine';
+
+  @override
+  String get createBatchGroup => 'Create Batch Group';
+
+  @override
+  String get batchName => 'Batch Name';
+
+  @override
+  String get batchNameHint => 'e.g., After Dinner';
+
+  @override
+  String get selectTime => 'Select Time';
+
+  @override
+  String batchScheduledTime(String time) {
+    return 'Scheduled Time: $time';
+  }
+
+  @override
+  String get reviewAndSave => 'Review & Save';
+
+  @override
+  String get batchCreated => 'Batch group created successfully';
+
+  @override
+  String get batchUpdated => 'Batch group updated successfully';
+
+  @override
+  String get batchDeleted => 'Batch group deleted';
+
+  @override
+  String get deleteBatch => 'Delete Batch';
+
+  @override
+  String get noBatchGroups => 'No batch groups yet';
+
+  @override
+  String get batchGroupsTitle => 'Batch Groups';
+
+  @override
+  String get addToBatch => 'Add to Batch';
+
+  @override
+  String get removeFromBatch => 'Remove from Batch';
+
+  @override
+  String batchMedicineCount(int count) {
+    return '$count medicine(s) in batch';
+  }
+
+  @override
+  String get deleteBatchConfirmation =>
+      'Are you sure you want to delete this batch group?';
+
+  @override
+  String get ocrPreviewTitle => 'Review Scanned Prescription';
+
+  @override
+  String get ocrPreviewDescription =>
+      'Review and edit the extracted information before saving';
+
+  @override
+  String get confirmAndSave => 'Confirm & Save';
+
+  @override
+  String get editExtractedData => 'Edit Extracted Data';
+
+  @override
+  String get extractedMedications => 'Extracted Medications';
+
+  @override
+  String get noMedicationsExtracted =>
+      'No medications were extracted. Add medicines manually.';
+
+  @override
+  String get addRow => 'Add Row';
+
+  @override
+  String get chooseCreationMethod => 'How would you like to add medication?';
+
+  @override
+  String get singleMedicineDescription =>
+      'Add one medicine at a time with its own schedule';
+
+  @override
+  String get batchGroupDescription =>
+      'Group multiple medicines taken at the same time';
+
+  @override
+  String get submitPrescription => 'Submit Prescription';
+
+  @override
+  String get medicationTableTitle => 'Medications';
+
+  @override
+  String get expandToEdit => 'Tap to edit';
+
+  @override
+  String get collapseRow => 'Collapse';
+
+  @override
+  String get removeMedicine => 'Remove';
+
+  @override
+  String medicineNumber(int number) {
+    return 'Medicine #$number';
+  }
+
+  @override
+  String get prescriptionSummary => 'Prescription Summary';
+
+  @override
+  String batchReminderTitle(String name) {
+    return 'Batch Reminder: $name';
+  }
+
+  @override
+  String batchReminderBody(String medicines) {
+    return 'Time to take: $medicines';
+  }
+
+  @override
+  String timeToTakeMedicine(String name) {
+    return 'Time to take $name';
   }
 }

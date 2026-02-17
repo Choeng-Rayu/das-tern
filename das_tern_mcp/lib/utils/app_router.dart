@@ -4,6 +4,8 @@ import '../ui/screens/auth/register_role_screen.dart';
 import '../ui/screens/auth/register_patient_screen.dart';
 import '../ui/screens/auth/register_doctor_screen.dart';
 import '../ui/screens/auth/otp_verification_screen.dart';
+import '../ui/screens/auth/forgot_password_screen.dart';
+import '../ui/screens/auth/reset_password_screen.dart';
 import '../ui/screens/patient/patient_shell.dart';
 import '../ui/screens/doctor/doctor_shell.dart';
 import '../ui/screens/doctor/patient_detail_screen.dart';
@@ -25,6 +27,10 @@ import '../ui/screens/patient/payment_qr_screen.dart';
 import '../ui/screens/patient/payment_success_screen.dart';
 import '../ui/screens/doctor/create_prescription_screen.dart';
 import '../ui/screens/patient/create_patient_medicine_screen.dart';
+import '../ui/screens/patient/medication_choice_screen.dart';
+import '../ui/screens/patient/create_batch_screen.dart';
+import '../ui/screens/patient/batch_detail_screen.dart';
+import '../ui/screens/patient/ocr_preview_screen.dart';
 import '../ui/screens/prescription_detail_screen.dart';
 import '../ui/screens/patient/record_vital_screen.dart';
 import '../ui/screens/patient/vital_trend_screen.dart';
@@ -40,6 +46,8 @@ class AppRouter {
   static const String registerPatient = '/register/patient';
   static const String registerDoctor = '/register/doctor';
   static const String otpVerification = '/otp-verification';
+  static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
   static const String patientHome = '/patient';
   static const String doctorHome = '/doctor';
   static const String doctorPatientDetail = '/doctor/patient-detail';
@@ -67,6 +75,10 @@ class AppRouter {
   static const String doctorCreatePrescription = '/doctor/create-prescription';
   static const String patientCreateMedicine = '/patient/create-medicine';
   static const String prescriptionDetail = '/prescription/detail';
+  static const String medicationChoice = '/patient/medication-choice';
+  static const String patientCreateBatch = '/patient/create-batch';
+  static const String batchDetail = '/patient/batch-detail';
+  static const String ocrPreview = '/patient/ocr-preview';
 
   // Health monitoring routes
   static const String patientRecordVital = '/patient/vitals/record';
@@ -89,7 +101,14 @@ class AppRouter {
       case otpVerification:
         final args = settings.arguments as Map<String, dynamic>?;
         return _buildRoute(OtpVerificationScreen(
-          phoneNumber: args?['phoneNumber'] ?? '',
+          identifier: args?['identifier'] ?? args?['phoneNumber'] ?? '',
+        ));
+      case forgotPassword:
+        return _buildRoute(const ForgotPasswordScreen());
+      case resetPassword:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(ResetPasswordScreen(
+          identifier: args?['identifier'] ?? '',
         ));
       case patientHome:
         return _buildRoute(const PatientShell());
@@ -141,6 +160,18 @@ class AppRouter {
         return _buildRoute(const CreatePrescriptionScreen());
       case patientCreateMedicine:
         return _buildRoute(const CreatePatientMedicineScreen());
+      case medicationChoice:
+        return _buildRoute(const MedicationChoiceScreen());
+      case patientCreateBatch:
+        return _buildRoute(const CreateBatchScreen());
+      case batchDetail:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(BatchDetailScreen(
+          batchId: args?['batchId'] ?? '',
+        ));
+      case ocrPreview:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return _buildRoute(OcrPreviewScreen(extractedData: args));
       case prescriptionDetail:
         final args = settings.arguments as Map<String, dynamic>?;
         return _buildRoute(PrescriptionDetailScreen(

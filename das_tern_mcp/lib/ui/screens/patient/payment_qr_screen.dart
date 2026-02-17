@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/subscription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
@@ -345,45 +345,15 @@ class _QrCodeCard extends StatelessWidget {
   }
 
   Widget _buildQrImage(String qrData) {
-    // The QR data might be a base64 image or a raw KHQR string
-    // Try base64 first
-    try {
-      if (qrData.contains('base64,')) {
-        final base64Str = qrData.split('base64,').last;
-        return Image.memory(
-          base64Decode(base64Str),
-          width: 250,
-          height: 250,
-          fit: BoxFit.contain,
-        );
-      }
-      // Try raw base64
-      final bytes = base64Decode(qrData);
-      return Image.memory(
-        bytes,
-        width: 250,
-        height: 250,
-        fit: BoxFit.contain,
-      );
-    } catch (_) {
-      // Fallback: show the QR string as text (can be scanned by apps)
-      return Container(
-        width: 250,
-        height: 250,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.neutral300),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: SelectableText(
-            qrData,
-            style: const TextStyle(fontSize: 10, fontFamily: 'monospace'),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
-    }
+    // qrData is the KHQR token string - generate QR code from it
+    return QrImageView(
+      data: qrData,
+      version: QrVersions.auto,
+      size: 250.0,
+      backgroundColor: Colors.white,
+      errorCorrectionLevel: QrErrorCorrectLevel.M,
+      padding: const EdgeInsets.all(16),
+    );
   }
 }
 

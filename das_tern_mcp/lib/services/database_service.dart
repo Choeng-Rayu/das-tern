@@ -10,7 +10,7 @@ class DatabaseService {
 
   final LoggerService _log = LoggerService.instance;
   static Database? _database;
-  static const int _dbVersion = 2;
+  static const int _dbVersion = 3;
   static const String _dbName = 'das_tern.db';
 
   Future<Database> get database async {
@@ -91,6 +91,9 @@ class DatabaseService {
     // Health vitals table
     await _createHealthVitalsTable(db);
 
+    // Medication batches table
+    await _createMedicationBatchesTable(db);
+
     _log.success('DatabaseService', 'Database schema created successfully');
   }
 
@@ -115,11 +118,34 @@ class DatabaseService {
     await db.execute('CREATE INDEX idx_vital_measured ON health_vitals(measured_at)');
   }
 
+  Future<void> _createMedicationBatchesTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE medication_batches (
+        id TEXT PRIMARY KEY,
+        patient_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        scheduled_time TEXT NOT NULL,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        data_json TEXT NOT NULL,
+        synced INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''');
+    await db.execute('CREATE INDEX idx_batch_patient ON medication_batches(patient_id)');
+    await db.execute('CREATE INDEX idx_batch_active ON medication_batches(patient_id, is_active)');
+  }
+
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       _log.info('DatabaseService', 'Migrating database from v$oldVersion to v2');
       await _createHealthVitalsTable(db);
       _log.success('DatabaseService', 'Migration to v2 complete');
+    }
+    if (oldVersion < 3) {
+      _log.info('DatabaseService', 'Migrating database to v3');
+      await _createMedicationBatchesTable(db);
+      _log.success('DatabaseService', 'Migration to v3 complete');
     }
   }
 
@@ -400,6 +426,92 @@ class DatabaseService {
   }
 
   // ────────────────────────────────────────────
+  // Medication Batches cache
+  // ────────────────────────────────────────────
+
+  /// Cache medication batches from the server.
+  Future<void> cacheBatches(List<Map<String, dynamic>> batches) async {
+    _log.dbOperation('CACHE', 'medication_batches', {'count': batches.length});
+    final db = await database;
+    final batch = db.batch();
+    for (final b in batches) {
+      batch.insert(
+        'medication_batches',
+        {
+          'id': b['id'],
+          'patient_id': b['patientId'],
+          'name': b['name'],
+          'scheduled_time': b['scheduledTime'],
+          'is_active': (b['isActive'] == true) ? 1 : 0,
+          'data_json': jsonEncode(b),
+          'synced': 1,
+          'created_at': b['createdAt'] ?? DateTime.now().toIso8601String(),
+          'updated_at': b['updatedAt'] ?? DateTime.now().toIso8601String(),
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
+  /// Get cached medication batches.
+  Future<List<Map<String, dynamic>>> getCachedBatches() async {
+    final db = await database;
+    final rows = await db.query(
+      'medication_batches',
+      orderBy: 'created_at DESC',
+    );
+    return rows
+        .map((r) =>
+            Map<String, dynamic>.from(jsonDecode(r['data_json'] as String)))
+        .toList();
+  }
+
+  /// Cache a locally-created batch (offline).
+  Future<void> cacheBatchLocally(Map<String, dynamic> batchData) async {
+    final db = await database;
+    await db.insert(
+      'medication_batches',
+      {
+        'id': batchData['id'] ?? 'local_${DateTime.now().millisecondsSinceEpoch}',
+        'patient_id': batchData['patientId'] ?? '',
+        'name': batchData['name'],
+        'scheduled_time': batchData['scheduledTime'],
+        'is_active': 1,
+        'data_json': jsonEncode(batchData),
+        'synced': 0,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Get batches not yet synced to server.
+  Future<List<Map<String, dynamic>>> getUnsyncedBatches() async {
+    final db = await database;
+    final rows = await db.query(
+      'medication_batches',
+      where: 'synced = 0',
+    );
+    return rows
+        .map((r) =>
+            Map<String, dynamic>.from(jsonDecode(r['data_json'] as String)))
+        .toList();
+  }
+
+  /// Mark batches as synced after successful server push.
+  Future<void> markBatchesSynced(List<String> ids) async {
+    if (ids.isEmpty) return;
+    final db = await database;
+    final placeholders = ids.map((_) => '?').join(',');
+    await db.rawUpdate(
+      'UPDATE medication_batches SET synced = 1 WHERE id IN ($placeholders)',
+      ids,
+    );
+  }
+
+  // ────────────────────────────────────────────
   // Utilities
   // ────────────────────────────────────────────
 
@@ -411,6 +523,7 @@ class DatabaseService {
     await db.delete('sync_queue');
     await db.delete('prescriptions');
     await db.delete('health_vitals');
+    await db.delete('medication_batches');
     _log.info('DatabaseService', 'All local data cleared');
   }
 

@@ -59,7 +59,7 @@ class ErrorResponse(BaseModel):
     success: bool = False
     error: str = ""
     message: str = ""
-    supported_formats: List[str] = Field(default_factory=lambda: ["image/png", "image/jpeg", "application/pdf"])
+    supported_formats: List[str] = Field(default_factory=lambda: ["image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf"])
 
 
 class HealthResponse(BaseModel):

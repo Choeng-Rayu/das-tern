@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -92,12 +94,12 @@ class ApiService {
 
   /// POST /auth/login
   Future<Map<String, dynamic>> login(
-      String phoneNumber, String password) async {
+      String identifier, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'phoneNumber': phoneNumber,
+        'identifier': identifier,
         'password': password,
       }),
     );
@@ -120,20 +122,20 @@ class ApiService {
     required String lastName,
     required String gender,
     required String dateOfBirth,
-    required String idCardNumber,
-    required String phoneNumber,
+    required String email,
     required String password,
-    String? email,
+    String? idCardNumber,
+    String? phoneNumber,
   }) async {
     final body = {
       'firstName': firstName,
       'lastName': lastName,
       'gender': gender,
       'dateOfBirth': dateOfBirth,
-      'idCardNumber': idCardNumber,
-      'phoneNumber': phoneNumber,
+      'email': email,
       'password': password,
-      if (email != null) 'email': email,
+      if (idCardNumber != null && idCardNumber.isNotEmpty) 'idCardNumber': idCardNumber,
+      if (phoneNumber != null && phoneNumber.isNotEmpty) 'phoneNumber': phoneNumber,
     };
     final response = await http.post(
       Uri.parse('$baseUrl/auth/register/patient'),
@@ -156,21 +158,21 @@ class ApiService {
   /// POST /auth/register/doctor
   Future<Map<String, dynamic>> registerDoctor({
     required String fullName,
-    required String licenseNumber,
-    required String hospitalClinic,
-    required String specialty,
-    required String phoneNumber,
+    required String email,
     required String password,
-    String? email,
+    String? licenseNumber,
+    String? hospitalClinic,
+    String? specialty,
+    String? phoneNumber,
   }) async {
-    final body = {
+    final body = <String, dynamic>{
       'fullName': fullName,
-      'licenseNumber': licenseNumber,
-      'hospitalClinic': hospitalClinic,
-      'specialty': specialty,
-      'phoneNumber': phoneNumber,
+      'email': email,
       'password': password,
-      if (email != null) 'email': email,
+      if (licenseNumber != null && licenseNumber.isNotEmpty) 'licenseNumber': licenseNumber,
+      if (hospitalClinic != null && hospitalClinic.isNotEmpty) 'hospitalClinic': hospitalClinic,
+      if (specialty != null && specialty.isNotEmpty) 'specialty': specialty,
+      if (phoneNumber != null && phoneNumber.isNotEmpty) 'phoneNumber': phoneNumber,
     };
     final response = await http.post(
       Uri.parse('$baseUrl/auth/register/doctor'),
@@ -191,11 +193,11 @@ class ApiService {
   }
 
   /// POST /auth/otp/send
-  Future<Map<String, dynamic>> sendOtp(String phoneNumber) async {
+  Future<Map<String, dynamic>> sendOtp(String identifier) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/otp/send'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'phoneNumber': phoneNumber}),
+      body: jsonEncode({'identifier': identifier}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);
@@ -205,13 +207,13 @@ class ApiService {
 
   /// POST /auth/otp/verify
   Future<Map<String, dynamic>> verifyOtp(
-      String phoneNumber, String otpCode) async {
+      String identifier, String otpCode) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/otp/verify'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'phoneNumber': phoneNumber,
-        'otpCode': otpCode,
+        'identifier': identifier,
+        'otp': otpCode,
       }),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -251,9 +253,83 @@ class ApiService {
     throw ApiException(response.statusCode, response.body);
   }
 
+  /// POST /auth/google
+  Future<Map<String, dynamic>> googleLogin(
+      String idToken, {String? userRole}) async {
+    final body = <String, dynamic>{
+      'idToken': idToken,
+      if (userRole != null) 'userRole': userRole,
+    };
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/google'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(body),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      if (data['accessToken'] != null && data['refreshToken'] != null) {
+        await _saveTokens(
+          data['accessToken'] as String,
+          data['refreshToken'] as String,
+        );
+      }
+      return data;
+    }
+    throw ApiException(response.statusCode, response.body);
+  }
+
   /// Local logout (clear tokens)
   Future<void> logout() async {
     await _clearTokens();
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PASSWORD RESET – /api/v1/auth
+  // ═══════════════════════════════════════════════════════════════
+
+  /// POST /auth/forgot-password
+  Future<Map<String, dynamic>> forgotPassword(String identifier) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/forgot-password'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'identifier': identifier}),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+    throw ApiException(response.statusCode, response.body);
+  }
+
+  /// POST /auth/reset-password
+  Future<Map<String, dynamic>> resetPassword(
+      String token, String newPassword) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/reset-password'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'token': token, 'newPassword': newPassword}),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+    throw ApiException(response.statusCode, response.body);
+  }
+
+  /// POST /auth/reset-password-otp
+  Future<Map<String, dynamic>> resetPasswordWithOtp(
+      String identifier, String otp, String newPassword) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/reset-password-otp'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'identifier': identifier,
+        'otp': otp,
+        'newPassword': newPassword,
+      }),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+    throw ApiException(response.statusCode, response.body);
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -692,6 +768,172 @@ class ApiService {
       (headers) => http.get(uri, headers: headers),
     );
     if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    throw ApiException(response.statusCode, response.body);
+  }
+
+  // ─── MIME Detection Helper ────────────────────────────────────
+
+  /// Detect MIME type from file extension and magic bytes fallback
+  Future<String> _detectMimeType(File file) async {
+    // Try extension first
+    final ext = file.path.split('.').last.toLowerCase();
+    switch (ext) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'pdf':
+        return 'application/pdf';
+      case 'webp':
+        return 'image/webp';
+    }
+
+    // Fallback: read magic bytes
+    try {
+      final bytes = await file.openRead(0, 12).first;
+      if (bytes.length >= 3 &&
+          bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF) {
+        return 'image/jpeg';
+      }
+      if (bytes.length >= 4 &&
+          bytes[0] == 0x89 && bytes[1] == 0x50 &&
+          bytes[2] == 0x4E && bytes[3] == 0x47) {
+        return 'image/png';
+      }
+      if (bytes.length >= 4 &&
+          bytes[0] == 0x25 && bytes[1] == 0x50 &&
+          bytes[2] == 0x44 && bytes[3] == 0x46) {
+        return 'application/pdf';
+      }
+      if (bytes.length >= 12 &&
+          bytes[8] == 0x57 && bytes[9] == 0x45 &&
+          bytes[10] == 0x42 && bytes[11] == 0x50) {
+        return 'image/webp';
+      }
+    } catch (_) {}
+
+    return 'image/jpeg'; // Default to JPEG for camera images
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // OCR – /api/v1/ocr
+  // ═══════════════════════════════════════════════════════════════
+
+  /// POST /ocr/extract – Extract prescription data from image (no save)
+  Future<Map<String, dynamic>> extractPrescription(File imageFile) async {
+    final token = await _getAccessToken();
+    final uri = Uri.parse('$baseUrl/ocr/extract');
+    final request = http.MultipartRequest('POST', uri);
+
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+
+    final mimeType = await _detectMimeType(imageFile);
+
+    request.files.add(await http.MultipartFile.fromPath(
+      'file',
+      imageFile.path,
+      contentType: MediaType.parse(mimeType),
+    ));
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+
+    // Handle 401 with token refresh
+    if (response.statusCode == 401) {
+      final refreshed = await _tryRefreshToken();
+      if (refreshed) {
+        final newToken = await _getAccessToken();
+        final retryRequest = http.MultipartRequest('POST', uri);
+        if (newToken != null) {
+          retryRequest.headers['Authorization'] = 'Bearer $newToken';
+        }
+        retryRequest.files.add(await http.MultipartFile.fromPath(
+          'file',
+          imageFile.path,
+          contentType: MediaType.parse(mimeType),
+        ));
+        final retryStreamedResponse = await retryRequest.send();
+        final retryResponse = await http.Response.fromStream(retryStreamedResponse);
+        if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+          return jsonDecode(retryResponse.body);
+        }
+        throw ApiException(retryResponse.statusCode, retryResponse.body);
+      }
+    }
+
+    throw ApiException(response.statusCode, response.body);
+  }
+
+  /// POST /ocr/scan – Scan prescription image and create prescription
+  Future<Map<String, dynamic>> scanPrescription(File imageFile) async {
+    final token = await _getAccessToken();
+    final uri = Uri.parse('$baseUrl/ocr/scan');
+    final request = http.MultipartRequest('POST', uri);
+
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+
+    final mimeType = await _detectMimeType(imageFile);
+
+    request.files.add(await http.MultipartFile.fromPath(
+      'file',
+      imageFile.path,
+      contentType: MediaType.parse(mimeType),
+    ));
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    }
+
+    if (response.statusCode == 401) {
+      final refreshed = await _tryRefreshToken();
+      if (refreshed) {
+        final newToken = await _getAccessToken();
+        final retryRequest = http.MultipartRequest('POST', uri);
+        if (newToken != null) {
+          retryRequest.headers['Authorization'] = 'Bearer $newToken';
+        }
+        retryRequest.files.add(await http.MultipartFile.fromPath(
+          'file',
+          imageFile.path,
+          contentType: MediaType.parse(mimeType),
+        ));
+        final retryStreamedResponse = await retryRequest.send();
+        final retryResponse = await http.Response.fromStream(retryStreamedResponse);
+        if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+          return jsonDecode(retryResponse.body);
+        }
+        throw ApiException(retryResponse.statusCode, retryResponse.body);
+      }
+    }
+
+    throw ApiException(response.statusCode, response.body);
+  }
+
+  /// POST /prescriptions/patient – Create patient prescription with reviewed OCR data
+  Future<Map<String, dynamic>> createPatientPrescription(
+      Map<String, dynamic> data) async {
+    final response = await _authenticatedRequest(
+      (headers) => http.post(
+        Uri.parse('$baseUrl/prescriptions/patient'),
+        headers: headers,
+        body: jsonEncode(data),
+      ),
+    );
+    if (response.statusCode == 201 || response.statusCode == 200) {
       return jsonDecode(response.body);
     }
     throw ApiException(response.statusCode, response.body);

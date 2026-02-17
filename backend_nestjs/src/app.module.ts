@@ -20,6 +20,7 @@ import { AdherenceModule } from './modules/adherence/adherence.module';
 import { BakongPaymentModule } from './modules/bakong-payment/bakong-payment.module';
 import { HealthMonitoringModule } from './modules/health-monitoring/health-monitoring.module';
 import { OcrModule } from './modules/ocr/ocr.module';
+import { BatchMedicationModule } from './modules/batch-medication/batch-medication.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { OcrModule } from './modules/ocr/ocr.module';
     BakongPaymentModule,
     HealthMonitoringModule,
     OcrModule,
+    BatchMedicationModule,
   ],
   providers: [
     {
