@@ -18,7 +18,7 @@ import { UserRole } from '@prisma/client';
 import { firstValueFrom } from 'rxjs';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_MIMETYPES = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+const ALLOWED_MIMETYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'];
 
 @Controller('ocr')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -50,7 +50,7 @@ export class OcrController {
 
     if (!ALLOWED_MIMETYPES.includes(file.mimetype)) {
       throw new BadRequestException(
-        `Unsupported file type: ${file.mimetype}. Use PNG, JPEG, or PDF.`,
+        `Unsupported file type: ${file.mimetype}. Use PNG, JPG/JPEG, WebP, or PDF.`,
       );
     }
 
@@ -85,7 +85,7 @@ export class OcrController {
 
     if (!ALLOWED_MIMETYPES.includes(file.mimetype)) {
       throw new BadRequestException(
-        `Unsupported file type: ${file.mimetype}. Use PNG, JPEG, or PDF.`,
+        `Unsupported file type: ${file.mimetype}. Use PNG, JPG/JPEG, WebP, or PDF.`,
       );
     }
 

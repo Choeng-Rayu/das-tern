@@ -104,6 +104,8 @@
   "family": "គ្រួសារ",
   "profile": "ប្រវត្តិរូប",
   "settings": "ការកំណត់",
+  "subscription": "ការជាវ",
+  "unlockPremiumFeatures": "ដោះសោលក្ខណៈពិសេស",
 
   "todaySchedule": "កាលវិភាគថ្ងៃនេះ",
   "todayMedications": "ថ្នាំថ្ងៃនេះ",
@@ -645,6 +647,121 @@
   "@phoneExample": {
     "placeholders": {
       "example": {"type": "String"}
+    }
+  },
+
+  "registerWithGoogle": "ចុះឈ្មោះតាម Google",
+  "orRegisterWith": "ឬចុះឈ្មោះតាម",
+
+  "email": "អ៊ីមែល",
+  "emailHint": "បញ្ចូលអ៊ីមែលរបស់អ្នក",
+  "emailEmpty": "សូមបញ្ចូលអ៊ីមែល",
+  "emailInvalid": "សូមបញ្ចូលអ៊ីមែលត្រឹមត្រូវ",
+  "emailOrPhone": "អ៊ីមែល ឬ លេខទូរស័ព្ទ",
+  "emailOrPhoneHint": "បញ្ចូលអ៊ីមែល ឬ លេខទូរស័ព្ទ",
+  "emailOrPhoneEmpty": "សូមបញ្ចូលអ៊ីមែល ឬ លេខទូរស័ព្ទ",
+
+  "forgotPasswordTitle": "ភ្លេចពាក្យសម្ងាត់",
+  "forgotPasswordSubtitle": "បញ្ចូលអ៊ីមែល ឬ លេខទូរស័ព្ទរបស់អ្នក រួចយើងនឹងផ្ញើកូដកំណត់ពាក្យសម្ងាត់ថ្មី",
+  "sendResetCode": "ផ្ញើកូដកំណត់ឡើងវិញ",
+  "resetCodeSent": "កូដកំណត់ឡើងវិញត្រូវបានផ្ញើដោយជោគជ័យ",
+  "resetPassword": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+  "resetPasswordTitle": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+  "resetPasswordSubtitle": "បញ្ចូលកូដដែលបានផ្ញើទៅអ៊ីមែល/ទូរស័ព្ទរបស់អ្នក រួចកំណត់ពាក្យសម្ងាត់ថ្មី",
+  "newPassword": "ពាក្យសម្ងាត់ថ្មី",
+  "newPasswordHint": "បញ្ចូលពាក្យសម្ងាត់ថ្មី",
+  "newPasswordEmpty": "សូមបញ្ចូលពាក្យសម្ងាត់ថ្មី",
+  "confirmNewPassword": "បញ្ជាក់ពាក្យសម្ងាត់ថ្មី",
+  "confirmNewPasswordHint": "បញ្ចូលពាក្យសម្ងាត់ថ្មីម្តងទៀត",
+  "passwordResetSuccess": "កំណត់ពាក្យសម្ងាត់ឡើងវិញដោយជោគជ័យ! ឥឡូវអ្នកអាចចូលដោយប្រើពាក្យសម្ងាត់ថ្មី។",
+  "backToLogin": "ត្រឡប់ទៅចូល",
+
+  "selectSpecialty": "ជ្រើសរើសជំនាញ",
+  "specialtyGeneralPractice": "វេជ្ជសាស្រ្តទូទៅ",
+  "specialtyInternalMedicine": "វេជ្ជសាស្រ្តផ្ទៃក្នុង",
+  "specialtyCardiology": "បេះដូង",
+  "specialtyEndocrinology": "អ័រម៉ូន",
+  "specialtyDermatology": "ស្បែក",
+  "specialtyPediatrics": "កុមារ",
+  "specialtyPsychiatry": "ចិត្តសាស្រ្ត",
+  "specialtySurgery": "វះកាត់",
+  "specialtyNeurology": "ប្រព័ន្ធសរសៃប្រសាទ",
+  "specialtyOphthalmology": "ភ្នែក",
+  "specialtyOther": "ផ្សេងៗ",
+  "hospitalClinicOptional": "(ជាជម្រើស - អាចបំពេញនៅពេលក្រោយ)",
+  "medicalLicenseOptional": "(ជាជម្រើស - អាចផ្ទៀងផ្ទាត់នៅពេលក្រោយ)",
+  "licenseNotVerified": "អាជ្ញាប័ណ្ណមិនទាន់បានផ្ទៀងផ្ទាត់",
+  "skipForNow": "រំលងសម្រាប់ពេលនេះ",
+
+  "verifyEmail": "ផ្ទៀងផ្ទាត់អ៊ីមែល",
+  "emailVerificationSent": "កូដផ្ទៀងផ្ទាត់ត្រូវបានផ្ញើទៅអ៊ីមែលរបស់អ្នក",
+  "phoneOptional": "(ជាជម្រើស)",
+
+  "singleMedicine": "ថ្នាំតែមួយ",
+  "createBatchGroup": "បង្កើតក្រុមថ្នាំ",
+  "batchName": "ឈ្មោះក្រុម",
+  "batchNameHint": "ឧ. បន្ទាប់ពីអាហារល្ងាច",
+  "selectTime": "ជ្រើសពេលវេលា",
+  "batchScheduledTime": "ពេលវេលាកំណត់: {time}",
+  "@batchScheduledTime": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "reviewAndSave": "ពិនិត្យ និងរក្សាទុក",
+  "batchCreated": "បានបង្កើតក្រុមថ្នាំជោគជ័យ",
+  "batchUpdated": "បានកែប្រែក្រុមថ្នាំជោគជ័យ",
+  "batchDeleted": "បានលុបក្រុមថ្នាំ",
+  "noBatchGroups": "មិនទាន់មានក្រុមថ្នាំទេ",
+  "batchGroupsTitle": "ក្រុមថ្នាំ",
+  "addToBatch": "បន្ថែមក្នុងក្រុម",
+  "removeFromBatch": "យកចេញពីក្រុម",
+  "batchMedicineCount": "ថ្នាំ {count} មុខក្នុងក្រុម",
+  "@batchMedicineCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "deleteBatch": "លុបក្រុមថ្នាំ",
+  "deleteBatchConfirmation": "តើអ្នកពិតជាចង់លុបក្រុមថ្នាំនេះមែនទេ?",
+  "ocrPreviewTitle": "ពិនិត្យវេជ្ជបញ្ជាដែលបានស្កេន",
+  "ocrPreviewDescription": "ពិនិត្យ និងកែប្រែព័ត៌មានដែលបានទាញយកមុនពេលរក្សាទុក",
+  "confirmAndSave": "បញ្ជាក់ និងរក្សាទុក",
+  "editExtractedData": "កែប្រែទិន្នន័យដែលបានទាញយក",
+  "extractedMedications": "ថ្នាំដែលបានទាញយក",
+  "noMedicationsExtracted": "មិនមានថ្នាំត្រូវបានទាញយកទេ។ បន្ថែមថ្នាំដោយដៃ។",
+  "addRow": "បន្ថែមជួរ",
+  "chooseCreationMethod": "តើអ្នកចង់បន្ថែមថ្នាំតាមរបៀបណា?",
+  "singleMedicineDescription": "បន្ថែមថ្នាំម្តងមួយមុខតាមកាលវិភាគផ្ទាល់ខ្លួន",
+  "batchGroupDescription": "ដាក់ក្រុមថ្នាំច្រើនមុខដែលត្រូវញ៉ាំក្នុងពេលតែមួយ",
+  "submitPrescription": "បញ្ជូនវេជ្ជបញ្ជា",
+  "medicationTableTitle": "ថ្នាំ",
+  "expandToEdit": "ចុចដើម្បីកែប្រែ",
+  "collapseRow": "បង្រួម",
+  "removeMedicine": "យកចេញ",
+  "medicineNumber": "ថ្នាំ #{number}",
+  "@medicineNumber": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "prescriptionSummary": "សេចក្តីសង្ខេបវេជ្ជបញ្ជា",
+  "batchReminderTitle": "រំលឹកក្រុមថ្នាំ: {name}",
+  "@batchReminderTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "batchReminderBody": "ដល់ពេលញ៉ាំ: {medicines}",
+  "@batchReminderBody": {
+    "placeholders": {
+      "medicines": {"type": "String"}
+    }
+  },
+  "timeToTakeMedicine": "ដល់ពេលញ៉ាំ {name}",
+  "@timeToTakeMedicine": {
+    "placeholders": {
+      "name": {"type": "String"}
     }
   }
 }

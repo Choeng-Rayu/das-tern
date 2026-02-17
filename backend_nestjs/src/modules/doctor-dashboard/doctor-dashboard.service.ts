@@ -147,7 +147,7 @@ export class DoctorDashboardService {
       if (query.search) {
         const search = query.search.toLowerCase();
         const name = `${patient.firstName || ''} ${patient.lastName || ''} ${patient.fullName || ''}`.toLowerCase();
-        if (!name.includes(search) && !patient.phoneNumber.includes(search)) {
+        if (!name.includes(search) && !(patient.phoneNumber || '').includes(search)) {
           continue;
         }
       }
@@ -166,7 +166,7 @@ export class DoctorDashboardService {
         fullName: patient.fullName,
         age: patient.dateOfBirth ? this.calculateAge(patient.dateOfBirth) : null,
         gender: patient.gender,
-        phoneNumber: patient.phoneNumber,
+        phoneNumber: patient.phoneNumber || '',
         activePrescriptions,
         adherencePercentage: adherence.overallPercentage,
         adherenceLevel: adherence.level,

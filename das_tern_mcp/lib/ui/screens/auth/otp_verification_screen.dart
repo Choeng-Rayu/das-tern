@@ -9,9 +9,9 @@ import '../../widgets/language_switcher.dart';
 
 /// OTP verification screen – 4-digit code with auto-verify and resend timer.
 class OtpVerificationScreen extends StatefulWidget {
-  final String phoneNumber;
+  final String identifier;
 
-  const OtpVerificationScreen({super.key, required this.phoneNumber});
+  const OtpVerificationScreen({super.key, required this.identifier});
 
   @override
   State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
@@ -68,7 +68,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     }
 
     final auth = context.read<AuthProvider>();
-    final success = await auth.verifyOtp(widget.phoneNumber, otp);
+    final success = await auth.verifyOtp(widget.identifier, otp);
 
     if (!mounted) return;
     if (success) {
@@ -83,7 +83,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   Future<void> _handleResend() async {
     if (_resendSeconds > 0) return;
     final auth = context.read<AuthProvider>();
-    await auth.sendOtp(widget.phoneNumber);
+    await auth.sendOtp(widget.identifier);
     _startCountdown();
   }
 
@@ -120,8 +120,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         color: Colors.white.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.phone_android_rounded,
+                      child: Icon(
+                        widget.identifier.contains('@')
+                            ? Icons.email_rounded
+                            : Icons.phone_android_rounded,
                         size: 40,
                         color: Colors.white,
                       ),
@@ -150,7 +152,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    widget.phoneNumber,
+                    widget.identifier,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,

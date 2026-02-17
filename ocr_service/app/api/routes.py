@@ -43,8 +43,8 @@ async def extract_prescription(file: UploadFile = File(...)):
             detail={
                 "success": False,
                 "error": "unsupported_format",
-                "message": f"File format not supported. Use PNG, JPEG, or PDF.",
-                "supported_formats": ["image/png", "image/jpeg", "application/pdf"]
+                "message": f"File format not supported. Use PNG, JPG/JPEG, WebP, or PDF.",
+                "supported_formats": ["image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf"]
             }
         )
 

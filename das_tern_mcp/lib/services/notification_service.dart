@@ -158,6 +158,61 @@ class NotificationService {
   }
 
   // ────────────────────────────────────────────
+  // Batch reminders
+  // ────────────────────────────────────────────
+
+  /// Schedule a single reminder for a medication batch at its scheduledTime.
+  /// Lists all medicine names in the notification body.
+  Future<void> scheduleBatchReminder({
+    required String batchId,
+    required String batchName,
+    required List<String> medicineNames,
+    required DateTime reminderTime,
+  }) async {
+    if (!_initialized) await init();
+
+    if (reminderTime.isBefore(DateTime.now())) return;
+
+    final id = 'batch_$batchId'.hashCode.abs() % 2147483647;
+    final medicineList = medicineNames.join(', ');
+
+    await _plugin.zonedSchedule(
+      id,
+      batchName,
+      'Time to take: $medicineList',
+      tz.TZDateTime.from(reminderTime, tz.local),
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'batch_reminders',
+          'Batch Reminders',
+          channelDescription: 'Reminders for medication batch groups',
+          importance: Importance.high,
+          priority: Priority.high,
+          playSound: true,
+          enableVibration: true,
+          icon: '@mipmap/ic_launcher',
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+      payload: 'batch:$batchId',
+    );
+  }
+
+  /// Cancel a batch reminder by batch ID.
+  Future<void> cancelBatchReminder(String batchId) async {
+    final id = 'batch_$batchId'.hashCode.abs() % 2147483647;
+    await _plugin.cancel(id);
+  }
+
+  // ────────────────────────────────────────────
   // Instant notification
   // ────────────────────────────────────────────
 

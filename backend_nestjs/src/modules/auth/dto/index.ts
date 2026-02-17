@@ -5,3 +5,5 @@ export * from './refresh-token.dto';
 export * from './verify-otp.dto';
 export * from './send-otp.dto';
 export * from './google-login.dto';
+export * from './forgot-password.dto';
+export * from './reset-password.dto';

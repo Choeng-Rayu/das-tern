@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/design_tokens.dart';
+import '../../../services/api_service.dart';
 import '../../../services/google_auth_service.dart';
+import 'patient_register_step1_screen.dart';
 
 class PatientRegisterStep3Screen extends StatefulWidget {
   const PatientRegisterStep3Screen({super.key});
@@ -12,54 +14,138 @@ class PatientRegisterStep3Screen extends StatefulWidget {
 class _PatientRegisterStep3ScreenState extends State<PatientRegisterStep3Screen> {
   final _otpController = TextEditingController();
   bool _isLoading = false;
-  bool _isGoogleUser = false;
+  PatientRegistrationData? _data;
 
   @override
-  void initState() {
-    super.initState();
-    _checkGoogleUser();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _data ??= ModalRoute.of(context)?.settings.arguments as PatientRegistrationData?;
   }
 
-  void _checkGoogleUser() {
-    final googleUser = GoogleAuthService.instance.currentUser;
-    setState(() {
-      _isGoogleUser = googleUser != null;
-    });
-  }
+  bool get _isGoogleUser => _data?.isGoogleSignUp ?? false;
 
   Future<void> _handleVerify() async {
-    if (!_isGoogleUser && _otpController.text.isEmpty) return;
-    
-    setState(() => _isLoading = true);
-    
-    // Simulate verification
-    await Future.delayed(const Duration(seconds: 2));
-    
-    if (mounted) {
-      setState(() => _isLoading = false);
-      
-      // Show success message
+    if (_otpController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_isGoogleUser 
-            ? 'Registration complete with Google!' 
-            : 'OTP verified successfully!'),
-          backgroundColor: AppColors.successGreen,
-        ),
+        const SnackBar(content: Text('Please enter the OTP code')),
       );
-      
-      // Navigate to dashboard
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Verify OTP using email as identifier
+      final result = await ApiService.instance.verifyOtp(
+        _data?.email ?? '',
+        _otpController.text.trim(),
+      );
+
+      // Save tokens from verification response
+      if (mounted) {
+        final user = result['user'];
+        final role = user?['role'] ?? 'PATIENT';
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email verified! Registration complete.'),
+            backgroundColor: AppColors.successGreen,
+          ),
+        );
+
+        if (role == 'DOCTOR') {
+          Navigator.pushReplacementNamed(context, '/doctor/dashboard');
+        } else {
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        }
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message), backgroundColor: AppColors.alertRed),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Verification failed: $e'), backgroundColor: AppColors.alertRed),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  Future<void> _handleSkipForGoogle() async {
+  Future<void> _handleGoogleComplete() async {
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
-    
-    if (mounted) {
-      setState(() => _isLoading = false);
-      Navigator.pushReplacementNamed(context, '/dashboard');
+
+    try {
+      final idToken = _data?.googleIdToken;
+      if (idToken == null) {
+        throw Exception('Google token not available');
+      }
+
+      final result = await ApiService.instance.googleLogin(idToken, userRole: 'PATIENT');
+
+      if (mounted) {
+        final user = result['user'];
+        final role = user?['role'] ?? 'PATIENT';
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registration complete with Google!'),
+            backgroundColor: AppColors.successGreen,
+          ),
+        );
+
+        if (role == 'DOCTOR') {
+          Navigator.pushReplacementNamed(context, '/doctor/dashboard');
+        } else {
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        }
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message), backgroundColor: AppColors.alertRed),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration failed: $e'), backgroundColor: AppColors.alertRed),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _resendOtp() async {
+    if (_data?.email == null) return;
+
+    try {
+      await ApiService.instance.sendOtp(_data!.email!);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Verification code resent to your email'),
+            backgroundColor: AppColors.successGreen,
+          ),
+        );
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message), backgroundColor: AppColors.alertRed),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to resend code: $e'), backgroundColor: AppColors.alertRed),
+        );
+      }
     }
   }
 
@@ -88,16 +174,16 @@ class _PatientRegisterStep3ScreenState extends State<PatientRegisterStep3Screen>
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                _isGoogleUser ? 'Step 3 of 3 - Google Account' : 'Step 3 of 3 - OTP Verification',
+                _isGoogleUser ? 'Step 3 of 3 - Google Account' : 'Step 3 of 3 - Email Verification',
                 style: const TextStyle(color: Colors.white70, fontSize: 14),
               ),
               const SizedBox(height: AppSpacing.md),
-              
+
               if (_isGoogleUser) ...[
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: AppColors.successGreen.withValues(alpha: 0.2),
+                    color: AppColors.successGreen.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(AppRadius.md),
                     border: Border.all(color: AppColors.successGreen),
                   ),
@@ -128,9 +214,9 @@ class _PatientRegisterStep3ScreenState extends State<PatientRegisterStep3Screen>
                   ),
                 ),
               ] else ...[
-                const Text(
-                  'Enter the verification code sent to your phone/email',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                Text(
+                  'Enter the verification code sent to ${_data?.email ?? "your email"}',
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 TextField(
@@ -138,9 +224,9 @@ class _PatientRegisterStep3ScreenState extends State<PatientRegisterStep3Screen>
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.white, fontSize: 24, letterSpacing: 8),
-                  maxLength: 6,
+                  maxLength: 4,
                   decoration: InputDecoration(
-                    hintText: '000000',
+                    hintText: '0000',
                     hintStyle: const TextStyle(color: Colors.white30),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppRadius.md),
@@ -156,7 +242,7 @@ class _PatientRegisterStep3ScreenState extends State<PatientRegisterStep3Screen>
                 const SizedBox(height: AppSpacing.md),
                 Center(
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: _resendOtp,
                     child: Text(
                       'Resend Code',
                       style: TextStyle(color: AppColors.primaryBlue, fontSize: 14),
@@ -164,13 +250,13 @@ class _PatientRegisterStep3ScreenState extends State<PatientRegisterStep3Screen>
                   ),
                 ),
               ],
-              
+
               const SizedBox(height: AppSpacing.xl),
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : (_isGoogleUser ? _handleSkipForGoogle : _handleVerify),
+                  onPressed: _isLoading ? null : (_isGoogleUser ? _handleGoogleComplete : _handleVerify),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryBlue,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),

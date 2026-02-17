@@ -81,4 +81,26 @@ export class EmailService {
       `,
     });
   }
+
+  async sendPasswordResetEmail(email: string, resetLink: string, otp: string) {
+    const sanitizedEmail = this.validateAndSanitizeEmail(email);
+
+    await this.transporter.sendMail({
+      from: `"Das Tern" <${this.configService.get('SENDGRID_FROM_EMAIL')}>`,
+      to: sanitizedEmail,
+      subject: 'Password Reset - Das Tern',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2D5BFF;">Das Tern - Password Reset</h2>
+          <p>We received a request to reset your password.</p>
+          <p>Your reset code is:</p>
+          <h1 style="color: #2D5BFF; font-size: 32px; letter-spacing: 5px;">${otp}</h1>
+          <p>Or click the link below to reset your password:</p>
+          <a href="${resetLink}" style="display: inline-block; background-color: #2D5BFF; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 16px 0;">Reset Password</a>
+          <p>This link and code will expire in 15 minutes.</p>
+          <p style="color: #666; font-size: 12px;">If you didn't request this, please ignore this email. Your password will remain unchanged.</p>
+        </div>
+      `,
+    });
+  }
 }
