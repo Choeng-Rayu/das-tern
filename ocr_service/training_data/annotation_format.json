@@ -1,0 +1,62 @@
+{
+  "$schema": "prescription-ocr-annotation-v1.0",
+  "$description": "Annotation format for OCR training data. Each prescription image should have a corresponding JSON file following this schema.",
+  "annotation": {
+    "image_file": "string - filename in raw_images/ (e.g., prescription_001.png)",
+    "annotator": "string - who annotated this (e.g., 'rayu')",
+    "annotated_at": "ISO8601 datetime",
+    "image_quality": "good | fair | poor",
+    "prescription_format": "H-EQIP | generic | handwritten | mixed",
+    "regions": {
+      "header": {
+        "bbox": "[x1, y1, x2, y2] - pixel coordinates",
+        "text": {
+          "hospital_name_en": "string | null",
+          "hospital_name_km": "string | null",
+          "system_name": "string | null (e.g., H-EQIP)"
+        }
+      },
+      "patient_info": {
+        "bbox": "[x1, y1, x2, y2]",
+        "fields": {
+          "patient_id": { "value": "string", "bbox": "[x1, y1, x2, y2]" },
+          "patient_name": { "value": "string", "bbox": "[x1, y1, x2, y2]" },
+          "gender": { "value": "M | F", "bbox": "[x1, y1, x2, y2]" },
+          "age": { "value": "integer", "bbox": "[x1, y1, x2, y2]" },
+          "diagnosis": { "value": "string", "bbox": "[x1, y1, x2, y2]" },
+          "date": { "value": "DD/MM/YYYY", "bbox": "[x1, y1, x2, y2]" }
+        }
+      },
+      "medication_table": {
+        "bbox": "[x1, y1, x2, y2] - full table bounding box",
+        "column_boundaries": "[float array] - normalized x-positions (0.0 to 1.0) for each column separator",
+        "rows": [
+          {
+            "row_number": "integer",
+            "bbox": "[x1, y1, x2, y2]",
+            "cells": {
+              "item_number": { "text": "string", "bbox": "[x1, y1, x2, y2]" },
+              "medication_name": { "text": "string", "bbox": "[x1, y1, x2, y2]" },
+              "duration": { "text": "string (e.g., '14 ថ្ងៃ')", "bbox": "[x1, y1, x2, y2]" },
+              "instructions": { "text": "string", "bbox": "[x1, y1, x2, y2]" },
+              "morning": { "value": "string (1, 0.5, -, etc.)", "bbox": "[x1, y1, x2, y2]" },
+              "midday": { "value": "string", "bbox": "[x1, y1, x2, y2]" },
+              "afternoon": { "value": "string", "bbox": "[x1, y1, x2, y2]" },
+              "evening": { "value": "string", "bbox": "[x1, y1, x2, y2]" }
+            }
+          }
+        ]
+      },
+      "prescriber": {
+        "bbox": "[x1, y1, x2, y2]",
+        "name": "string | null",
+        "signature_present": "boolean",
+        "stamp_present": "boolean"
+      },
+      "footer": {
+        "bbox": "[x1, y1, x2, y2]",
+        "text": "string | null"
+      }
+    }
+  }
+}

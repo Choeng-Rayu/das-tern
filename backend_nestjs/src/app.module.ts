@@ -19,6 +19,8 @@ import { MedicinesModule } from './modules/medicines/medicines.module';
 import { AdherenceModule } from './modules/adherence/adherence.module';
 import { BakongPaymentModule } from './modules/bakong-payment/bakong-payment.module';
 import { HealthMonitoringModule } from './modules/health-monitoring/health-monitoring.module';
+import { OcrModule } from './modules/ocr/ocr.module';
+import { BatchMedicationModule } from './modules/batch-medication/batch-medication.module';
 
 @Module({
   imports: [
@@ -53,6 +55,8 @@ import { HealthMonitoringModule } from './modules/health-monitoring/health-monit
     AdherenceModule,
     BakongPaymentModule,
     HealthMonitoringModule,
+    OcrModule,
+    BatchMedicationModule,
   ],
   providers: [
     {

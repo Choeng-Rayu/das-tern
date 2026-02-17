@@ -1,0 +1,192 @@
+{
+  "image_id": "image_001",
+  "total_entries": 31,
+  "entries": [
+    {
+      "filename": "image_001_header_hospital_name_en",
+      "region": "header",
+      "field": "hospital_name_en",
+      "has_bbox": true
+    },
+    {
+      "filename": "image_001_header_hospital_name_km",
+      "region": "header",
+      "field": "hospital_name_km",
+      "has_bbox": true
+    },
+    {
+      "filename": "image_001_header_system_name",
+      "region": "header",
+      "field": "system_name",
+      "has_bbox": true
+    },
+    {
+      "filename": "image_001_patient_patient_id",
+      "region": "patient_info",
+      "field": "patient_id",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_patient_gender",
+      "region": "patient_info",
+      "field": "gender",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_patient_age",
+      "region": "patient_info",
+      "field": "age",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_patient_diagnosis",
+      "region": "patient_info",
+      "field": "diagnosis",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_patient_date",
+      "region": "patient_info",
+      "field": "date",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r1_item_number",
+      "region": "medication_table",
+      "field": "row1_item_number",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r1_medication_name",
+      "region": "medication_table",
+      "field": "row1_medication_name",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r1_duration",
+      "region": "medication_table",
+      "field": "row1_duration",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r1_morning",
+      "region": "medication_table",
+      "field": "row1_morning",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r1_afternoon",
+      "region": "medication_table",
+      "field": "row1_afternoon",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r2_item_number",
+      "region": "medication_table",
+      "field": "row2_item_number",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r2_medication_name",
+      "region": "medication_table",
+      "field": "row2_medication_name",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r2_duration",
+      "region": "medication_table",
+      "field": "row2_duration",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r2_instructions",
+      "region": "medication_table",
+      "field": "row2_instructions",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r2_morning",
+      "region": "medication_table",
+      "field": "row2_morning",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r2_afternoon",
+      "region": "medication_table",
+      "field": "row2_afternoon",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r3_item_number",
+      "region": "medication_table",
+      "field": "row3_item_number",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r3_medication_name",
+      "region": "medication_table",
+      "field": "row3_medication_name",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r3_duration",
+      "region": "medication_table",
+      "field": "row3_duration",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r3_morning",
+      "region": "medication_table",
+      "field": "row3_morning",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r3_afternoon",
+      "region": "medication_table",
+      "field": "row3_afternoon",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r4_item_number",
+      "region": "medication_table",
+      "field": "row4_item_number",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r4_medication_name",
+      "region": "medication_table",
+      "field": "row4_medication_name",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r4_duration",
+      "region": "medication_table",
+      "field": "row4_duration",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r4_morning",
+      "region": "medication_table",
+      "field": "row4_morning",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r4_midday",
+      "region": "medication_table",
+      "field": "row4_midday",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_med_r4_afternoon",
+      "region": "medication_table",
+      "field": "row4_afternoon",
+      "has_bbox": false
+    },
+    {
+      "filename": "image_001_prescriber_name",
+      "region": "prescriber",
+      "field": "name",
+      "has_bbox": true
+    }
+  ]
+}

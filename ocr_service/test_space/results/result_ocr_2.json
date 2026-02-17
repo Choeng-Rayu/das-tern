@@ -1,0 +1,858 @@
+{
+  "success": true,
+  "data": {
+    "$schema": "cambodia-prescription-universal-v2.0",
+    "prescription": {
+      "metadata": {
+        "extraction_info": {
+          "extracted_at": "2026-02-16T03:58:20.404413+07:00",
+          "ocr_engine": "tesseract_5.0_khmer",
+          "confidence_score": 0.85,
+          "preprocessing_applied": [
+            "denoise",
+            "contrast_enhancement"
+          ],
+          "image_metadata": {
+            "width": 972,
+            "height": 1280,
+            "format": "png",
+            "dpi": 200,
+            "file_size_bytes": 1805119
+          }
+        },
+        "prescription_id": null,
+        "version": "2.0",
+        "languages_detected": {
+          "primary": "khmer",
+          "secondary": [
+            "english"
+          ],
+          "mixed_content": true
+        },
+        "prescription_type": "outpatient",
+        "validation_status": "validated"
+      },
+      "healthcare_facility": {
+        "name": {
+          "english": null,
+          "khmer": null,
+          "french": null,
+          "bbox": null
+        },
+        "facility_code": null,
+        "facility_type": "public_hospital",
+        "logo": {
+          "detected": false,
+          "bbox": null,
+          "logo_text": null
+        },
+        "system_name": {
+          "value": null,
+          "bbox": null
+        },
+        "contact": {
+          "address": {
+            "english": null,
+            "khmer": null,
+            "bbox": null
+          },
+          "phone": null,
+          "email": null,
+          "website": null
+        },
+        "accreditation": {
+          "ministry_registration": null,
+          "license_number": null
+        }
+      },
+      "patient": {
+        "identification": {
+          "patient_id": {
+            "value": null,
+            "id_type": "hospital_id",
+            "bbox": null
+          },
+          "reference_number": {
+            "value": null,
+            "description": null,
+            "bbox": null
+          },
+          "medical_record_number": null
+        },
+        "personal_info": {
+          "name": {
+            "full_name": null,
+            "khmer_name": null,
+            "first_name": null,
+            "last_name": null,
+            "bbox": null
+          },
+          "date_of_birth": {
+            "value": null,
+            "format_detected": null,
+            "bbox": null
+          },
+          "age": {
+            "value": null,
+            "unit": "years",
+            "khmer_text": null,
+            "bbox": null
+          },
+          "gender": {
+            "value": null,
+            "khmer": null,
+            "english": null,
+            "french": null,
+            "bbox": null
+          }
+        },
+        "contact": {
+          "phone": null,
+          "address": {
+            "full_address": null,
+            "province": null,
+            "district": null,
+            "commune": null
+          },
+          "emergency_contact": {
+            "name": null,
+            "phone": null,
+            "relationship": null
+          }
+        },
+        "insurance": {
+          "provider": null,
+          "number": null,
+          "coverage_type": null,
+          "expiry_date": null
+        },
+        "classification": {
+          "value": null,
+          "bbox": null
+        }
+      },
+      "prescription_details": {
+        "dates": {
+          "issue_date": {
+            "value": null,
+            "original_format": null,
+            "bbox": null
+          },
+          "issue_datetime": {
+            "value": null,
+            "original_text": null,
+            "bbox": null
+          },
+          "expiry_date": null,
+          "valid_until": null
+        },
+        "prescription_number": {
+          "value": null,
+          "bbox": null
+        },
+        "visit_information": {
+          "visit_type": "OPD",
+          "department": {
+            "name": null,
+            "khmer": null,
+            "bbox": null
+          },
+          "location": {
+            "building": null,
+            "floor": null,
+            "room_number": null,
+            "bed_number": null,
+            "full_location_khmer": null,
+            "bbox": null
+          },
+          "visit_date": null,
+          "visit_time": null
+        }
+      },
+      "clinical_information": {
+        "diagnoses": [
+          {
+            "sequence": 1,
+            "diagnosis": {
+              "english": "set id ថ្ងៃ Soma L",
+              "khmer": null,
+              "french": null,
+              "bbox": null
+            },
+            "code": {
+              "icd10": null,
+              "icd11": null,
+              "local_code": null
+            },
+            "type": "primary",
+            "status": "confirmed",
+            "onset_date": null
+          }
+        ],
+        "symptoms": [],
+        "allergies": {
+          "has_allergies": false,
+          "items": []
+        },
+        "vital_signs": {
+          "blood_pressure": {
+            "systolic": null,
+            "diastolic": null,
+            "text": null
+          },
+          "heart_rate": null,
+          "temperature": {
+            "value": null,
+            "unit": null
+          },
+          "weight": {
+            "value": null,
+            "unit": null
+          },
+          "height": {
+            "value": null,
+            "unit": null
+          },
+          "bmi": null
+        },
+        "past_medical_history": [],
+        "current_medications": []
+      },
+      "medications": {
+        "table_structure": {
+          "detected": true,
+          "bbox": null,
+          "column_headers": {
+            "item_number": {
+              "label": "ល.រ",
+              "bbox": null
+            },
+            "medication_name": {
+              "label": "ឈ្មោះត្នាំ",
+              "bbox": null
+            },
+            "duration": {
+              "label": "ថ្ងៃផុត",
+              "bbox": null
+            },
+            "instructions": {
+              "label": "វិធីប្រើ",
+              "bbox": null
+            },
+            "time_slots": [
+              {
+                "period": "morning",
+                "label": "ព្រឹក (6-8)",
+                "time_range": "06:00-08:00",
+                "bbox": null
+              },
+              {
+                "period": "midday",
+                "label": "ថ្ងៃត្រង់ (11-12)",
+                "time_range": "11:00-12:00",
+                "bbox": null
+              },
+              {
+                "period": "afternoon",
+                "label": "ល្ងាច (05-06)",
+                "time_range": "17:00-18:00",
+                "bbox": null
+              },
+              {
+                "period": "evening",
+                "label": "យប់ (08-10)",
+                "time_range": "20:00-22:00",
+                "bbox": null
+              }
+            ]
+          }
+        },
+        "items": [
+          {
+            "item_number": {
+              "value": 1,
+              "bbox": null
+            },
+            "medication": {
+              "name": {
+                "brand_name": "Calcium amp Tablet",
+                "generic_name": "Calcium amp Tablet",
+                "local_name": null,
+                "full_text": "Calcium amp Tablet",
+                "bbox": null
+              },
+              "strength": {
+                "value": null,
+                "numeric": null,
+                "unit": null
+              },
+              "form": {
+                "value": "tablet",
+                "khmer": null,
+                "french": null
+              },
+              "route": {
+                "value": "PO",
+                "description": "Oral"
+              },
+              "packaging": {
+                "quantity_per_unit": null,
+                "unit_type": null
+              }
+            },
+            "dosing": {
+              "duration": {
+                "value": null,
+                "unit": "days",
+                "text_original": "",
+                "khmer_text": null,
+                "note": null,
+                "bbox": null
+              },
+              "schedule": {
+                "type": "time_based",
+                "frequency": {
+                  "times_per_day": 2,
+                  "interval_hours": 12,
+                  "text_description": "2 times daily"
+                },
+                "time_slots": [
+                  {
+                    "period": "morning",
+                    "time_range": "06:00-08:00",
+                    "dose": {
+                      "value": "1",
+                      "numeric": 1.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  },
+                  {
+                    "period": "midday",
+                    "time_range": "11:00-12:00",
+                    "dose": {
+                      "value": "-",
+                      "numeric": 0.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  },
+                  {
+                    "period": "afternoon",
+                    "time_range": "17:00-18:00",
+                    "dose": {
+                      "value": "1",
+                      "numeric": 1.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  },
+                  {
+                    "period": "evening",
+                    "time_range": "20:00-22:00",
+                    "dose": {
+                      "value": "-",
+                      "numeric": 0.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  }
+                ],
+                "prn_instructions": {
+                  "as_needed": false,
+                  "condition": null,
+                  "max_dose_per_day": null,
+                  "min_interval_hours": null
+                }
+              },
+              "total_quantity": {
+                "value": null,
+                "unit": "tablets",
+                "calculated_from_duration": false
+              },
+              "daily_totals": {
+                "total_daily_dose": 2.0,
+                "unit": "tablets"
+              }
+            },
+            "instructions": {
+              "timing_with_food": {
+                "before_meal": null,
+                "after_meal": null,
+                "with_meal": null,
+                "empty_stomach": null,
+                "text": null
+              },
+              "special_instructions": {
+                "english": null,
+                "khmer": null,
+                "french": null
+              },
+              "administration_technique": null,
+              "storage_requirements": null,
+              "warnings": [],
+              "patient_counseling": []
+            },
+            "dispensing": {
+              "substitution_allowed": null,
+              "refills": {
+                "allowed": false,
+                "number": null,
+                "valid_until": null
+              },
+              "priority": "routine"
+            },
+            "clinical_notes": {
+              "indication": null,
+              "therapeutic_class": null,
+              "interactions_check": null,
+              "pregnancy_category": null
+            }
+          },
+          {
+            "item_number": {
+              "value": 2,
+              "bbox": null
+            },
+            "medication": {
+              "name": {
+                "brand_name": "Multivitamine Tablet",
+                "generic_name": "Multivitamine Tablet",
+                "local_name": null,
+                "full_text": "Multivitamine Tablet",
+                "bbox": null
+              },
+              "strength": {
+                "value": null,
+                "numeric": null,
+                "unit": null
+              },
+              "form": {
+                "value": "tablet",
+                "khmer": null,
+                "french": null
+              },
+              "route": {
+                "value": "PO",
+                "description": "Oral"
+              },
+              "packaging": {
+                "quantity_per_unit": null,
+                "unit_type": null
+              }
+            },
+            "dosing": {
+              "duration": {
+                "value": null,
+                "unit": "days",
+                "text_original": "| |",
+                "khmer_text": null,
+                "note": null,
+                "bbox": null
+              },
+              "schedule": {
+                "type": "time_based",
+                "frequency": {
+                  "times_per_day": 2,
+                  "interval_hours": 12,
+                  "text_description": "2 times daily"
+                },
+                "time_slots": [
+                  {
+                    "period": "morning",
+                    "time_range": "06:00-08:00",
+                    "dose": {
+                      "value": "1",
+                      "numeric": 1.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  },
+                  {
+                    "period": "midday",
+                    "time_range": "11:00-12:00",
+                    "dose": {
+                      "value": "-",
+                      "numeric": 0.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  },
+                  {
+                    "period": "afternoon",
+                    "time_range": "17:00-18:00",
+                    "dose": {
+                      "value": "1",
+                      "numeric": 1.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  },
+                  {
+                    "period": "evening",
+                    "time_range": "20:00-22:00",
+                    "dose": {
+                      "value": "-",
+                      "numeric": 0.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  }
+                ],
+                "prn_instructions": {
+                  "as_needed": false,
+                  "condition": null,
+                  "max_dose_per_day": null,
+                  "min_interval_hours": null
+                }
+              },
+              "total_quantity": {
+                "value": null,
+                "unit": "tablets",
+                "calculated_from_duration": false
+              },
+              "daily_totals": {
+                "total_daily_dose": 2.0,
+                "unit": "tablets"
+              }
+            },
+            "instructions": {
+              "timing_with_food": {
+                "before_meal": null,
+                "after_meal": null,
+                "with_meal": null,
+                "empty_stomach": null,
+                "text": null
+              },
+              "special_instructions": {
+                "english": null,
+                "khmer": null,
+                "french": null
+              },
+              "administration_technique": null,
+              "storage_requirements": null,
+              "warnings": [],
+              "patient_counseling": []
+            },
+            "dispensing": {
+              "substitution_allowed": null,
+              "refills": {
+                "allowed": false,
+                "number": null,
+                "valid_until": null
+              },
+              "priority": "routine"
+            },
+            "clinical_notes": {
+              "indication": null,
+              "therapeutic_class": null,
+              "interactions_check": null,
+              "pregnancy_category": null
+            }
+          },
+          {
+            "item_number": {
+              "value": 3,
+              "bbox": null
+            },
+            "medication": {
+              "name": {
+                "brand_name": "Amitriptyline",
+                "generic_name": "Amitriptyline",
+                "local_name": null,
+                "full_text": "| Amitriptyline 10mg",
+                "bbox": null
+              },
+              "strength": {
+                "value": "10mg",
+                "numeric": 10.0,
+                "unit": "mg"
+              },
+              "form": {
+                "value": "tablet",
+                "khmer": null,
+                "french": null
+              },
+              "route": {
+                "value": "PO",
+                "description": "Oral"
+              },
+              "packaging": {
+                "quantity_per_unit": null,
+                "unit_type": null
+              }
+            },
+            "dosing": {
+              "duration": {
+                "value": null,
+                "unit": "days",
+                "text_original": "យៈ",
+                "khmer_text": "យៈ",
+                "note": null,
+                "bbox": null
+              },
+              "schedule": {
+                "type": "time_based",
+                "frequency": {
+                  "times_per_day": 2,
+                  "interval_hours": 12,
+                  "text_description": "2 times daily"
+                },
+                "time_slots": [
+                  {
+                    "period": "morning",
+                    "time_range": "06:00-08:00",
+                    "dose": {
+                      "value": "1",
+                      "numeric": 1.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  },
+                  {
+                    "period": "midday",
+                    "time_range": "11:00-12:00",
+                    "dose": {
+                      "value": "-",
+                      "numeric": 0.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  },
+                  {
+                    "period": "afternoon",
+                    "time_range": "17:00-18:00",
+                    "dose": {
+                      "value": "1",
+                      "numeric": 1.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  },
+                  {
+                    "period": "evening",
+                    "time_range": "20:00-22:00",
+                    "dose": {
+                      "value": "-",
+                      "numeric": 0.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  }
+                ],
+                "prn_instructions": {
+                  "as_needed": false,
+                  "condition": null,
+                  "max_dose_per_day": null,
+                  "min_interval_hours": null
+                }
+              },
+              "total_quantity": {
+                "value": null,
+                "unit": "tablets",
+                "calculated_from_duration": false
+              },
+              "daily_totals": {
+                "total_daily_dose": 2.0,
+                "unit": "tablets"
+              }
+            },
+            "instructions": {
+              "timing_with_food": {
+                "before_meal": null,
+                "after_meal": null,
+                "with_meal": null,
+                "empty_stomach": null,
+                "text": null
+              },
+              "special_instructions": {
+                "english": null,
+                "khmer": null,
+                "french": null
+              },
+              "administration_technique": null,
+              "storage_requirements": null,
+              "warnings": [],
+              "patient_counseling": []
+            },
+            "dispensing": {
+              "substitution_allowed": null,
+              "refills": {
+                "allowed": false,
+                "number": null,
+                "valid_until": null
+              },
+              "priority": "routine"
+            },
+            "clinical_notes": {
+              "indication": null,
+              "therapeutic_class": "Antidepressant - TCA",
+              "interactions_check": null,
+              "pregnancy_category": null
+            }
+          }
+        ],
+        "summary": {
+          "total_medications": 3,
+          "controlled_substances": false,
+          "antibiotics_present": false,
+          "max_duration_days": 0
+        }
+      },
+      "prescriber": {
+        "name": {
+          "full_name": null,
+          "khmer_name": null,
+          "title": null,
+          "bbox": null
+        },
+        "credentials": {
+          "license_number": null,
+          "specialty": {
+            "english": null,
+            "khmer": null,
+            "french": null
+          },
+          "sub_specialty": null
+        },
+        "signature": {
+          "present": true,
+          "type": "handwritten",
+          "bbox": null
+        },
+        "stamp": {
+          "present": false,
+          "bbox": null
+        },
+        "contact": {
+          "phone": null,
+          "email": null,
+          "office_location": null
+        }
+      },
+      "pharmacy_information": {
+        "dispensed": false,
+        "dispenser": {
+          "name": null,
+          "license_number": null,
+          "signature": false
+        },
+        "dispensing_date": null,
+        "pharmacy_name": null,
+        "batch_numbers": [],
+        "pharmacy_notes": null,
+        "cost_information": {
+          "total_cost": null,
+          "currency": null,
+          "payment_method": null,
+          "insurance_covered": null,
+          "patient_paid": null
+        }
+      },
+      "additional_information": {
+        "follow_up": {
+          "required": false,
+          "date": null,
+          "instructions": null
+        },
+        "referral": {
+          "required": false,
+          "to_facility": null,
+          "to_specialist": null,
+          "reason": null
+        },
+        "medical_certificate": {
+          "issued": false,
+          "sick_leave_days": null,
+          "restrictions": null
+        },
+        "lab_tests_ordered": [],
+        "imaging_ordered": [],
+        "patient_education": [],
+        "notes": {
+          "prescriber_notes": null,
+          "pharmacy_notes": null,
+          "administrative_notes": null
+        }
+      },
+      "digital_verification": {
+        "qr_code": {
+          "present": false,
+          "data": null,
+          "bbox": null,
+          "verification_url": null
+        },
+        "barcode": {
+          "present": false,
+          "type": null,
+          "data": null,
+          "bbox": null
+        },
+        "digital_signature": {
+          "present": false,
+          "algorithm": null,
+          "certificate": null
+        },
+        "blockchain_hash": null
+      },
+      "footer_information": {
+        "hospital_footer": {
+          "left_text": {
+            "value": null,
+            "bbox": null
+          },
+          "center_text": {
+            "value": null,
+            "bbox": null
+          },
+          "right_text": {
+            "value": null,
+            "bbox": null
+          }
+        },
+        "patient_instructions": null,
+        "legal_disclaimers": [],
+        "confidentiality_notice": null
+      },
+      "raw_extraction_data": {
+        "full_text": null,
+        "ocr_confidence_by_section": {},
+        "processing_flags": {
+          "handwritten_detected": false,
+          "poor_image_quality": false,
+          "partial_occlusion": false,
+          "corrections_applied": false
+        },
+        "alternative_readings": []
+      }
+    }
+  },
+  "extraction_summary": {
+    "total_medications": 3,
+    "confidence_score": 0.85,
+    "needs_review": false,
+    "fields_needing_review": [],
+    "processing_time_ms": 4582.1,
+    "engines_used": [
+      "tesseract"
+    ]
+  },
+  "test_metadata": {
+    "test_number": 2,
+    "source_image": "image1.png",
+    "image_size_bytes": 1805119,
+    "processing_time_seconds": 4.58
+  }
+}

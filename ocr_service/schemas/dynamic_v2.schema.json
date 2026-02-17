@@ -1,0 +1,1108 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "cambodia-prescription-universal-v2.0",
+  "title": "Dynamic Universal Prescription Schema v2.0",
+  "description": "JSON Schema for the OCR service API response containing extracted Cambodian prescription data in the Dynamic Universal v2.0 format.",
+  "type": "object",
+  "required": ["success", "data", "extraction_summary"],
+  "additionalProperties": true,
+  "properties": {
+    "success": {
+      "type": "boolean",
+      "description": "Whether the extraction completed successfully."
+    },
+    "data": {
+      "type": "object",
+      "required": ["prescription"],
+      "additionalProperties": true,
+      "properties": {
+        "$schema": {
+          "type": "string",
+          "const": "cambodia-prescription-universal-v2.0",
+          "description": "Schema identifier for the prescription data format."
+        },
+        "prescription": {
+          "$ref": "#/definitions/prescription"
+        }
+      }
+    },
+    "extraction_summary": {
+      "$ref": "#/definitions/extraction_summary"
+    }
+  },
+  "definitions": {
+    "bbox": {
+      "description": "Bounding box coordinates [x1, y1, x2, y2] from OCR. Null when not available.",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": { "type": "integer" },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        { "type": "null" }
+      ]
+    },
+    "nullable_string": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "null" }
+      ]
+    },
+    "nullable_number": {
+      "oneOf": [
+        { "type": "number" },
+        { "type": "null" }
+      ]
+    },
+    "nullable_integer": {
+      "oneOf": [
+        { "type": "integer" },
+        { "type": "null" }
+      ]
+    },
+    "nullable_boolean": {
+      "oneOf": [
+        { "type": "boolean" },
+        { "type": "null" }
+      ]
+    },
+    "extraction_summary": {
+      "type": "object",
+      "description": "High-level summary of the extraction result for quick evaluation.",
+      "required": ["total_medications", "confidence_score", "needs_review"],
+      "additionalProperties": true,
+      "properties": {
+        "total_medications": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of medications extracted from the prescription."
+        },
+        "confidence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Overall OCR confidence score (0.0 to 1.0)."
+        },
+        "needs_review": {
+          "type": "boolean",
+          "description": "Whether the extraction result requires manual review."
+        },
+        "fields_needing_review": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of field paths that fell below the review confidence threshold."
+        },
+        "processing_time_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total processing time in milliseconds."
+        },
+        "engines_used": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "OCR engines used during extraction (e.g. tesseract)."
+        }
+      }
+    },
+    "prescription": {
+      "type": "object",
+      "description": "The full extracted prescription object.",
+      "required": ["metadata", "medications"],
+      "additionalProperties": true,
+      "properties": {
+        "metadata": { "$ref": "#/definitions/metadata" },
+        "healthcare_facility": { "$ref": "#/definitions/healthcare_facility" },
+        "patient": { "$ref": "#/definitions/patient" },
+        "prescription_details": { "$ref": "#/definitions/prescription_details" },
+        "clinical_information": { "$ref": "#/definitions/clinical_information" },
+        "medications": { "$ref": "#/definitions/medications" },
+        "prescriber": { "$ref": "#/definitions/prescriber" },
+        "pharmacy_information": { "$ref": "#/definitions/pharmacy_information" },
+        "additional_information": { "$ref": "#/definitions/additional_information" },
+        "digital_verification": { "$ref": "#/definitions/digital_verification" },
+        "footer_information": { "$ref": "#/definitions/footer_information" },
+        "raw_extraction_data": { "$ref": "#/definitions/raw_extraction_data" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["version"],
+      "additionalProperties": true,
+      "properties": {
+        "extraction_info": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "extracted_at": {
+              "type": "string",
+              "description": "ISO 8601 timestamp of when extraction occurred."
+            },
+            "ocr_engine": {
+              "type": "string",
+              "description": "OCR engine identifier (e.g. tesseract_5.0_khmer)."
+            },
+            "confidence_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "preprocessing_applied": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "List of image preprocessing steps applied (e.g. denoise, deskew, contrast_enhancement)."
+            },
+            "image_metadata": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "width": { "type": "integer", "minimum": 0 },
+                "height": { "type": "integer", "minimum": 0 },
+                "format": { "type": "string" },
+                "dpi": { "type": "integer", "minimum": 0 },
+                "file_size_bytes": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
+        },
+        "prescription_id": { "$ref": "#/definitions/nullable_string" },
+        "version": {
+          "type": "string",
+          "description": "Schema version number."
+        },
+        "languages_detected": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "primary": { "type": "string" },
+            "secondary": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "mixed_content": { "type": "boolean" }
+          }
+        },
+        "prescription_type": {
+          "type": "string",
+          "description": "Type of prescription (e.g. outpatient, inpatient)."
+        },
+        "validation_status": {
+          "type": "string",
+          "description": "Validation status of the extraction (e.g. validated, unvalidated)."
+        }
+      }
+    },
+    "healthcare_facility": {
+      "type": "object",
+      "description": "Information about the healthcare facility that issued the prescription.",
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "english": { "$ref": "#/definitions/nullable_string" },
+            "khmer": { "$ref": "#/definitions/nullable_string" },
+            "french": { "$ref": "#/definitions/nullable_string" },
+            "bbox": { "$ref": "#/definitions/bbox" }
+          }
+        },
+        "facility_code": { "$ref": "#/definitions/nullable_string" },
+        "facility_type": { "type": "string" },
+        "logo": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "detected": { "type": "boolean" },
+            "bbox": { "$ref": "#/definitions/bbox" },
+            "logo_text": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "system_name": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "value": { "$ref": "#/definitions/nullable_string" },
+            "bbox": { "$ref": "#/definitions/bbox" }
+          }
+        },
+        "contact": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "address": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "english": { "$ref": "#/definitions/nullable_string" },
+                "khmer": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "phone": { "$ref": "#/definitions/nullable_string" },
+            "email": { "$ref": "#/definitions/nullable_string" },
+            "website": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "accreditation": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "ministry_registration": { "$ref": "#/definitions/nullable_string" },
+            "license_number": { "$ref": "#/definitions/nullable_string" }
+          }
+        }
+      }
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient demographic and identification information.",
+      "additionalProperties": true,
+      "properties": {
+        "identification": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "patient_id": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "id_type": { "type": "string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "reference_number": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "description": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "medical_record_number": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "personal_info": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "name": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "full_name": { "$ref": "#/definitions/nullable_string" },
+                "khmer_name": { "$ref": "#/definitions/nullable_string" },
+                "first_name": { "$ref": "#/definitions/nullable_string" },
+                "last_name": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "date_of_birth": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "format_detected": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "age": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_number" },
+                "unit": { "type": "string" },
+                "khmer_text": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "gender": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "khmer": { "$ref": "#/definitions/nullable_string" },
+                "english": { "$ref": "#/definitions/nullable_string" },
+                "french": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            }
+          }
+        },
+        "contact": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "phone": { "$ref": "#/definitions/nullable_string" },
+            "address": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "full_address": { "$ref": "#/definitions/nullable_string" },
+                "province": { "$ref": "#/definitions/nullable_string" },
+                "district": { "$ref": "#/definitions/nullable_string" },
+                "commune": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "emergency_contact": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "name": { "$ref": "#/definitions/nullable_string" },
+                "phone": { "$ref": "#/definitions/nullable_string" },
+                "relationship": { "$ref": "#/definitions/nullable_string" }
+              }
+            }
+          }
+        },
+        "insurance": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "provider": { "$ref": "#/definitions/nullable_string" },
+            "number": { "$ref": "#/definitions/nullable_string" },
+            "coverage_type": { "$ref": "#/definitions/nullable_string" },
+            "expiry_date": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "classification": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "value": { "$ref": "#/definitions/nullable_string" },
+            "bbox": { "$ref": "#/definitions/bbox" }
+          }
+        }
+      }
+    },
+    "prescription_details": {
+      "type": "object",
+      "description": "Prescription dates, numbers, and visit information.",
+      "additionalProperties": true,
+      "properties": {
+        "dates": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "issue_date": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "original_format": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "issue_datetime": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "original_text": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "expiry_date": { "$ref": "#/definitions/nullable_string" },
+            "valid_until": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "prescription_number": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "value": { "$ref": "#/definitions/nullable_string" },
+            "bbox": { "$ref": "#/definitions/bbox" }
+          }
+        },
+        "visit_information": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "visit_type": { "type": "string" },
+            "department": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "name": { "$ref": "#/definitions/nullable_string" },
+                "khmer": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "location": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "building": { "$ref": "#/definitions/nullable_string" },
+                "floor": { "$ref": "#/definitions/nullable_string" },
+                "room_number": { "$ref": "#/definitions/nullable_string" },
+                "bed_number": { "$ref": "#/definitions/nullable_string" },
+                "full_location_khmer": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "visit_date": { "$ref": "#/definitions/nullable_string" },
+            "visit_time": { "$ref": "#/definitions/nullable_string" }
+          }
+        }
+      }
+    },
+    "clinical_information": {
+      "type": "object",
+      "description": "Clinical data including diagnoses, symptoms, allergies, and vital signs.",
+      "additionalProperties": true,
+      "properties": {
+        "diagnoses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "sequence": { "type": "integer" },
+              "diagnosis": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "english": { "$ref": "#/definitions/nullable_string" },
+                  "khmer": { "$ref": "#/definitions/nullable_string" },
+                  "french": { "$ref": "#/definitions/nullable_string" },
+                  "bbox": { "$ref": "#/definitions/bbox" }
+                }
+              },
+              "code": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "icd10": { "$ref": "#/definitions/nullable_string" },
+                  "icd11": { "$ref": "#/definitions/nullable_string" },
+                  "local_code": { "$ref": "#/definitions/nullable_string" }
+                }
+              },
+              "type": { "type": "string" },
+              "status": { "type": "string" },
+              "onset_date": { "$ref": "#/definitions/nullable_string" }
+            }
+          }
+        },
+        "symptoms": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": true }
+        },
+        "allergies": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "has_allergies": { "type": "boolean" },
+            "items": { "type": "array", "items": { "type": "object", "additionalProperties": true } }
+          }
+        },
+        "vital_signs": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "blood_pressure": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "systolic": { "$ref": "#/definitions/nullable_number" },
+                "diastolic": { "$ref": "#/definitions/nullable_number" },
+                "text": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "heart_rate": { "$ref": "#/definitions/nullable_number" },
+            "temperature": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_number" },
+                "unit": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "weight": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_number" },
+                "unit": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "height": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_number" },
+                "unit": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "bmi": { "$ref": "#/definitions/nullable_number" }
+          }
+        },
+        "past_medical_history": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": true }
+        },
+        "current_medications": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": true }
+        }
+      }
+    },
+    "medications": {
+      "type": "object",
+      "description": "Medication table and items extracted from the prescription.",
+      "required": ["items"],
+      "additionalProperties": true,
+      "properties": {
+        "table_structure": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "detected": { "type": "boolean" },
+            "bbox": { "$ref": "#/definitions/bbox" },
+            "column_headers": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "item_number": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "label": { "type": "string" },
+                    "bbox": { "$ref": "#/definitions/bbox" }
+                  }
+                },
+                "medication_name": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "label": { "type": "string" },
+                    "bbox": { "$ref": "#/definitions/bbox" }
+                  }
+                },
+                "duration": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "label": { "type": "string" },
+                    "bbox": { "$ref": "#/definitions/bbox" }
+                  }
+                },
+                "instructions": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "label": { "type": "string" },
+                    "bbox": { "$ref": "#/definitions/bbox" }
+                  }
+                },
+                "time_slots": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                      "period": {
+                        "type": "string",
+                        "enum": ["morning", "midday", "afternoon", "evening"]
+                      },
+                      "label": { "type": "string" },
+                      "time_range": { "type": "string" },
+                      "bbox": { "$ref": "#/definitions/bbox" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/medication_item" }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "total_medications": { "type": "integer", "minimum": 0 },
+            "controlled_substances": { "type": "boolean" },
+            "antibiotics_present": { "type": "boolean" },
+            "max_duration_days": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "medication_item": {
+      "type": "object",
+      "description": "A single medication entry extracted from the prescription table.",
+      "additionalProperties": true,
+      "properties": {
+        "item_number": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "value": { "type": "integer" },
+            "bbox": { "$ref": "#/definitions/bbox" }
+          }
+        },
+        "medication": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "name": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "brand_name": { "$ref": "#/definitions/nullable_string" },
+                "generic_name": { "$ref": "#/definitions/nullable_string" },
+                "local_name": { "$ref": "#/definitions/nullable_string" },
+                "full_text": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "strength": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "numeric": { "$ref": "#/definitions/nullable_number" },
+                "unit": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "form": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "khmer": { "$ref": "#/definitions/nullable_string" },
+                "french": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "route": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "description": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "packaging": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "quantity_per_unit": { "$ref": "#/definitions/nullable_number" },
+                "unit_type": { "$ref": "#/definitions/nullable_string" }
+              }
+            }
+          }
+        },
+        "dosing": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "duration": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_number" },
+                "unit": { "type": "string" },
+                "text_original": { "$ref": "#/definitions/nullable_string" },
+                "khmer_text": { "$ref": "#/definitions/nullable_string" },
+                "note": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "schedule": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "type": { "type": "string" },
+                "frequency": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "times_per_day": { "type": "integer", "minimum": 0 },
+                    "interval_hours": { "type": "number", "minimum": 0 },
+                    "text_description": { "type": "string" }
+                  }
+                },
+                "time_slots": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                      "period": {
+                        "type": "string",
+                        "enum": ["morning", "midday", "afternoon", "evening"]
+                      },
+                      "time_range": { "type": "string" },
+                      "dose": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "properties": {
+                          "value": { "type": "string" },
+                          "numeric": { "type": "number" },
+                          "unit": { "type": "string" },
+                          "bbox": { "$ref": "#/definitions/bbox" }
+                        }
+                      },
+                      "enabled": { "type": "boolean" }
+                    }
+                  }
+                },
+                "prn_instructions": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "as_needed": { "type": "boolean" },
+                    "condition": { "$ref": "#/definitions/nullable_string" },
+                    "max_dose_per_day": { "$ref": "#/definitions/nullable_number" },
+                    "min_interval_hours": { "$ref": "#/definitions/nullable_number" }
+                  }
+                }
+              }
+            },
+            "total_quantity": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_number" },
+                "unit": { "type": "string" },
+                "calculated_from_duration": { "type": "boolean" }
+              }
+            },
+            "daily_totals": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "total_daily_dose": { "type": "number", "minimum": 0 },
+                "unit": { "type": "string" }
+              }
+            }
+          }
+        },
+        "instructions": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "timing_with_food": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "before_meal": { "$ref": "#/definitions/nullable_boolean" },
+                "after_meal": { "$ref": "#/definitions/nullable_boolean" },
+                "with_meal": { "$ref": "#/definitions/nullable_boolean" },
+                "empty_stomach": { "$ref": "#/definitions/nullable_boolean" },
+                "text": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "special_instructions": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "english": { "$ref": "#/definitions/nullable_string" },
+                "khmer": { "$ref": "#/definitions/nullable_string" },
+                "french": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "administration_technique": { "$ref": "#/definitions/nullable_string" },
+            "storage_requirements": { "$ref": "#/definitions/nullable_string" },
+            "warnings": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "patient_counseling": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "dispensing": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "substitution_allowed": { "$ref": "#/definitions/nullable_boolean" },
+            "refills": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "allowed": { "type": "boolean" },
+                "number": { "$ref": "#/definitions/nullable_integer" },
+                "valid_until": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "priority": { "type": "string" }
+          }
+        },
+        "clinical_notes": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "indication": { "$ref": "#/definitions/nullable_string" },
+            "therapeutic_class": { "$ref": "#/definitions/nullable_string" },
+            "interactions_check": { "$ref": "#/definitions/nullable_string" },
+            "pregnancy_category": { "$ref": "#/definitions/nullable_string" }
+          }
+        }
+      }
+    },
+    "prescriber": {
+      "type": "object",
+      "description": "Information about the prescribing physician.",
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "full_name": { "$ref": "#/definitions/nullable_string" },
+            "khmer_name": { "$ref": "#/definitions/nullable_string" },
+            "title": { "$ref": "#/definitions/nullable_string" },
+            "bbox": { "$ref": "#/definitions/bbox" }
+          }
+        },
+        "credentials": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "license_number": { "$ref": "#/definitions/nullable_string" },
+            "specialty": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "english": { "$ref": "#/definitions/nullable_string" },
+                "khmer": { "$ref": "#/definitions/nullable_string" },
+                "french": { "$ref": "#/definitions/nullable_string" }
+              }
+            },
+            "sub_specialty": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "signature": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "present": { "type": "boolean" },
+            "type": { "type": "string" },
+            "bbox": { "$ref": "#/definitions/bbox" }
+          }
+        },
+        "stamp": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "present": { "type": "boolean" },
+            "bbox": { "$ref": "#/definitions/bbox" }
+          }
+        },
+        "contact": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "phone": { "$ref": "#/definitions/nullable_string" },
+            "email": { "$ref": "#/definitions/nullable_string" },
+            "office_location": { "$ref": "#/definitions/nullable_string" }
+          }
+        }
+      }
+    },
+    "pharmacy_information": {
+      "type": "object",
+      "description": "Pharmacy dispensing information (populated after dispensing).",
+      "additionalProperties": true,
+      "properties": {
+        "dispensed": { "type": "boolean" },
+        "dispenser": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "name": { "$ref": "#/definitions/nullable_string" },
+            "license_number": { "$ref": "#/definitions/nullable_string" },
+            "signature": { "type": "boolean" }
+          }
+        },
+        "dispensing_date": { "$ref": "#/definitions/nullable_string" },
+        "pharmacy_name": { "$ref": "#/definitions/nullable_string" },
+        "batch_numbers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "pharmacy_notes": { "$ref": "#/definitions/nullable_string" },
+        "cost_information": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "total_cost": { "$ref": "#/definitions/nullable_number" },
+            "currency": { "$ref": "#/definitions/nullable_string" },
+            "payment_method": { "$ref": "#/definitions/nullable_string" },
+            "insurance_covered": { "$ref": "#/definitions/nullable_number" },
+            "patient_paid": { "$ref": "#/definitions/nullable_number" }
+          }
+        }
+      }
+    },
+    "additional_information": {
+      "type": "object",
+      "description": "Follow-up, referral, certificates, and other ancillary information.",
+      "additionalProperties": true,
+      "properties": {
+        "follow_up": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "required": { "type": "boolean" },
+            "date": { "$ref": "#/definitions/nullable_string" },
+            "instructions": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "referral": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "required": { "type": "boolean" },
+            "to_facility": { "$ref": "#/definitions/nullable_string" },
+            "to_specialist": { "$ref": "#/definitions/nullable_string" },
+            "reason": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "medical_certificate": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "issued": { "type": "boolean" },
+            "sick_leave_days": { "$ref": "#/definitions/nullable_integer" },
+            "restrictions": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "lab_tests_ordered": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": true }
+        },
+        "imaging_ordered": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": true }
+        },
+        "patient_education": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": true }
+        },
+        "notes": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "prescriber_notes": { "$ref": "#/definitions/nullable_string" },
+            "pharmacy_notes": { "$ref": "#/definitions/nullable_string" },
+            "administrative_notes": { "$ref": "#/definitions/nullable_string" }
+          }
+        }
+      }
+    },
+    "digital_verification": {
+      "type": "object",
+      "description": "QR codes, barcodes, and digital signatures detected on the prescription.",
+      "additionalProperties": true,
+      "properties": {
+        "qr_code": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "present": { "type": "boolean" },
+            "data": { "$ref": "#/definitions/nullable_string" },
+            "bbox": { "$ref": "#/definitions/bbox" },
+            "verification_url": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "barcode": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "present": { "type": "boolean" },
+            "type": { "$ref": "#/definitions/nullable_string" },
+            "data": { "$ref": "#/definitions/nullable_string" },
+            "bbox": { "$ref": "#/definitions/bbox" }
+          }
+        },
+        "digital_signature": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "present": { "type": "boolean" },
+            "algorithm": { "$ref": "#/definitions/nullable_string" },
+            "certificate": { "$ref": "#/definitions/nullable_string" }
+          }
+        },
+        "blockchain_hash": { "$ref": "#/definitions/nullable_string" }
+      }
+    },
+    "footer_information": {
+      "type": "object",
+      "description": "Footer text, patient instructions, and legal notices.",
+      "additionalProperties": true,
+      "properties": {
+        "hospital_footer": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "left_text": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "center_text": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            },
+            "right_text": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "value": { "$ref": "#/definitions/nullable_string" },
+                "bbox": { "$ref": "#/definitions/bbox" }
+              }
+            }
+          }
+        },
+        "patient_instructions": { "$ref": "#/definitions/nullable_string" },
+        "legal_disclaimers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "confidentiality_notice": { "$ref": "#/definitions/nullable_string" }
+      }
+    },
+    "raw_extraction_data": {
+      "type": "object",
+      "description": "Raw OCR output and processing metadata for debugging.",
+      "additionalProperties": true,
+      "properties": {
+        "full_text": { "$ref": "#/definitions/nullable_string" },
+        "ocr_confidence_by_section": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "processing_flags": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "handwritten_detected": { "type": "boolean" },
+            "poor_image_quality": { "type": "boolean" },
+            "partial_occlusion": { "type": "boolean" },
+            "corrections_applied": { "type": "boolean" }
+          }
+        },
+        "alternative_readings": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": true }
+        }
+      }
+    }
+  }
+}

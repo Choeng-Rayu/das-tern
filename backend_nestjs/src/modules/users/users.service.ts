@@ -16,7 +16,7 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    const { passwordHash, pinCodeHash, ...userData } = user;
+    const { passwordHash, ...userData } = user;
 
     // Add computed fields
     const profile: any = {
@@ -45,7 +45,7 @@ export class UsersService {
       data,
     });
 
-    const { passwordHash, pinCodeHash, ...result } = user;
+    const { passwordHash, ...result } = user;
     return result;
   }
 
@@ -60,7 +60,7 @@ export class UsersService {
       data: { gracePeriodMinutes: minutes },
     });
 
-    const { passwordHash, pinCodeHash, ...result } = user;
+    const { passwordHash, ...result } = user;
     return result;
   }
 

@@ -22,6 +22,21 @@ export class OtpService {
     return Math.floor(1000 + Math.random() * 9000).toString();
   }
 
+  /**
+   * Store an OTP for a given identifier (email or phone) without sending SMS.
+   * Used for email-based OTP flows where the email is sent separately.
+   */
+  storeOtp(identifier: string, otp: string): void {
+    const now = Date.now();
+    this.otpStore.set(identifier, {
+      otp,
+      expiresAt: now + this.OTP_EXPIRY,
+      attempts: 0,
+      lastSentAt: now,
+    });
+    this.logger.log(`OTP stored for ${identifier} (expires in 5 minutes)`);
+  }
+
   async sendOtp(phoneNumber: string): Promise<{ expiresIn: number }> {
     const existing = this.otpStore.get(phoneNumber);
     const now = Date.now();
@@ -44,7 +59,7 @@ export class OtpService {
 
     // TODO: Integrate with SMS provider (Twilio/AWS SNS)
     this.logger.log(`OTP for ${phoneNumber}: ${otp} (expires in 5 minutes)`);
-    
+
     // In development, log OTP. In production, send via SMS
     if (this.configService.get('NODE_ENV') === 'development') {
       console.log(`\n🔐 OTP for ${phoneNumber}: ${otp}\n`);
@@ -53,8 +68,8 @@ export class OtpService {
     return { expiresIn: this.OTP_EXPIRY / 1000 };
   }
 
-  async verifyOtp(phoneNumber: string, otp: string): Promise<boolean> {
-    const data = this.otpStore.get(phoneNumber);
+  async verifyOtp(identifier: string, otp: string): Promise<boolean> {
+    const data = this.otpStore.get(identifier);
     const now = Date.now();
 
     if (!data) {
@@ -62,29 +77,29 @@ export class OtpService {
     }
 
     if (now > data.expiresAt) {
-      this.otpStore.delete(phoneNumber);
+      this.otpStore.delete(identifier);
       throw new BadRequestException('OTP has expired. Please request a new one.');
     }
 
     if (data.attempts >= this.MAX_ATTEMPTS) {
-      this.otpStore.delete(phoneNumber);
+      this.otpStore.delete(identifier);
       throw new BadRequestException('Too many failed attempts. Please request a new OTP.');
     }
 
     data.attempts++;
 
     if (data.otp !== otp) {
-      this.otpStore.set(phoneNumber, data);
+      this.otpStore.set(identifier, data);
       throw new BadRequestException(
         `Invalid OTP. ${this.MAX_ATTEMPTS - data.attempts} attempts remaining.`,
       );
     }
 
-    this.otpStore.delete(phoneNumber);
+    this.otpStore.delete(identifier);
     return true;
   }
 
-  clearOtp(phoneNumber: string): void {
-    this.otpStore.delete(phoneNumber);
+  clearOtp(identifier: string): void {
+    this.otpStore.delete(identifier);
   }
 }

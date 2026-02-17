@@ -64,7 +64,7 @@ export class PaymentService {
         // Generate MD5 hash for payment tracking
         const md5Hash = BakongKHQR.generateMD5(qrCode);
 
-        // Generate QR image
+        // Generate QR image (base64 data URL)
         const qrImageData = BakongKHQR.generateQRImage(qrCode);
         const qrImagePath = await this.saveQRImage(md5Hash, qrImageData);
 
@@ -477,7 +477,7 @@ export class PaymentService {
             currency: transaction.currency,
             status: transaction.status,
             planType: transaction.planType,
-            qrCode: transaction.qrCode,
+            qrCode: transaction.qrCode, // KHQR token string (convert to QR image in Flutter)
             qrImagePath: transaction.qrImagePath,
             deepLink: transaction.deepLink,
             bakongData: transaction.bakongData,

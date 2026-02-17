@@ -208,6 +208,25 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             ),
             const SizedBox(height: AppSpacing.md),
 
+            // Subscription section
+            _buildSection(
+              context,
+              icon: Icons.diamond_outlined,
+              title: l10n.subscription,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.upgrade, color: AppColors.primaryBlue),
+                  title: Text(l10n.upgradePlan),
+                  subtitle: Text(l10n.unlockPremiumFeatures),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/subscription/upgrade');
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+
             // Account
             _buildSection(
               context,

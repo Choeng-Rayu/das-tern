@@ -30,6 +30,7 @@ class PrescriptionProvider extends ChangeNotifier {
     }
   }
 
+  /// Create a prescription from a [Prescription] model object.
   Future<Prescription?> createPrescription(Prescription prescription) async {
     _isLoading = true;
     _error = null;
@@ -37,6 +38,48 @@ class PrescriptionProvider extends ChangeNotifier {
 
     try {
       final data = await ApiService.instance.createPrescription(prescription.toJson());
+      final created = Prescription.fromJson(data);
+      _prescriptions.add(created);
+      notifyListeners();
+      return created;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    } finally {
+      _isLoading = false;
+    }
+  }
+
+  /// Create a prescription from a raw DTO map (used by CreatePrescriptionScreen).
+  Future<Prescription?> createPrescriptionFromMap(Map<String, dynamic> dto) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final data = await ApiService.instance.createPrescription(dto);
+      final created = Prescription.fromJson(data);
+      _prescriptions.add(created);
+      notifyListeners();
+      return created;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    } finally {
+      _isLoading = false;
+    }
+  }
+
+  /// Create a patient-side prescription from OCR scan data.
+  Future<Prescription?> createPatientPrescription(Map<String, dynamic> dto) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final data = await ApiService.instance.createPatientPrescription(dto);
       final created = Prescription.fromJson(data);
       _prescriptions.add(created);
       notifyListeners();

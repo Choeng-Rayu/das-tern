@@ -1,13 +1,10 @@
-"""OCR Service configuration using Pydantic BaseSettings."""
-
+"""Application configuration using Pydantic Settings."""
 from pydantic_settings import BaseSettings
 from typing import Tuple
 import os
 
 
 class Settings(BaseSettings):
-    """Application settings loaded from environment variables."""
-
     # API
     HOST: str = "0.0.0.0"
     PORT: int = 8000
@@ -18,7 +15,6 @@ class Settings(BaseSettings):
     # OCR Confidence Thresholds
     AUTO_ACCEPT_THRESHOLD: float = 0.80
     FLAG_REVIEW_THRESHOLD: float = 0.60
-    MANUAL_REVIEW_THRESHOLD: float = 0.60
 
     # Preprocessing
     BLUR_THRESHOLD: float = 100.0
@@ -26,32 +22,37 @@ class Settings(BaseSettings):
     CLAHE_CLIP_LIMIT: float = 2.0
     CLAHE_GRID_SIZE: Tuple[int, int] = (8, 8)
 
+    # Brightness
+    MIN_BRIGHTNESS: int = 40
+    MAX_BRIGHTNESS: int = 220
+
     # OCR Engines
-    PADDLE_LANG: str = "en"
-    PADDLE_USE_GPU: bool = False
-    PADDLE_ENABLE_MKLDNN: bool = True
     TESSERACT_LANG: str = "khm+eng+fra"
+    TESSERACT_LANG_ENG: str = "eng"
     TESSERACT_OEM: int = 1
     TESSERACT_PSM: int = 6
+    TESSERACT_PSM_BLOCK: int = 6
+    TESSERACT_PSM_SINGLE_LINE: int = 7
 
     # Fuzzy Matching
     MED_NAME_MATCH_THRESHOLD: int = 85
 
-    # File paths
+    # Paths
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    LEXICON_DIR: str = ""
-    MODEL_DIR: str = ""
 
-    def model_post_init(self, __context):
-        if not self.LEXICON_DIR:
-            self.LEXICON_DIR = os.path.join(self.BASE_DIR, "data", "lexicons")
-        if not self.MODEL_DIR:
-            self.MODEL_DIR = os.path.join(self.BASE_DIR, "data", "models")
+    @property
+    def lexicon_dir(self) -> str:
+        return os.path.join(self.BASE_DIR, "data", "lexicons")
 
-    class Config:
-        env_prefix = "OCR_"
-        env_file = ".env"
-        extra = "ignore"
+    @property
+    def test_images_dir(self) -> str:
+        return os.path.join(self.BASE_DIR, "test_space", "images_for_test")
+
+    @property
+    def test_results_dir(self) -> str:
+        return os.path.join(self.BASE_DIR, "test_space", "results")
+
+    model_config = {"env_prefix": "OCR_", "env_file": ".env"}
 
 
 settings = Settings()

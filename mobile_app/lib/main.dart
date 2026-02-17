@@ -17,6 +17,8 @@ import 'ui/screens/auth_ui/patient_register_step3_screen.dart';
 import 'ui/screens/patient_ui/patient_main_screen.dart';
 import 'ui/screens/doctor_ui/doctor_main_screen.dart';
 import 'ui/screens/test_ui/test_auth_screen.dart';
+import 'ui/screens/auth_ui/account_recovery_screen.dart';
+import 'ui/screens/auth_ui/doctor_register_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -135,6 +137,8 @@ class MyApp extends StatelessWidget {
               '/register/step2': (context) => const PatientRegisterStep2Screen(),
               '/register/step3': (context) => const PatientRegisterStep3Screen(),
               '/doctor/dashboard': (context) => const DoctorMainScreen(),
+              '/register/doctor': (context) => const DoctorRegisterScreen(),
+              '/forgot-password': (context) => const AccountRecoveryScreen(),
               '/test-auth': (context) => const TestAuthScreen(),
             },
           );
