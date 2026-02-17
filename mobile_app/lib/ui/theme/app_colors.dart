@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Primary Colors
-  static const Color primaryBlue = Color(0xFF2D5BFF);
+  // static const Color primaryBlue = Color(0xFF2D5BFF);
+  static const Color primaryBlue = Color.fromARGB(255, 45, 206, 255);
   static const Color darkBlue = Color(0xFF1A2744);
   
   // Alert & Status Colors

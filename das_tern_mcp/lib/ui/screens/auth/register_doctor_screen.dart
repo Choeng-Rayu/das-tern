@@ -19,40 +19,96 @@ class RegisterDoctorScreen extends StatefulWidget {
 class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _phoneFieldKey = GlobalKey<TelegramStylePhoneFieldState>();
   final _hospitalController = TextEditingController();
-  final _specialtyController = TextEditingController();
+  String? _selectedSpecialty;
   final _licenseController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
+  // Specialty options matching backend DoctorSpecialty enum
+  static const List<String> _specialtyValues = [
+    'GENERAL_PRACTICE',
+    'INTERNAL_MEDICINE',
+    'CARDIOLOGY',
+    'ENDOCRINOLOGY',
+    'DERMATOLOGY',
+    'PEDIATRICS',
+    'PSYCHIATRY',
+    'SURGERY',
+    'NEUROLOGY',
+    'OPHTHALMOLOGY',
+    'OTHER',
+  ];
+
   @override
   void dispose() {
     _fullNameController.dispose();
+    _emailController.dispose();
     _phoneController.dispose();
     _hospitalController.dispose();
-    _specialtyController.dispose();
     _licenseController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
+  String _getSpecialtyLabel(BuildContext context, String value) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (value) {
+      case 'GENERAL_PRACTICE':
+        return l10n.specialtyGeneralPractice;
+      case 'INTERNAL_MEDICINE':
+        return l10n.specialtyInternalMedicine;
+      case 'CARDIOLOGY':
+        return l10n.specialtyCardiology;
+      case 'ENDOCRINOLOGY':
+        return l10n.specialtyEndocrinology;
+      case 'DERMATOLOGY':
+        return l10n.specialtyDermatology;
+      case 'PEDIATRICS':
+        return l10n.specialtyPediatrics;
+      case 'PSYCHIATRY':
+        return l10n.specialtyPsychiatry;
+      case 'SURGERY':
+        return l10n.specialtySurgery;
+      case 'NEUROLOGY':
+        return l10n.specialtyNeurology;
+      case 'OPHTHALMOLOGY':
+        return l10n.specialtyOphthalmology;
+      case 'OTHER':
+        return l10n.specialtyOther;
+      default:
+        return value;
+    }
+  }
+
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
-    final phone = _phoneFieldKey.currentState!.fullPhoneNumber;
+    final email = _emailController.text.trim();
+    final phoneText = _phoneController.text.trim();
+    String? phone;
+    if (phoneText.isNotEmpty) {
+      phone = _phoneFieldKey.currentState?.fullPhoneNumber;
+    }
 
     final result = await auth.registerDoctor(
       fullName: _fullNameController.text.trim(),
+      email: email,
       phoneNumber: phone,
-      hospitalClinic: _hospitalController.text.trim(),
-      specialty: _specialtyController.text.trim(),
-      licenseNumber: _licenseController.text.trim(),
+      hospitalClinic: _hospitalController.text.trim().isNotEmpty
+          ? _hospitalController.text.trim()
+          : null,
+      specialty: _selectedSpecialty,
+      licenseNumber: _licenseController.text.trim().isNotEmpty
+          ? _licenseController.text.trim()
+          : null,
       password: _passwordController.text,
     );
 
@@ -60,7 +116,24 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
     if (result != null) {
       Navigator.of(context).pushNamed(
         '/otp-verification',
-        arguments: {'phoneNumber': phone},
+        arguments: {'identifier': email},
+      );
+    }
+  }
+
+  Future<void> _handleGoogleRegister() async {
+    final auth = context.read<AuthProvider>();
+    final success = await auth.signInWithGoogle(userRole: 'DOCTOR');
+
+    if (!mounted) return;
+    if (success) {
+      Navigator.of(context).pushReplacementNamed('/doctor');
+    } else if (auth.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.error!),
+          backgroundColor: AppColors.alertRed,
+        ),
       );
     }
   }
@@ -147,22 +220,26 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                     ),
                     const SizedBox(height: AppSpacing.md),
 
-                    AuthFieldLabel(l10n.phoneNumber),
+                    AuthFieldLabel(l10n.email),
+                    const SizedBox(height: AppSpacing.xs),
+                    AuthTextField(
+                      controller: _emailController,
+                      hintText: l10n.emailHint,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return l10n.emailEmpty;
+                        final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                        if (!emailRegex.hasMatch(v.trim())) return l10n.emailInvalid;
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+
+                    AuthFieldLabel('${l10n.phoneNumber} ${l10n.phoneOptional}'),
                     const SizedBox(height: AppSpacing.xs),
                     TelegramStylePhoneField(
                       key: _phoneFieldKey,
                       controller: _phoneController,
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return l10n.phoneNumberEmpty;
-                        final digits = v.replaceAll(RegExp(r'\D'), '');
-                        final country =
-                            _phoneFieldKey.currentState?.selectedCountry;
-                        if (country != null &&
-                            !country.validationPattern.hasMatch(digits)) {
-                          return l10n.phoneNumberInvalid;
-                        }
-                        return null;
-                      },
                     ),
                     const SizedBox(height: AppSpacing.lg),
 
@@ -170,33 +247,49 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                     _SectionHeader(title: l10n.professionalInfoSection),
                     const SizedBox(height: AppSpacing.sm),
 
-                    AuthFieldLabel(l10n.hospitalClinic),
+                    AuthFieldLabel('${l10n.hospitalClinic} ${l10n.hospitalClinicOptional}'),
                     const SizedBox(height: AppSpacing.xs),
                     AuthTextField(
                       controller: _hospitalController,
                       hintText: l10n.hospitalClinicHint,
-                      validator: (v) =>
-                          v?.isEmpty ?? true ? l10n.hospitalClinicError : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
 
-                    AuthFieldLabel(l10n.specialty),
+                    AuthFieldLabel('${l10n.specialty} ${l10n.hospitalClinicOptional}'),
                     const SizedBox(height: AppSpacing.xs),
-                    AuthTextField(
-                      controller: _specialtyController,
-                      hintText: l10n.specialtyHint,
-                      validator: (v) =>
-                          v?.isEmpty ?? true ? l10n.specialtyError : null,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedSpecialty,
+                          isExpanded: true,
+                          hint: Text(
+                            l10n.selectSpecialty,
+                            style: TextStyle(
+                              color: AppColors.textSecondary.withValues(alpha: 0.6),
+                            ),
+                          ),
+                          items: _specialtyValues.map((value) {
+                            return DropdownMenuItem(
+                              value: value,
+                              child: Text(_getSpecialtyLabel(context, value)),
+                            );
+                          }).toList(),
+                          onChanged: (v) => setState(() => _selectedSpecialty = v),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.md),
 
-                    AuthFieldLabel(l10n.medicalLicense),
+                    AuthFieldLabel('${l10n.medicalLicense} ${l10n.medicalLicenseOptional}'),
                     const SizedBox(height: AppSpacing.xs),
                     AuthTextField(
                       controller: _licenseController,
                       hintText: l10n.medicalLicenseHint,
-                      validator: (v) =>
-                          v?.isEmpty ?? true ? l10n.medicalLicenseError : null,
                     ),
                     const SizedBox(height: AppSpacing.lg),
 
@@ -264,6 +357,58 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                       onPressed: _handleRegister,
                       isLoading: auth.isLoading,
                       label: l10n.createAccount,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+
+                    // ── OR divider ──
+                    Row(
+                      children: [
+                        const Expanded(child: Divider(color: Colors.white30)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                          child: Text(
+                            l10n.orRegisterWith,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const Expanded(child: Divider(color: Colors.white30)),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+
+                    // ── Google Register button ──
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: OutlinedButton.icon(
+                        onPressed: auth.isLoading ? null : _handleGoogleRegister,
+                        icon: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Icon(Icons.g_mobiledata,
+                              color: Colors.red, size: 20),
+                        ),
+                        label: Text(
+                          l10n.registerWithGoogle,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(color: Colors.white54, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.xl),
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
 

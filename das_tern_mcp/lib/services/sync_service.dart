@@ -118,6 +118,9 @@ class SyncService extends ChangeNotifier {
       // 4. Pull fresh prescriptions
       await _pullPrescriptions();
 
+      // 5. Pull fresh medication batches
+      await _pullBatches();
+
       _log.success('SyncService', 'Sync complete');
     } catch (e) {
       _log.error('SyncService', 'Sync error', e);
@@ -283,6 +286,28 @@ class SyncService extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('[SyncService] Pull prescriptions error: $e');
+    }
+  }
+
+  // ────────────────────────────────────────────
+  // Pull: fresh medication batches
+  // ────────────────────────────────────────────
+
+  Future<void> _pullBatches() async {
+    try {
+      final headers = await _authHeaders();
+      final res = await http.get(
+        Uri.parse('$_baseUrl/batch-medications'),
+        headers: headers,
+      );
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final data = jsonDecode(res.body);
+        if (data is List) {
+          await _db.cacheBatches(List<Map<String, dynamic>>.from(data));
+        }
+      }
+    } catch (e) {
+      debugPrint('[SyncService] Pull batches error: $e');
     }
   }
 

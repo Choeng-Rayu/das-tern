@@ -243,7 +243,7 @@ export class BakongPaymentService implements OnModuleInit {
         // Determine pricing
         const amount = planType === 'PREMIUM' ? 0.5 : 1.0;
 
-        const response = await this.secureFetch<BakongPaymentResponse>(
+        const rawResponse = await this.secureFetch<any>(
             'POST',
             '/api/payments/create',
             {
@@ -254,6 +254,14 @@ export class BakongPaymentService implements OnModuleInit {
                 appName: appName || 'Das Tern',
             },
         );
+
+        // Normalize: Bakong service returns { success, data: {...} }
+        // but Flutter client expects { success, payment: {...} }
+        const paymentData = rawResponse?.data ?? rawResponse?.payment ?? {};
+        const response: BakongPaymentResponse = {
+            success: rawResponse?.success ?? true,
+            payment: paymentData,
+        };
 
         // Audit log
         await this.prisma.auditLog.create({
@@ -285,10 +293,18 @@ export class BakongPaymentService implements OnModuleInit {
             throw new HttpException('Invalid payment hash', HttpStatus.BAD_REQUEST);
         }
 
-        const response = await this.secureFetch<BakongStatusResponse>(
+        const rawResponse = await this.secureFetch<any>(
             'GET',
             `/api/payments/status/${encodeURIComponent(md5Hash)}`,
         );
+
+        // Normalize: Bakong service returns { success, data: {...} }
+        // but Flutter client expects { success, payment: {...} }
+        const paymentData = rawResponse?.data ?? rawResponse?.payment ?? {};
+        const response: BakongStatusResponse = {
+            success: rawResponse?.success ?? true,
+            payment: paymentData,
+        };
 
         // If payment is confirmed PAID, upgrade subscription in main DB
         if (response?.payment?.status === 'PAID') {
@@ -300,13 +316,22 @@ export class BakongPaymentService implements OnModuleInit {
 
     /**
      * Handle successful payment: upgrade subscription in main database.
+     * Determines planType from the payment amount since the Bakong service
+     * doesn't include subscription metadata in status responses.
      */
     private async handlePaymentSuccess(userId: string, response: BakongStatusResponse) {
         try {
-            const planType = response.subscription?.planType;
-            if (!planType) return;
-
-            const tier = planType === 'FAMILY_PREMIUM' ? 'FAMILY_PREMIUM' : 'PREMIUM';
+            // Determine plan type from amount since Bakong status doesn't include it
+            const amount = Number(response.payment?.amount) || 0;
+            let tier: string;
+            if (amount >= 1.0) {
+                tier = 'FAMILY_PREMIUM';
+            } else if (amount >= 0.5) {
+                tier = 'PREMIUM';
+            } else {
+                this.logger.warn(`Unknown payment amount ${amount} for user ${userId}`);
+                return;
+            }
 
             // Update local subscription
             const currentSub = await this.subscriptionsService.findOne(userId);
@@ -343,9 +368,7 @@ export class BakongPaymentService implements OnModuleInit {
                         userId,
                         tier: tier as any,
                         storageQuota: BigInt(21474836480), // 20GB
-                        expiresAt: new Date(
-                            response.subscription?.nextBillingDate || Date.now() + 30 * 24 * 60 * 60 * 1000,
-                        ),
+                        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
                     },
                 });
                 this.logger.log(`✅ Subscription created: ${userId} → ${tier}`);

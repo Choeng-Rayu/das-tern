@@ -1,285 +1,168 @@
-Acetaminophen
-Acetazolamide
-Acetylcysteine
-Acyclovir
-Albendazole
-Albuterol
-Alendronate
-Allopurinol
-Alprazolam
-Ambroxol
-Amikacin
-Amiloride
-Aminophylline
-Amiodarone
-Amitriptyline
-Amlodipine
-Amoxicillin
-Amphotericin B
-Ampicillin
-Artemether
-Artesunate
-Aspirin
-Atenolol
-Atorvastatin
-Atropine
-Azithromycin
-Baclofen
-Beclomethasone
-Benazepril
-Benzoyl Peroxide
-Betamethasone
-Bisacodyl
-Bisoprolol
-Bromhexine
-Budesonide
-Bumetanide
-Bupivacaine
-Buspirone
-Butylscopolamine
-Calamine
-Calcium Carbonate
-Calcium Gluconate
-Candesartan
-Captopril
-Carbamazepine
-Carvedilol
-Cefaclor
-Cefadroxil
-Cefalexin
-Cefazolin
-Cefdinir
-Cefixime
-Cefotaxime
-Cefpodoxime
-Ceftazidime
-Ceftriaxone
-Cefuroxime
-Celcoxx
-Celecoxib
-Cetirizine
-Chloramphenicol
-Chlorhexidine
-Chloroquine
-Chlorpheniramine
-Chlorpromazine
-Cholecalciferol
-Ciprofloxacin
-Cisplatin
-Clarithromycin
-Clemastine
-Clindamycin
-Clobetasol
-Clonazepam
-Clonidine
-Clopidogrel
-Clotrimazole
-Cloxacillin
-Co-Amoxiclav
-Codeine
-Colchicine
-Cotrimoxazole
-Cyclophosphamide
-Dapagliflozin
-Dapsone
-Dexamethasone
-Dextromethorphan
-Diazepam
-Diclofenac
-Digoxin
-Diltiazem
-Dimenhydrinate
-Diphenhydramine
-Divalproex
-Domperidone
-Donepezil
-Dorzolamide
-Doxorubicin
-Doxycycline
-Enalapril
-Enoxaparin
-Epinephrine
-Erythromycin
-Esomeprazole
-Ethambutol
-Etoricoxib
-Famotidine
-Felodipine
-Fenofibrate
-Fentanyl
-Ferrous Sulfate
-Fexofenadine
-Fluconazole
-Fludrocortisone
-Fluoxetine
-Fluticasone
-Fluvastatin
-Folic Acid
-Furosemide
-Gabapentin
-Gentamicin
-Gliclazide
-Glimepiride
-Glipizide
-Glyceryl Trinitrate
-Griseofulvin
-Guaifenesin
-Haloperidol
-Heparin
-Hydralazine
-Hydrochlorothiazide
-Hydrocortisone
-Hydroxychloroquine
-Hydroxyzine
-Hyoscine
-Ibuprofen
-Imipenem
-Indapamide
-Indomethacin
-Insulin
-Ipratropium
-Irbesartan
-Iron Dextran
-Isoniazid
-Isosorbide Dinitrate
-Isosorbide Mononitrate
-Itraconazole
-Ivermectin
-Ketoconazole
-Ketoprofen
-Ketorolac
-Lactulose
-Lamivudine
-Lamotrigine
-Lansoprazole
-Levetiracetam
-Levocetirizine
-Levofloxacin
-Levothyroxine
-Lidocaine
-Linagliptin
-Lisinopril
-Loperamide
-Loratadine
-Lorazepam
-Losartan
-Lovastatin
-Lumefantrine
-Mebendazole
-Meclizine
-Mefloquine
-Meloxicam
-Memantine
-Metformin
-Methotrexate
-Methyldopa
-Methylprednisolone
-Metoclopramide
-Metoprolol
-Metronidazole
-Miconazole
-Midazolam
-Mirtazapine
-Misoprostol
-Montelukast
-Morphine
-Moxifloxacin
-Multivitamin
-Multivitamine
-Mupirocin
-Naproxen
-Nebivolol
-Neomycin
-Nevirapine
-Nicardipine
-Nifedipine
-Nitrofurantoin
-Nitroglycerin
-Norfloxacin
-Nortriptyline
-Nystatin
-Ofloxacin
-Olanzapine
-Omeprazole
-Ondansetron
-Oral Rehydration Salts
-Oseltamivir
-Oxcarbazepine
-Oxycodone
-Oxymetazoline
-Pantoprazole
-Paracetamol
-Paroxetine
-Penicillin V
-Permethrin
-Phenobarbital
-Phenylephrine
-Phenytoin
-Pioglitazone
-Piroxicam
-Potassium Chloride
-Praziquantel
-Prazosin
-Prednisolone
-Prednisone
-Primaquine
-Probenecid
-Prochlorperazine
-Promethazine
-Propranolol
-Pyrazinamide
-Pyridoxine
-Quetiapine
-Quinine
-Rabeprazole
-Ramipril
-Ranitidine
-Rifampicin
-Risperidone
-Ritonavir
-Rosuvastatin
-Salbutamol
-Salmeterol
-Sertraline
-Sildenafil
-Silver Sulfadiazine
-Simvastatin
-Sitagliptin
-Sodium Bicarbonate
-Spironolactone
-Sucralfate
-Sulfasalazine
-Tamoxifen
-Tamsulosin
-Telmisartan
-Tenofovir
-Terbinafine
-Terbutaline
-Tetracycline
-Theophylline
-Thiamine
-Timolol
-Tinidazole
-Tramadol
-Trandolapril
-Tranexamic Acid
-Triamcinolone
-Trimethoprim
-Ursodeoxycholic Acid
-Valproic Acid
-Valsartan
-Vancomycin
-Venlafaxine
-Verapamil
-Vitamin A
-Vitamin B Complex
-Vitamin B12
-Vitamin C
-Vitamin D
-Vitamin E
-Vitamin K
-Voriconazole
-Warfarin
-Zidovudine
-Zinc Sulfate
-Zolpidem
+# Common medications found in Cambodian prescriptions
+# Format: brand_name|generic_name|therapeutic_class
+Amoxicillin|Amoxicillin|Antibiotic - Penicillin
+Ampicillin|Ampicillin|Antibiotic - Penicillin
+Azithromycin|Azithromycin|Antibiotic - Macrolide
+Ciprofloxacin|Ciprofloxacin|Antibiotic - Fluoroquinolone
+Metronidazole|Metronidazole|Antibiotic - Nitroimidazole
+Doxycycline|Doxycycline|Antibiotic - Tetracycline
+Ceftriaxone|Ceftriaxone|Antibiotic - Cephalosporin
+Cephalexin|Cephalexin|Antibiotic - Cephalosporin
+Erythromycin|Erythromycin|Antibiotic - Macrolide
+Cotrimoxazole|Sulfamethoxazole-Trimethoprim|Antibiotic - Sulfonamide
+Cloxacillin|Cloxacillin|Antibiotic - Penicillin
+Gentamicin|Gentamicin|Antibiotic - Aminoglycoside
+Paracetamol|Acetaminophen|Analgesic - Non-opioid
+Ibuprofen|Ibuprofen|NSAID
+Diclofenac|Diclofenac|NSAID
+Mefenamic Acid|Mefenamic Acid|NSAID
+Celecoxib|Celecoxib|NSAID - COX-2 Inhibitor
+Celcoxx|Celecoxib|NSAID - COX-2 Inhibitor
+Aspirin|Acetylsalicylic Acid|NSAID - Salicylate
+Naproxen|Naproxen|NSAID
+Meloxicam|Meloxicam|NSAID
+Piroxicam|Piroxicam|NSAID
+Tramadol|Tramadol|Analgesic - Opioid
+Codeine|Codeine|Analgesic - Opioid
+Morphine|Morphine|Analgesic - Opioid
+Omeprazole|Omeprazole|Proton Pump Inhibitor
+Pantoprazole|Pantoprazole|Proton Pump Inhibitor
+Esomeprazole|Esomeprazole|Proton Pump Inhibitor
+Lansoprazole|Lansoprazole|Proton Pump Inhibitor
+Ranitidine|Ranitidine|H2 Receptor Antagonist
+Famotidine|Famotidine|H2 Receptor Antagonist
+Antacid|Antacid|Antacid
+Metformin|Metformin|Antidiabetic - Biguanide
+Glibenclamide|Glibenclamide|Antidiabetic - Sulfonylurea
+Gliclazide|Gliclazide|Antidiabetic - Sulfonylurea
+Insulin|Insulin|Antidiabetic - Insulin
+Amlodipine|Amlodipine|Antihypertensive - CCB
+Nifedipine|Nifedipine|Antihypertensive - CCB
+Enalapril|Enalapril|Antihypertensive - ACE Inhibitor
+Captopril|Captopril|Antihypertensive - ACE Inhibitor
+Losartan|Losartan|Antihypertensive - ARB
+Valsartan|Valsartan|Antihypertensive - ARB
+Atenolol|Atenolol|Antihypertensive - Beta Blocker
+Propranolol|Propranolol|Antihypertensive - Beta Blocker
+Metoprolol|Metoprolol|Antihypertensive - Beta Blocker
+Hydrochlorothiazide|Hydrochlorothiazide|Diuretic - Thiazide
+Furosemide|Furosemide|Diuretic - Loop
+Spironolactone|Spironolactone|Diuretic - Potassium-sparing
+Simvastatin|Simvastatin|Statin
+Atorvastatin|Atorvastatin|Statin
+Rosuvastatin|Rosuvastatin|Statin
+Prednisolone|Prednisolone|Corticosteroid
+Dexamethasone|Dexamethasone|Corticosteroid
+Hydrocortisone|Hydrocortisone|Corticosteroid
+Prednisone|Prednisone|Corticosteroid
+Cetirizine|Cetirizine|Antihistamine
+Loratadine|Loratadine|Antihistamine
+Chlorpheniramine|Chlorpheniramine|Antihistamine
+Diphenhydramine|Diphenhydramine|Antihistamine
+Promethazine|Promethazine|Antihistamine
+Salbutamol|Salbutamol|Bronchodilator
+Aminophylline|Aminophylline|Bronchodilator
+Theophylline|Theophylline|Bronchodilator
+Metoclopramide|Metoclopramide|Antiemetic
+Domperidone|Domperidone|Antiemetic
+Ondansetron|Ondansetron|Antiemetic
+Loperamide|Loperamide|Antidiarrheal
+ORS|Oral Rehydration Salts|Oral Rehydration
+Zinc|Zinc|Mineral Supplement
+Multivitamin|Multivitamin|Vitamin Supplement
+Multivitamine|Multivitamin|Vitamin Supplement
+Vitamin A|Vitamin A|Vitamin Supplement
+Vitamin B Complex|Vitamin B Complex|Vitamin Supplement
+Vitamin B1|Thiamine|Vitamin Supplement
+Vitamin B6|Pyridoxine|Vitamin Supplement
+Vitamin B12|Cyanocobalamin|Vitamin Supplement
+Vitamin C|Ascorbic Acid|Vitamin Supplement
+Vitamin D|Cholecalciferol|Vitamin Supplement
+Vitamin E|Tocopherol|Vitamin Supplement
+Folic Acid|Folic Acid|Vitamin Supplement
+Iron|Ferrous Sulfate|Mineral Supplement
+Calcium|Calcium Carbonate|Mineral Supplement
+Ferrous Sulfate|Ferrous Sulfate|Mineral Supplement
+Butylscopolamine|Butylscopolamine|Antispasmodic
+Hyoscine|Hyoscine Butylbromide|Antispasmodic
+Buscopan|Hyoscine Butylbromide|Antispasmodic
+Mebeverine|Mebeverine|Antispasmodic
+Albendazole|Albendazole|Anthelmintic
+Mebendazole|Mebendazole|Anthelmintic
+Praziquantel|Praziquantel|Anthelmintic
+Artemether-Lumefantrine|Artemether-Lumefantrine|Antimalarial
+Chloroquine|Chloroquine|Antimalarial
+Quinine|Quinine|Antimalarial
+Fluconazole|Fluconazole|Antifungal
+Ketoconazole|Ketoconazole|Antifungal
+Clotrimazole|Clotrimazole|Antifungal
+Acyclovir|Acyclovir|Antiviral
+Oseltamivir|Oseltamivir|Antiviral
+Diazepam|Diazepam|Benzodiazepine
+Alprazolam|Alprazolam|Benzodiazepine
+Phenobarbital|Phenobarbital|Anticonvulsant
+Carbamazepine|Carbamazepine|Anticonvulsant
+Phenytoin|Phenytoin|Anticonvulsant
+Valproic Acid|Valproic Acid|Anticonvulsant
+Amitriptyline|Amitriptyline|Antidepressant - TCA
+Fluoxetine|Fluoxetine|Antidepressant - SSRI
+Sertraline|Sertraline|Antidepressant - SSRI
+Haloperidol|Haloperidol|Antipsychotic
+Chlorpromazine|Chlorpromazine|Antipsychotic
+Risperidone|Risperidone|Antipsychotic
+Warfarin|Warfarin|Anticoagulant
+Heparin|Heparin|Anticoagulant
+Clopidogrel|Clopidogrel|Antiplatelet
+Nystatin|Nystatin|Antifungal
+Methotrexate|Methotrexate|Immunosuppressant
+Azathioprine|Azathioprine|Immunosuppressant
+Allopurinol|Allopurinol|Antigout
+Colchicine|Colchicine|Antigout
+Sildenafil|Sildenafil|PDE5 Inhibitor
+Tamsulosin|Tamsulosin|Alpha Blocker
+Finasteride|Finasteride|5-alpha Reductase Inhibitor
+Oxybutynin|Oxybutynin|Anticholinergic
+Ranitidine|Ranitidine|H2 Blocker
+Sucralfate|Sucralfate|GI Protectant
+Bismuth|Bismuth Subsalicylate|GI Protectant
+Activated Charcoal|Activated Charcoal|Antidote
+Atropine|Atropine|Anticholinergic
+Epinephrine|Epinephrine|Sympathomimetic
+Lidocaine|Lidocaine|Local Anesthetic
+Magnesium Sulfate|Magnesium Sulfate|Electrolyte
+Potassium Chloride|Potassium Chloride|Electrolyte
+Normal Saline|Sodium Chloride 0.9%|IV Fluid
+Ringer Lactate|Ringer Lactate|IV Fluid
+Dextrose|Dextrose|IV Fluid
+Dopamine|Dopamine|Vasopressor
+Dobutamine|Dobutamine|Inotrope
+Oxytocin|Oxytocin|Uterotonic
+Misoprostol|Misoprostol|Prostaglandin
+Ergometrine|Ergometrine|Uterotonic
+Methyldopa|Methyldopa|Antihypertensive
+Nifedipine|Nifedipine|Antihypertensive - CCB
+Magnesium Hydroxide|Magnesium Hydroxide|Antacid
+Aluminum Hydroxide|Aluminum Hydroxide|Antacid
+Lactulose|Lactulose|Laxative
+Bisacodyl|Bisacodyl|Laxative
+Senna|Senna|Laxative
+Docusate|Docusate Sodium|Stool Softener
+Betamethasone|Betamethasone|Corticosteroid
+Clobetasol|Clobetasol|Corticosteroid - Topical
+Mupirocin|Mupirocin|Antibiotic - Topical
+Silver Sulfadiazine|Silver Sulfadiazine|Antibiotic - Topical
+Chlorhexidine|Chlorhexidine|Antiseptic
+Povidone Iodine|Povidone Iodine|Antiseptic
+Tetanus Toxoid|Tetanus Toxoid|Vaccine
+Hepatitis B Vaccine|Hepatitis B Vaccine|Vaccine
+BCG|BCG Vaccine|Vaccine
+Gabapentin|Gabapentin|Anticonvulsant - Neuropathic Pain
+Pregabalin|Pregabalin|Anticonvulsant - Neuropathic Pain
+Metronidazol|Metronidazole|Antibiotic - Nitroimidazole
+Amoxiciline|Amoxicillin|Antibiotic - Penicillin
+Cefixime|Cefixime|Antibiotic - Cephalosporin
+Levofloxacin|Levofloxacin|Antibiotic - Fluoroquinolone
+Norfloxacin|Norfloxacin|Antibiotic - Fluoroquinolone
+Tinidazole|Tinidazole|Antibiotic - Nitroimidazole
+Clindamycin|Clindamycin|Antibiotic - Lincosamide
+Clarithromycin|Clarithromycin|Antibiotic - Macrolide

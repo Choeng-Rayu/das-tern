@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "cambodia-prescription-static-v1.0",
+  "title": "Static Prescription Schema v1.0 (Debug/BBox Format)",
+  "description": "JSON Schema for the debug/internal static format that preserves per-field bounding box coordinates and OCR confidence scores. Used for development, debugging, and layout analysis.",
+  "type": "object",
+  "required": ["schema_name"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_name": {
+      "type": "string",
+      "const": "cambodia-prescription-static-v1.0",
+      "description": "Fixed identifier for this schema format."
+    },
+    "header": {
+      "$ref": "#/definitions/static_section",
+      "description": "Header section containing facility name, logos, system title, etc."
+    },
+    "patient_info": {
+      "$ref": "#/definitions/static_section",
+      "description": "Patient demographics section with per-field bounding boxes."
+    },
+    "clinical_info": {
+      "$ref": "#/definitions/static_section",
+      "description": "Clinical information section (diagnoses, allergies, vital signs)."
+    },
+    "medication_table": {
+      "type": "array",
+      "description": "The medication table represented as rows of cells, each cell carrying its own bbox and confidence.",
+      "items": {
+        "$ref": "#/definitions/static_table_row"
+      }
+    },
+    "footer": {
+      "$ref": "#/definitions/static_section",
+      "description": "Footer section containing prescriber info, signatures, dates, stamps."
+    }
+  },
+  "definitions": {
+    "bbox": {
+      "description": "Bounding box coordinates [x1, y1, x2, y2] in pixels. Null when not detected.",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": { "type": "integer" },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        { "type": "null" }
+      ]
+    },
+    "field_with_bbox": {
+      "type": "object",
+      "description": "A single extracted field value with its bounding box and OCR confidence.",
+      "additionalProperties": true,
+      "properties": {
+        "value": {
+          "description": "The extracted value. Can be string, number, boolean, array, object, or null depending on the field.",
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" },
+            { "type": "boolean" },
+            { "type": "array" },
+            { "type": "object" },
+            { "type": "null" }
+          ]
+        },
+        "bbox": {
+          "$ref": "#/definitions/bbox"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "OCR confidence score for this field (0.0 to 1.0)."
+        },
+        "engine_used": {
+          "type": "string",
+          "description": "Which OCR engine produced this field value (e.g. tesseract, easyocr)."
+        }
+      }
+    },
+    "static_section": {
+      "type": "object",
+      "description": "A named section of the prescription containing fields with bounding box annotations.",
+      "additionalProperties": true,
+      "properties": {
+        "section_name": {
+          "type": "string",
+          "description": "Identifier for this section (e.g. header, patient_info, clinical_info, footer)."
+        },
+        "fields": {
+          "type": "object",
+          "description": "Key-value map of field names to their extracted values with bbox metadata.",
+          "additionalProperties": {
+            "$ref": "#/definitions/field_with_bbox"
+          }
+        }
+      }
+    },
+    "static_cell": {
+      "type": "object",
+      "description": "A single cell in the medication table grid.",
+      "additionalProperties": true,
+      "properties": {
+        "row": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Zero-based row index in the table."
+        },
+        "col": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Zero-based column index in the table."
+        },
+        "text": {
+          "type": "string",
+          "description": "Raw OCR text content of the cell."
+        },
+        "bbox": {
+          "$ref": "#/definitions/bbox"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "OCR confidence for this cell (0.0 to 1.0)."
+        },
+        "content_type": {
+          "type": "string",
+          "description": "Classified content type of the cell (e.g. medication_name, dosage, duration, number, time_slot, instructions, unknown)."
+        }
+      }
+    },
+    "static_table_row": {
+      "type": "object",
+      "description": "A single row of the medication table, containing an ordered list of cells.",
+      "additionalProperties": true,
+      "properties": {
+        "cells": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/static_cell"
+          },
+          "description": "Ordered list of cells in this row, from left to right."
+        }
+      }
+    }
+  }
+}

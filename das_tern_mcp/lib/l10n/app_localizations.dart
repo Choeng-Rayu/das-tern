@@ -626,6 +626,18 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
+  /// No description provided for @subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get subscription;
+
+  /// No description provided for @unlockPremiumFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock premium features'**
+  String get unlockPremiumFeatures;
+
   /// No description provided for @todaySchedule.
   ///
   /// In en, this message translates to:
@@ -1643,7 +1655,7 @@ abstract class AppLocalizations {
   /// No description provided for @newPasswordHint.
   ///
   /// In en, this message translates to:
-  /// **'Enter new password'**
+  /// **'Enter your new password'**
   String get newPasswordHint;
 
   /// No description provided for @passwordChangeComingSoon.
@@ -1753,6 +1765,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scanner feature coming soon'**
   String get scannerComingSoon;
+
+  /// No description provided for @scanFromCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get scanFromCamera;
+
+  /// No description provided for @scanFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get scanFromGallery;
+
+  /// No description provided for @scanProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning prescription...'**
+  String get scanProcessing;
+
+  /// No description provided for @scanSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription scanned successfully!'**
+  String get scanSuccess;
+
+  /// No description provided for @scanFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan failed. Please try again.'**
+  String get scanFailed;
+
+  /// No description provided for @scanMedicationsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} medications found'**
+  String scanMedicationsFound(int count);
 
   /// No description provided for @doseHistoryAppearHere.
   ///
@@ -3469,6 +3517,474 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'e.g. {example}'**
   String phoneExample(String example);
+
+  /// No description provided for @registerWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Register with Google'**
+  String get registerWithGoogle;
+
+  /// No description provided for @orRegisterWith.
+  ///
+  /// In en, this message translates to:
+  /// **'or register with'**
+  String get orRegisterWith;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @emailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address'**
+  String get emailHint;
+
+  /// No description provided for @emailEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter email address'**
+  String get emailEmpty;
+
+  /// No description provided for @emailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
+  String get emailInvalid;
+
+  /// No description provided for @emailOrPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Email or Phone Number'**
+  String get emailOrPhone;
+
+  /// No description provided for @emailOrPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email or phone number'**
+  String get emailOrPhoneHint;
+
+  /// No description provided for @emailOrPhoneEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter email or phone number'**
+  String get emailOrPhoneEmpty;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email or phone number and we\'ll send you a code to reset your password'**
+  String get forgotPasswordSubtitle;
+
+  /// No description provided for @sendResetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Reset Code'**
+  String get sendResetCode;
+
+  /// No description provided for @resetCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset code sent successfully'**
+  String get resetCodeSent;
+
+  /// No description provided for @resetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPassword;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @resetPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code sent to your email/phone and your new password'**
+  String get resetPasswordSubtitle;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get newPassword;
+
+  /// No description provided for @newPasswordEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter new password'**
+  String get newPasswordEmpty;
+
+  /// No description provided for @confirmNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm New Password'**
+  String get confirmNewPassword;
+
+  /// No description provided for @confirmNewPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-enter your new password'**
+  String get confirmNewPasswordHint;
+
+  /// No description provided for @passwordResetSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset successfully! You can now login with your new password.'**
+  String get passwordResetSuccess;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Login'**
+  String get backToLogin;
+
+  /// No description provided for @selectSpecialty.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Specialty'**
+  String get selectSpecialty;
+
+  /// No description provided for @specialtyGeneralPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'General Practice'**
+  String get specialtyGeneralPractice;
+
+  /// No description provided for @specialtyInternalMedicine.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal Medicine'**
+  String get specialtyInternalMedicine;
+
+  /// No description provided for @specialtyCardiology.
+  ///
+  /// In en, this message translates to:
+  /// **'Cardiology'**
+  String get specialtyCardiology;
+
+  /// No description provided for @specialtyEndocrinology.
+  ///
+  /// In en, this message translates to:
+  /// **'Endocrinology'**
+  String get specialtyEndocrinology;
+
+  /// No description provided for @specialtyDermatology.
+  ///
+  /// In en, this message translates to:
+  /// **'Dermatology'**
+  String get specialtyDermatology;
+
+  /// No description provided for @specialtyPediatrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Pediatrics'**
+  String get specialtyPediatrics;
+
+  /// No description provided for @specialtyPsychiatry.
+  ///
+  /// In en, this message translates to:
+  /// **'Psychiatry'**
+  String get specialtyPsychiatry;
+
+  /// No description provided for @specialtySurgery.
+  ///
+  /// In en, this message translates to:
+  /// **'Surgery'**
+  String get specialtySurgery;
+
+  /// No description provided for @specialtyNeurology.
+  ///
+  /// In en, this message translates to:
+  /// **'Neurology'**
+  String get specialtyNeurology;
+
+  /// No description provided for @specialtyOphthalmology.
+  ///
+  /// In en, this message translates to:
+  /// **'Ophthalmology'**
+  String get specialtyOphthalmology;
+
+  /// No description provided for @specialtyOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get specialtyOther;
+
+  /// No description provided for @hospitalClinicOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'(Optional - can fill later)'**
+  String get hospitalClinicOptional;
+
+  /// No description provided for @medicalLicenseOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'(Optional - can verify later)'**
+  String get medicalLicenseOptional;
+
+  /// No description provided for @licenseNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'License not yet verified'**
+  String get licenseNotVerified;
+
+  /// No description provided for @skipForNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get skipForNow;
+
+  /// No description provided for @verifyEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify Email'**
+  String get verifyEmail;
+
+  /// No description provided for @emailVerificationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'A verification code has been sent to your email'**
+  String get emailVerificationSent;
+
+  /// No description provided for @phoneOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'(Optional)'**
+  String get phoneOptional;
+
+  /// No description provided for @singleMedicine.
+  ///
+  /// In en, this message translates to:
+  /// **'Single Medicine'**
+  String get singleMedicine;
+
+  /// No description provided for @createBatchGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Batch Group'**
+  String get createBatchGroup;
+
+  /// No description provided for @batchName.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch Name'**
+  String get batchName;
+
+  /// No description provided for @batchNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., After Dinner'**
+  String get batchNameHint;
+
+  /// No description provided for @selectTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Time'**
+  String get selectTime;
+
+  /// No description provided for @batchScheduledTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled Time: {time}'**
+  String batchScheduledTime(String time);
+
+  /// No description provided for @reviewAndSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Review & Save'**
+  String get reviewAndSave;
+
+  /// No description provided for @batchCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch group created successfully'**
+  String get batchCreated;
+
+  /// No description provided for @batchUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch group updated successfully'**
+  String get batchUpdated;
+
+  /// No description provided for @batchDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch group deleted'**
+  String get batchDeleted;
+
+  /// No description provided for @deleteBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Batch'**
+  String get deleteBatch;
+
+  /// No description provided for @noBatchGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'No batch groups yet'**
+  String get noBatchGroups;
+
+  /// No description provided for @batchGroupsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch Groups'**
+  String get batchGroupsTitle;
+
+  /// No description provided for @addToBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Batch'**
+  String get addToBatch;
+
+  /// No description provided for @removeFromBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from Batch'**
+  String get removeFromBatch;
+
+  /// No description provided for @batchMedicineCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} medicine(s) in batch'**
+  String batchMedicineCount(int count);
+
+  /// No description provided for @deleteBatchConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this batch group?'**
+  String get deleteBatchConfirmation;
+
+  /// No description provided for @ocrPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Scanned Prescription'**
+  String get ocrPreviewTitle;
+
+  /// No description provided for @ocrPreviewDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and edit the extracted information before saving'**
+  String get ocrPreviewDescription;
+
+  /// No description provided for @confirmAndSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm & Save'**
+  String get confirmAndSave;
+
+  /// No description provided for @editExtractedData.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Extracted Data'**
+  String get editExtractedData;
+
+  /// No description provided for @extractedMedications.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracted Medications'**
+  String get extractedMedications;
+
+  /// No description provided for @noMedicationsExtracted.
+  ///
+  /// In en, this message translates to:
+  /// **'No medications were extracted. Add medicines manually.'**
+  String get noMedicationsExtracted;
+
+  /// No description provided for @addRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Row'**
+  String get addRow;
+
+  /// No description provided for @chooseCreationMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'How would you like to add medication?'**
+  String get chooseCreationMethod;
+
+  /// No description provided for @singleMedicineDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add one medicine at a time with its own schedule'**
+  String get singleMedicineDescription;
+
+  /// No description provided for @batchGroupDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Group multiple medicines taken at the same time'**
+  String get batchGroupDescription;
+
+  /// No description provided for @submitPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Prescription'**
+  String get submitPrescription;
+
+  /// No description provided for @medicationTableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Medications'**
+  String get medicationTableTitle;
+
+  /// No description provided for @expandToEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to edit'**
+  String get expandToEdit;
+
+  /// No description provided for @collapseRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse'**
+  String get collapseRow;
+
+  /// No description provided for @removeMedicine.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get removeMedicine;
+
+  /// No description provided for @medicineNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Medicine #{number}'**
+  String medicineNumber(int number);
+
+  /// No description provided for @prescriptionSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription Summary'**
+  String get prescriptionSummary;
+
+  /// No description provided for @batchReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch Reminder: {name}'**
+  String batchReminderTitle(String name);
+
+  /// No description provided for @batchReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to take: {medicines}'**
+  String batchReminderBody(String medicines);
+
+  /// No description provided for @timeToTakeMedicine.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to take {name}'**
+  String timeToTakeMedicine(String name);
 }
 
 class _AppLocalizationsDelegate

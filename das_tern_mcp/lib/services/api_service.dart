@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:http_parser/http_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -147,13 +148,13 @@ class ApiService {
   // Auth endpoints
   // ────────────────────────────────────────────
 
-  Future<Map<String, dynamic>> login(String phoneNumber, String password) async {
-    _log.apiRequest('POST', '/auth/login', {'phoneNumber': phoneNumber});
+  Future<Map<String, dynamic>> login(String identifier, String password) async {
+    _log.apiRequest('POST', '/auth/login', {'identifier': identifier});
     try {
       final res = await http.post(
         Uri.parse('$baseUrl/auth/login'),
         headers: await _headers(auth: false),
-        body: jsonEncode({'phoneNumber': phoneNumber, 'password': password}),
+        body: jsonEncode({'identifier': identifier, 'password': password}),
       );
       final result = Map<String, dynamic>.from(_handleResponse(res));
       _log.apiResponse('POST', '/auth/login', res.statusCode, {'user': result['user']?['id']});
@@ -189,19 +190,21 @@ class ApiService {
     required String gender,
     required String dateOfBirth,
     String? idCardNumber,
-    required String phoneNumber,
+    required String email,
+    String? phoneNumber,
     required String password,
   }) async {
     final res = await http.post(
       Uri.parse('$baseUrl/auth/register/patient'),
       headers: await _headers(auth: false),
-      body: jsonEncode({
+      body: jsonEncode(<String, dynamic>{
         'firstName': firstName,
         'lastName': lastName,
         'gender': gender,
         'dateOfBirth': dateOfBirth,
-        if (idCardNumber != null) 'idCardNumber': idCardNumber,
-        'phoneNumber': phoneNumber,
+        'idCardNumber': ?idCardNumber,
+        'email': email,
+        if (phoneNumber != null && phoneNumber.isNotEmpty) 'phoneNumber': phoneNumber,
         'password': password,
       }),
     );
@@ -210,10 +213,11 @@ class ApiService {
 
   Future<Map<String, dynamic>> registerDoctor({
     required String fullName,
-    required String phoneNumber,
-    required String hospitalClinic,
-    required String specialty,
-    required String licenseNumber,
+    required String email,
+    String? phoneNumber,
+    String? hospitalClinic,
+    String? specialty,
+    String? licenseNumber,
     required String password,
   }) async {
     final res = await http.post(
@@ -221,30 +225,58 @@ class ApiService {
       headers: await _headers(auth: false),
       body: jsonEncode({
         'fullName': fullName,
-        'phoneNumber': phoneNumber,
-        'hospitalClinic': hospitalClinic,
-        'specialty': specialty,
-        'licenseNumber': licenseNumber,
+        'email': email,
+        if (phoneNumber != null && phoneNumber.isNotEmpty) 'phoneNumber': phoneNumber,
+        if (hospitalClinic != null && hospitalClinic.isNotEmpty) 'hospitalClinic': hospitalClinic,
+        if (specialty != null && specialty.isNotEmpty) 'specialty': specialty,
+        if (licenseNumber != null && licenseNumber.isNotEmpty) 'licenseNumber': licenseNumber,
         'password': password,
       }),
     );
     return Map<String, dynamic>.from(_handleResponse(res));
   }
 
-  Future<Map<String, dynamic>> sendOtp(String phoneNumber) async {
+  Future<Map<String, dynamic>> sendOtp(String identifier) async {
     final res = await http.post(
       Uri.parse('$baseUrl/auth/otp/send'),
       headers: await _headers(auth: false),
-      body: jsonEncode({'phoneNumber': phoneNumber}),
+      body: jsonEncode({'identifier': identifier}),
     );
     return Map<String, dynamic>.from(_handleResponse(res));
   }
 
-  Future<Map<String, dynamic>> verifyOtp(String phoneNumber, String otp) async {
+  Future<Map<String, dynamic>> verifyOtp(String identifier, String otp) async {
     final res = await http.post(
       Uri.parse('$baseUrl/auth/otp/verify'),
       headers: await _headers(auth: false),
-      body: jsonEncode({'phoneNumber': phoneNumber, 'otp': otp}),
+      body: jsonEncode({'identifier': identifier, 'otp': otp}),
+    );
+    return Map<String, dynamic>.from(_handleResponse(res));
+  }
+
+  /// POST /auth/forgot-password – request password reset
+  Future<Map<String, dynamic>> forgotPassword(String identifier) async {
+    _log.apiRequest('POST', '/auth/forgot-password', {'identifier': identifier});
+    final res = await http.post(
+      Uri.parse('$baseUrl/auth/forgot-password'),
+      headers: await _headers(auth: false),
+      body: jsonEncode({'identifier': identifier}),
+    );
+    return Map<String, dynamic>.from(_handleResponse(res));
+  }
+
+  /// POST /auth/reset-password-otp – reset password using OTP
+  Future<Map<String, dynamic>> resetPasswordWithOtp(
+      String identifier, String otp, String newPassword) async {
+    _log.apiRequest('POST', '/auth/reset-password-otp', {'identifier': identifier});
+    final res = await http.post(
+      Uri.parse('$baseUrl/auth/reset-password-otp'),
+      headers: await _headers(auth: false),
+      body: jsonEncode({
+        'identifier': identifier,
+        'otp': otp,
+        'newPassword': newPassword,
+      }),
     );
     return Map<String, dynamic>.from(_handleResponse(res));
   }
@@ -1046,6 +1078,104 @@ class ApiService {
   }
 
   // ────────────────────────────────────────────
+  // OCR Scan endpoints
+  // ────────────────────────────────────────────
+
+  /// Determine MIME type from filename extension, with magic bytes fallback
+  MediaType _getMediaType(String filename, {List<int>? bytes}) {
+    final ext = filename.toLowerCase().split('.').last;
+    switch (ext) {
+      case 'jpg':
+      case 'jpeg':
+        return MediaType('image', 'jpeg');
+      case 'png':
+        return MediaType('image', 'png');
+      case 'webp':
+        return MediaType('image', 'webp');
+      case 'pdf':
+        return MediaType('application', 'pdf');
+      default:
+        // Try to detect from magic bytes
+        if (bytes != null && bytes.length >= 4) {
+          if (bytes[0] == 0xFF && bytes[1] == 0xD8) {
+            return MediaType('image', 'jpeg');
+          }
+          if (bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47) {
+            return MediaType('image', 'png');
+          }
+          if (bytes.length >= 12 && bytes[8] == 0x57 && bytes[9] == 0x45 && bytes[10] == 0x42 && bytes[11] == 0x50) {
+            return MediaType('image', 'webp');
+          }
+          if (bytes[0] == 0x25 && bytes[1] == 0x50 && bytes[2] == 0x44 && bytes[3] == 0x46) {
+            return MediaType('application', 'pdf');
+          }
+        }
+        return MediaType('image', 'jpeg'); // Default to JPEG for images
+    }
+  }
+
+  /// POST /ocr/scan – scan prescription image, extract and create prescription
+  Future<Map<String, dynamic>> scanPrescription(List<int> imageBytes, String filename) async {
+    final token = await _getAccessToken();
+    final uri = Uri.parse('$baseUrl/ocr/scan');
+    final contentType = _getMediaType(filename, bytes: imageBytes);
+    final request = http.MultipartRequest('POST', uri);
+    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename, contentType: contentType));
+
+    final streamed = await request.send();
+    final res = await http.Response.fromStream(streamed);
+    if (res.statusCode == 401) {
+      final refreshed = await _tryRefreshToken();
+      if (refreshed) {
+        final token2 = await _getAccessToken();
+        final request2 = http.MultipartRequest('POST', uri);
+        if (token2 != null) request2.headers['Authorization'] = 'Bearer $token2';
+        request2.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename, contentType: contentType));
+        final streamed2 = await request2.send();
+        final res2 = await http.Response.fromStream(streamed2);
+        return Map<String, dynamic>.from(_handleResponse(res2));
+      }
+    }
+    return Map<String, dynamic>.from(_handleResponse(res));
+  }
+
+  /// POST /ocr/extract – extract prescription data without creating (preview)
+  Future<Map<String, dynamic>> extractPrescription(List<int> imageBytes, String filename) async {
+    final token = await _getAccessToken();
+    final uri = Uri.parse('$baseUrl/ocr/extract');
+    final contentType = _getMediaType(filename, bytes: imageBytes);
+    final request = http.MultipartRequest('POST', uri);
+    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename, contentType: contentType));
+
+    final streamed = await request.send();
+    final res = await http.Response.fromStream(streamed);
+    if (res.statusCode == 401) {
+      final refreshed = await _tryRefreshToken();
+      if (refreshed) {
+        final token2 = await _getAccessToken();
+        final request2 = http.MultipartRequest('POST', uri);
+        if (token2 != null) request2.headers['Authorization'] = 'Bearer $token2';
+        request2.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename, contentType: contentType));
+        final streamed2 = await request2.send();
+        final res2 = await http.Response.fromStream(streamed2);
+        return Map<String, dynamic>.from(_handleResponse(res2));
+      }
+    }
+    return Map<String, dynamic>.from(_handleResponse(res));
+  }
+
+  /// GET /ocr/health – check OCR service availability
+  Future<Map<String, dynamic>> getOcrHealth() async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.get(Uri.parse('$baseUrl/ocr/health'), headers: h),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────
   // Medicine endpoints
   // ────────────────────────────────────────────
 
@@ -1263,6 +1393,86 @@ class ApiService {
             .replace(queryParameters: params.isNotEmpty ? params : null);
     return List<dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
+    );
+  }
+
+  // ────────────────────────────────────────────
+  // Batch Medication endpoints
+  // ────────────────────────────────────────────
+
+  /// POST /batch-medications – create a new medication batch
+  Future<Map<String, dynamic>> createBatch(Map<String, dynamic> data) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.post(Uri.parse('$baseUrl/batch-medications'),
+            headers: h, body: jsonEncode(data)),
+      ),
+    );
+  }
+
+  /// GET /batch-medications – list all batches for current user
+  Future<List<dynamic>> getBatches() async {
+    return List<dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.get(Uri.parse('$baseUrl/batch-medications'), headers: h),
+      ),
+    );
+  }
+
+  /// GET /batch-medications/:id – get single batch
+  Future<Map<String, dynamic>> getBatch(String id) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.get(
+            Uri.parse('$baseUrl/batch-medications/$id'), headers: h),
+      ),
+    );
+  }
+
+  /// PATCH /batch-medications/:id – update batch
+  Future<Map<String, dynamic>> updateBatch(
+      String id, Map<String, dynamic> data) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.patch(Uri.parse('$baseUrl/batch-medications/$id'),
+            headers: h, body: jsonEncode(data)),
+      ),
+    );
+  }
+
+  /// DELETE /batch-medications/:id – delete batch
+  Future<Map<String, dynamic>> deleteBatch(String id) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.delete(
+            Uri.parse('$baseUrl/batch-medications/$id'), headers: h),
+      ),
+    );
+  }
+
+  /// POST /batch-medications/:id/medicines – add medicine to batch
+  Future<Map<String, dynamic>> addMedicineToBatch(
+      String batchId, Map<String, dynamic> data) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.post(
+            Uri.parse('$baseUrl/batch-medications/$batchId/medicines'),
+            headers: h,
+            body: jsonEncode(data)),
+      ),
+    );
+  }
+
+  /// DELETE /batch-medications/:batchId/medicines/:medicineId – remove medicine from batch
+  Future<Map<String, dynamic>> removeMedicineFromBatch(
+      String batchId, String medicineId) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.delete(
+            Uri.parse(
+                '$baseUrl/batch-medications/$batchId/medicines/$medicineId'),
+            headers: h),
+      ),
     );
   }
 }

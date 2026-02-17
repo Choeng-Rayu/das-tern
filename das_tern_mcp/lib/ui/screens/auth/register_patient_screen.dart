@@ -31,6 +31,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
   final _idCardController = TextEditingController();
 
   // Step 2 controllers
+  final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _phoneFieldKey = GlobalKey<TelegramStylePhoneFieldState>();
   final _passwordController = TextEditingController();
@@ -44,6 +45,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _idCardController.dispose();
+    _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -67,7 +69,12 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
     if (!_formKey2.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
-    final phone = _phoneFieldKey.currentState!.fullPhoneNumber;
+    final email = _emailController.text.trim();
+    final phoneText = _phoneController.text.trim();
+    String? phone;
+    if (phoneText.isNotEmpty) {
+      phone = _phoneFieldKey.currentState?.fullPhoneNumber;
+    }
 
     final result = await auth.registerPatient(
       firstName: _firstNameController.text.trim(),
@@ -77,6 +84,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
       idCardNumber: _idCardController.text.trim().isNotEmpty
           ? _idCardController.text.trim()
           : null,
+      email: email,
       phoneNumber: phone,
       password: _passwordController.text,
     );
@@ -85,7 +93,24 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
     if (result != null) {
       Navigator.of(context).pushNamed(
         '/otp-verification',
-        arguments: {'phoneNumber': phone},
+        arguments: {'identifier': email},
+      );
+    }
+  }
+
+  Future<void> _handleGoogleRegister() async {
+    final auth = context.read<AuthProvider>();
+    final success = await auth.signInWithGoogle(userRole: 'PATIENT');
+
+    if (!mounted) return;
+    if (success) {
+      Navigator.of(context).pushReplacementNamed('/patient');
+    } else if (auth.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.error!),
+          backgroundColor: AppColors.alertRed,
+        ),
       );
     }
   }
@@ -272,6 +297,58 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           ),
           const SizedBox(height: AppSpacing.md),
 
+          // ── OR divider ──
+          Row(
+            children: [
+              const Expanded(child: Divider(color: Colors.white30)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: Text(
+                  l10n.orRegisterWith,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              const Expanded(child: Divider(color: Colors.white30)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          // ── Google Register button ──
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: OutlinedButton.icon(
+              onPressed: _handleGoogleRegister,
+              icon: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Icon(Icons.g_mobiledata,
+                    color: Colors.red, size: 20),
+              ),
+              label: Text(
+                l10n.registerWithGoogle,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white54, width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+
           // Already have account link
           AuthLinkRow(
             message: l10n.alreadyHaveAccount,
@@ -294,23 +371,28 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Phone number
-          AuthFieldLabel(l10n.phoneNumber),
+          // Email (required)
+          AuthFieldLabel(l10n.email),
+          const SizedBox(height: AppSpacing.xs),
+          AuthTextField(
+            controller: _emailController,
+            hintText: l10n.emailHint,
+            keyboardType: TextInputType.emailAddress,
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return l10n.emailEmpty;
+              final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+              if (!emailRegex.hasMatch(v.trim())) return l10n.emailInvalid;
+              return null;
+            },
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          // Phone number (optional)
+          AuthFieldLabel('${l10n.phoneNumber} ${l10n.phoneOptional}'),
           const SizedBox(height: AppSpacing.xs),
           TelegramStylePhoneField(
             key: _phoneFieldKey,
             controller: _phoneController,
-            validator: (v) {
-              if (v == null || v.isEmpty) return l10n.phoneNumberEmpty;
-              final digits = v.replaceAll(RegExp(r'\D'), '');
-              final country =
-                  _phoneFieldKey.currentState?.selectedCountry;
-              if (country != null &&
-                  !country.validationPattern.hasMatch(digits)) {
-                return l10n.phoneNumberInvalid;
-              }
-              return null;
-            },
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -406,6 +488,69 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
             onPressed: _agreedToTerms ? _handleRegister : null,
             isLoading: auth.isLoading,
             label: l10n.createAccount,
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          // ── OR divider ──
+          Row(
+            children: [
+              const Expanded(child: Divider(color: Colors.white30)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: Text(
+                  l10n.orRegisterWith,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              const Expanded(child: Divider(color: Colors.white30)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          // ── Google Register button ──
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: OutlinedButton.icon(
+              onPressed: auth.isLoading ? null : _handleGoogleRegister,
+              icon: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Icon(Icons.g_mobiledata,
+                    color: Colors.red, size: 20),
+              ),
+              label: Text(
+                l10n.registerWithGoogle,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white54, width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          // Already have account link
+          AuthLinkRow(
+            message: l10n.alreadyHaveAccount,
+            actionText: l10n.signIn,
+            onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
+              '/login',
+              (_) => false,
+            ),
           ),
         ],
       ),

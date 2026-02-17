@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/design_tokens.dart';
+import '../../../services/api_service.dart';
 import '../../../services/google_auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -29,13 +30,44 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    // TODO: Implement actual authentication
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final result = await ApiService.instance.login(
+        _phoneEmailController.text.trim(),
+        _passwordController.text,
+      );
 
-    if (mounted) {
-      setState(() => _isLoading = false);
-      // Navigate to dashboard
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      if (mounted) {
+        final user = result['user'];
+        final role = user?['role'] ?? 'PATIENT';
+
+        if (role == 'DOCTOR') {
+          Navigator.pushReplacementNamed(context, '/doctor/dashboard');
+        } else {
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        }
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: AppColors.alertRed,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login failed: $e'),
+            backgroundColor: AppColors.alertRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -43,15 +75,29 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final account = await GoogleAuthService.instance.signIn();
-      
-      if (account != null && mounted) {
-        // TODO: Send account info to backend for verification
-        // For now, just navigate to dashboard
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Signed in as ${account.email}')),
+      final googleData = await GoogleAuthService.instance.signInAndGetToken();
+
+      if (googleData != null && googleData['idToken'] != null && mounted) {
+        final result = await ApiService.instance.googleLogin(
+          googleData['idToken'] as String,
         );
-        Navigator.pushReplacementNamed(context, '/dashboard');
+
+        if (mounted) {
+          final user = result['user'];
+          final role = user?['role'] ?? 'PATIENT';
+
+          if (role == 'DOCTOR') {
+            Navigator.pushReplacementNamed(context, '/doctor/dashboard');
+          } else {
+            Navigator.pushReplacementNamed(context, '/dashboard');
+          }
+        }
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sign in failed: ${e.message}')),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -197,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // Navigate to recovery screen
+                      Navigator.pushNamed(context, '/forgot-password');
                     },
                     child: Text(
                       l10n.forgotPassword,

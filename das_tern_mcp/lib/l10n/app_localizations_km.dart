@@ -280,6 +280,12 @@ class AppLocalizationsKm extends AppLocalizations {
   String get settings => 'ការកំណត់';
 
   @override
+  String get subscription => 'ការជាវ';
+
+  @override
+  String get unlockPremiumFeatures => 'ដោះសោលក្ខណៈពិសេស';
+
+  @override
   String get todaySchedule => 'កាលវិភាគថ្ងៃនេះ';
 
   @override
@@ -800,7 +806,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get oldPasswordHint => 'បំពេញលេខសម្ងាត់ចាស់';
 
   @override
-  String get newPasswordHint => 'បំពេញលេខសម្ងាត់ថ្មី';
+  String get newPasswordHint => 'បញ្ចូលពាក្យសម្ងាត់ថ្មី';
 
   @override
   String get passwordChangeComingSoon => 'មុខងារប្តូរលេខសម្ងាត់នឹងមកដល់ឆាប់ៗ';
@@ -857,6 +863,26 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get scannerComingSoon => 'មុខងារស្កេនន័រនឹងមកដល់ឆាប់ៗ';
+
+  @override
+  String get scanFromCamera => 'ថតរូប';
+
+  @override
+  String get scanFromGallery => 'ជ្រើសពីវិចិត្រសាល';
+
+  @override
+  String get scanProcessing => 'កំពុងស្កេនវេជ្ជបញ្ជា...';
+
+  @override
+  String get scanSuccess => 'ស្កេនវេជ្ជបញ្ជាបានជោគជ័យ!';
+
+  @override
+  String get scanFailed => 'ស្កេនបរាជ័យ។ សូមព្យាយាមម្តងទៀត។';
+
+  @override
+  String scanMedicationsFound(int count) {
+    return 'រកឃើញថ្នាំ $count មុខ';
+  }
 
   @override
   String get doseHistoryAppearHere =>
@@ -1763,5 +1789,259 @@ class AppLocalizationsKm extends AppLocalizations {
   @override
   String phoneExample(String example) {
     return 'ឧ. $example';
+  }
+
+  @override
+  String get registerWithGoogle => 'ចុះឈ្មោះតាម Google';
+
+  @override
+  String get orRegisterWith => 'ឬចុះឈ្មោះតាម';
+
+  @override
+  String get email => 'អ៊ីមែល';
+
+  @override
+  String get emailHint => 'បញ្ចូលអ៊ីមែលរបស់អ្នក';
+
+  @override
+  String get emailEmpty => 'សូមបញ្ចូលអ៊ីមែល';
+
+  @override
+  String get emailInvalid => 'សូមបញ្ចូលអ៊ីមែលត្រឹមត្រូវ';
+
+  @override
+  String get emailOrPhone => 'អ៊ីមែល ឬ លេខទូរស័ព្ទ';
+
+  @override
+  String get emailOrPhoneHint => 'បញ្ចូលអ៊ីមែល ឬ លេខទូរស័ព្ទ';
+
+  @override
+  String get emailOrPhoneEmpty => 'សូមបញ្ចូលអ៊ីមែល ឬ លេខទូរស័ព្ទ';
+
+  @override
+  String get forgotPasswordTitle => 'ភ្លេចពាក្យសម្ងាត់';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'បញ្ចូលអ៊ីមែល ឬ លេខទូរស័ព្ទរបស់អ្នក រួចយើងនឹងផ្ញើកូដកំណត់ពាក្យសម្ងាត់ថ្មី';
+
+  @override
+  String get sendResetCode => 'ផ្ញើកូដកំណត់ឡើងវិញ';
+
+  @override
+  String get resetCodeSent => 'កូដកំណត់ឡើងវិញត្រូវបានផ្ញើដោយជោគជ័យ';
+
+  @override
+  String get resetPassword => 'កំណត់ពាក្យសម្ងាត់ឡើងវិញ';
+
+  @override
+  String get resetPasswordTitle => 'កំណត់ពាក្យសម្ងាត់ឡើងវិញ';
+
+  @override
+  String get resetPasswordSubtitle =>
+      'បញ្ចូលកូដដែលបានផ្ញើទៅអ៊ីមែល/ទូរស័ព្ទរបស់អ្នក រួចកំណត់ពាក្យសម្ងាត់ថ្មី';
+
+  @override
+  String get newPassword => 'ពាក្យសម្ងាត់ថ្មី';
+
+  @override
+  String get newPasswordEmpty => 'សូមបញ្ចូលពាក្យសម្ងាត់ថ្មី';
+
+  @override
+  String get confirmNewPassword => 'បញ្ជាក់ពាក្យសម្ងាត់ថ្មី';
+
+  @override
+  String get confirmNewPasswordHint => 'បញ្ចូលពាក្យសម្ងាត់ថ្មីម្តងទៀត';
+
+  @override
+  String get passwordResetSuccess =>
+      'កំណត់ពាក្យសម្ងាត់ឡើងវិញដោយជោគជ័យ! ឥឡូវអ្នកអាចចូលដោយប្រើពាក្យសម្ងាត់ថ្មី។';
+
+  @override
+  String get backToLogin => 'ត្រឡប់ទៅចូល';
+
+  @override
+  String get selectSpecialty => 'ជ្រើសរើសជំនាញ';
+
+  @override
+  String get specialtyGeneralPractice => 'វេជ្ជសាស្រ្តទូទៅ';
+
+  @override
+  String get specialtyInternalMedicine => 'វេជ្ជសាស្រ្តផ្ទៃក្នុង';
+
+  @override
+  String get specialtyCardiology => 'បេះដូង';
+
+  @override
+  String get specialtyEndocrinology => 'អ័រម៉ូន';
+
+  @override
+  String get specialtyDermatology => 'ស្បែក';
+
+  @override
+  String get specialtyPediatrics => 'កុមារ';
+
+  @override
+  String get specialtyPsychiatry => 'ចិត្តសាស្រ្ត';
+
+  @override
+  String get specialtySurgery => 'វះកាត់';
+
+  @override
+  String get specialtyNeurology => 'ប្រព័ន្ធសរសៃប្រសាទ';
+
+  @override
+  String get specialtyOphthalmology => 'ភ្នែក';
+
+  @override
+  String get specialtyOther => 'ផ្សេងៗ';
+
+  @override
+  String get hospitalClinicOptional => '(ជាជម្រើស - អាចបំពេញនៅពេលក្រោយ)';
+
+  @override
+  String get medicalLicenseOptional => '(ជាជម្រើស - អាចផ្ទៀងផ្ទាត់នៅពេលក្រោយ)';
+
+  @override
+  String get licenseNotVerified => 'អាជ្ញាប័ណ្ណមិនទាន់បានផ្ទៀងផ្ទាត់';
+
+  @override
+  String get skipForNow => 'រំលងសម្រាប់ពេលនេះ';
+
+  @override
+  String get verifyEmail => 'ផ្ទៀងផ្ទាត់អ៊ីមែល';
+
+  @override
+  String get emailVerificationSent =>
+      'កូដផ្ទៀងផ្ទាត់ត្រូវបានផ្ញើទៅអ៊ីមែលរបស់អ្នក';
+
+  @override
+  String get phoneOptional => '(ជាជម្រើស)';
+
+  @override
+  String get singleMedicine => 'ថ្នាំតែមួយ';
+
+  @override
+  String get createBatchGroup => 'បង្កើតក្រុមថ្នាំ';
+
+  @override
+  String get batchName => 'ឈ្មោះក្រុម';
+
+  @override
+  String get batchNameHint => 'ឧ. បន្ទាប់ពីអាហារល្ងាច';
+
+  @override
+  String get selectTime => 'ជ្រើសពេលវេលា';
+
+  @override
+  String batchScheduledTime(String time) {
+    return 'ពេលវេលាកំណត់: $time';
+  }
+
+  @override
+  String get reviewAndSave => 'ពិនិត្យ និងរក្សាទុក';
+
+  @override
+  String get batchCreated => 'បានបង្កើតក្រុមថ្នាំជោគជ័យ';
+
+  @override
+  String get batchUpdated => 'បានកែប្រែក្រុមថ្នាំជោគជ័យ';
+
+  @override
+  String get batchDeleted => 'បានលុបក្រុមថ្នាំ';
+
+  @override
+  String get deleteBatch => 'លុបក្រុមថ្នាំ';
+
+  @override
+  String get noBatchGroups => 'មិនទាន់មានក្រុមថ្នាំទេ';
+
+  @override
+  String get batchGroupsTitle => 'ក្រុមថ្នាំ';
+
+  @override
+  String get addToBatch => 'បន្ថែមក្នុងក្រុម';
+
+  @override
+  String get removeFromBatch => 'យកចេញពីក្រុម';
+
+  @override
+  String batchMedicineCount(int count) {
+    return 'ថ្នាំ $count មុខក្នុងក្រុម';
+  }
+
+  @override
+  String get deleteBatchConfirmation => 'តើអ្នកពិតជាចង់លុបក្រុមថ្នាំនេះមែនទេ?';
+
+  @override
+  String get ocrPreviewTitle => 'ពិនិត្យវេជ្ជបញ្ជាដែលបានស្កេន';
+
+  @override
+  String get ocrPreviewDescription =>
+      'ពិនិត្យ និងកែប្រែព័ត៌មានដែលបានទាញយកមុនពេលរក្សាទុក';
+
+  @override
+  String get confirmAndSave => 'បញ្ជាក់ និងរក្សាទុក';
+
+  @override
+  String get editExtractedData => 'កែប្រែទិន្នន័យដែលបានទាញយក';
+
+  @override
+  String get extractedMedications => 'ថ្នាំដែលបានទាញយក';
+
+  @override
+  String get noMedicationsExtracted =>
+      'មិនមានថ្នាំត្រូវបានទាញយកទេ។ បន្ថែមថ្នាំដោយដៃ។';
+
+  @override
+  String get addRow => 'បន្ថែមជួរ';
+
+  @override
+  String get chooseCreationMethod => 'តើអ្នកចង់បន្ថែមថ្នាំតាមរបៀបណា?';
+
+  @override
+  String get singleMedicineDescription =>
+      'បន្ថែមថ្នាំម្តងមួយមុខតាមកាលវិភាគផ្ទាល់ខ្លួន';
+
+  @override
+  String get batchGroupDescription =>
+      'ដាក់ក្រុមថ្នាំច្រើនមុខដែលត្រូវញ៉ាំក្នុងពេលតែមួយ';
+
+  @override
+  String get submitPrescription => 'បញ្ជូនវេជ្ជបញ្ជា';
+
+  @override
+  String get medicationTableTitle => 'ថ្នាំ';
+
+  @override
+  String get expandToEdit => 'ចុចដើម្បីកែប្រែ';
+
+  @override
+  String get collapseRow => 'បង្រួម';
+
+  @override
+  String get removeMedicine => 'យកចេញ';
+
+  @override
+  String medicineNumber(int number) {
+    return 'ថ្នាំ #$number';
+  }
+
+  @override
+  String get prescriptionSummary => 'សេចក្តីសង្ខេបវេជ្ជបញ្ជា';
+
+  @override
+  String batchReminderTitle(String name) {
+    return 'រំលឹកក្រុមថ្នាំ: $name';
+  }
+
+  @override
+  String batchReminderBody(String medicines) {
+    return 'ដល់ពេលញ៉ាំ: $medicines';
+  }
+
+  @override
+  String timeToTakeMedicine(String name) {
+    return 'ដល់ពេលញ៉ាំ $name';
   }
 }

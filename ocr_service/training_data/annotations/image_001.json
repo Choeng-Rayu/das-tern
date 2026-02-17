@@ -1,0 +1,102 @@
+{
+  "annotation": {
+    "image_file": "image.png",
+    "annotator": "ocr_pipeline_validated",
+    "annotated_at": "2026-02-16T04:00:00+07:00",
+    "image_quality": "good",
+    "prescription_format": "H-EQIP",
+    "regions": {
+      "header": {
+        "bbox": [0, 0, 959, 180],
+        "text": {
+          "hospital_name_en": "Khmer-Soviet Friendship Hospital",
+          "hospital_name_km": "មន្ទីរពេទ្យមិត្តភាពខ្មែរ-សូវៀត",
+          "system_name": "H-EQIP"
+        }
+      },
+      "patient_info": {
+        "bbox": [0, 180, 959, 400],
+        "fields": {
+          "patient_id": { "value": "HAKF1354164", "bbox": null },
+          "patient_name": { "value": null, "bbox": null },
+          "gender": { "value": "F", "bbox": null },
+          "age": { "value": 19, "bbox": null },
+          "diagnosis": { "value": "Chronic Cystitis", "bbox": null },
+          "date": { "value": "15/06/2025", "bbox": null }
+        }
+      },
+      "medication_table": {
+        "bbox": [0, 400, 959, 850],
+        "column_boundaries": [0.0, 0.043, 0.322, 0.458, 0.568, 0.648, 0.734, 0.887, 1.0],
+        "rows": [
+          {
+            "row_number": 1,
+            "bbox": null,
+            "cells": {
+              "item_number": { "text": "1", "bbox": null },
+              "medication_name": { "text": "Butylscopolamine", "bbox": null },
+              "duration": { "text": "14 គ្រា", "bbox": null },
+              "instructions": { "text": "", "bbox": null },
+              "morning": { "value": "1", "bbox": null },
+              "midday": { "value": "-", "bbox": null },
+              "afternoon": { "value": "1", "bbox": null },
+              "evening": { "value": "-", "bbox": null }
+            }
+          },
+          {
+            "row_number": 2,
+            "bbox": null,
+            "cells": {
+              "item_number": { "text": "2", "bbox": null },
+              "medication_name": { "text": "Celcoxx 100mg", "bbox": null },
+              "duration": { "text": "14 គ្រាប់", "bbox": null },
+              "instructions": { "text": "រួសាប់", "bbox": null },
+              "morning": { "value": "1", "bbox": null },
+              "midday": { "value": "-", "bbox": null },
+              "afternoon": { "value": "1", "bbox": null },
+              "evening": { "value": "-", "bbox": null }
+            }
+          },
+          {
+            "row_number": 3,
+            "bbox": null,
+            "cells": {
+              "item_number": { "text": "3", "bbox": null },
+              "medication_name": { "text": "Omeprazole 20mg", "bbox": null },
+              "duration": { "text": "14 គ្រា", "bbox": null },
+              "instructions": { "text": "", "bbox": null },
+              "morning": { "value": "1", "bbox": null },
+              "midday": { "value": "-", "bbox": null },
+              "afternoon": { "value": "1", "bbox": null },
+              "evening": { "value": "-", "bbox": null }
+            }
+          },
+          {
+            "row_number": 4,
+            "bbox": null,
+            "cells": {
+              "item_number": { "text": "4", "bbox": null },
+              "medication_name": { "text": "Multivitamine", "bbox": null },
+              "duration": { "text": "21គ្រា", "bbox": null },
+              "instructions": { "text": "", "bbox": null },
+              "morning": { "value": "1", "bbox": null },
+              "midday": { "value": "1", "bbox": null },
+              "afternoon": { "value": "1", "bbox": null },
+              "evening": { "value": "-", "bbox": null }
+            }
+          }
+        ]
+      },
+      "prescriber": {
+        "bbox": [500, 850, 959, 1100],
+        "name": "Sry Heng",
+        "signature_present": true,
+        "stamp_present": false
+      },
+      "footer": {
+        "bbox": [0, 1100, 959, 1280],
+        "text": null
+      }
+    }
+  }
+}
