@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/theme/app_colors.dart';
+import '../../widgets/common_widgets.dart';
 import 'doctor_home_tab.dart';
 import 'doctor_patients_tab.dart';
 import 'doctor_prescriptions_tab.dart';
@@ -41,38 +41,33 @@ class _DoctorShellState extends State<DoctorShell> {
         index: _currentIndex,
         children: _tabs,
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: AppBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primaryBlue,
-        unselectedItemColor: AppColors.neutral400,
-        selectedFontSize: 11,
-        unselectedFontSize: 10,
         items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home_outlined),
-            activeIcon: const Icon(Icons.home),
+          AppNavItem(
+            icon: Icons.home_outlined,
+            activeIcon: Icons.home,
             label: l10n.home,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.people_outline),
-            activeIcon: const Icon(Icons.people),
+          AppNavItem(
+            icon: Icons.people_outline,
+            activeIcon: Icons.people,
             label: l10n.doctorPatientsTab,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.note_add_outlined),
-            activeIcon: const Icon(Icons.note_add),
+          AppNavItem(
+            icon: Icons.note_add_outlined,
+            activeIcon: Icons.note_add,
             label: l10n.doctorPrescriptionsTab,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.history_outlined),
-            activeIcon: const Icon(Icons.history),
+          AppNavItem(
+            icon: Icons.history_outlined,
+            activeIcon: Icons.history,
             label: l10n.doctorPrescriptionHistoryTab,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.settings_outlined),
-            activeIcon: const Icon(Icons.settings),
+          AppNavItem(
+            icon: Icons.settings_outlined,
+            activeIcon: Icons.settings,
             label: l10n.settings,
           ),
         ],
