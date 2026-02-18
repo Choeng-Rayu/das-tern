@@ -30,9 +30,8 @@ class _DoctorPrescriptionsTabState extends State<DoctorPrescriptionsTab> {
     final provider = context.watch<PrescriptionProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.prescriptions),
-        automaticallyImplyLeading: false,
+      appBar: AppHeader(
+        title: l10n.prescriptions,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -99,7 +98,10 @@ class _DoctorPrescriptionsTabState extends State<DoctorPrescriptionsTab> {
                                               fontWeight: FontWeight.w600),
                                     ),
                                   ),
-                                  _StatusBadge(status: rx.status),
+                                  StatusBadge(
+                                    label: rx.status.toUpperCase(),
+                                    color: _prescriptionStatusColor(rx.status),
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: AppSpacing.sm),
@@ -121,41 +123,15 @@ class _DoctorPrescriptionsTabState extends State<DoctorPrescriptionsTab> {
   }
 }
 
-class _StatusBadge extends StatelessWidget {
-  final String status;
-
-  const _StatusBadge({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    Color color;
-    switch (status.toUpperCase()) {
-      case 'ACTIVE':
-        color = AppColors.successGreen;
-        break;
-      case 'DRAFT':
-        color = AppColors.warningOrange;
-        break;
-      case 'PAUSED':
-        color = AppColors.neutral400;
-        break;
-      default:
-        color = AppColors.neutral400;
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-      ),
-      child: Text(
-        status.toUpperCase(),
-        style: TextStyle(
-          color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
+Color _prescriptionStatusColor(String status) {
+  switch (status.toUpperCase()) {
+    case 'ACTIVE':
+      return AppColors.successGreen;
+    case 'DRAFT':
+      return AppColors.warningOrange;
+    case 'PAUSED':
+      return AppColors.neutral400;
+    default:
+      return AppColors.neutral400;
   }
 }

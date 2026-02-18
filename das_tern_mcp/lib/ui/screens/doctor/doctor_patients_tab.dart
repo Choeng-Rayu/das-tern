@@ -4,6 +4,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../providers/doctor_dashboard_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
+import '../../widgets/common_widgets.dart';
 
 /// Doctor patients tab – list of connected patients with adherence data.
 class DoctorPatientsTab extends StatefulWidget {
@@ -36,10 +37,7 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
     final provider = context.watch<DoctorDashboardProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.myPatients),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppHeader(title: l10n.myPatients),
       body: Column(
         children: [
           // Search bar
@@ -79,31 +77,35 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _FilterChip(
+                  AppSelectableChip(
                     label: l10n.all,
                     selected: provider.adherenceFilter == null,
                     onTap: () => provider.setAdherenceFilter(null),
+                    variant: ChipVariant.outlined,
                   ),
                   const SizedBox(width: AppSpacing.xs),
-                  _FilterChip(
+                  AppSelectableChip(
                     label: l10n.adherenceGood,
                     selected: provider.adherenceFilter == 'GREEN',
-                    color: AppColors.successGreen,
+                    selectedColor: AppColors.successGreen,
                     onTap: () => provider.setAdherenceFilter('GREEN'),
+                    variant: ChipVariant.outlined,
                   ),
                   const SizedBox(width: AppSpacing.xs),
-                  _FilterChip(
+                  AppSelectableChip(
                     label: l10n.adherenceModerate,
                     selected: provider.adherenceFilter == 'YELLOW',
-                    color: AppColors.warningOrange,
+                    selectedColor: AppColors.warningOrange,
                     onTap: () => provider.setAdherenceFilter('YELLOW'),
+                    variant: ChipVariant.outlined,
                   ),
                   const SizedBox(width: AppSpacing.xs),
-                  _FilterChip(
+                  AppSelectableChip(
                     label: l10n.adherencePoor,
                     selected: provider.adherenceFilter == 'RED',
-                    color: AppColors.alertRed,
+                    selectedColor: AppColors.alertRed,
                     onTap: () => provider.setAdherenceFilter('RED'),
+                    variant: ChipVariant.outlined,
                   ),
                 ],
               ),
@@ -189,46 +191,6 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final Color? color;
-  final VoidCallback onTap;
-
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final chipColor = color ?? AppColors.primaryBlue;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? chipColor.withValues(alpha: 0.15) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? chipColor : AppColors.neutral300,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected ? chipColor : AppColors.textSecondary,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-            fontSize: 13,
-          ),
-        ),
       ),
     );
   }

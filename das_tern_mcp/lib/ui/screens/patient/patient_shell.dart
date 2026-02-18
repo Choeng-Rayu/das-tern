@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/theme/app_colors.dart';
+import '../../widgets/common_widgets.dart';
 import 'patient_home_tab.dart';
 import 'patient_medications_tab.dart';
 import 'patient_scan_tab.dart';
@@ -35,38 +35,33 @@ class _PatientShellState extends State<PatientShell> {
         index: _currentIndex,
         children: _tabs,
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: AppBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primaryBlue,
-        unselectedItemColor: AppColors.neutral400,
-        selectedFontSize: 11,
-        unselectedFontSize: 10,
         items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home_outlined),
-            activeIcon: const Icon(Icons.home),
+          AppNavItem(
+            icon: Icons.home_outlined,
+            activeIcon: Icons.home,
             label: l10n.homeTab,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.medication_outlined),
-            activeIcon: const Icon(Icons.medication),
+          AppNavItem(
+            icon: Icons.medication_outlined,
+            activeIcon: Icons.medication,
             label: l10n.medicationsAnalysis,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.document_scanner_outlined),
-            activeIcon: const Icon(Icons.document_scanner),
+          AppNavItem(
+            icon: Icons.document_scanner_outlined,
+            activeIcon: Icons.document_scanner,
             label: l10n.scanPrescriptionTab,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.family_restroom_outlined),
-            activeIcon: const Icon(Icons.family_restroom),
+          AppNavItem(
+            icon: Icons.family_restroom_outlined,
+            activeIcon: Icons.family_restroom,
             label: l10n.familyFeatures,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.settings_outlined),
-            activeIcon: const Icon(Icons.settings),
+          AppNavItem(
+            icon: Icons.settings_outlined,
+            activeIcon: Icons.settings,
             label: l10n.profile,
           ),
         ],

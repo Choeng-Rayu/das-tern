@@ -33,10 +33,7 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
     final batchProvider = context.watch<BatchProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.medications),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppHeader(title: l10n.medications),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, AppRouter.medicationChoice);
