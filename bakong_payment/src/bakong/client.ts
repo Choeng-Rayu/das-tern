@@ -57,6 +57,7 @@ export class BakongClient {
 
     /**
      * Checks payment status by MD5 hash
+     * Calls Bakong API: POST /check_transaction_by_md5
      * @param md5Hash - MD5 hash of QR code
      * @returns Payment status
      */
@@ -66,7 +67,8 @@ export class BakongClient {
         try {
             const response = await retry(
                 async () => {
-                    return await this.client.get(`/payment/${md5Hash}`);
+                    // Correct Bakong API endpoint: POST with md5 in body
+                    return await this.client.post('/check_transaction_by_md5', { md5: md5Hash });
                 },
                 {
                     maxRetries: 3,
@@ -77,28 +79,41 @@ export class BakongClient {
 
             const data = response.data;
 
-            // Parse Bakong API response
-            const paymentStatus: PaymentStatus = {
-                md5Hash,
-                status: this.mapBakongStatus(data.status),
-                transactionId: data.transactionId,
-                amount: parseFloat(data.amount),
-                currency: data.currency,
-                paidAt: data.paidAt ? new Date(data.paidAt) : undefined,
-                bakongData: data.bakongData ? {
-                    fromAccountId: data.bakongData.fromAccountId,
-                    toAccountId: data.bakongData.toAccountId,
-                    hash: data.bakongData.hash,
-                    description: data.bakongData.description,
-                } : undefined,
-            };
+            // Bakong API: responseCode 0 = PAID, non-zero = not yet paid
+            if (data.responseCode === 0 && data.data) {
+                const paymentData = data.data;
+                const paymentStatus: PaymentStatus = {
+                    md5Hash,
+                    status: 'PAID',
+                    amount: parseFloat(paymentData.amount) || 0,
+                    currency: paymentData.currency || 'USD',
+                    paidAt: paymentData.acknowledgedDateMs
+                        ? new Date(paymentData.acknowledgedDateMs)
+                        : new Date(),
+                    bakongData: {
+                        fromAccountId: paymentData.fromAccountId || '',
+                        toAccountId: paymentData.toAccountId || '',
+                        hash: paymentData.hash || '',
+                        description: paymentData.description || '',
+                    },
+                };
 
-            logger.info('Payment status retrieved', {
-                md5Hash,
-                status: paymentStatus.status,
-            });
+                logger.info('Payment confirmed as PAID', {
+                    md5Hash,
+                    status: paymentStatus.status,
+                });
 
-            return paymentStatus;
+                return paymentStatus;
+            } else {
+                // Payment not yet made
+                logger.info('Payment status: PENDING/UNPAID', { md5Hash, responseCode: data.responseCode });
+                return {
+                    md5Hash,
+                    status: 'PENDING',
+                    amount: 0,
+                    currency: 'USD',
+                };
+            }
         } catch (error) {
             logger.error('Failed to check payment status', {
                 md5Hash,
@@ -120,7 +135,50 @@ export class BakongClient {
     }
 
     /**
+     * Generates a Bakong deep link (short link) for the given QR code
+     * Calls Bakong API: POST /generate_deeplink_by_qr
+     * @param qrCode - KHQR string
+     * @param options - Deep link options
+     * @returns Short link URL or null on failure
+     */
+    async generateDeeplink(
+        qrCode: string,
+        options?: { callback?: string; appIconUrl?: string; appName?: string }
+    ): Promise<string | null> {
+        logger.info('Generating deep link via Bakong API');
+
+        try {
+            const response = await this.client.post('/generate_deeplink_by_qr', {
+                qr: qrCode,
+                sourceInfo: {
+                    appIconUrl: options?.appIconUrl || 'https://bakong.nbc.gov.kh/images/logo.svg',
+                    appName: options?.appName || 'Das Tern',
+                    appDeepLinkCallback: options?.callback || 'https://bakong.nbc.org.kh',
+                },
+            });
+
+            const data = response.data;
+            if (data.responseCode === 0 && data.data?.shortLink) {
+                logger.info('Deep link generated successfully');
+                return data.data.shortLink;
+            }
+
+            logger.warn('Deep link generation: API returned no shortLink', {
+                responseCode: data.responseCode,
+                responseMessage: data.responseMessage,
+            });
+            return null;
+        } catch (error) {
+            logger.error('Failed to generate deep link via Bakong API', {
+                error: (error as Error).message,
+            });
+            return null;
+        }
+    }
+
+    /**
      * Checks multiple payment statuses in bulk (max 50)
+     * Calls Bakong API: POST /check_transaction_by_md5_list
      * @param md5Hashes - Array of MD5 hashes
      * @returns Array of payment statuses
      */
@@ -140,9 +198,8 @@ export class BakongClient {
         try {
             const response = await retry(
                 async () => {
-                    return await this.client.post('/payment/bulk-check', {
-                        md5Hashes,
-                    });
+                    // Bakong API expects a plain array of md5 strings
+                    return await this.client.post('/check_transaction_by_md5_list', md5Hashes);
                 },
                 {
                     maxRetries: 3,
@@ -151,15 +208,14 @@ export class BakongClient {
                 }
             );
 
-            const results: PaymentStatus[] = response.data.results.map((item: any) => ({
-                md5Hash: item.md5Hash,
-                status: this.mapBakongStatus(item.status),
-                transactionId: item.transactionId,
-                amount: parseFloat(item.amount),
-                currency: item.currency,
-                paidAt: item.paidAt ? new Date(item.paidAt) : undefined,
-                bakongData: item.bakongData,
-            }));
+            const data = response.data;
+            // Successful paid entries have status 'SUCCESS' in the data array
+            const results: PaymentStatus[] = (data.data || []).map((item: any) => ({
+                md5Hash: item.md5,
+                status: item.status === 'SUCCESS' ? 'PAID' : 'PENDING',
+                amount: 0,
+                currency: 'USD',
+            } as PaymentStatus));
 
             logger.info('Bulk check completed', {
                 count: results.length,
@@ -187,27 +243,6 @@ export class BakongClient {
                 error: (error as Error).message,
             });
             return false;
-        }
-    }
-
-    /**
-     * Maps Bakong API status to internal status
-     * @param bakongStatus - Status from Bakong API
-     * @returns Internal status
-     */
-    private mapBakongStatus(bakongStatus: string): 'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED' {
-        switch (bakongStatus?.toUpperCase()) {
-            case 'COMPLETED':
-            case 'SUCCESS':
-            case 'PAID':
-                return 'PAID';
-            case 'FAILED':
-            case 'REJECTED':
-                return 'FAILED';
-            case 'EXPIRED':
-                return 'EXPIRED';
-            default:
-                return 'PENDING';
         }
     }
 

@@ -58,13 +58,13 @@ Key design decisions:
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│                     NestJS Backend                        │
+│                     NestJS Backend                       │
 │           POST /api/v1/extract  (multipart image)        │
 └────────────────────────┬─────────────────────────────────┘
                          │ raw bytes
                          ▼
 ┌──────────────────────────────────────────────────────────┐
-│                  FastAPI  (main.py)                       │
+│                  FastAPI  (main.py)                      │
 │   • Validates content-type & file size                   │
 │   • Delegates to PipelineOrchestrator.extract()          │
 └────────────────────────┬─────────────────────────────────┘

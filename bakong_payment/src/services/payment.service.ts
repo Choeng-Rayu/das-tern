@@ -68,8 +68,8 @@ export class PaymentService {
         const qrImageData = BakongKHQR.generateQRImage(qrCode);
         const qrImagePath = await this.saveQRImage(md5Hash, qrImageData);
 
-        // Generate deep link
-        const deepLink = BakongKHQR.generateDeeplink(qrCode, {
+        // Generate deep link via Bakong API (POST /generate_deeplink_by_qr)
+        const deepLink = await this.bakongClient.generateDeeplink(qrCode, {
             callback,
             appIconUrl,
             appName: appName || 'Das Tern',
