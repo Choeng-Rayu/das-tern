@@ -66,15 +66,73 @@ Agent Execution Rules
 1. Sub-Agent Task Delegation
 ----------------------------
 
-The main agent MUST delegate tasks to sub-agents.
+AI SUB-AGENT TASK RULES
 
-Example: "Create Medication Feature"
 
-- Sub-agent 1: Implement backend (NestJS)
-- Sub-agent 2: Implement frontend (Flutter)
-- Sub-agent 3: Verify API contract and integration between backend and frontend
+Core Principle
+==============
 
-The main agent coordinates, but does NOT implement everything alone.
+Sub-agents handle SMALL, ATOMIC, SINGLE tasks only.
+
+Never assign a full feature.
+Never mix backend and frontend in one sub-agent.
+Never give unclear objectives.
+
+
+Task Size Rule
+==============
+
+BAD:
+- Implement create medication feature
+- Implement payment system
+
+GOOD:
+Backend:
+- Create Medication entity
+- Create CreateMedication DTO
+- Add POST /medications endpoint
+- Implement service logic
+- Write migration
+
+Frontend:
+- Create MedicationForm screen
+- Add form validation
+- Connect API call
+- Handle success/error state
+
+Integration:
+- Verify request matches DTO
+- Test API response
+- Confirm database record created
+
+
+Delegation Rule
+===============
+
+For every task, the main agent must define:
+
+- Task type (Backend / Frontend / Integration / Database)
+- Exact objective
+- Expected output
+- Simple verification step
+
+One sub-agent = One responsibility.
+
+
+Execution Rule
+==============
+
+- Do not modify unrelated modules.
+- Do not assume other tasks are correct.
+- If task feels big → split it again.
+- If dependency exists → complete dependency first.
+
+
+Golden Rule
+===========
+
+If a task cannot be completed in isolation,
+it is too big and must be divided.
 
 
 2. Frontend UI Validation Rule

@@ -261,9 +261,9 @@ AuditLog must record:
 
 | Plan | Price | Storage | Features |
 |------|-------|---------|----------|
-| **FREEMIUM** | Free | 5GB | MVP: Create medication (manual), generate reminders, store records |
-| **PREMIUM** | $0.50/month | 20GB | All features enabled |
-| **FAMILY_PREMIUM** | $1/month | 20GB | Premium + Family plan (up to 3 members total) |
+| **FREEMIUM** | Free | 512MB | MVP: Create medication (manual), generate reminders, store records |
+| **PREMIUM** | $0.50/month | 1GB | All features enabled |
+| **FAMILY_PREMIUM** | $1/month | 2GB | Premium + Family plan (up to 3 members total) |
 
 ### FREEMIUM
 
