@@ -8,6 +8,7 @@ import '../../../models/enums_model/medication_type.dart';
 import '../../../utils/app_router.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
+import '../../widgets/common_widgets.dart';
 
 /// Patient home tab – daily dashboard matching Figma design.
 /// Shows greeting, time-period medicine cards, progress circle,
@@ -48,86 +49,15 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Blue header section ──
-              Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF29B6F6),
-                      Color(0xFF0288D1),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                ),
-                child: SafeArea(
-                  bottom: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.md,
-                      AppSpacing.sm,
-                      AppSpacing.md,
-                      AppSpacing.lg,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Logo row
-                        Row(
-                          children: [
-                            Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.medical_services,
-                                color: Colors.white,
-                                size: 16,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.xs),
-                            const Text(
-                              'ដាស់តឿន',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const Spacer(),
-                            // Profile avatar
-                            CircleAvatar(
-                              radius: 18,
-                              backgroundColor:
-                                  Colors.white.withValues(alpha: 0.3),
-                              child: const Icon(
-                                Icons.person,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-
-                        // Greeting
-                        Text(
-                          l10n.greetingName(firstName),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
+              AppGradientHeader(
+                greeting: l10n.greetingName(firstName),
+                trailing: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.white.withValues(alpha: 0.3),
+                  child: const Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 20,
                   ),
                 ),
               ),

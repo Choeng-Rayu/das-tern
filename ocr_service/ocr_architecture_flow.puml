@@ -1,0 +1,32 @@
+@startuml OCR Architecture
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam roundcorner 8
+skinparam rectangleBorderThickness 1.5
+skinparam arrowThickness 2
+skinparam arrowColor #444444
+
+title DAS-TERN OCR Pipeline
+
+rectangle "Image Input" as IN #FFECB3
+rectangle "routes.py\nValidate & Route" as API #BBDEFB
+rectangle "preprocessor.py\nDenoise · CLAHE · Deskew" as PRE #F8BBD0
+rectangle "layout.py\nDetect Regions & Table Cells" as LAY #E1BEE7
+rectangle "ocr_engine.py\nTesseract (PSM + lang routing)" as OCR #C5CAE9
+rectangle "orchestrator.py\nHybrid Table\nStrip OCR + Contour Detection" as TBL #B2EBF2
+rectangle "postprocessor.py\nParse Names · Doses · Schedule" as POST #FFF9C4
+rectangle "formatter.py\nBuild JSON Output" as FMT #DCEDC8
+rectangle "JSON Response" as OUT #C8E6C9
+
+IN   -down-> API
+API  -down-> PRE  : bytes
+PRE  -down-> LAY  : ndarray + QualityReport
+LAY  -down-> OCR  : region crops
+OCR  -down-> TBL  : OCRResult[]
+TBL  -down-> POST : raw rows + OCR text
+POST -down-> FMT  : structured dicts
+FMT  -down-> OUT  : prescription JSON
+
+@enduml

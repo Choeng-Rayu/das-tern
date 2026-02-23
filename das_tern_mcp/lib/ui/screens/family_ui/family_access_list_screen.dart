@@ -42,9 +42,9 @@ class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.myFamily),
-        centerTitle: true,
+      appBar: AppHeader(
+        title: l10n.myFamily,
+        showBackButton: true,
         bottom: TabBar(
           controller: _tabController,
           tabs: [
@@ -237,7 +237,7 @@ class _CaregiverCard extends StatelessWidget {
             // Alerts toggle
             _AlertsToggle(connection: connection),
             // Status badge
-            _StatusBadge(connection: connection),
+            _buildConnectionStatusBadge(context, connection),
           ],
         ),
       ),
@@ -301,7 +301,7 @@ class _PatientCard extends StatelessWidget {
                 ],
               ),
             ),
-            _StatusBadge(connection: connection),
+            _buildConnectionStatusBadge(context, connection),
             if (connection.status == ConnectionStatus.accepted)
               const Icon(Icons.chevron_right, color: AppColors.neutral400),
           ],
@@ -334,49 +334,22 @@ class _AlertsToggle extends StatelessWidget {
   }
 }
 
-class _StatusBadge extends StatelessWidget {
-  final Connection connection;
+Widget _buildConnectionStatusBadge(BuildContext context, Connection connection) {
+  final l10n = AppLocalizations.of(context)!;
+  final Color color;
+  final String label;
 
-  const _StatusBadge({required this.connection});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final Color color;
-    final String label;
-
-    switch (connection.status) {
-      case ConnectionStatus.pending:
-        color = AppColors.warningOrange;
-        label = l10n.pending;
-        break;
-      case ConnectionStatus.accepted:
-        color = AppColors.successGreen;
-        label = l10n.active;
-        break;
-      case ConnectionStatus.revoked:
-        color = AppColors.alertRed;
-        label = l10n.statusRevoked;
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
-      ),
-    );
+  switch (connection.status) {
+    case ConnectionStatus.pending:
+      color = AppColors.warningOrange;
+      label = l10n.pending;
+    case ConnectionStatus.accepted:
+      color = AppColors.successGreen;
+      label = l10n.active;
+    case ConnectionStatus.revoked:
+      color = AppColors.alertRed;
+      label = l10n.statusRevoked;
   }
+
+  return StatusBadge(label: label, color: color, borderRadius: 12);
 }

@@ -5,6 +5,7 @@ import '../../../services/api_service.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../../utils/app_router.dart';
+import '../../widgets/common_widgets.dart';
 
 /// Scan Prescription tab – captures/picks prescription image, extracts via OCR,
 /// then navigates to an editable preview screen before saving.
@@ -140,10 +141,7 @@ class _PatientScanTabState extends State<PatientScanTab> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.scanPrescriptionTitle),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppHeader(title: l10n.scanPrescriptionTitle),
       body: Center(
         child: _isProcessing
             ? Column(

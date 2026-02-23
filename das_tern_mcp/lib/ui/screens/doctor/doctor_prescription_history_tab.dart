@@ -33,10 +33,7 @@ class _DoctorPrescriptionHistoryTabState
     final provider = context.watch<PrescriptionProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.prescriptionHistory),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppHeader(title: l10n.prescriptionHistory),
       body: RefreshIndicator(
         onRefresh: () => provider.fetchPrescriptions(),
         child: provider.isLoading
