@@ -1,0 +1,217 @@
+@startuml DAS_TERN_System_Architecture
+
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 11
+skinparam ArrowColor #374151
+skinparam ArrowThickness 1.5
+skinparam ArrowFontSize 9
+skinparam ArrowFontColor #374151
+skinparam roundcorner 10
+skinparam Padding 6
+skinparam shadowing false
+
+skinparam package {
+  BackgroundColor #EEF2FF
+  BorderColor #4F46E5
+  BorderThickness 2
+  FontColor #1E1B4B
+  FontSize 12
+  FontStyle bold
+}
+
+skinparam component {
+  BackgroundColor #DBEAFE
+  BorderColor #2563EB
+  FontColor #1E3A5F
+  FontSize 10
+}
+
+skinparam database {
+  BackgroundColor #D1FAE5
+  BorderColor #059669
+  FontColor #064E3B
+  FontSize 10
+}
+
+skinparam note {
+  BackgroundColor #FFFBEB
+  BorderColor #F59E0B
+  FontColor #44403C
+  FontSize 9
+}
+
+title
+  <b><size:16>DAS TERN — Medication Management Platform</size></b>
+  <size:11><i>System Architecture Overview  |  Cambodia  |  2025</i></size>
+end title
+
+' ============================================================
+' LAYER 1: MOBILE CLIENT
+' ============================================================
+package "Mobile / Client Layer" as L_MOBILE #EEF2FF {
+  component "**[Das Tern Mobile App]**\nFlutter (Dart)\n\n<size:9>Targets: iOS · Android · Web · Desktop\n\nOffline-First Architecture:\n  Local SQLite store (sqflite)\n  sync_service flushes queue\n  on network reconnect\n\nState Mgmt: Provider\nAuth: JWT in FlutterSecureStorage\n\nFeatures:\n  Medication tracking & reminders\n  Prescription photo capture (OCR)\n  QR code scanner (connections)\n  Health vitals recording\n  Doctor / caregiver dashboard\n  Adherence analytics</size>" as FLUTTER
+}
+
+' ============================================================
+' LAYER 2: BACKEND SERVICES
+' ============================================================
+package "Backend Services Layer" as L_SERVICES #E0F2FE {
+
+  package "NestJS Main API  ·  Port :3000" as PKG_NESTJS #DBEAFE {
+    component "**[Das Tern API]**\nNestJS · TypeScript · Node.js\nREST prefix: /api/v1\n\n<size:9>Modules:\n  auth         — JWT · Google OAuth · OTP\n  users        — profiles · storage\n  prescriptions — versioned · no destructive edits\n  medicines    — per-prescription items\n  doses        — schedule · taken · skipped\n  connections  — patient ↔ doctor ↔ caregiver\n  notifications — in-app + push dispatch\n  health-monitoring — vitals · alerts · trends\n  doctor-dashboard  — patients · adherence\n  adherence    — today · weekly · monthly\n  batch-medication  — grouped med sets\n  subscriptions — tier · family members\n  bakong-payment — KHQR proxy module\n  ocr          — prescription scan proxy\n  email        — SendGrid dispatch\n  audit        — immutable operation log</size>" as NESTJS
+  }
+
+  package "OCR Service  ·  Port :8000" as PKG_OCR #F0FDF4 {
+    component "**[Prescription OCR]**\nPython · FastAPI\n\n<size:9>Pipeline (ordered):\n  preprocessor  — OpenCV image enhance\n  ocr_engine    — Tesseract 5\n                  (Khmer + English + French)\n  layout        — region analysis\n  postprocessor — rapidfuzz fuzzy match\n  formatter     — structured JSON output\n  orchestrator  — pipeline coordinator\n\nAccepts: JPEG · PNG · WebP · PDF\nReturns: medicine names · doses\n         schedule · prescriber info</size>" as OCR_SVC
+  }
+
+  package "Bakong Payment Service  ·  Port :3002" as PKG_BAKONG #FEF9C3 {
+    component "**[Bakong Payment]**\nNestJS · TypeScript\n\n<size:9>Subscription Tiers:\n  Freemium / Premium / Family Premium\n\nKHQR code generation\n  (Cambodia national QR standard)\nAES-256-GCM payload encryption\nBakong NBC API client\nPayment status polling (md5 hash)\n\nControllers:\n  PaymentController\n  SubscriptionController\n  HealthController</size>" as BAKONG_SVC
+  }
+
+}
+
+' ============================================================
+' LAYER 3: INFRASTRUCTURE
+' ============================================================
+package "Infrastructure Layer  ·  Docker Compose  (dastern-network)" as L_INFRA {
+
+  package "Shared Infrastructure" as PKG_SHARED_INFRA #D1FAE5 {
+    database "PostgreSQL 17\n:5432\n<size:9>dastern DB\nPrisma ORM\nTZ: Asia/Phnom_Penh</size>" as PG
+    database "Redis 7.4\n:6379\n<size:9>Session / token cache\nJWT blacklist\nRate limiting</size>" as REDIS
+    database "RabbitMQ 4.0\n:5672 (AMQP)\n:15672 (Mgmt UI)\n<size:9>Async job queue:\n  notification dispatch\n  audit event stream\n  dose reminder triggers</size>" as MQ
+    database "MinIO  (S3-compatible)\n:9000 (S3 API)\n:9001 (Web Console)\n<size:9>Prescription images\nProfile photos\nAttachment blobs</size>" as MINIO
+  }
+
+  package "Bakong Dedicated Infrastructure" as PKG_BAKONG_INFRA #FEF9C3 {
+    database "PostgreSQL 17\n:5434\n<size:9>bakong DB\nPayment records\nSubscription state</size>" as BAKONG_PG
+    database "Redis 7.4\n:6381\n<size:9>QR token state\nPayment session cache</size>" as BAKONG_REDIS
+  }
+
+}
+
+' ============================================================
+' LAYER 4: EXTERNAL SERVICES
+' ============================================================
+package "External Services" as L_EXT #FCE7F3 {
+
+  component "**Bakong NBC API**\n<size:9>Cambodia National Bank\nKHQR settlement network\nBEARER token auth</size>" as NBC_API
+
+  component "**Google OAuth**\n<size:9>Google Identity Platform\nOAuth 2.0 / OpenID Connect\nSign-in with Google</size>" as GOOGLE_OAUTH
+
+  component "**Firebase Cloud Messaging**\n<size:9>FCM HTTP v1 API\nPush notifications:\n  dose reminders\n  caregiver nudges\n  health alerts</size>" as FCM
+
+  component "**SendGrid**\n<size:9>Transactional email:\n  OTP delivery\n  dose reminders\n  audit alerts</size>" as SENDGRID
+
+}
+
+' ============================================================
+' ARROWS — Mobile -> Backend
+' ============================================================
+FLUTTER -down-> NESTJS : "  HTTP REST  |  JWT Bearer\n  /api/v1/{resource}\n  GET · POST · PATCH · DELETE\n  Prescriptions · Doses · Users\n  Connections · Health Vitals\n  Notifications · Subscriptions"
+
+FLUTTER ..down..> NESTJS : "  <<async>>  Offline Sync\n  SQLite queue on reconnect\n  POST /api/v1/sync"
+
+FLUTTER -down-> NESTJS : "  WebSocket  |  JWT auth\n  Real-time notifications"
+
+' ============================================================
+' ARROWS — NestJS -> Shared Infrastructure
+' ============================================================
+NESTJS -down-> PG : "Prisma ORM / SQL\nCRUD all entities"
+NESTJS -down-> REDIS : "Redis client\nCache · Sessions · Token blacklist"
+NESTJS -down-> MQ : "AMQP publish\nAsync notification jobs"
+NESTJS -down-> MINIO : "S3 protocol\nPrescription image upload / fetch"
+
+' ============================================================
+' ARROWS — NestJS -> Microservices
+' ============================================================
+NESTJS -right-> OCR_SVC : "  HTTP POST  multipart/form-data\n  /extract  — preview OCR result\n  /scan     — extract + create prescription\n  image bytes -> structured JSON"
+
+NESTJS -right-> BAKONG_SVC : "  HTTP REST  +  API Key header\n  POST /create       -> KHQR QR code\n  GET  /status/:md5  -> payment result\n  GET  /plans        -> tier catalog"
+
+' ============================================================
+' ARROWS — Bakong -> Dedicated Infra + External
+' ============================================================
+BAKONG_SVC -down-> BAKONG_PG : "Prisma ORM\nPayment & subscription records"
+BAKONG_SVC -down-> BAKONG_REDIS : "Redis client\nQR token state · session cache"
+BAKONG_SVC -right-> NBC_API : "  HTTPS  +  Bearer Token\n  Initiate KHQR payment\n  Verify transaction status"
+
+' ============================================================
+' ARROWS — NestJS -> External
+' ============================================================
+NESTJS -right-> GOOGLE_OAUTH : "  OAuth 2.0 / OpenID\n  POST /auth/google\n  ID token validation"
+
+MQ -down-> FCM : "  FCM HTTP v1 API\n  Worker dispatches push\n  to device tokens"
+
+NESTJS -down-> SENDGRID : "  SendGrid REST API\n  Transactional email"
+
+' ============================================================
+' NOTES
+' ============================================================
+note right of FLUTTER
+  <b>Offline-First Pattern</b>
+  1. User action -> SQLite immediately
+  2. sync_service monitors connectivity
+  3. Queue flushed to /api/v1/sync on reconnect
+  4. Server resolves conflicts, returns state
+  ──────────────────────────────────────
+  <b>Token Security</b>
+  Access token  -> FlutterSecureStorage
+  Refresh token -> FlutterSecureStorage
+  Auto-retry once on any HTTP 401 response
+end note
+
+note right of NESTJS
+  <b>Data Integrity & Governance</b>
+  Prescription versioning: new version only (no destructive edits)
+  audit module logs actor + timestamp on all writes
+  Explicit patient consent required for all data sharing
+  ──────────────────────────────────────
+  <b>Subscription Feature Gates</b>
+  Freemium       — basic tracking, 1 caregiver
+  Premium        — full features + analytics
+  Family Premium — shared family medication plan
+end note
+
+note bottom of OCR_SVC
+  <b>Cambodian Prescription Support</b>
+  Tesseract 5 trained for Khmer script
+  OpenCV: deskew · denoise · binarize · upscale
+  rapidfuzz: fuzzy match on medicine name corpus
+  Confidence score returned per extracted field
+end note
+
+note bottom of BAKONG_SVC
+  <b>KHQR (Cambodia QR Standard — NBC)</b>
+  AES-256-GCM encryption on all sensitive fields
+  Separate DB/Redis — isolated failure domain
+  md5 hash used as idempotency / polling key
+end note
+
+' ============================================================
+' LEGEND
+' ============================================================
+legend right
+  <b>Communication Protocol Legend</b>
+  ─────────────────────────────────────────
+  ──── Synchronous HTTP / HTTPS REST
+  ╌╌╌╌ Async offline sync (SQLite queue)
+  ──── WebSocket (real-time)
+  ──── AMQP (RabbitMQ)
+  ──── S3 Protocol (MinIO)
+  ──── OAuth 2.0 / OpenID Connect
+  ──── HTTPS Bearer Token (external API)
+  ─────────────────────────────────────────
+  <b>Technology Stack</b>
+  Mobile:   Flutter · Dart · sqflite · Provider
+  Backend:  NestJS · TypeScript · Prisma · PG 17
+  OCR:      FastAPI · Python · Tesseract 5 · cv2
+  Payment:  NestJS · KHQR · AES-256-GCM
+  Infra:    Docker Compose · bridge network
+  ─────────────────────────────────────────
+  Timezone: Asia/Phnom_Penh (UTC+7)
+  API Base: /api/v1
+endlegend
+
+@enduml

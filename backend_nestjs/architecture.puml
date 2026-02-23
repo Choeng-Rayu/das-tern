@@ -1,0 +1,157 @@
+@startuml DAS-TERN Backend System Architecture
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 9
+skinparam roundcorner 6
+skinparam rectangleBorderThickness 2
+
+title DAS-TERN Backend Architecture (Enterprise-Grade)
+'s Detailed system with all services, databases, and external integrations
+
+package "CLIENT LAYER" #FFECB3 {
+  rectangle "Flutter\nMobile App" as FLUTTER #FFD54F
+  rectangle "Web Browser\nClient" as WEB #FFD54F
+  rectangle "Admin\nPanel" as ADMIN #FFD54F
+}
+
+package "API GATEWAY & MIDDLEWARE" #E8F5E9 {
+  rectangle "HTTPS/REST\nLoad Balancer\n(CloudFlare)" as LB #A5D6A7
+  rectangle "Routing\nRate Limiting\nValidation" as GW #A5D6A7
+}
+
+package "NESTJS APPLICATION SERVER" #FFF9C4 {
+  rectangle "HTTP Server\n(Port 3000)\nWebSocket (socket.io)" as HTTP #FFE082
+  
+  rectangle "CORE MODULES" as CORE #FFE082 {
+    rectangle "Auth Module\nJWT·OAuth·OTP" as AUTH #FFCA28
+    rectangle "User Management\nProfile·RBAC" as USERS #FFCA28
+    rectangle "Connections\nDoctor-Patient\nTokens" as CONN #FFCA28
+  }
+  
+  rectangle "MEDICAL MODULES" as MED #FFE082 {
+    rectangle "Prescriptions\nDoses\nAdherence" as PRESC #FFCA28
+    rectangle "Health Monitoring\nVital Signs\nAlerts" as HEALTH #FFCA28
+    rectangle "Medicines DB\nBatch Operations" as MED_OPS #FFCA28
+  }
+  
+  rectangle "BUSINESS MODULES" as BUS #FFE082 {
+    rectangle "Payment Integration\n(Bakong)" as PAY #FFCA28
+    rectangle "Notifications\nEmail Service" as NOTIF #FFCA28
+    rectangle "Doctor Dashboard\nAnalytics" as DASH #FFCA28
+  }
+  
+  rectangle "INFRASTRUCTURE MODULES" as INFRA #FFE082 {
+    rectangle "Audit Logging\nCompliance" as AUDIT #FFCA28
+    rectangle "OCR Integration\nPrescription Parsing" as OCR #FFCA28
+    rectangle "Subscriptions\nPlans Management" as SUBS #FFCA28
+  }
+  
+  rectangle "MIDDLEWARE & LAYERS" as MW #FFE082 {
+    rectangle "JWT Guard\nRBAC Guards\nDTO Validation\nError Handling" as GUARDS #FFCA28
+    rectangle "Prisma ORM\nConnection Pooling\nCaching Layer" as ORM #FFCA28
+    rectangle "Background Jobs\n(Bull Queue)" as JOBS #FFCA28
+    rectangle "Scheduled Tasks\n(Cron Jobs)" as SCHED #FFCA28
+  }
+}
+
+package "DATA PERSISTENCE LAYER" #FCE4EC {
+  rectangle "PostgreSQL 17\natabase\nPort: 5432\n(Docker)" as PG #F48FB1 {
+    rectangle "Users\nConnections\nPrescriptions\nDoses\nVitalSigns" as PG1 #EC407A
+    rectangle "HealthAlerts\nPayments\nSubscriptions\nNotifications" as PG2 #EC407A
+    rectangle "Medicines\nAuditLogs\nDoctorNotes" as PG3 #EC407A
+  }
+  
+  rectangle "Redis Cache 7.4\nPort: 6379\n(Docker)" as REDIS #64B5F6 {
+    rectangle "JWT Tokens\nSession Storage\nRate Limit Buckets" as RD1 #42A5F5
+    rectangle "Cache Layer\n(TTL: 5min-24h)\nUser Data Cache" as RD2 #42A5F5
+  }
+}
+
+package "EXTERNAL SERVICES" #E3F2FD {
+  rectangle "Bakong Service\n(Separate VPS)\nPayment Gateway\nQR Code Gen" as BAKONG #1976D2
+  rectangle "Email SMTP\n(Gmail/SendGrid)\nEmail Sending" as EMAIL #1976D2
+  rectangle "OCR Service\nPrescription Recognition\nText Extraction" as OCREXT #1976D2
+  rectangle "Google OAuth\nUser Authentication\nProfile Sync" as GOOGLE #1976D2
+}
+
+package "MONITORING & LOGGING" #F3E5F5 {
+  rectangle "Audit Logs Storage\n(PostgreSQL)\nCompliance Records" as AUDIT_LOG #CE93D8
+  rectangle "Application Logs\nDebug/Info/Error\nLog Level Control" as APP_LOG #CE93D8
+  rectangle "Metrics & Alerts\n(Future: Datadog)" as METRICS #CE93D8
+}
+
+'' Connections
+FLUTTER -down-> LB : HTTPS
+WEB -down-> LB : HTTPS
+ADMIN -down-> LB : HTTPS
+
+LB -down-> GW
+GW -down-> HTTP
+
+HTTP -down-> CORE : Routes\n/api/auth\n/api/users\n/api/connections
+HTTP -down-> MED : Routes\n/api/prescriptions\n/api/doses\n/api/health\n/api/adherence
+HTTP -down-> BUS : Routes\n/api/payments\n/api/notifications\n/api/doctor-dashboard
+HTTP -down-> INFRA : Routes\n/api/audit\n/api/ocr\n/api/subscriptions
+
+CORE -down-> MW
+MED -down-> MW
+BUS -down-> MW
+INFRA -down-> MW
+
+MW -down-> ORM
+
+ORM -down-> PG : SQL Queries\nPrisma Client\nType-Safe
+ORM -down-> REDIS : Cache Reads/Writes\nToken Validation
+ORM -down-> JOBS : Enqueue Tasks
+
+JOBS -right-> EMAIL : Send Emails\n(Async Queue)
+JOBS -down-> NOTIF : Process\nNotifications
+
+PAY -down-> BAKONG : Payment\nRequests\nEncrypted Payload
+BAKONG -down-> PAY : QR Code\nResponse\nCallback Webhooks
+
+OCR -down-> OCREXT : Send Image\nReceive Text\n(Async)
+
+AUTH -down-> GOOGLE : OAuth\nToken Exchange
+
+AUDIT -down-> AUDIT_LOG : Store\nAudit Records
+
+MW -right-> APP_LOG : Log Events
+JOBS -right-> METRICS : Track\nMetrics
+
+note right of PG
+  Persistent Data Storage
+  ACID Transactions
+  Replication Ready
+  Backup Strategy
+end note
+
+note right of REDIS
+  Volatile Cache
+  Auto-expiry TTL
+  Session Management
+  Real-time Data
+end note
+
+note right of JOBS
+  Bull Queue
+  Worker Pool
+  Retry Logic
+  Dead Letter Queue
+end note
+
+note right of SCHED
+  Daily: Adherence Calc
+  Hourly: Session Cleanup
+  Every 10min: Health Alerts
+  Weekly: Log Archival
+end note
+
+skinparam Note {
+  BackgroundColor #FFFACD
+  BorderColor #DAA520
+  FontSize 8
+}
+
+@enduml

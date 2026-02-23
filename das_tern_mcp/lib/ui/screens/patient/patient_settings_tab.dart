@@ -6,6 +6,7 @@ import '../../../providers/locale_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../../ui/theme/theme_provider.dart';
+import '../../widgets/common_widgets.dart';
 
 /// Settings tab for patient – matches Figma tab: ការកំណត់
 /// Includes security (change password), theme, language, and logout.
@@ -36,10 +37,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.settings),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppHeader(title: l10n.settings),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(

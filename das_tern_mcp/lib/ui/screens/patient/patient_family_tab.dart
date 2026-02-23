@@ -33,9 +33,8 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.family),
-        automaticallyImplyLeading: false,
+      appBar: AppHeader(
+        title: l10n.family,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
