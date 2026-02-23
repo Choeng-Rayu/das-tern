@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/subscription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
@@ -123,6 +124,12 @@ class _PaymentQrScreenState extends State<PaymentQrScreen>
                     },
                   ),
                 ),
+              ],
+
+              // Deep link button — opens ABA / ACLEDA directly
+              if (status == 'PENDING' && sub.deepLink != null) ...[  
+                const SizedBox(height: AppSpacing.lg),
+                _DeepLinkButton(deepLink: sub.deepLink!),
               ],
 
               const SizedBox(height: AppSpacing.xl),
@@ -374,6 +381,133 @@ class _BankChip extends StatelessWidget {
       child: Text(
         name,
         style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+      ),
+    );
+  }
+}
+
+// ─── Deep Link Button ───
+/// Launches the Bakong deep link in the user's installed banking app (ABA,
+/// ACLEDA, Wing, etc.). Falls back to the browser if no banking app handles
+/// the URL.
+class _DeepLinkButton extends StatefulWidget {
+  final String deepLink;
+
+  const _DeepLinkButton({required this.deepLink});
+
+  @override
+  State<_DeepLinkButton> createState() => _DeepLinkButtonState();
+}
+
+class _DeepLinkButtonState extends State<_DeepLinkButton> {
+  bool _launching = false;
+
+  Future<void> _launch() async {
+    final uri = Uri.parse(widget.deepLink);
+    setState(() => _launching = true);
+    try {
+      // Try external app first (banking app); fall back to browser
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.noBankingAppInstalled),
+            backgroundColor: AppColors.alertRed,
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.noBankingAppInstalled),
+            backgroundColor: AppColors.alertRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _launching = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      children: [
+        Text(
+          l10n.orOpenDirectly,
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: AppColors.textSecondary),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: ElevatedButton.icon(
+            onPressed: _launching ? null : _launch,
+            icon: _launching
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.open_in_new, size: 20),
+            label: Text(
+              l10n.openInBankingApp,
+              style: const TextStyle(
+                  fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00A651), // Bakong green
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              elevation: 2,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Supported banks hint
+        const Wrap(
+          spacing: 6,
+          alignment: WrapAlignment.center,
+          children: [
+            _AppBadge(label: 'ABA'),
+            _AppBadge(label: 'ACLEDA'),
+            _AppBadge(label: 'Wing'),
+            _AppBadge(label: 'LOLC'),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+// ─── App Badge ───
+class _AppBadge extends StatelessWidget {
+  final String label;
+  const _AppBadge({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.neutral300),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
       ),
     );
   }
