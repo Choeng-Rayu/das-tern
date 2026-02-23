@@ -63,17 +63,12 @@ export class BakongKHQR {
         qrData.push(this.formatTag('01', isStatic ? '11' : '12'));
 
         // Tag 29 - Merchant Account Information (Bakong Individual)
-        // Sub-tag 00: GUID must be exactly "bakong.gov.kh" per NBC KHQR spec
-        // Sub-tag 01: Bakong account (e.g. "choeng_rayu@aclb")
-        // Sub-tag 02: Phone number (optional)
-        const merchantInfo = [
-            this.formatTag('00', 'bakong.gov.kh'),
-            this.formatTag('01', bankAccount),
-        ];
-        if (phoneNumber) {
-            merchantInfo.push(this.formatTag('02', phoneNumber));
-        }
-        qrData.push(this.formatTag('29', merchantInfo.join('')));
+        // Per the official Bakong KHQR JS/Python SDK, sub-tag 00 value IS the
+        // Bakong account ID directly (e.g. "choeng_rayu@aclb").
+        // The Bakong app reads sub-tag 00 to look up the recipient — putting
+        // "bakong.gov.kh" (GUID) there causes "username not found" on payment.
+        // Phone number goes in tag 62 additional data sub-tag 02 instead.
+        qrData.push(this.formatTag('29', this.formatTag('00', bankAccount)));
 
         // Tag 52 - Merchant Category Code (required by KHQR spec)
         qrData.push(this.formatTag('52', '5999'));
@@ -108,6 +103,10 @@ export class BakongKHQR {
         const additionalData: string[] = [];
         if (billNumber) {
             additionalData.push(this.formatTag('01', billNumber));
+        }
+        // Phone number in sub-tag 02 (per reference SDK)
+        if (phoneNumber) {
+            additionalData.push(this.formatTag('02', phoneNumber));
         }
         if (storeLabel) {
             additionalData.push(this.formatTag('03', storeLabel));
