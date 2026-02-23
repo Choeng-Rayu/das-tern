@@ -51,19 +51,23 @@ export class BakongKHQR {
             isStatic = false,
         } = params;
 
-        // EMV QR Code data format
+        // EMV / KHQR Code data format
+        // Tag order MUST follow the official Bakong KHQR specification:
+        // 00, 01, 29, 52, 58, 59, 60, 99, 54, 53, 62, 63
         const qrData: string[] = [];
 
-        // Payload Format Indicator (Tag 00)
+        // Tag 00 - Payload Format Indicator
         qrData.push(this.formatTag('00', '01'));
 
-        // Point of Initiation Method (Tag 01)
-        // 11 = static QR, 12 = dynamic QR
+        // Tag 01 - Point of Initiation Method: 11 = static, 12 = dynamic
         qrData.push(this.formatTag('01', isStatic ? '11' : '12'));
 
-        // Merchant Account Information (Tag 29 for Bakong)
+        // Tag 29 - Merchant Account Information (Bakong Individual)
+        // Sub-tag 00: GUID must be exactly "bakong.gov.kh" per NBC KHQR spec
+        // Sub-tag 01: Bakong account (e.g. "choeng_rayu@aclb")
+        // Sub-tag 02: Phone number (optional)
         const merchantInfo = [
-            this.formatTag('00', 'kh.gov.nbc.bakong'),
+            this.formatTag('00', 'bakong.gov.kh'),
             this.formatTag('01', bankAccount),
         ];
         if (phoneNumber) {
@@ -71,53 +75,55 @@ export class BakongKHQR {
         }
         qrData.push(this.formatTag('29', merchantInfo.join('')));
 
-        // Transaction Currency (Tag 53) - 840 for USD, 116 for KHR
-        const currencyCode = currency === 'USD' ? '840' : '116';
-        qrData.push(this.formatTag('53', currencyCode));
+        // Tag 52 - Merchant Category Code (required by KHQR spec)
+        qrData.push(this.formatTag('52', '5999'));
 
-        // Transaction Amount (Tag 54) - only for dynamic QR
+        // Tag 58 - Country Code
+        qrData.push(this.formatTag('58', 'KH'));
+
+        // Tag 59 - Merchant Name
+        qrData.push(this.formatTag('59', merchantName));
+
+        // Tag 60 - Merchant City
+        qrData.push(this.formatTag('60', merchantCity));
+
+        // Tag 99 - Timestamp (required by KHQR spec)
+        // Format: languagePreference(00) + length(2digit) + timestampMs
+        const timestampMs = Date.now().toString();
+        const tsLenStr = timestampMs.length.toString().padStart(2, '0');
+        const tsField = '00' + tsLenStr + timestampMs;
+        qrData.push(this.formatTag('99', tsField));
+
+        // Tag 54 - Transaction Amount (dynamic QR only)
+        // NOTE: Per KHQR spec, amount (54) comes BEFORE currency (53)
         if (!isStatic && amount > 0) {
             qrData.push(this.formatTag('54', amount.toFixed(2)));
         }
 
-        // Country Code (Tag 58) - KH for Cambodia
-        qrData.push(this.formatTag('58', 'KH'));
+        // Tag 53 - Transaction Currency (840 = USD, 116 = KHR)
+        const currencyCode = currency === 'USD' ? '840' : '116';
+        qrData.push(this.formatTag('53', currencyCode));
 
-        // Merchant Name (Tag 59)
-        qrData.push(this.formatTag('59', merchantName));
-
-        // Merchant City (Tag 60)
-        qrData.push(this.formatTag('60', merchantCity));
-
-        // Additional Data Field (Tag 62)
+        // Tag 62 - Additional Data Field
         const additionalData: string[] = [];
-
-        // Bill Number (Tag 01)
         if (billNumber) {
             additionalData.push(this.formatTag('01', billNumber));
         }
-
-        // Store Label (Tag 03)
         if (storeLabel) {
             additionalData.push(this.formatTag('03', storeLabel));
         }
-
-        // Terminal Label (Tag 07)
         if (terminalLabel) {
             additionalData.push(this.formatTag('07', terminalLabel));
         }
-
         if (additionalData.length > 0) {
             qrData.push(this.formatTag('62', additionalData.join('')));
         }
 
-        // CRC (Tag 63) - placeholder, will be calculated
+        // Tag 63 - CRC placeholder (4 zeros, value filled below)
         qrData.push('6304');
 
-        // Join all data
+        // Join and calculate CRC16-CCITT
         const qrString = qrData.join('');
-
-        // Calculate CRC16-CCITT and append
         const crc = this.calculateCRC16(qrString);
         const finalQR = qrString + crc.toString(16).toUpperCase().padStart(4, '0');
 
