@@ -1038,6 +1038,16 @@ class AppLocalizationsKm extends AppLocalizations {
       '៥. ការទូទាត់នឹងត្រូវបានផ្ទៀងផ្ទាត់ដោយស្វ័យប្រវត្តិ';
 
   @override
+  String get openInBankingApp => 'បើកក្នុងកម្មវិធីធនាគារ';
+
+  @override
+  String get orOpenDirectly => 'ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:';
+
+  @override
+  String get noBankingAppInstalled =>
+      'មិនអាចបើកកម្មវិធីធនាគារទេតើបាន័តំ30 សូមសក័នុ QR វិញជនស់វិញ។';
+
+  @override
   String get supportedByAllKHQR => 'គាំទ្រដោយធនាគារ KHQR ទាំងអស់';
 
   @override
