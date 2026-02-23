@@ -58,6 +58,9 @@ dependencies:
   # Share functionality
   share_plus: ^9.0.0
 
+  # URL Launcher (open deeplinks in banking apps)
+  url_launcher: ^6.3.0
+
   # Image Picker (camera/gallery for prescription scanning)
   image_picker: ^1.0.7
 
