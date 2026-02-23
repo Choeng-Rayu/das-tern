@@ -86,7 +86,9 @@ curl http://localhost:3002/api/health
 ### System Components
 
 ```
-┌─────────────────┐         ┌──────────────────────┐         ┌─────────────────┐
+                    Encryption
+                       │
+┌─────────────────┐    ▼    ┌──────────────────────┐         ┌─────────────────┐
 │  Main Backend   │◄───────►│  Bakong Payment      │◄───────►│  Bakong API     │
 │  (Das-tern)     │  REST   │  Integration Service │  HTTPS  │  (NBC)          │
 └─────────────────┘         └──────────────────────┘         └─────────────────┘
