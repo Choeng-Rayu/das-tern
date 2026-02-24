@@ -24,6 +24,31 @@ COL_NAMES = ["item_number", "medication_name", "duration", "instructions",
              "morning", "midday", "afternoon", "evening"]
 DOSE_COLS = {"morning", "midday", "afternoon", "evening"}
 
+# Minimum area of ink blob in dose column to count as a mark
+MIN_DOSE_BLOB_AREA = 8
+# Minimum confidence for word detection (lower = accept more words)
+MIN_WORD_CONF = 10
+# Minimum characters for medication name
+MIN_MED_NAME_LEN = 2
+
+# Khmer and English keywords that indicate a table header row (not medication)
+_HEADER_KEYWORDS_KM = {
+    'ឈ្មោះឱសថ', 'ពេលព្រឹក', 'ក្រោយបាយ', 'ពេលថ្ងៃ', 'ពេលល្ងាច', 'ពេលយប់',
+    'សម្គាល់', 'ការណែនាំ', 'ព្រឹក', 'ថ្ងៃត្រង់', 'ល្ងាច', 'ក្រោយ', 'មុន',
+    'ថ្ងៃ', 'ខែ', 'ឆ្នាំ', 'រ', 'ខ', 'លេខ', 'ខ.',
+    'ប្រើប្រាស់', 'ប្រើ', 'ប្រភេទ', 'ចំណាំ', 'ជំងឺ',
+    'ឱសថ', 'ថ្នាំ',
+    'សូមយកវេជ្ជបញ្ជាមកវិញ',  # "please return prescription"
+    'វេជ្ជបញ្ជា',  # "prescription"  
+    'ករណី',  # "case"
+}
+_HEADER_KEYWORDS_EN = frozenset([
+    'medication', 'medicine', 'name', 'duration', 'morning', 'midday', 'afternoon',
+    'evening', 'instructions', 'dose', 'quantity', 'item', 'unit', 'frequency',
+    'total', 'days', 'remarks', 'note', 'notes', 'remark', 'drug', 'morning',
+    'no.', 'number', 'prescription',
+])
+
 
 class PipelineOrchestrator:
     """Orchestrates the full OCR extraction pipeline."""
@@ -159,32 +184,148 @@ class PipelineOrchestrator:
 
     def _process_table_hybrid(self, color_img: np.ndarray, gray_img: np.ndarray,
                                table_bbox: Tuple[int, int, int, int]) -> list:
-        """Process medication table using hybrid approach:
-        1. Upscale and OCR the text columns strip for word positions
-        2. Group words into medication rows
-        3. Analyze each dose column as a full strip using contour detection
-        4. Map dose ink blobs to medication rows by y-proximity
+        """Process medication table using a multi-strategy hybrid approach:
+        Strategy 1: Dynamic column detection from actual vertical grid lines
+        Strategy 2: Hardcoded H-EQIP column proportions (original approach)
+        Strategy 3: Full-text OCR fallback — parse medication names from raw text lines
         """
         tx1, ty1, tx2, ty2 = table_bbox
         tw = tx2 - tx1
         th = ty2 - ty1
 
-        # Calculate column boundaries in image coordinates
-        col_x = [tx1 + int(tw * b) for b in COL_BOUNDARIES]
+        # --- Strategy 1: Try dynamic vertical-line-based column detection ---
+        logger.info("  Trying dynamic column detection from vertical lines")
+        dynamic_col_x = self._detect_dynamic_columns(gray_img, table_bbox)
+        if dynamic_col_x and len(dynamic_col_x) >= 5:
+            logger.info(f"  Dynamic columns found: {len(dynamic_col_x)} boundaries")
+            medications = self._extract_structured(color_img, gray_img, table_bbox, dynamic_col_x)
+            if medications:
+                logger.info(f"  Strategy 1 (dynamic columns) → {len(medications)} medications")
+                return medications
+            logger.info("  Strategy 1 yielded 0 medications, trying Strategy 2")
 
-        # Step A: OCR the text columns strip (item_number through instructions)
-        strip_x1 = col_x[0]
-        strip_x2 = col_x[4]  # Up to end of instructions
+        # --- Strategy 2: Hardcoded H-EQIP column proportions ---
+        logger.info("  Using hardcoded H-EQIP column boundaries")
+        heqip_col_x = [tx1 + int(tw * b) for b in COL_BOUNDARIES]
+        medications = self._extract_structured(color_img, gray_img, table_bbox, heqip_col_x)
+        if medications:
+            logger.info(f"  Strategy 2 (H-EQIP columns) → {len(medications)} medications")
+            return medications
+        logger.info("  Strategy 2 yielded 0 medications, trying Strategy 3 (text fallback)")
+
+        # --- Strategy 3: General text OCR fallback ---
+        medications = self._extract_text_fallback(color_img, gray_img, table_bbox)
+        logger.info(f"  Strategy 3 (text fallback) → {len(medications)} medications")
+        return medications
+
+    def _detect_dynamic_columns(self, gray_img: np.ndarray,
+                                 table_bbox: Tuple[int, int, int, int]) -> Optional[List[int]]:
+        """Detect actual column x-boundaries by finding vertical grid lines within the table."""
+        tx1, ty1, tx2, ty2 = table_bbox
+        tw = tx2 - tx1
+        th = ty2 - ty1
+
+        if tw < 50 or th < 30:
+            return None
+
+        table_crop = gray_img[ty1:ty2, tx1:tx2].copy()
+
+        # Binarize with Otsu
+        _, binary = cv2.threshold(table_crop, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+        # Detect vertical lines that span at least 35% of the table height
+        v_len = max(int(th * 0.35), 15)
+        v_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, v_len))
+        v_lines_img = cv2.morphologyEx(binary, cv2.MORPH_OPEN, v_kernel, iterations=2)
+
+        # Project onto x-axis — find columns with high vertical density
+        col_sums = np.sum(v_lines_img, axis=0).astype(np.float32)
+        max_val = float(np.max(col_sums))
+        if max_val == 0:
+            return None
+
+        threshold = max_val * 0.25
+        above = col_sums > threshold
+
+        # Collect centers of contiguous high-density regions
+        boundaries = [0]
+        in_region = False
+        start_x = 0
+        for x in range(tw):
+            if above[x] and not in_region:
+                in_region = True
+                start_x = x
+            elif not above[x] and in_region:
+                in_region = False
+                center = (start_x + x) // 2
+                # Ignore boundaries too close to existing ones (merge noise)
+                if not boundaries or center - boundaries[-1] > tw * 0.02:
+                    boundaries.append(center)
+        if in_region:
+            boundaries.append(start_x)
+        boundaries.append(tw)
+        boundaries = sorted(set(boundaries))
+
+        # Need at least 4 internal separators to form meaningful columns
+        if len(boundaries) < 5:
+            return None
+
+        # Convert to image coordinates
+        return [tx1 + x for x in boundaries]
+
+    def _extract_structured(self, color_img: np.ndarray, gray_img: np.ndarray,
+                             table_bbox: Tuple[int, int, int, int],
+                             col_x: List[int]) -> list:
+        """Extract medications using explicit column x-boundaries.
+
+        col_x must have at least 5 entries ([item_num, ..., med_name_end, ..., dose_cols, end]).
+        When the prescription has a different column count than H-EQIP, we auto-assign
+        col roles: leftmost narrow = item#, wide middle = medication_name, far-right = doses.
+        """
+        tx1, ty1, tx2, ty2 = table_bbox
+        tw = tx2 - tx1
+        th = ty2 - ty1
+
+        n_cols = len(col_x) - 1
+
+        # Determine which col_x segment contains the medication names.
+        # Heuristic: the widest column in the left 60% of the table is the name column.
+        name_col_idx = 1  # default: second column
+        best_width = 0
+        for i in range(n_cols):
+            col_center = (col_x[i] + col_x[i + 1]) / 2
+            col_width = col_x[i + 1] - col_x[i]
+            rel_center = (col_center - tx1) / max(tw, 1)
+            if rel_center < 0.65 and col_width > best_width:
+                best_width = col_width
+                name_col_idx = i
+
+        # Ensure strip_x covers from col 0 through the name column + 2 more (instructions)
+        strip_end_idx = min(name_col_idx + 3, n_cols)
+        strip_x1 = tx1
+        strip_x2 = col_x[strip_end_idx]
+        if strip_x2 <= strip_x1:
+            strip_x2 = min(tx1 + int(tw * 0.65), col_x[-1])
+
         strip_crop = color_img[ty1:ty2, strip_x1:strip_x2]
+        if strip_crop.size == 0:
+            return []
 
+        # OCR the text strip
         config = '--oem 1 --psm 4'
-        data = pytesseract.image_to_data(strip_crop, lang='eng', config=config,
-                                          output_type=pytesseract.Output.DICT)
+        try:
+            data = pytesseract.image_to_data(
+                strip_crop, lang=settings.TESSERACT_LANG, config=config,
+                output_type=pytesseract.Output.DICT
+            )
+        except Exception as e:
+            logger.warning(f"OCR failed on strip: {e}")
+            return []
 
-        # Collect detected words with positions
+        # Collect words with sufficient confidence
         words = []
         for i, text in enumerate(data['text']):
-            if text.strip() and int(data['conf'][i]) > 15:
+            if text.strip() and int(data['conf'][i]) > MIN_WORD_CONF:
                 words.append({
                     'text': text.strip(),
                     'x': data['left'][i] + strip_x1,
@@ -194,44 +335,53 @@ class PipelineOrchestrator:
                     'conf': int(data['conf'][i]),
                 })
 
-        # Group words into rows by y-position
-        rows = self._cluster_words_by_y(words, threshold=25)
+        if not words:
+            return []
 
-        # Identify medication rows (rows that have text in the medication_name column)
+        # Group words into rows by y-position
+        rows = self._cluster_words_by_y(words, threshold=30)
+
+        # Map each row's words to columns, then identify medication rows
         med_rows = []
         for row_words in rows:
-            row_data = self._map_words_to_columns(row_words, col_x)
+            row_data = self._map_words_to_columns_flexible(row_words, col_x, name_col_idx, n_cols)
             med_name = row_data.get("medication_name", "").strip()
-            if not med_name or len(med_name) < 3:
+
+            # If structured mapping didn't find a name, fall back: take all alphanumeric
+            # words from the row that aren't purely numeric as the medication name.
+            if len(med_name) < MIN_MED_NAME_LEN:
+                candidate_words = [
+                    w['text'] for w in sorted(row_words, key=lambda x: x['x'])
+                    if re.search(r'[A-Za-z\u1780-\u17FF]', w['text'])
+                ]
+                med_name = ' '.join(candidate_words).strip()
+                if len(med_name) >= MIN_MED_NAME_LEN:
+                    row_data['medication_name'] = med_name
+
+            # Skip rows that are clearly header/label rows, not medication rows
+            if len(med_name) < MIN_MED_NAME_LEN or self._is_header_or_label_text(med_name):
                 continue
-            # Compute row center y-position
+
             avg_y = sum(w['y'] + w['h'] // 2 for w in row_words) / len(row_words)
             med_rows.append((row_data, avg_y, row_words))
 
         if not med_rows:
             return []
 
-        # Step B: Re-OCR duration column per row with Khmer+English for accuracy
-        # Use row-center spacing for cell bounds instead of word positions
-        dur_x1 = col_x[2]
-        dur_x2 = col_x[3]
+        # Re-OCR duration column per row with Khmer+English
+        dur_x1 = col_x[min(name_col_idx + 1, len(col_x) - 2)]
+        dur_x2 = col_x[min(name_col_idx + 2, len(col_x) - 1)]
         row_centers = [avg_y for _, avg_y, _ in med_rows]
-        # Estimate half-row height from row spacing
+
         if len(row_centers) >= 2:
             avg_spacing = (row_centers[-1] - row_centers[0]) / (len(row_centers) - 1)
             half_row = int(avg_spacing / 2)
         else:
             half_row = th // 4
+
         for i, (row_data, avg_y, row_words) in enumerate(med_rows):
-            # Compute row boundaries from row centers
-            if i == 0:
-                min_y = max(ty1, int(avg_y) - half_row)
-            else:
-                min_y = int((row_centers[i - 1] + row_centers[i]) / 2)
-            if i == len(med_rows) - 1:
-                max_y = min(ty2, int(avg_y) + half_row)
-            else:
-                max_y = int((row_centers[i] + row_centers[i + 1]) / 2)
+            min_y = max(ty1, int(avg_y) - half_row) if i == 0 else int((row_centers[i - 1] + row_centers[i]) / 2)
+            max_y = min(ty2, int(avg_y) + half_row) if i == len(med_rows) - 1 else int((row_centers[i] + row_centers[i + 1]) / 2)
             dur_cell = color_img[min_y:max_y, dur_x1:dur_x2]
             if dur_cell.size > 0:
                 try:
@@ -243,30 +393,217 @@ class PipelineOrchestrator:
                 except Exception:
                     pass
 
-        # Step C: Analyze each dose column using contour-based detection
-        row_centers = [avg_y for _, avg_y, _ in med_rows]
+        # Analyze dose columns — try to use the rightmost columns as dose columns
+        dose_col_start = max(n_cols - 4, name_col_idx + 2)
+        actual_dose_cols = COL_NAMES[4:]  # morning, midday, afternoon, evening
 
         dose_results = {}
-        for col_name in DOSE_COLS:
-            col_idx = COL_NAMES.index(col_name)
+        for j, col_name in enumerate(actual_dose_cols):
+            col_idx = dose_col_start + j
+            if col_idx >= n_cols:
+                dose_results[col_name] = {k: "-" for k in range(len(med_rows))}
+                continue
             cell_x1 = col_x[col_idx]
             cell_x2 = col_x[col_idx + 1]
             dose_results[col_name] = self._analyze_dose_column(
                 gray_img, cell_x1, cell_x2, ty1, ty2, row_centers
             )
 
-        # Step C: Build medications list
         medications = []
         for i, (row_data, avg_y, row_words) in enumerate(med_rows):
-            for col_name in DOSE_COLS:
+            for col_name in actual_dose_cols:
                 row_data[col_name] = dose_results[col_name].get(i, "-")
-
             medication = self.post_processor.process_medication_row(row_data, i + 1)
             medications.append(medication)
 
         return medications
 
-    def _cluster_words_by_y(self, words: list, threshold: int = 25) -> List[list]:
+    def _extract_text_fallback(self, color_img: np.ndarray, gray_img: np.ndarray,
+                                table_bbox: Tuple[int, int, int, int]) -> list:
+        """Fallback: OCR the entire table area as a text block and parse medication names
+        from each line heuristically. This handles prescriptions with non-standard layouts."""
+        tx1, ty1, tx2, ty2 = table_bbox
+
+        # Expand the crop slightly to avoid missing text at edges
+        h_img, w_img = color_img.shape[:2]
+        expand = 10
+        cx1 = max(0, tx1 - expand)
+        cy1 = max(0, ty1 - expand)
+        cx2 = min(w_img, tx2 + expand)
+        cy2 = min(h_img, ty2 + expand)
+
+        table_crop = color_img[cy1:cy2, cx1:cx2]
+        if table_crop.size == 0:
+            return []
+
+        # Try with combined Khmer+English language first, then English-only
+        medications = []
+        for lang in [settings.TESSERACT_LANG, settings.TESSERACT_LANG_ENG]:
+            try:
+                data = pytesseract.image_to_data(
+                    table_crop, lang=lang,
+                    config='--oem 1 --psm 4',
+                    output_type=pytesseract.Output.DICT
+                )
+            except Exception as e:
+                logger.warning(f"Fallback OCR failed with lang={lang}: {e}")
+                continue
+
+            words = []
+            for i, text in enumerate(data['text']):
+                if text.strip() and int(data['conf'][i]) > MIN_WORD_CONF:
+                    words.append({
+                        'text': text.strip(),
+                        'x': data['left'][i] + cx1,
+                        'y': data['top'][i] + cy1,
+                        'w': data['width'][i],
+                        'h': data['height'][i],
+                        'conf': int(data['conf'][i]),
+                    })
+
+            if not words:
+                continue
+
+            rows = self._cluster_words_by_y(words, threshold=30)
+
+            item_num = 0
+            for row_words in rows:
+                sorted_words = sorted(row_words, key=lambda w: w['x'])
+                row_text = ' '.join(w['text'] for w in sorted_words).strip()
+
+                if len(row_text) < MIN_MED_NAME_LEN:
+                    continue
+
+                # Skip header/label rows
+                if self._is_header_or_label_text(row_text):
+                    continue
+
+                # Extract alphabetic words (likely medication name)
+                alpha_words = [
+                    w['text'] for w in sorted_words
+                    if re.search(r'[A-Za-z\u1780-\u17FF]', w['text']) and len(w['text']) >= 2
+                ]
+                if not alpha_words:
+                    continue
+
+                med_name_candidate = ' '.join(alpha_words)
+
+                # Check against lexicon or pattern heuristics
+                # If lexicon is unavailable, rely entirely on text pattern heuristics
+                has_lexicon = len(self.post_processor.lexicon.medications_en) > 0
+                if has_lexicon:
+                    _, _, _, match_conf = self.post_processor.lexicon.match_medication(med_name_candidate)
+                    is_known_med = match_conf >= 0.85
+                else:
+                    is_known_med = False
+
+                if not is_known_med and not self._looks_like_medication_text(row_text):
+                    continue
+
+                item_num += 1
+                row_data = {
+                    'medication_name': med_name_candidate,
+                    'duration': '',
+                    'instructions': '',
+                    'morning': '-',
+                    'midday': '-',
+                    'afternoon': '-',
+                    'evening': '-',
+                    'item_number': str(item_num),
+                }
+                medication = self.post_processor.process_medication_row(row_data, item_num)
+                medications.append(medication)
+
+            if medications:
+                break  # Success with this language
+
+        return medications
+
+    def _looks_like_medication_text(self, text: str) -> bool:
+        """Heuristic: does this line of text look like it contains a medication entry?"""
+        # Must NOT be a known header label
+        if self._is_header_or_label_text(text):
+            return False
+        # Dose/strength pattern (500mg, 10mg, 250ml, 5mcg, etc.)
+        if re.search(r'\b\d+\s*(?:mg|ml|mcg|g|iu|unit|tab|cap)\b', text, re.IGNORECASE):
+            return True
+        # Capitalized English word of 4+ chars — typical branded drug name
+        if re.search(r'\b[A-Z][a-z]{3,}', text):
+            return True
+        # Khmer text of 3+ chars that is NOT a known header word
+        if re.search(r'[\u1780-\u17FF]{3,}', text):
+            return True
+        # Numbered list entry (e.g., "1. Amoxicillin" or "1 Paracetamol")
+        if re.match(r'^\d+[\.\s]\s*[A-Za-z\u1780-\u17FF]', text):
+            return True
+        # Common medication suffixes
+        if re.search(r'\b\w+(?:cillin|mycin|zole|pril|sartan|statin|lone|olol|pam|xam)\b', text, re.IGNORECASE):
+            return True
+        return False
+
+    def _is_header_or_label_text(self, text: str) -> bool:
+        """Return True if text looks like a table column header or label, not a medication."""
+        if not text:
+            return True
+        stripped = text.strip()
+        if not stripped:
+            return True
+
+        # Exact or substring match against Khmer blacklist
+        for kw in _HEADER_KEYWORDS_KM:
+            if kw in stripped:
+                return True
+
+        # Check if ALL English words in text are header keywords (e.g. pure "morning afternoon")
+        lower = stripped.lower()
+        english_words = set(re.findall(r'[a-z]{3,}', lower))
+        if english_words and english_words.issubset(_HEADER_KEYWORDS_EN):
+            return True
+
+        # Reject text that is clearly garbage from OCR (mostly symbols/noise, no alphanumeric)
+        alphanumeric = re.findall(r'[A-Za-z\u1780-\u17FF0-9]', stripped)
+        if len(alphanumeric) < 2:
+            return True
+
+        return False
+
+    def _map_words_to_columns_flexible(self, words: list, col_x: List[int],
+                                        name_col_idx: int, n_cols: int) -> Dict[str, str]:
+        """Map words to columns using actual detected column boundaries.
+
+        Uses the detected name_col_idx for medication_name, and flexibly assigns
+        item_number, duration, instructionscolumns relative to name column.
+        """
+        result = {}
+        col_words: Dict[str, list] = {name: [] for name in COL_NAMES[:4]}
+
+        for w in sorted(words, key=lambda x: x['x']):
+            word_center_x = w['x'] + w['w'] // 2
+
+            # Find which column segment this word falls in
+            for i in range(n_cols):
+                if col_x[i] <= word_center_x < col_x[i + 1]:
+                    # Map segment index to semantic column name
+                    if i == 0:
+                        col_words['item_number'].append(w['text'])
+                    elif i == name_col_idx:
+                        col_words['medication_name'].append(w['text'])
+                    elif i == name_col_idx - 1 and i > 0:
+                        col_words['item_number'].append(w['text'])
+                    elif i == name_col_idx + 1 and n_cols - i > 4:
+                        col_words['duration'].append(w['text'])
+                    elif i == name_col_idx + 2 and n_cols - i > 3:
+                        col_words['instructions'].append(w['text'])
+                    break
+
+        for name, texts in col_words.items():
+            result[name] = ' '.join(texts)
+
+        return result
+
+
+
+    def _cluster_words_by_y(self, words: list, threshold: int = 30) -> List[list]:
         """Group words into rows based on y-position proximity."""
         if not words:
             return []
@@ -289,7 +626,7 @@ class PipelineOrchestrator:
         return groups
 
     def _map_words_to_columns(self, words: list, col_x: list) -> Dict[str, str]:
-        """Map words to text columns based on x-position."""
+        """Map words to text columns based on x-position (H-EQIP fixed boundaries)."""
         result = {}
         col_words = {name: [] for name in COL_NAMES[:4]}
 
@@ -344,8 +681,12 @@ class PipelineOrchestrator:
 
         inner_w = inner.shape[1]
 
-        # Apply fixed threshold to detect dark ink marks
-        _, binary = cv2.threshold(inner, 160, 255, cv2.THRESH_BINARY_INV)
+        # Apply adaptive threshold to detect dark ink marks (more robust than fixed 160)
+        # First try Otsu, then use a fixed fallback if the strip is mostly white or uniform
+        otsu_val, binary_otsu = cv2.threshold(inner, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        fixed_val, binary_fixed = cv2.threshold(inner, 160, 255, cv2.THRESH_BINARY_INV)
+        # Pick whichever threshold captures more ink (higher non-zero pixel count)
+        binary = binary_otsu if cv2.countNonZero(binary_otsu) >= cv2.countNonZero(binary_fixed) else binary_fixed
 
         # Remove horizontal grid lines using morphological opening
         h_kernel_len = max(inner_w * 2 // 3, 5)
@@ -357,7 +698,7 @@ class PipelineOrchestrator:
         contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         # Collect significant blobs
-        min_area = 12
+        min_area = MIN_DOSE_BLOB_AREA
         blobs = []
         for c in contours:
             area = cv2.contourArea(c)
@@ -410,13 +751,13 @@ class PipelineOrchestrator:
 
         # Map blobs to medication rows by y-proximity
         result = {}
-        match_threshold = 30
+        match_threshold = 40  # wider match window for different prescription layouts
 
         for i, row_y in enumerate(row_centers):
             nearby = [b for b in blobs if abs(b['y'] - row_y) <= match_threshold]
             if nearby:
                 total_area = sum(b['area'] for b in nearby)
-                if total_area >= 15:
+                if total_area >= 10:
                     result[i] = "1"
                 else:
                     result[i] = "-"

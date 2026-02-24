@@ -127,7 +127,7 @@ class _PaymentQrScreenState extends State<PaymentQrScreen>
               ],
 
               // ── Pay with Banking App button ──
-              if (status == 'PENDING' && sub.deepLink != null) ...[  
+              if (status == 'PENDING' && sub.deepLink != null) ...[
                 const SizedBox(height: AppSpacing.lg),
                 SizedBox(
                   width: double.infinity,
@@ -152,8 +152,9 @@ class _PaymentQrScreenState extends State<PaymentQrScreen>
                         context: context,
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
-                        builder: (_) =>
-                            _BankChooserSheet(deepLink: sub.deepLink!),
+                        builder: (_) => _BankChooserSheet(
+                          deepLink: sub.deepLink!,
+                        ),
                       );
                     },
                   ),
@@ -348,7 +349,6 @@ class _QrCodeCard extends StatelessWidget {
       child: Column(
         children: [
           if (qrCode != null && isActive) ...[
-            // Try to display QR as base64 image
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: _buildQrImage(qrCode!),
@@ -380,7 +380,6 @@ class _QrCodeCard extends StatelessWidget {
   }
 
   Widget _buildQrImage(String qrData) {
-    // qrData is the KHQR token string - generate QR code from it
     return QrImageView(
       data: qrData,
       version: QrVersions.auto,
@@ -415,17 +414,33 @@ class _BankChip extends StatelessWidget {
 }
 
 // ─── Known Cambodian Banking App Data ───
+///
+/// Launch strategy per bank:
+/// • [usesBakongDeepLink] == true  → launch the Bakong short-link directly.
+///   The NBC Bakong app is the verified App-Link handler for
+///   `bakong-deeplink.nbc.gov.kh`, so the payment is pre-loaded and the
+///   user only needs to enter their PIN.
+///
+/// • [usesBakongDeepLink] == false → open the bank's app by Android package
+///   using an intent URI (`intent:#Intent;package=...;end`).  The app opens
+///   to its home screen and the user scans the KHQR already visible on this
+///   screen with the bank's built-in QR scanner.
 class _KhBankInfo {
   final String name;
   final String packageAndroid;
   final Color color;
   final String initial;
 
+  /// When true the Bakong deep-link URL is used (pre-loaded payment).
+  /// When false the app is opened by its Android package (user scans QR).
+  final bool usesBakongDeepLink;
+
   const _KhBankInfo({
     required this.name,
     required this.packageAndroid,
     required this.color,
     required this.initial,
+    this.usesBakongDeepLink = false,
   });
 }
 
@@ -453,6 +468,7 @@ const List<_KhBankInfo> _khBanks = [
     packageAndroid: 'kh.gov.nbc.bakong',
     color: Color(0xFF003087),
     initial: 'BK',
+    usesBakongDeepLink: true,
   ),
   _KhBankInfo(
     name: 'LOLC Cambodia',
@@ -475,12 +491,17 @@ const List<_KhBankInfo> _khBanks = [
 ];
 
 // ─── Bank Chooser Bottom Sheet ───
-/// Shows a list of known KHQR-compatible banking apps as a visual guide.
-/// Tapping any bank launches the Bakong deep link via the OS external
-/// handler — Android shows its native "Open with" chooser when multiple
-/// apps (ABA, ACLEDA, Wing, etc.) are registered for the domain, letting
-/// the user pick their bank.  The payment is already pre-loaded so the
-/// user only needs to enter their PIN.
+/// Bottom sheet listing KHQR-compatible banks.
+///
+/// Tapping **NBC Bakong** launches the verified Bakong deep-link — the Bakong
+/// wallet opens with the payment pre-loaded (user just enters PIN).
+///
+/// Tapping any other bank opens that bank's app directly by Android package
+/// intent.  Because `bakong-deeplink.nbc.gov.kh` is an App-Link registered
+/// exclusively to the NBC Bakong wallet, routing other banks through that URL
+/// would always open Bakong regardless of what the user tapped.  Opening by
+/// package is the correct alternative: the user sees their chosen bank's home
+/// screen and can scan the KHQR already displayed on this screen.
 class _BankChooserSheet extends StatefulWidget {
   final String deepLink;
 
@@ -491,19 +512,27 @@ class _BankChooserSheet extends StatefulWidget {
 }
 
 class _BankChooserSheetState extends State<_BankChooserSheet> {
-  String? _loadingBank; // name of the bank being launched
+  String? _loadingBank;
 
   Future<void> _openBank(_KhBankInfo bank) async {
     if (_loadingBank != null) return;
     setState(() => _loadingBank = bank.name);
     try {
-      // Launch the Bakong short-link with externalApplication mode.
-      // Android resolves all apps that handle this HTTPS domain and shows
-      // the system "Open with" dialog — the user picks their banking app.
-      final launched = await launchUrl(
-        Uri.parse(widget.deepLink),
-        mode: LaunchMode.externalApplication,
-      );
+      final Uri uri;
+      if (bank.usesBakongDeepLink) {
+        // NBC Bakong: App-Link verified for bakong-deeplink.nbc.gov.kh
+        // Opens the Bakong wallet with the payment already set up.
+        uri = Uri.parse(widget.deepLink);
+      } else {
+        // All other banks: open the app by its Android package ID.
+        // The bank's home screen appears; the user scans the KHQR on
+        // this screen using the bank's own QR scanner.
+        uri = Uri.parse(
+          'intent:#Intent;package=${bank.packageAndroid};end',
+        );
+      }
+
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!launched && mounted) {
         _showError();
       } else if (mounted) {
@@ -633,6 +662,17 @@ class _BankTile extends StatelessWidget {
           color: disabled ? AppColors.neutralGray : AppColors.textPrimary,
         ),
       ),
+      subtitle: bank.usesBakongDeepLink
+          ? null
+          : Text(
+              'Scan QR to pay',
+              style: TextStyle(
+                fontSize: 11,
+                color: disabled
+                    ? AppColors.neutral300
+                    : AppColors.textSecondary,
+              ),
+            ),
       trailing: isLoading
           ? const SizedBox(
               width: 22,
