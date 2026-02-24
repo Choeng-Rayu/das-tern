@@ -76,36 +76,66 @@ def detect_lines(gray: np.ndarray, direction: str = "horizontal") -> List[Tuple[
 
 
 def find_table_region(gray: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
-    """Find the medication table region by detecting grid structure."""
+    """Find the medication table region by detecting grid structure.
+
+    Attempts multiple strategies to find the table:
+    1. Morphological line detection (H+V lines)
+    2. Large rectangular contour detection
+    3. Text-density based detection
+    Returns None only if all strategies fail.
+    """
     h, w = gray.shape
 
+    # Strategy 1: Morphological line detection
     h_lines = detect_lines(gray, "horizontal")
     v_lines = detect_lines(gray, "vertical")
 
     if len(h_lines) >= 3 and len(v_lines) >= 2:
-        # Table is bounded by outermost lines
         y_min = min(l[1] for l in h_lines)
         y_max = max(l[3] for l in h_lines)
         x_min = min(l[0] for l in v_lines)
         x_max = max(l[2] for l in v_lines)
         return (x_min, y_min, x_max, y_max)
 
-    # Fallback: use contour detection to find large rectangular regions
+    # Strategy 2: Use only horizontal lines (some prescriptions have no vertical grid lines)
+    if len(h_lines) >= 3:
+        y_min = min(l[1] for l in h_lines)
+        y_max = max(l[3] for l in h_lines)
+        return (0, y_min, w, y_max)
+
+    # Strategy 3: Contour-based — find large rectangular area with ink
+    for thresh_val in [0, 128, 160]:
+        if thresh_val == 0:
+            _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        else:
+            _, binary = cv2.threshold(gray, thresh_val, 255, cv2.THRESH_BINARY_INV)
+
+        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        best = None
+        best_area = 0
+        for cnt in contours:
+            x, y, cw, ch = cv2.boundingRect(cnt)
+            area = cw * ch
+            if cw > w * 0.4 and ch > h * 0.10 and area > best_area:
+                best = (x, y, x + cw, y + ch)
+                best_area = area
+        if best:
+            return best
+
+    # Strategy 4: Text-density scan — find the vertical region with the most text pixels
+    # Project binary image onto y-axis and find dense band
     _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    row_sums = np.sum(binary, axis=1).astype(np.float32)
+    # Smooth
+    kernel_size = max(h // 20, 3)
+    row_sums_smooth = np.convolve(row_sums, np.ones(kernel_size) / kernel_size, mode='same')
+    threshold = float(np.max(row_sums_smooth)) * 0.15
+    dense = row_sums_smooth > threshold
+    dense_rows = np.where(dense)[0]
+    if len(dense_rows) > 0:
+        return (0, int(dense_rows[0]), w, int(dense_rows[-1]))
 
-    # Find largest rectangular contour that looks like a table
-    best = None
-    best_area = 0
-    for cnt in contours:
-        x, y, cw, ch = cv2.boundingRect(cnt)
-        area = cw * ch
-        # Table should be wide and reasonably tall
-        if cw > w * 0.5 and ch > h * 0.15 and area > best_area:
-            best = (x, y, x + cw, y + ch)
-            best_area = area
-
-    return best
+    return None
 
 
 def extract_table_cells(gray: np.ndarray, table_bbox: Tuple[int, int, int, int]) -> TableRegion:
@@ -235,8 +265,8 @@ def analyze_layout(gray: np.ndarray, color: np.ndarray) -> LayoutResult:
     if table_bbox:
         result.table = extract_table_cells(gray, table_bbox)
     else:
-        # Fallback: estimate table region
-        estimated_bbox = (int(w * 0.03), int(h * 0.35), int(w * 0.97), int(h * 0.65))
+        # Fallback: cover the middle 60% of the image vertically (wider than before)
+        estimated_bbox = (int(w * 0.01), int(h * 0.25), int(w * 0.99), int(h * 0.85))
         result.table = _estimate_grid(estimated_bbox, gray)
 
     # Footer region

@@ -45,5 +45,18 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- url_launcher: open https/http links in external apps -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <!-- Cambodian banking apps for KHQR payment deep-links -->
+        <package android:name="com.ababank.abaapp"/>
+        <package android:name="com.aceleda.mobilebanking"/>
+        <package android:name="com.wingmoney.wingapp"/>
+        <package android:name="kh.gov.nbc.bakong"/>
+        <package android:name="com.lolc.lolcdigital"/>
+        <package android:name="com.canadiabank.mobilebank"/>
+        <package android:name="com.chipmongbank.mobileapp"/>
     </queries>
 </manifest>

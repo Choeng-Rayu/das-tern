@@ -35,10 +35,9 @@ def preprocess_image(image_bytes: bytes) -> Tuple[np.ndarray, np.ndarray, Qualit
     processed = apply_denoise(processed)
     report.preprocessing_applied.append("denoise")
 
-    # Contrast enhancement
-    if report.is_dark or report.is_bright:
-        processed = apply_clahe(processed, settings.CLAHE_CLIP_LIMIT, settings.CLAHE_GRID_SIZE)
-        report.preprocessing_applied.append("contrast_enhancement")
+    # Contrast enhancement — always apply CLAHE for more consistent OCR quality
+    processed = apply_clahe(processed, settings.CLAHE_CLIP_LIMIT, settings.CLAHE_GRID_SIZE)
+    report.preprocessing_applied.append("contrast_enhancement")
 
     # Sharpen if blurry
     if report.is_blurry:
