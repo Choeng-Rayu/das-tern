@@ -1045,6 +1045,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openInBankingApp => 'Open in Banking App';
 
   @override
+  String get orOpenDirectly => 'Or tap to open your banking app directly:';
+
+  @override
+  String get noBankingAppInstalled =>
+      'Could not open banking app. Please scan the QR code instead.';
+
+  @override
   String get bankNotInstalled =>
       'App not installed. Please scan the QR code instead.';
 

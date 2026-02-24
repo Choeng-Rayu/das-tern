@@ -34,8 +34,8 @@ dependencies:
   # Internationalization
   intl: ^0.20.2
 
-  # Google Sign In
-  google_sign_in: ^6.2.1
+  # Google Sign In (downgraded for mobile_scanner compatibility)
+  google_sign_in: ^6.1.0
 
   # Offline / SQLite
   sqflite: ^2.3.0
@@ -53,10 +53,10 @@ dependencies:
   qr_flutter: ^4.1.0
 
   # QR Code Scanner
-  mobile_scanner: ^5.1.1
+  mobile_scanner: ^7.0.0
 
   # Share functionality
-  share_plus: ^9.0.0
+  share_plus: ^12.0.0
 
   # URL Launcher (open deeplinks in banking apps)
   url_launcher: ^6.3.0
