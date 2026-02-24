@@ -379,8 +379,16 @@
   "howToPayStep3": "៣. ស្កេន QR code ខាងលើ",
   "howToPayStep4": "៤. បញ្ជាក់ចំនួនទឹកប្រាក់ និងបង់",
   "howToPayStep5": "៥. ការទូទាត់នឹងត្រូវបានផ្ទៀងផ្ទាត់ដោយស្វ័យប្រវត្តិ",
+<<<<<<< HEAD
   "openInBankingApp": "បើកក្នុងកម្មវិធីធនាគារ",
   "orOpenDirectly": "ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:",  "noBankingAppInstalled": "មិនអាចបើកកម្មវិធីធនាគារទេតើបាន័តំ30 សូមសក័នុ QR វិញជនស់វិញ។",  "supportedByAllKHQR": "គាំទ្រដោយធនាគារ KHQR ទាំងអស់",
+=======
+  "payWithBankingApp": "បង់ប្រាក់តាមកម្មវិធីធនាគារ",
+  "selectYourBank": "ជ្រើសរើសធនាគាររបស់អ្នក",
+  "openInBankingApp": "បើកកម្មវិធីធនាគារ",
+  "bankNotInstalled": "មិនបានតំឡើងកម្មវិធីនេះទេ។ សូម Scan QR វិញ។",
+  "supportedByAllKHQR": "គាំទ្រដោយធនាគារ KHQR ទាំងអស់",
+>>>>>>> development
   "cancelPayment": "បោះបង់ការទូទាត់?",
   "cancelPaymentMessage": "តើអ្នកពិតជាចង់បោះបង់មែនទេ? ការទូទាត់នឹងមិនត្រូវបានដំណើរការ។",
   "keepWaiting": "រង់ចាំបន្ត",
