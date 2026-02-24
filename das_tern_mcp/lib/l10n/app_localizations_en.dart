@@ -1036,6 +1036,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howToPayStep5 => '5. Payment will be verified automatically';
 
   @override
+<<<<<<< HEAD
   String get openInBankingApp => 'Open in Banking App';
 
   @override
@@ -1044,6 +1045,19 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noBankingAppInstalled =>
       'Could not open banking app. Please scan the QR code instead.';
+=======
+  String get payWithBankingApp => 'Pay with Banking App';
+
+  @override
+  String get selectYourBank => 'Select Your Bank';
+
+  @override
+  String get openInBankingApp => 'Open in Banking App';
+
+  @override
+  String get bankNotInstalled =>
+      'App not installed. Please scan the QR code instead.';
+>>>>>>> development
 
   @override
   String get supportedByAllKHQR => 'Supported by all KHQR banks';

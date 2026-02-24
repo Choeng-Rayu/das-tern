@@ -1,5 +1,9 @@
 class User {
+<<<<<<< HEAD
   final String id; 
+=======
+  final String id;
+>>>>>>> development
   final String name;
   final String? email;
   final String? phone;
@@ -34,6 +38,7 @@ class User {
       };
 }
 
+<<<<<<< HEAD
 // class Patient extends User {
 //   Patient({
 //     required String id, // p-uuid
@@ -83,5 +88,39 @@ class User {
 //           profileImage: profileImage,
 //         );
 // }
+=======
+class Patient extends User {
+  Patient({
+    required super.id,
+    required super.name,
+    super.email,
+    super.phone,
+    super.profileImage,
+  }) : super(role: UserRole.patient);
+}
+
+interface class Lan {
+  String kongLan() {
+    return 'must have kong 4';
+  }
+}
+
+class Toyota implements Lan {
+  @override
+  String kongLan() {
+    return '';
+  }
+}
+
+class Doctor extends User {
+  Doctor({
+    required super.id,
+    required super.name,
+    super.email,
+    super.phone,
+    super.profileImage,
+  }) : super(role: UserRole.doctor);
+}
+>>>>>>> development
 
 enum UserRole { patient, doctor, family }

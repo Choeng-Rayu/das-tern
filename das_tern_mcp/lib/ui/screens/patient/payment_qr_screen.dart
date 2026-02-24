@@ -126,10 +126,38 @@ class _PaymentQrScreenState extends State<PaymentQrScreen>
                 ),
               ],
 
-              // Deep link button — opens ABA / ACLEDA directly
+              // ── Pay with Banking App button ──
               if (status == 'PENDING' && sub.deepLink != null) ...[  
                 const SizedBox(height: AppSpacing.lg),
-                _DeepLinkButton(deepLink: sub.deepLink!),
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.account_balance, size: 22),
+                    label: Text(
+                      l10n.payWithBankingApp,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF003D99),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 2,
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) =>
+                            _BankChooserSheet(deepLink: sub.deepLink!),
+                      );
+                    },
+                  ),
+                ),
               ],
 
               const SizedBox(height: AppSpacing.xl),
@@ -386,129 +414,238 @@ class _BankChip extends StatelessWidget {
   }
 }
 
-// ─── Deep Link Button ───
-/// Launches the Bakong deep link in the user's installed banking app (ABA,
-/// ACLEDA, Wing, etc.). Falls back to the browser if no banking app handles
-/// the URL.
-class _DeepLinkButton extends StatefulWidget {
-  final String deepLink;
+// ─── Known Cambodian Banking App Data ───
+class _KhBankInfo {
+  final String name;
+  final String packageAndroid;
+  final Color color;
+  final String initial;
 
-  const _DeepLinkButton({required this.deepLink});
-
-  @override
-  State<_DeepLinkButton> createState() => _DeepLinkButtonState();
+  const _KhBankInfo({
+    required this.name,
+    required this.packageAndroid,
+    required this.color,
+    required this.initial,
+  });
 }
 
-class _DeepLinkButtonState extends State<_DeepLinkButton> {
-  bool _launching = false;
+const List<_KhBankInfo> _khBanks = [
+  _KhBankInfo(
+    name: 'ABA Bank',
+    packageAndroid: 'com.ababank.abaapp',
+    color: Color(0xFF003D99),
+    initial: 'A',
+  ),
+  _KhBankInfo(
+    name: 'ACLEDA Bank',
+    packageAndroid: 'com.aceleda.mobilebanking',
+    color: Color(0xFF006B3F),
+    initial: 'AC',
+  ),
+  _KhBankInfo(
+    name: 'Wing Money',
+    packageAndroid: 'com.wingmoney.wingapp',
+    color: Color(0xFFE5242B),
+    initial: 'W',
+  ),
+  _KhBankInfo(
+    name: 'NBC Bakong',
+    packageAndroid: 'kh.gov.nbc.bakong',
+    color: Color(0xFF003087),
+    initial: 'BK',
+  ),
+  _KhBankInfo(
+    name: 'LOLC Cambodia',
+    packageAndroid: 'com.lolc.lolcdigital',
+    color: Color(0xFFE31837),
+    initial: 'L',
+  ),
+  _KhBankInfo(
+    name: 'Canadia Bank',
+    packageAndroid: 'com.canadiabank.mobilebank',
+    color: Color(0xFF006233),
+    initial: 'CB',
+  ),
+  _KhBankInfo(
+    name: 'Chip Mong Bank',
+    packageAndroid: 'com.chipmongbank.mobileapp',
+    color: Color(0xFF0070C0),
+    initial: 'CM',
+  ),
+];
 
-  Future<void> _launch() async {
-    final uri = Uri.parse(widget.deepLink);
-    setState(() => _launching = true);
+// ─── Bank Chooser Bottom Sheet ───
+/// Shows a list of known KHQR-compatible banking apps as a visual guide.
+/// Tapping any bank launches the Bakong deep link via the OS external
+/// handler — Android shows its native "Open with" chooser when multiple
+/// apps (ABA, ACLEDA, Wing, etc.) are registered for the domain, letting
+/// the user pick their bank.  The payment is already pre-loaded so the
+/// user only needs to enter their PIN.
+class _BankChooserSheet extends StatefulWidget {
+  final String deepLink;
+
+  const _BankChooserSheet({required this.deepLink});
+
+  @override
+  State<_BankChooserSheet> createState() => _BankChooserSheetState();
+}
+
+class _BankChooserSheetState extends State<_BankChooserSheet> {
+  String? _loadingBank; // name of the bank being launched
+
+  Future<void> _openBank(_KhBankInfo bank) async {
+    if (_loadingBank != null) return;
+    setState(() => _loadingBank = bank.name);
     try {
-      // Try external app first (banking app); fall back to browser
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      // Launch the Bakong short-link with externalApplication mode.
+      // Android resolves all apps that handle this HTTPS domain and shows
+      // the system "Open with" dialog — the user picks their banking app.
+      final launched = await launchUrl(
+        Uri.parse(widget.deepLink),
+        mode: LaunchMode.externalApplication,
+      );
       if (!launched && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.noBankingAppInstalled),
-            backgroundColor: AppColors.alertRed,
-          ),
-        );
+        _showError();
+      } else if (mounted) {
+        Navigator.of(context).pop();
       }
     } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.noBankingAppInstalled),
-            backgroundColor: AppColors.alertRed,
-          ),
-        );
-      }
+      if (mounted) _showError();
     } finally {
-      if (mounted) setState(() => _launching = false);
+      if (mounted) setState(() => _loadingBank = null);
     }
+  }
+
+  void _showError() {
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.bankNotInstalled),
+        backgroundColor: AppColors.alertRed,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Column(
-      children: [
-        Text(
-          l10n.orOpenDirectly,
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: AppColors.textSecondary),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: ElevatedButton.icon(
-            onPressed: _launching ? null : _launch,
-            icon: _launching
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Icon(Icons.open_in_new, size: 20),
-            label: Text(
-              l10n.openInBankingApp,
-              style: const TextStyle(
-                  fontSize: 15, fontWeight: FontWeight.w600),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00A651), // Bakong green
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.neutral300,
+                borderRadius: BorderRadius.circular(2),
               ),
-              elevation: 2,
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        // Supported banks hint
-        const Wrap(
-          spacing: 6,
-          alignment: WrapAlignment.center,
-          children: [
-            _AppBadge(label: 'ABA'),
-            _AppBadge(label: 'ACLEDA'),
-            _AppBadge(label: 'Wing'),
-            _AppBadge(label: 'LOLC'),
-          ],
-        ),
-      ],
+          const SizedBox(height: 16),
+
+          // Title
+          Text(
+            l10n.selectYourBank,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.openInBankingApp,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+          ),
+          const SizedBox(height: 20),
+
+          // Bank list
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _khBanks.length,
+            separatorBuilder: (context, index) => const Divider(height: 1),
+            itemBuilder: (_, i) {
+              final bank = _khBanks[i];
+              return _BankTile(
+                bank: bank,
+                isLoading: _loadingBank == bank.name,
+                disabled: _loadingBank != null && _loadingBank != bank.name,
+                onTap: () => _openBank(bank),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
 
-// ─── App Badge ───
-class _AppBadge extends StatelessWidget {
-  final String label;
-  const _AppBadge({required this.label});
+// ─── Bank Tile ───
+class _BankTile extends StatelessWidget {
+  final _KhBankInfo bank;
+  final bool isLoading;
+  final bool disabled;
+  final VoidCallback onTap;
+
+  const _BankTile({
+    required this.bank,
+    required this.isLoading,
+    required this.disabled,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.neutral300),
-        borderRadius: BorderRadius.circular(12),
+    return ListTile(
+      onTap: disabled ? null : onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      leading: Container(
+        width: 46,
+        height: 46,
+        decoration: BoxDecoration(
+          color: bank.color,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          bank.initial,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
+        ),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+      title: Text(
+        bank.name,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: disabled ? AppColors.neutralGray : AppColors.textPrimary,
+        ),
       ),
+      trailing: isLoading
+          ? const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: disabled
+                  ? AppColors.neutral300
+                  : AppColors.textSecondary,
+            ),
     );
   }
 }

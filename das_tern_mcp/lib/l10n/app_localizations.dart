@@ -2090,12 +2090,28 @@ abstract class AppLocalizations {
   /// **'5. Payment will be verified automatically'**
   String get howToPayStep5;
 
+<<<<<<< HEAD
+=======
+  /// No description provided for @payWithBankingApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with Banking App'**
+  String get payWithBankingApp;
+
+  /// No description provided for @selectYourBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Your Bank'**
+  String get selectYourBank;
+
+>>>>>>> development
   /// No description provided for @openInBankingApp.
   ///
   /// In en, this message translates to:
   /// **'Open in Banking App'**
   String get openInBankingApp;
 
+<<<<<<< HEAD
   /// No description provided for @orOpenDirectly.
   ///
   /// In en, this message translates to:
@@ -2107,6 +2123,13 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open banking app. Please scan the QR code instead.'**
   String get noBankingAppInstalled;
+=======
+  /// No description provided for @bankNotInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'App not installed. Please scan the QR code instead.'**
+  String get bankNotInstalled;
+>>>>>>> development
 
   /// No description provided for @supportedByAllKHQR.
   ///

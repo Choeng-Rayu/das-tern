@@ -419,9 +419,16 @@
   "howToPayStep3": "3. Scan the QR code above",
   "howToPayStep4": "4. Confirm the amount and pay",
   "howToPayStep5": "5. Payment will be verified automatically",
+<<<<<<< HEAD
   "openInBankingApp": "Open in Banking App",
   "orOpenDirectly": "Or tap to open your banking app directly:",
   "noBankingAppInstalled": "Could not open banking app. Please scan the QR code instead.",
+=======
+  "payWithBankingApp": "Pay with Banking App",
+  "selectYourBank": "Select Your Bank",
+  "openInBankingApp": "Open in Banking App",
+  "bankNotInstalled": "App not installed. Please scan the QR code instead.",
+>>>>>>> development
   "supportedByAllKHQR": "Supported by all KHQR banks",
   "cancelPayment": "Cancel Payment?",
   "cancelPaymentMessage": "Are you sure you want to cancel? Your payment will not be processed.",
