@@ -104,7 +104,8 @@ class PostProcessor:
                     "generic_name": generic_name,
                     "local_name": None,
                     "full_text": med_text,
-                    "bbox": row_data.get("medication_name_bbox")
+                    "bbox": row_data.get("medication_name_bbox"),
+                    "words": row_data.get("medication_name_words"),
                 },
                 "strength": {
                     "value": f"{strength_val}{strength_unit}" if strength_val and strength_unit else None,

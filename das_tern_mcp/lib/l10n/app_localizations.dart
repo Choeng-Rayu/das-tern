@@ -2119,7 +2119,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open banking app. Please scan the QR code instead.'**
   String get noBankingAppInstalled;
-
   /// No description provided for @bankNotInstalled.
   ///
   /// In en, this message translates to:

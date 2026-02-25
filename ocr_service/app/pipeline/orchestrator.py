@@ -58,6 +58,15 @@ class PipelineOrchestrator:
         self.post_processor = PostProcessor()
         logger.info("Pipeline orchestrator initialized")
 
+    @staticmethod
+    def _aggregate_bbox(words: list) -> list:
+        """Compute the enclosing [x1, y1, x2, y2] bbox for a list of word dicts."""
+        x1 = min(w['x'] for w in words)
+        y1 = min(w['y'] for w in words)
+        x2 = max(w['x'] + w['w'] for w in words)
+        y2 = max(w['y'] + w['h'] for w in words)
+        return [x1, y1, x2, y2]
+
     def extract(self, image_bytes: bytes, filename: str = "unknown") -> Dict[str, Any]:
         """Run full extraction pipeline on an image.
 
@@ -90,48 +99,74 @@ class PipelineOrchestrator:
 
             # OCR header
             header_text = ""
+            header_result_obj = None
             if layout.header_region:
-                header_result = self.ocr_engine.ocr_region(
+                header_result_obj = self.ocr_engine.ocr_region(
                     color_img, layout.header_region, content_type="mixed", lang=settings.TESSERACT_LANG
                 )
-                header_text = header_result.text
+                header_text = header_result_obj.text
 
             # OCR patient info
             patient_text = ""
+            patient_result_obj = None
             if layout.patient_region:
-                patient_result = self.ocr_engine.ocr_region(
+                patient_result_obj = self.ocr_engine.ocr_region(
                     color_img, layout.patient_region, content_type="mixed", lang=settings.TESSERACT_LANG
                 )
-                patient_text = patient_result.text
+                patient_text = patient_result_obj.text
 
             # OCR clinical info
             clinical_text = ""
+            clinical_result_obj = None
             if layout.clinical_region:
-                clinical_result = self.ocr_engine.ocr_region(
+                clinical_result_obj = self.ocr_engine.ocr_region(
                     color_img, layout.clinical_region, content_type="mixed", lang=settings.TESSERACT_LANG
                 )
-                clinical_text = clinical_result.text
+                clinical_text = clinical_result_obj.text
 
             # OCR medication table using hybrid approach
             medications = []
+            table_words = []
             if layout.table:
                 logger.info("  Processing medication table (hybrid approach)")
-                medications = self._process_table_hybrid(color_img, gray_img, layout.table.bbox)
+                medications, table_words = self._process_table_hybrid(color_img, gray_img, layout.table.bbox)
+
+            # Full-image fallback: if no medications found via table, scan the entire upper
+            # portion of the image (covers prescriptions with non-standard layouts or wrong
+            # table detection)
+            if not medications:
+                logger.info("  No medications from table — trying full-image fallback")
+                h_img, w_img = color_img.shape[:2]
+                full_bbox = (0, 0, w_img, int(h_img * 0.85))
+                medications, table_words = self._extract_text_fallback(color_img, gray_img, full_bbox)
+                logger.info(f"  Full-image fallback → {len(medications)} medications")
 
             # OCR footer/signature/date
             footer_text = ""
+            footer_result_obj = None
             if layout.footer_region:
-                footer_result = self.ocr_engine.ocr_region(
+                footer_result_obj = self.ocr_engine.ocr_region(
                     color_img, layout.footer_region, content_type="mixed", lang=settings.TESSERACT_LANG
                 )
-                footer_text = footer_result.text
+                footer_text = footer_result_obj.text
 
             date_text = ""
+            date_result_obj = None
             if layout.date_region:
-                date_result = self.ocr_engine.ocr_region(
+                date_result_obj = self.ocr_engine.ocr_region(
                     color_img, layout.date_region, content_type="mixed", lang=settings.TESSERACT_LANG_ENG
                 )
-                date_text = date_result.text
+                date_text = date_result_obj.text
+
+            # Build region OCR data for raw extraction output
+            region_ocr_data = {
+                "header": header_result_obj,
+                "patient": patient_result_obj,
+                "clinical": clinical_result_obj,
+                "footer": footer_result_obj,
+                "date": date_result_obj,
+                "table_bbox": list(layout.table.bbox) if layout.table else None,
+            }
 
             # Step 4: Post-process
             logger.info("Step 4: Post-processing OCR results")
@@ -152,7 +187,9 @@ class PipelineOrchestrator:
                 footer_data=footer_data,
                 quality_report=quality_report,
                 processing_time_ms=processing_time_ms,
-                image_metadata=image_metadata
+                image_metadata=image_metadata,
+                region_ocr_data=region_ocr_data,
+                table_words=table_words,
             )
 
             summary = build_extraction_summary(result, processing_time_ms)
@@ -183,8 +220,10 @@ class PipelineOrchestrator:
             }
 
     def _process_table_hybrid(self, color_img: np.ndarray, gray_img: np.ndarray,
-                               table_bbox: Tuple[int, int, int, int]) -> list:
-        """Process medication table using a multi-strategy hybrid approach:
+                               table_bbox: Tuple[int, int, int, int]) -> Tuple[list, list]:
+        """Process medication table using a multi-strategy hybrid approach.
+        Returns (medications, table_words).
+
         Strategy 1: Dynamic column detection from actual vertical grid lines
         Strategy 2: Hardcoded H-EQIP column proportions (original approach)
         Strategy 3: Full-text OCR fallback — parse medication names from raw text lines
@@ -198,25 +237,25 @@ class PipelineOrchestrator:
         dynamic_col_x = self._detect_dynamic_columns(gray_img, table_bbox)
         if dynamic_col_x and len(dynamic_col_x) >= 5:
             logger.info(f"  Dynamic columns found: {len(dynamic_col_x)} boundaries")
-            medications = self._extract_structured(color_img, gray_img, table_bbox, dynamic_col_x)
+            medications, table_words = self._extract_structured(color_img, gray_img, table_bbox, dynamic_col_x)
             if medications:
                 logger.info(f"  Strategy 1 (dynamic columns) → {len(medications)} medications")
-                return medications
+                return medications, table_words
             logger.info("  Strategy 1 yielded 0 medications, trying Strategy 2")
 
         # --- Strategy 2: Hardcoded H-EQIP column proportions ---
         logger.info("  Using hardcoded H-EQIP column boundaries")
         heqip_col_x = [tx1 + int(tw * b) for b in COL_BOUNDARIES]
-        medications = self._extract_structured(color_img, gray_img, table_bbox, heqip_col_x)
+        medications, table_words = self._extract_structured(color_img, gray_img, table_bbox, heqip_col_x)
         if medications:
             logger.info(f"  Strategy 2 (H-EQIP columns) → {len(medications)} medications")
-            return medications
+            return medications, table_words
         logger.info("  Strategy 2 yielded 0 medications, trying Strategy 3 (text fallback)")
 
         # --- Strategy 3: General text OCR fallback ---
-        medications = self._extract_text_fallback(color_img, gray_img, table_bbox)
+        medications, table_words = self._extract_text_fallback(color_img, gray_img, table_bbox)
         logger.info(f"  Strategy 3 (text fallback) → {len(medications)} medications")
-        return medications
+        return medications, table_words
 
     def _detect_dynamic_columns(self, gray_img: np.ndarray,
                                  table_bbox: Tuple[int, int, int, int]) -> Optional[List[int]]:
@@ -275,8 +314,9 @@ class PipelineOrchestrator:
 
     def _extract_structured(self, color_img: np.ndarray, gray_img: np.ndarray,
                              table_bbox: Tuple[int, int, int, int],
-                             col_x: List[int]) -> list:
+                             col_x: List[int]) -> Tuple[list, list]:
         """Extract medications using explicit column x-boundaries.
+        Returns (medications, all_words).
 
         col_x must have at least 5 entries ([item_num, ..., med_name_end, ..., dose_cols, end]).
         When the prescription has a different column count than H-EQIP, we auto-assign
@@ -309,7 +349,7 @@ class PipelineOrchestrator:
 
         strip_crop = color_img[ty1:ty2, strip_x1:strip_x2]
         if strip_crop.size == 0:
-            return []
+            return [], []
 
         # OCR the text strip
         config = '--oem 1 --psm 4'
@@ -320,23 +360,29 @@ class PipelineOrchestrator:
             )
         except Exception as e:
             logger.warning(f"OCR failed on strip: {e}")
-            return []
+            return [], []
 
         # Collect words with sufficient confidence
         words = []
         for i, text in enumerate(data['text']):
             if text.strip() and int(data['conf'][i]) > MIN_WORD_CONF:
+                wx = data['left'][i] + strip_x1
+                wy = data['top'][i] + ty1
+                ww = data['width'][i]
+                wh = data['height'][i]
                 words.append({
                     'text': text.strip(),
-                    'x': data['left'][i] + strip_x1,
-                    'y': data['top'][i] + ty1,
-                    'w': data['width'][i],
-                    'h': data['height'][i],
+                    'x': wx,
+                    'y': wy,
+                    'w': ww,
+                    'h': wh,
                     'conf': int(data['conf'][i]),
+                    'bbox': [wx, wy, wx + ww, wy + wh],
+                    'confidence': int(data['conf'][i]) / 100.0,
                 })
 
         if not words:
-            return []
+            return [], []
 
         # Group words into rows by y-position
         rows = self._cluster_words_by_y(words, threshold=30)
@@ -350,13 +396,19 @@ class PipelineOrchestrator:
             # If structured mapping didn't find a name, fall back: take all alphanumeric
             # words from the row that aren't purely numeric as the medication name.
             if len(med_name) < MIN_MED_NAME_LEN:
-                candidate_words = [
-                    w['text'] for w in sorted(row_words, key=lambda x: x['x'])
+                candidate_word_objs = [
+                    w for w in sorted(row_words, key=lambda x: x['x'])
                     if re.search(r'[A-Za-z\u1780-\u17FF]', w['text'])
                 ]
-                med_name = ' '.join(candidate_words).strip()
+                med_name = ' '.join(w['text'] for w in candidate_word_objs).strip()
                 if len(med_name) >= MIN_MED_NAME_LEN:
                     row_data['medication_name'] = med_name
+                    if candidate_word_objs:
+                        row_data['medication_name_bbox'] = self._aggregate_bbox(candidate_word_objs)
+                        row_data['medication_name_words'] = [
+                            {'text': w['text'], 'bbox': w.get('bbox'), 'confidence': w.get('confidence', w['conf'] / 100.0)}
+                            for w in candidate_word_objs
+                        ]
 
             # Skip rows that are clearly header/label rows, not medication rows
             if len(med_name) < MIN_MED_NAME_LEN or self._is_header_or_label_text(med_name):
@@ -366,7 +418,7 @@ class PipelineOrchestrator:
             med_rows.append((row_data, avg_y, row_words))
 
         if not med_rows:
-            return []
+            return [], words
 
         # Re-OCR duration column per row with Khmer+English
         dur_x1 = col_x[min(name_col_idx + 1, len(col_x) - 2)]
@@ -390,6 +442,7 @@ class PipelineOrchestrator:
                     ).strip()
                     if dur_text:
                         row_data['duration'] = dur_text
+                        row_data['duration_bbox'] = [dur_x1, min_y, dur_x2, max_y]
                 except Exception:
                     pass
 
@@ -411,17 +464,25 @@ class PipelineOrchestrator:
 
         medications = []
         for i, (row_data, avg_y, row_words) in enumerate(med_rows):
-            for col_name in actual_dose_cols:
+            min_y_row = max(ty1, int(avg_y) - half_row) if i == 0 else int((row_centers[i - 1] + row_centers[i]) / 2)
+            max_y_row = min(ty2, int(avg_y) + half_row) if i == len(med_rows) - 1 else int((row_centers[i] + row_centers[i + 1]) / 2)
+            for j, col_name in enumerate(actual_dose_cols):
                 row_data[col_name] = dose_results[col_name].get(i, "-")
+                # Add dose cell bbox from column boundaries
+                col_idx = dose_col_start + j
+                if col_idx < n_cols:
+                    row_data[f"{col_name}_bbox"] = [col_x[col_idx], min_y_row,
+                                                     col_x[col_idx + 1], max_y_row]
             medication = self.post_processor.process_medication_row(row_data, i + 1)
             medications.append(medication)
 
-        return medications
+        return medications, words
 
     def _extract_text_fallback(self, color_img: np.ndarray, gray_img: np.ndarray,
-                                table_bbox: Tuple[int, int, int, int]) -> list:
+                                table_bbox: Tuple[int, int, int, int]) -> Tuple[list, list]:
         """Fallback: OCR the entire table area as a text block and parse medication names
-        from each line heuristically. This handles prescriptions with non-standard layouts."""
+        from each line heuristically. Returns (medications, all_words).
+        This handles prescriptions with non-standard layouts."""
         tx1, ty1, tx2, ty2 = table_bbox
 
         # Expand the crop slightly to avoid missing text at edges
@@ -434,10 +495,11 @@ class PipelineOrchestrator:
 
         table_crop = color_img[cy1:cy2, cx1:cx2]
         if table_crop.size == 0:
-            return []
+            return [], []
 
         # Try with combined Khmer+English language first, then English-only
         medications = []
+        all_words = []
         for lang in [settings.TESSERACT_LANG, settings.TESSERACT_LANG_ENG]:
             try:
                 data = pytesseract.image_to_data(
@@ -452,18 +514,25 @@ class PipelineOrchestrator:
             words = []
             for i, text in enumerate(data['text']):
                 if text.strip() and int(data['conf'][i]) > MIN_WORD_CONF:
+                    wx = data['left'][i] + cx1
+                    wy = data['top'][i] + cy1
+                    ww = data['width'][i]
+                    wh = data['height'][i]
                     words.append({
                         'text': text.strip(),
-                        'x': data['left'][i] + cx1,
-                        'y': data['top'][i] + cy1,
-                        'w': data['width'][i],
-                        'h': data['height'][i],
+                        'x': wx,
+                        'y': wy,
+                        'w': ww,
+                        'h': wh,
                         'conf': int(data['conf'][i]),
+                        'bbox': [wx, wy, wx + ww, wy + wh],
+                        'confidence': int(data['conf'][i]) / 100.0,
                     })
 
             if not words:
                 continue
 
+            all_words = words
             rows = self._cluster_words_by_y(words, threshold=30)
 
             item_num = 0
@@ -478,15 +547,15 @@ class PipelineOrchestrator:
                 if self._is_header_or_label_text(row_text):
                     continue
 
-                # Extract alphabetic words (likely medication name)
-                alpha_words = [
-                    w['text'] for w in sorted_words
+                # Extract alphabetic words (likely medication name) — keep full word objects
+                alpha_word_objs = [
+                    w for w in sorted_words
                     if re.search(r'[A-Za-z\u1780-\u17FF]', w['text']) and len(w['text']) >= 2
                 ]
-                if not alpha_words:
+                if not alpha_word_objs:
                     continue
 
-                med_name_candidate = ' '.join(alpha_words)
+                med_name_candidate = ' '.join(w['text'] for w in alpha_word_objs)
 
                 # Check against lexicon or pattern heuristics
                 # If lexicon is unavailable, rely entirely on text pattern heuristics
@@ -503,6 +572,11 @@ class PipelineOrchestrator:
                 item_num += 1
                 row_data = {
                     'medication_name': med_name_candidate,
+                    'medication_name_bbox': self._aggregate_bbox(alpha_word_objs),
+                    'medication_name_words': [
+                        {'text': w['text'], 'bbox': w.get('bbox'), 'confidence': w.get('confidence', w['conf'] / 100.0)}
+                        for w in alpha_word_objs
+                    ],
                     'duration': '',
                     'instructions': '',
                     'morning': '-',
@@ -517,7 +591,7 @@ class PipelineOrchestrator:
             if medications:
                 break  # Success with this language
 
-        return medications
+        return medications, all_words
 
     def _looks_like_medication_text(self, text: str) -> bool:
         """Heuristic: does this line of text look like it contains a medication entry?"""
@@ -568,11 +642,12 @@ class PipelineOrchestrator:
         return False
 
     def _map_words_to_columns_flexible(self, words: list, col_x: List[int],
-                                        name_col_idx: int, n_cols: int) -> Dict[str, str]:
+                                        name_col_idx: int, n_cols: int) -> Dict[str, Any]:
         """Map words to columns using actual detected column boundaries.
 
         Uses the detected name_col_idx for medication_name, and flexibly assigns
-        item_number, duration, instructionscolumns relative to name column.
+        item_number, duration, instructions columns relative to name column.
+        Outputs *_bbox and *_words keys for each column.
         """
         result = {}
         col_words: Dict[str, list] = {name: [] for name in COL_NAMES[:4]}
@@ -585,19 +660,25 @@ class PipelineOrchestrator:
                 if col_x[i] <= word_center_x < col_x[i + 1]:
                     # Map segment index to semantic column name
                     if i == 0:
-                        col_words['item_number'].append(w['text'])
+                        col_words['item_number'].append(w)
                     elif i == name_col_idx:
-                        col_words['medication_name'].append(w['text'])
+                        col_words['medication_name'].append(w)
                     elif i == name_col_idx - 1 and i > 0:
-                        col_words['item_number'].append(w['text'])
+                        col_words['item_number'].append(w)
                     elif i == name_col_idx + 1 and n_cols - i > 4:
-                        col_words['duration'].append(w['text'])
+                        col_words['duration'].append(w)
                     elif i == name_col_idx + 2 and n_cols - i > 3:
-                        col_words['instructions'].append(w['text'])
+                        col_words['instructions'].append(w)
                     break
 
-        for name, texts in col_words.items():
-            result[name] = ' '.join(texts)
+        for name, word_list in col_words.items():
+            result[name] = ' '.join(w['text'] for w in word_list)
+            if word_list:
+                result[f"{name}_bbox"] = self._aggregate_bbox(word_list)
+                result[f"{name}_words"] = [
+                    {'text': w['text'], 'bbox': w.get('bbox'), 'confidence': w.get('confidence', w['conf'] / 100.0)}
+                    for w in word_list
+                ]
 
         return result
 
@@ -625,8 +706,9 @@ class PipelineOrchestrator:
 
         return groups
 
-    def _map_words_to_columns(self, words: list, col_x: list) -> Dict[str, str]:
-        """Map words to text columns based on x-position (H-EQIP fixed boundaries)."""
+    def _map_words_to_columns(self, words: list, col_x: list) -> Dict[str, Any]:
+        """Map words to text columns based on x-position (H-EQIP fixed boundaries).
+        Outputs *_bbox and *_words keys for each column."""
         result = {}
         col_words = {name: [] for name in COL_NAMES[:4]}
 
@@ -634,11 +716,17 @@ class PipelineOrchestrator:
             word_center_x = w['x'] + w['w'] // 2
             for i, name in enumerate(COL_NAMES[:4]):
                 if col_x[i] <= word_center_x < col_x[i + 1]:
-                    col_words[name].append(w['text'])
+                    col_words[name].append(w)
                     break
 
-        for name, texts in col_words.items():
-            result[name] = ' '.join(texts)
+        for name, word_list in col_words.items():
+            result[name] = ' '.join(w['text'] for w in word_list)
+            if word_list:
+                result[f"{name}_bbox"] = self._aggregate_bbox(word_list)
+                result[f"{name}_words"] = [
+                    {'text': w['text'], 'bbox': w.get('bbox'), 'confidence': w.get('confidence', w['conf'] / 100.0)}
+                    for w in word_list
+                ]
 
         return result
 
