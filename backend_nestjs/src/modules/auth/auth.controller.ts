@@ -26,7 +26,7 @@ export class AuthController {
   ) {}
 
   @Post('login')
-  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 attempts per minute
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // 20 attempts per minute (dev)
   async login(@Body() loginDto: LoginDto) {
     const user = await this.authService.validateUser(
       loginDto.identifier,
@@ -36,13 +36,13 @@ export class AuthController {
   }
 
   @Post('register/patient')
-  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 registrations per minute
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // 20 registrations per minute (dev)
   async registerPatient(@Body() dto: RegisterPatientDto) {
     return this.authService.registerPatient(dto);
   }
 
   @Post('register/doctor')
-  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 registrations per minute
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // 20 registrations per minute (dev)
   async registerDoctor(@Body() dto: RegisterDoctorDto) {
     return this.authService.registerDoctor(dto);
   }

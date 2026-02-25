@@ -96,7 +96,11 @@ class ApiService {
       final m = body['message'];
       msg = m is List ? m.join(', ') : (m?.toString() ?? msg);
     }
-    _log.error('ApiService', 'Request failed [${res.statusCode}]: $msg', body ?? '');
+    _log.error(
+      'ApiService',
+      'Request failed [${res.statusCode}]: $msg',
+      body ?? '',
+    );
     throw ApiException(res.statusCode, msg, body);
   }
 
@@ -157,7 +161,9 @@ class ApiService {
         body: jsonEncode({'identifier': identifier, 'password': password}),
       );
       final result = Map<String, dynamic>.from(_handleResponse(res));
-      _log.apiResponse('POST', '/auth/login', res.statusCode, {'user': result['user']?['id']});
+      _log.apiResponse('POST', '/auth/login', res.statusCode, {
+        'user': result['user']?['id'],
+      });
       return result;
     } catch (e) {
       _log.error('ApiService', 'Login failed', e);
@@ -167,8 +173,14 @@ class ApiService {
 
   /// POST /auth/google – Google OAuth login
   /// Sends Google ID token to backend for validation and returns JWT tokens
-  Future<Map<String, dynamic>> googleLogin(String idToken, {String? userRole}) async {
-    _log.apiRequest('POST', '/auth/google', {'idToken': '***', 'userRole': userRole});
+  Future<Map<String, dynamic>> googleLogin(
+    String idToken, {
+    String? userRole,
+  }) async {
+    _log.apiRequest('POST', '/auth/google', {
+      'idToken': '***',
+      'userRole': userRole,
+    });
     try {
       final res = await http.post(
         Uri.parse('$baseUrl/auth/google'),
@@ -176,7 +188,9 @@ class ApiService {
         body: jsonEncode({'idToken': idToken, 'userRole': userRole}),
       );
       final result = Map<String, dynamic>.from(_handleResponse(res));
-      _log.apiResponse('POST', '/auth/google', res.statusCode, {'user': result['user']?['id']});
+      _log.apiResponse('POST', '/auth/google', res.statusCode, {
+        'user': result['user']?['id'],
+      });
       return result;
     } catch (e) {
       _log.error('ApiService', 'Google login failed', e);
@@ -202,9 +216,11 @@ class ApiService {
         'lastName': lastName,
         'gender': gender,
         'dateOfBirth': dateOfBirth,
-        'idCardNumber': ?idCardNumber,
+        if (idCardNumber != null && idCardNumber.isNotEmpty)
+          'idCardNumber': idCardNumber,
         'email': email,
-        if (phoneNumber != null && phoneNumber.isNotEmpty) 'phoneNumber': phoneNumber,
+        if (phoneNumber != null && phoneNumber.isNotEmpty)
+          'phoneNumber': phoneNumber,
         'password': password,
       }),
     );
@@ -226,10 +242,13 @@ class ApiService {
       body: jsonEncode({
         'fullName': fullName,
         'email': email,
-        if (phoneNumber != null && phoneNumber.isNotEmpty) 'phoneNumber': phoneNumber,
-        if (hospitalClinic != null && hospitalClinic.isNotEmpty) 'hospitalClinic': hospitalClinic,
+        if (phoneNumber != null && phoneNumber.isNotEmpty)
+          'phoneNumber': phoneNumber,
+        if (hospitalClinic != null && hospitalClinic.isNotEmpty)
+          'hospitalClinic': hospitalClinic,
         if (specialty != null && specialty.isNotEmpty) 'specialty': specialty,
-        if (licenseNumber != null && licenseNumber.isNotEmpty) 'licenseNumber': licenseNumber,
+        if (licenseNumber != null && licenseNumber.isNotEmpty)
+          'licenseNumber': licenseNumber,
         'password': password,
       }),
     );
@@ -256,7 +275,9 @@ class ApiService {
 
   /// POST /auth/forgot-password – request password reset
   Future<Map<String, dynamic>> forgotPassword(String identifier) async {
-    _log.apiRequest('POST', '/auth/forgot-password', {'identifier': identifier});
+    _log.apiRequest('POST', '/auth/forgot-password', {
+      'identifier': identifier,
+    });
     final res = await http.post(
       Uri.parse('$baseUrl/auth/forgot-password'),
       headers: await _headers(auth: false),
@@ -267,8 +288,13 @@ class ApiService {
 
   /// POST /auth/reset-password-otp – reset password using OTP
   Future<Map<String, dynamic>> resetPasswordWithOtp(
-      String identifier, String otp, String newPassword) async {
-    _log.apiRequest('POST', '/auth/reset-password-otp', {'identifier': identifier});
+    String identifier,
+    String otp,
+    String newPassword,
+  ) async {
+    _log.apiRequest('POST', '/auth/reset-password-otp', {
+      'identifier': identifier,
+    });
     final res = await http.post(
       Uri.parse('$baseUrl/auth/reset-password-otp'),
       headers: await _headers(auth: false),
@@ -323,8 +349,11 @@ class ApiService {
   Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/users/me'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/users/me'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
@@ -352,12 +381,16 @@ class ApiService {
   // ────────────────────────────────────────────
 
   /// GET /prescriptions
-  Future<List<dynamic>> getPrescriptions({String? status, String? patientId}) async {
+  Future<List<dynamic>> getPrescriptions({
+    String? status,
+    String? patientId,
+  }) async {
     final params = <String, String>{};
     if (status != null) params['status'] = status;
     if (patientId != null) params['patientId'] = patientId;
-    final uri = Uri.parse('$baseUrl/prescriptions')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/prescriptions',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return List<dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -373,33 +406,48 @@ class ApiService {
   }
 
   /// POST /prescriptions
-  Future<Map<String, dynamic>> createPrescription(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> createPrescription(
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/prescriptions'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.post(
+          Uri.parse('$baseUrl/prescriptions'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
 
   /// PATCH /prescriptions/:id
   Future<Map<String, dynamic>> updatePrescription(
-      String id, Map<String, dynamic> data) async {
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/prescriptions/$id'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/prescriptions/$id'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
 
   /// POST /prescriptions/:id/urgent-update
   Future<Map<String, dynamic>> urgentUpdatePrescription(
-      String id, Map<String, dynamic> data) async {
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/prescriptions/$id/urgent-update'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.post(
+          Uri.parse('$baseUrl/prescriptions/$id/urgent-update'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
@@ -408,8 +456,11 @@ class ApiService {
   Future<Map<String, dynamic>> confirmPrescription(String id) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/prescriptions/$id/confirm'),
-            headers: h, body: jsonEncode({})),
+        (h) => http.post(
+          Uri.parse('$baseUrl/prescriptions/$id/confirm'),
+          headers: h,
+          body: jsonEncode({}),
+        ),
       ),
     );
   }
@@ -418,8 +469,11 @@ class ApiService {
   Future<Map<String, dynamic>> retakePrescription(String id) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/prescriptions/$id/retake'),
-            headers: h, body: jsonEncode({})),
+        (h) => http.post(
+          Uri.parse('$baseUrl/prescriptions/$id/retake'),
+          headers: h,
+          body: jsonEncode({}),
+        ),
       ),
     );
   }
@@ -429,12 +483,16 @@ class ApiService {
   // ────────────────────────────────────────────
 
   /// GET /doses/schedule
-  Future<Map<String, dynamic>> getDoseSchedule({String? date, String? groupBy}) async {
+  Future<Map<String, dynamic>> getDoseSchedule({
+    String? date,
+    String? groupBy,
+  }) async {
     final params = <String, String>{};
     if (date != null) params['date'] = date;
     if (groupBy != null) params['groupBy'] = groupBy;
-    final uri = Uri.parse('$baseUrl/doses/schedule')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/doses/schedule',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return Map<String, dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -452,24 +510,30 @@ class ApiService {
     if (take != null) params['take'] = take.toString();
     if (startDate != null) params['startDate'] = startDate;
     if (endDate != null) params['endDate'] = endDate;
-    final uri = Uri.parse('$baseUrl/doses/history')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/doses/history',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return List<dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
   }
 
   /// PATCH /doses/:id/taken
-  Future<Map<String, dynamic>> markDoseTaken(String id,
-      {DateTime? takenAt, bool offline = false}) async {
+  Future<Map<String, dynamic>> markDoseTaken(
+    String id, {
+    DateTime? takenAt,
+    bool offline = false,
+  }) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/doses/$id/taken'),
-            headers: h,
-            body: jsonEncode({
-              if (takenAt != null) 'takenAt': takenAt.toIso8601String(),
-              'offline': offline,
-            })),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/doses/$id/taken'),
+          headers: h,
+          body: jsonEncode({
+            if (takenAt != null) 'takenAt': takenAt.toIso8601String(),
+            'offline': offline,
+          }),
+        ),
       ),
     );
   }
@@ -478,8 +542,11 @@ class ApiService {
   Future<Map<String, dynamic>> skipDose(String id, String reason) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/doses/$id/skipped'),
-            headers: h, body: jsonEncode({'reason': reason})),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/doses/$id/skipped'),
+          headers: h,
+          body: jsonEncode({'reason': reason}),
+        ),
       ),
     );
   }
@@ -492,30 +559,41 @@ class ApiService {
   Future<List<dynamic>> getConnections({String? status}) async {
     final params = <String, String>{};
     if (status != null) params['status'] = status;
-    final uri = Uri.parse('$baseUrl/connections')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/connections',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return List<dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
   }
 
   /// POST /connections
-  Future<Map<String, dynamic>> createConnection(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> createConnection(
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/connections'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.post(
+          Uri.parse('$baseUrl/connections'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
 
   /// PATCH /connections/:id/accept
   Future<Map<String, dynamic>> acceptConnection(
-      String id, Map<String, dynamic> data) async {
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/connections/$id/accept'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/connections/$id/accept'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
@@ -524,19 +602,27 @@ class ApiService {
   Future<Map<String, dynamic>> revokeConnection(String id) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/connections/$id/revoke'),
-            headers: h, body: jsonEncode({})),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/connections/$id/revoke'),
+          headers: h,
+          body: jsonEncode({}),
+        ),
       ),
     );
   }
 
   /// PATCH /connections/:id/permission
   Future<Map<String, dynamic>> updateConnectionPermission(
-      String id, Map<String, dynamic> data) async {
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/connections/$id/permission'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/connections/$id/permission'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
@@ -546,11 +632,16 @@ class ApiService {
   // ────────────────────────────────────────────
 
   /// POST /connections/tokens/generate
-  Future<Map<String, dynamic>> generateConnectionToken(String permissionLevel) async {
+  Future<Map<String, dynamic>> generateConnectionToken(
+    String permissionLevel,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/connections/tokens/generate'),
-            headers: h, body: jsonEncode({'permissionLevel': permissionLevel})),
+        (h) => http.post(
+          Uri.parse('$baseUrl/connections/tokens/generate'),
+          headers: h,
+          body: jsonEncode({'permissionLevel': permissionLevel}),
+        ),
       ),
     );
   }
@@ -559,8 +650,11 @@ class ApiService {
   Future<Map<String, dynamic>> validateConnectionToken(String token) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/connections/tokens/validate'),
-            headers: h, body: jsonEncode({'token': token})),
+        (h) => http.post(
+          Uri.parse('$baseUrl/connections/tokens/validate'),
+          headers: h,
+          body: jsonEncode({'token': token}),
+        ),
       ),
     );
   }
@@ -569,8 +663,11 @@ class ApiService {
   Future<Map<String, dynamic>> consumeConnectionToken(String token) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/connections/tokens/consume'),
-            headers: h, body: jsonEncode({'token': token})),
+        (h) => http.post(
+          Uri.parse('$baseUrl/connections/tokens/consume'),
+          headers: h,
+          body: jsonEncode({'token': token}),
+        ),
       ),
     );
   }
@@ -579,7 +676,10 @@ class ApiService {
   Future<List<dynamic>> getActiveTokens() async {
     return List<dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.get(Uri.parse('$baseUrl/connections/tokens/active'), headers: h),
+        (h) => http.get(
+          Uri.parse('$baseUrl/connections/tokens/active'),
+          headers: h,
+        ),
       ),
     );
   }
@@ -592,7 +692,8 @@ class ApiService {
   Future<List<dynamic>> getCaregivers() async {
     return List<dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.get(Uri.parse('$baseUrl/connections/caregivers'), headers: h),
+        (h) =>
+            http.get(Uri.parse('$baseUrl/connections/caregivers'), headers: h),
       ),
     );
   }
@@ -607,11 +708,17 @@ class ApiService {
   }
 
   /// PATCH /connections/:id/alerts
-  Future<Map<String, dynamic>> toggleConnectionAlerts(String id, bool enabled) async {
+  Future<Map<String, dynamic>> toggleConnectionAlerts(
+    String id,
+    bool enabled,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/connections/$id/alerts'),
-            headers: h, body: jsonEncode({'enabled': enabled})),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/connections/$id/alerts'),
+          headers: h,
+          body: jsonEncode({'enabled': enabled}),
+        ),
       ),
     );
   }
@@ -620,7 +727,10 @@ class ApiService {
   Future<Map<String, dynamic>> getCaregiverLimit() async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.get(Uri.parse('$baseUrl/connections/caregiver-limit'), headers: h),
+        (h) => http.get(
+          Uri.parse('$baseUrl/connections/caregiver-limit'),
+          headers: h,
+        ),
       ),
     );
   }
@@ -629,8 +739,9 @@ class ApiService {
   Future<List<dynamic>> getConnectionHistory({String? filter}) async {
     final params = <String, String>{};
     if (filter != null) params['filter'] = filter;
-    final uri = Uri.parse('$baseUrl/connections/history')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/connections/history',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return List<dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -641,27 +752,38 @@ class ApiService {
   // ────────────────────────────────────────────
 
   /// POST /connections/nudge
-  Future<Map<String, dynamic>> sendNudge(String patientId, String doseId) async {
+  Future<Map<String, dynamic>> sendNudge(
+    String patientId,
+    String doseId,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/connections/nudge'),
-            headers: h, body: jsonEncode({'patientId': patientId, 'doseId': doseId})),
+        (h) => http.post(
+          Uri.parse('$baseUrl/connections/nudge'),
+          headers: h,
+          body: jsonEncode({'patientId': patientId, 'doseId': doseId}),
+        ),
       ),
     );
   }
 
   /// POST /connections/nudge/respond
   Future<Map<String, dynamic>> respondToNudge(
-      String caregiverId, String doseId, String response) async {
+    String caregiverId,
+    String doseId,
+    String response,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/connections/nudge/respond'),
-            headers: h,
-            body: jsonEncode({
-              'caregiverId': caregiverId,
-              'doseId': doseId,
-              'response': response,
-            })),
+        (h) => http.post(
+          Uri.parse('$baseUrl/connections/nudge/respond'),
+          headers: h,
+          body: jsonEncode({
+            'caregiverId': caregiverId,
+            'doseId': doseId,
+            'response': response,
+          }),
+        ),
       ),
     );
   }
@@ -674,8 +796,11 @@ class ApiService {
   Future<Map<String, dynamic>> updateGracePeriod(int minutes) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/users/me/grace-period'),
-            headers: h, body: jsonEncode({'gracePeriodMinutes': minutes})),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/users/me/grace-period'),
+          headers: h,
+          body: jsonEncode({'gracePeriodMinutes': minutes}),
+        ),
       ),
     );
   }
@@ -685,11 +810,14 @@ class ApiService {
   // ────────────────────────────────────────────
 
   /// GET /notifications?unreadOnly=true
-  Future<Map<String, dynamic>> getNotifications({bool unreadOnly = false}) async {
+  Future<Map<String, dynamic>> getNotifications({
+    bool unreadOnly = false,
+  }) async {
     final params = <String, String>{};
     if (unreadOnly) params['unreadOnly'] = 'true';
-    final uri = Uri.parse('$baseUrl/notifications')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/notifications',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return Map<String, dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -699,8 +827,11 @@ class ApiService {
   Future<Map<String, dynamic>> markNotificationRead(String id) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/notifications/$id/read'),
-            headers: h, body: jsonEncode({})),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/notifications/$id/read'),
+          headers: h,
+          body: jsonEncode({}),
+        ),
       ),
     );
   }
@@ -722,18 +853,26 @@ class ApiService {
   Future<Map<String, dynamic>> updateSubscriptionTier(String tier) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/subscriptions/tier'),
-            headers: h, body: jsonEncode({'tier': tier})),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/subscriptions/tier'),
+          headers: h,
+          body: jsonEncode({'tier': tier}),
+        ),
       ),
     );
   }
 
   /// POST /subscriptions/family/add
-  Future<Map<String, dynamic>> addFamilyMember(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> addFamilyMember(
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/subscriptions/family/add'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.post(
+          Uri.parse('$baseUrl/subscriptions/family/add'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
@@ -743,8 +882,9 @@ class ApiService {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.delete(
-            Uri.parse('$baseUrl/subscriptions/family/$memberId'),
-            headers: h),
+          Uri.parse('$baseUrl/subscriptions/family/$memberId'),
+          headers: h,
+        ),
       ),
     );
   }
@@ -762,7 +902,8 @@ class ApiService {
   Future<Map<String, dynamic>> getFeatureComparison() async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.get(Uri.parse('$baseUrl/subscriptions/features'), headers: h),
+        (h) =>
+            http.get(Uri.parse('$baseUrl/subscriptions/features'), headers: h),
       ),
     );
   }
@@ -776,8 +917,9 @@ class ApiService {
     final params = <String, String>{};
     if (page != null) params['page'] = page.toString();
     if (take != null) params['take'] = take.toString();
-    final uri = Uri.parse('$baseUrl/audit')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/audit',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return List<dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -812,8 +954,9 @@ class ApiService {
     if (page != null) params['page'] = page.toString();
     if (limit != null) params['limit'] = limit.toString();
     if (search != null) params['search'] = search;
-    final uri = Uri.parse('$baseUrl/doctor/patients')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/doctor/patients',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return Map<String, dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -840,8 +983,9 @@ class ApiService {
     final params = <String, String>{};
     if (startDate != null) params['startDate'] = startDate;
     if (endDate != null) params['endDate'] = endDate;
-    final uri = Uri.parse('$baseUrl/doctor/patients/$patientId/adherence')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/doctor/patients/$patientId/adherence',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return Map<String, dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -860,7 +1004,9 @@ class ApiService {
   }
 
   /// POST /doctor/connections/:id/accept
-  Future<Map<String, dynamic>> acceptDoctorConnection(String connectionId) async {
+  Future<Map<String, dynamic>> acceptDoctorConnection(
+    String connectionId,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.post(
@@ -922,8 +1068,9 @@ class ApiService {
 
   /// GET /doctor/notes?patientId=
   Future<List<dynamic>> getDoctorNotes(String patientId) async {
-    final uri = Uri.parse('$baseUrl/doctor/notes')
-        .replace(queryParameters: {'patientId': patientId});
+    final uri = Uri.parse(
+      '$baseUrl/doctor/notes',
+    ).replace(queryParameters: {'patientId': patientId});
     return List<dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -949,10 +1096,8 @@ class ApiService {
   Future<Map<String, dynamic>> deleteDoctorNote(String noteId) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.delete(
-          Uri.parse('$baseUrl/doctor/notes/$noteId'),
-          headers: h,
-        ),
+        (h) =>
+            http.delete(Uri.parse('$baseUrl/doctor/notes/$noteId'), headers: h),
       ),
     );
   }
@@ -971,8 +1116,9 @@ class ApiService {
     if (status != null) params['status'] = status;
     if (page != null) params['page'] = page.toString();
     if (limit != null) params['limit'] = limit.toString();
-    final uri = Uri.parse('$baseUrl/doctor/prescriptions')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/doctor/prescriptions',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return Map<String, dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -980,7 +1126,8 @@ class ApiService {
 
   /// GET /doctor/prescriptions/:id – prescription detail
   Future<Map<String, dynamic>> getDoctorPrescriptionDetail(
-      String prescriptionId) async {
+    String prescriptionId,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.get(
@@ -1024,8 +1171,9 @@ class ApiService {
 
   /// GET /adherence/trends – adherence trends over time
   Future<Map<String, dynamic>> getAdherenceTrends({int days = 30}) async {
-    final uri = Uri.parse('$baseUrl/adherence/trends')
-        .replace(queryParameters: {'days': days.toString()});
+    final uri = Uri.parse(
+      '$baseUrl/adherence/trends',
+    ).replace(queryParameters: {'days': days.toString()});
     return Map<String, dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -1036,13 +1184,19 @@ class ApiService {
   // ────────────────────────────────────────────
 
   /// POST /bakong-payment/create – Create payment and get QR code
-  Future<Map<String, dynamic>> createBakongPayment(String planType, {String? appName}) async {
+  Future<Map<String, dynamic>> createBakongPayment(
+    String planType, {
+    String? appName,
+  }) async {
     final body = <String, dynamic>{'planType': planType};
     if (appName != null) body['appName'] = appName;
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/bakong-payment/create'),
-            headers: h, body: jsonEncode(body)),
+        (h) => http.post(
+          Uri.parse('$baseUrl/bakong-payment/create'),
+          headers: h,
+          body: jsonEncode(body),
+        ),
       ),
     );
   }
@@ -1052,7 +1206,9 @@ class ApiService {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.get(
-          Uri.parse('$baseUrl/bakong-payment/status/${Uri.encodeComponent(md5Hash)}'),
+          Uri.parse(
+            '$baseUrl/bakong-payment/status/${Uri.encodeComponent(md5Hash)}',
+          ),
           headers: h,
         ),
       ),
@@ -1072,7 +1228,10 @@ class ApiService {
   Future<Map<String, dynamic>> getBakongSubscription() async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.get(Uri.parse('$baseUrl/bakong-payment/subscription'), headers: h),
+        (h) => http.get(
+          Uri.parse('$baseUrl/bakong-payment/subscription'),
+          headers: h,
+        ),
       ),
     );
   }
@@ -1100,13 +1259,23 @@ class ApiService {
           if (bytes[0] == 0xFF && bytes[1] == 0xD8) {
             return MediaType('image', 'jpeg');
           }
-          if (bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47) {
+          if (bytes[0] == 0x89 &&
+              bytes[1] == 0x50 &&
+              bytes[2] == 0x4E &&
+              bytes[3] == 0x47) {
             return MediaType('image', 'png');
           }
-          if (bytes.length >= 12 && bytes[8] == 0x57 && bytes[9] == 0x45 && bytes[10] == 0x42 && bytes[11] == 0x50) {
+          if (bytes.length >= 12 &&
+              bytes[8] == 0x57 &&
+              bytes[9] == 0x45 &&
+              bytes[10] == 0x42 &&
+              bytes[11] == 0x50) {
             return MediaType('image', 'webp');
           }
-          if (bytes[0] == 0x25 && bytes[1] == 0x50 && bytes[2] == 0x44 && bytes[3] == 0x46) {
+          if (bytes[0] == 0x25 &&
+              bytes[1] == 0x50 &&
+              bytes[2] == 0x44 &&
+              bytes[3] == 0x46) {
             return MediaType('application', 'pdf');
           }
         }
@@ -1115,13 +1284,23 @@ class ApiService {
   }
 
   /// POST /ocr/scan – scan prescription image, extract and create prescription
-  Future<Map<String, dynamic>> scanPrescription(List<int> imageBytes, String filename) async {
+  Future<Map<String, dynamic>> scanPrescription(
+    List<int> imageBytes,
+    String filename,
+  ) async {
     final token = await _getAccessToken();
     final uri = Uri.parse('$baseUrl/ocr/scan');
     final contentType = _getMediaType(filename, bytes: imageBytes);
     final request = http.MultipartRequest('POST', uri);
     if (token != null) request.headers['Authorization'] = 'Bearer $token';
-    request.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename, contentType: contentType));
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        'file',
+        imageBytes,
+        filename: filename,
+        contentType: contentType,
+      ),
+    );
 
     final streamed = await request.send();
     final res = await http.Response.fromStream(streamed);
@@ -1130,8 +1309,16 @@ class ApiService {
       if (refreshed) {
         final token2 = await _getAccessToken();
         final request2 = http.MultipartRequest('POST', uri);
-        if (token2 != null) request2.headers['Authorization'] = 'Bearer $token2';
-        request2.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename, contentType: contentType));
+        if (token2 != null)
+          request2.headers['Authorization'] = 'Bearer $token2';
+        request2.files.add(
+          http.MultipartFile.fromBytes(
+            'file',
+            imageBytes,
+            filename: filename,
+            contentType: contentType,
+          ),
+        );
         final streamed2 = await request2.send();
         final res2 = await http.Response.fromStream(streamed2);
         return Map<String, dynamic>.from(_handleResponse(res2));
@@ -1141,13 +1328,23 @@ class ApiService {
   }
 
   /// POST /ocr/extract – extract prescription data without creating (preview)
-  Future<Map<String, dynamic>> extractPrescription(List<int> imageBytes, String filename) async {
+  Future<Map<String, dynamic>> extractPrescription(
+    List<int> imageBytes,
+    String filename,
+  ) async {
     final token = await _getAccessToken();
     final uri = Uri.parse('$baseUrl/ocr/extract');
     final contentType = _getMediaType(filename, bytes: imageBytes);
     final request = http.MultipartRequest('POST', uri);
     if (token != null) request.headers['Authorization'] = 'Bearer $token';
-    request.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename, contentType: contentType));
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        'file',
+        imageBytes,
+        filename: filename,
+        contentType: contentType,
+      ),
+    );
 
     final streamed = await request.send();
     final res = await http.Response.fromStream(streamed);
@@ -1156,8 +1353,16 @@ class ApiService {
       if (refreshed) {
         final token2 = await _getAccessToken();
         final request2 = http.MultipartRequest('POST', uri);
-        if (token2 != null) request2.headers['Authorization'] = 'Bearer $token2';
-        request2.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename, contentType: contentType));
+        if (token2 != null)
+          request2.headers['Authorization'] = 'Bearer $token2';
+        request2.files.add(
+          http.MultipartFile.fromBytes(
+            'file',
+            imageBytes,
+            filename: filename,
+            contentType: contentType,
+          ),
+        );
         final streamed2 = await request2.send();
         final res2 = await http.Response.fromStream(streamed2);
         return Map<String, dynamic>.from(_handleResponse(res2));
@@ -1181,35 +1386,47 @@ class ApiService {
 
   /// POST /prescriptions/patient – patient creates own prescription
   Future<Map<String, dynamic>> createPatientPrescription(
-      Map<String, dynamic> data) async {
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/prescriptions/patient'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.post(
+          Uri.parse('$baseUrl/prescriptions/patient'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
 
   /// POST /medicines/:prescriptionId – add medicine to prescription
   Future<Map<String, dynamic>> addMedicine(
-      String prescriptionId, Map<String, dynamic> data) async {
+    String prescriptionId,
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.post(
-            Uri.parse('$baseUrl/medicines/$prescriptionId'),
-            headers: h,
-            body: jsonEncode(data)),
+          Uri.parse('$baseUrl/medicines/$prescriptionId'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
 
   /// PATCH /medicines/:id – update medicine
   Future<Map<String, dynamic>> updateMedicine(
-      String id, Map<String, dynamic> data) async {
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/medicines/$id'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/medicines/$id'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
@@ -1227,8 +1444,11 @@ class ApiService {
   Future<Map<String, dynamic>> pausePrescription(String id) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/prescriptions/$id/pause'),
-            headers: h, body: jsonEncode({})),
+        (h) => http.post(
+          Uri.parse('$baseUrl/prescriptions/$id/pause'),
+          headers: h,
+          body: jsonEncode({}),
+        ),
       ),
     );
   }
@@ -1237,8 +1457,11 @@ class ApiService {
   Future<Map<String, dynamic>> resumePrescription(String id) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/prescriptions/$id/resume'),
-            headers: h, body: jsonEncode({})),
+        (h) => http.post(
+          Uri.parse('$baseUrl/prescriptions/$id/resume'),
+          headers: h,
+          body: jsonEncode({}),
+        ),
       ),
     );
   }
@@ -1247,8 +1470,7 @@ class ApiService {
   Future<Map<String, dynamic>> deletePrescription(String id) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) =>
-            http.delete(Uri.parse('$baseUrl/prescriptions/$id'), headers: h),
+        (h) => http.delete(Uri.parse('$baseUrl/prescriptions/$id'), headers: h),
       ),
     );
   }
@@ -1261,8 +1483,11 @@ class ApiService {
   Future<Map<String, dynamic>> recordVital(Map<String, dynamic> data) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/health-monitoring/vitals'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.post(
+          Uri.parse('$baseUrl/health-monitoring/vitals'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
@@ -1277,8 +1502,9 @@ class ApiService {
     if (vitalType != null) params['vitalType'] = vitalType;
     if (startDate != null) params['startDate'] = startDate;
     if (endDate != null) params['endDate'] = endDate;
-    final uri = Uri.parse('$baseUrl/health-monitoring/vitals')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/health-monitoring/vitals',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return List<dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -1289,8 +1515,9 @@ class ApiService {
     return List<dynamic>.from(
       await _authenticatedRequest(
         (h) => http.get(
-            Uri.parse('$baseUrl/health-monitoring/vitals/latest'),
-            headers: h),
+          Uri.parse('$baseUrl/health-monitoring/vitals/latest'),
+          headers: h,
+        ),
       ),
     );
   }
@@ -1300,8 +1527,9 @@ class ApiService {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.delete(
-            Uri.parse('$baseUrl/health-monitoring/vitals/$id'),
-            headers: h),
+          Uri.parse('$baseUrl/health-monitoring/vitals/$id'),
+          headers: h,
+        ),
       ),
     );
   }
@@ -1318,8 +1546,9 @@ class ApiService {
     if (period != null) params['period'] = period;
     if (startDate != null) params['startDate'] = startDate;
     if (endDate != null) params['endDate'] = endDate;
-    final uri = Uri.parse('$baseUrl/health-monitoring/trends')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/health-monitoring/trends',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return List<dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -1330,21 +1559,24 @@ class ApiService {
     return List<dynamic>.from(
       await _authenticatedRequest(
         (h) => http.get(
-            Uri.parse('$baseUrl/health-monitoring/thresholds'),
-            headers: h),
+          Uri.parse('$baseUrl/health-monitoring/thresholds'),
+          headers: h,
+        ),
       ),
     );
   }
 
   /// PUT /health-monitoring/thresholds – update thresholds
   Future<Map<String, dynamic>> updateVitalThreshold(
-      Map<String, dynamic> data) async {
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.put(
-            Uri.parse('$baseUrl/health-monitoring/thresholds'),
-            headers: h,
-            body: jsonEncode(data)),
+          Uri.parse('$baseUrl/health-monitoring/thresholds'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
@@ -1353,8 +1585,9 @@ class ApiService {
   Future<List<dynamic>> getHealthAlerts({bool? resolved}) async {
     final params = <String, String>{};
     if (resolved != null) params['resolved'] = resolved.toString();
-    final uri = Uri.parse('$baseUrl/health-monitoring/alerts')
-        .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/health-monitoring/alerts',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return List<dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -1365,32 +1598,39 @@ class ApiService {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.post(
-            Uri.parse('$baseUrl/health-monitoring/alerts/$id/resolve'),
-            headers: h,
-            body: jsonEncode({})),
+          Uri.parse('$baseUrl/health-monitoring/alerts/$id/resolve'),
+          headers: h,
+          body: jsonEncode({}),
+        ),
       ),
     );
   }
 
   /// POST /health-monitoring/emergency – trigger emergency
   Future<Map<String, dynamic>> triggerEmergency(
-      Map<String, dynamic> data) async {
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/health-monitoring/emergency'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.post(
+          Uri.parse('$baseUrl/health-monitoring/emergency'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
 
   /// GET /health-monitoring/patients/:patientId/vitals – doctor views patient vitals
-  Future<List<dynamic>> getPatientVitals(String patientId,
-      {String? vitalType}) async {
+  Future<List<dynamic>> getPatientVitals(
+    String patientId, {
+    String? vitalType,
+  }) async {
     final params = <String, String>{};
     if (vitalType != null) params['vitalType'] = vitalType;
-    final uri =
-        Uri.parse('$baseUrl/health-monitoring/patients/$patientId/vitals')
-            .replace(queryParameters: params.isNotEmpty ? params : null);
+    final uri = Uri.parse(
+      '$baseUrl/health-monitoring/patients/$patientId/vitals',
+    ).replace(queryParameters: params.isNotEmpty ? params : null);
     return List<dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -1404,8 +1644,11 @@ class ApiService {
   Future<Map<String, dynamic>> createBatch(Map<String, dynamic> data) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.post(Uri.parse('$baseUrl/batch-medications'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.post(
+          Uri.parse('$baseUrl/batch-medications'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
@@ -1423,19 +1666,24 @@ class ApiService {
   Future<Map<String, dynamic>> getBatch(String id) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.get(
-            Uri.parse('$baseUrl/batch-medications/$id'), headers: h),
+        (h) =>
+            http.get(Uri.parse('$baseUrl/batch-medications/$id'), headers: h),
       ),
     );
   }
 
   /// PATCH /batch-medications/:id – update batch
   Future<Map<String, dynamic>> updateBatch(
-      String id, Map<String, dynamic> data) async {
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
-        (h) => http.patch(Uri.parse('$baseUrl/batch-medications/$id'),
-            headers: h, body: jsonEncode(data)),
+        (h) => http.patch(
+          Uri.parse('$baseUrl/batch-medications/$id'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
@@ -1445,33 +1693,42 @@ class ApiService {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.delete(
-            Uri.parse('$baseUrl/batch-medications/$id'), headers: h),
+          Uri.parse('$baseUrl/batch-medications/$id'),
+          headers: h,
+        ),
       ),
     );
   }
 
   /// POST /batch-medications/:id/medicines – add medicine to batch
   Future<Map<String, dynamic>> addMedicineToBatch(
-      String batchId, Map<String, dynamic> data) async {
+    String batchId,
+    Map<String, dynamic> data,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.post(
-            Uri.parse('$baseUrl/batch-medications/$batchId/medicines'),
-            headers: h,
-            body: jsonEncode(data)),
+          Uri.parse('$baseUrl/batch-medications/$batchId/medicines'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
       ),
     );
   }
 
   /// DELETE /batch-medications/:batchId/medicines/:medicineId – remove medicine from batch
   Future<Map<String, dynamic>> removeMedicineFromBatch(
-      String batchId, String medicineId) async {
+    String batchId,
+    String medicineId,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.delete(
-            Uri.parse(
-                '$baseUrl/batch-medications/$batchId/medicines/$medicineId'),
-            headers: h),
+          Uri.parse(
+            '$baseUrl/batch-medications/$batchId/medicines/$medicineId',
+          ),
+          headers: h,
+        ),
       ),
     );
   }
