@@ -86,6 +86,80 @@ services:
     networks:
       - dastern-network
 
+  # NestJS Backend API
+  backend:
+    build:
+      context: ./backend_nestjs
+      dockerfile: Dockerfile
+    container_name: dastern-backend
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      NODE_ENV: development
+      PORT: "3001"
+      API_PREFIX: api/v1
+      # Database - use Docker service name, not localhost
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-dastern_user}:${POSTGRES_PASSWORD:-dastern_rayu}@postgres:5432/${POSTGRES_DB:-dastern}?schema=public"
+      DATABASE_READ_URL: "postgresql://${POSTGRES_USER:-dastern_user}:${POSTGRES_PASSWORD:-dastern_rayu}@postgres:5432/${POSTGRES_DB:-dastern}?schema=public"
+      POSTGRES_USER: "${POSTGRES_USER:-dastern_user}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-dastern_rayu}"
+      POSTGRES_DB: "${POSTGRES_DB:-dastern}"
+      # Redis - use Docker service name, not localhost
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-dastern_redis_password}"
+      REDIS_DB: "0"
+      # JWT
+      JWT_SECRET: "${JWT_SECRET:-your-super-secret-jwt-key-change-in-production-min-32-chars}"
+      JWT_REFRESH_SECRET: "${JWT_REFRESH_SECRET:-your-super-secret-refresh-key-change-in-production-min-32-chars}"
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      # Google OAuth
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID:-}"
+      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET:-}"
+      GOOGLE_CALLBACK_URL: "http://localhost:3001/api/v1/auth/google/callback"
+      # MinIO / S3
+      AWS_S3_ENDPOINT: "http://minio:9000"
+      AWS_ACCESS_KEY_ID: "${MINIO_ROOT_USER:-dastern_admin}"
+      AWS_SECRET_ACCESS_KEY: "${MINIO_ROOT_PASSWORD:-dastern_password}"
+      AWS_S3_BUCKET: "${MINIO_BUCKET_NAME:-dastern-uploads}"
+      # Email (SendGrid)
+      SENDGRID_API_KEY: "${SENDGRID_API_KEY:-}"
+      SENDGRID_FROM_EMAIL: "${SENDGRID_FROM_EMAIL:-noreply@dastern.com}"
+      SENDGRID_FROM_NAME: "Das Tern"
+      # Rate Limiting
+      THROTTLE_TTL: "60"
+      THROTTLE_LIMIT: "100"
+      # Encryption
+      ENCRYPTION_KEY: "${ENCRYPTION_KEY:-your-32-character-encryption-key-here!}"
+      # CORS
+      ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:8080"
+      # Bakong Payment Service
+      BAKONG_SERVICE_URL: "http://bakong-payment:3002"
+      BAKONG_API_KEY: "${BAKONG_API_KEY:-changeme_secure_api_key_here}"
+      BAKONG_WEBHOOK_SECRET: "${BAKONG_WEBHOOK_SECRET:-changeme_webhook_secret_here}"
+      # OCR / AI Services
+      OCR_SERVICE_URL: "http://ocr-service:8000"
+      AI_SERVICE_URL: "http://ai-api:8001"
+      # Timezone
+      TZ: Asia/Phnom_Penh
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dastern-network
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('net').createConnection({port:3001}).on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
   # MinIO (S3-compatible storage) - Latest version
   minio:
     image: minio/minio:latest

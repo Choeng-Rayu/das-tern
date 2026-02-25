@@ -1,0 +1,17 @@
+node_modules
+dist
+.env
+.env.*
+!.env.example
+*.log
+npm-debug.log*
+.DS_Store
+.git
+.gitignore
+README.md
+docker-compose.yml
+Dockerfile
+.eslintrc*
+.prettierrc*
+coverage
+test
