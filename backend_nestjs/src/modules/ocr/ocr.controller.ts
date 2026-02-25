@@ -89,7 +89,7 @@ export class OcrController {
       );
     }
 
-    return this.ocrService.extractPrescription(file.buffer, file.originalname, file.mimetype);
+    return this.ocrService.extractAndEnhancePrescription(file.buffer, file.originalname, file.mimetype);
   }
 
   /**

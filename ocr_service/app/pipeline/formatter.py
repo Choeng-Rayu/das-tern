@@ -19,6 +19,8 @@ def build_dynamic_universal(
     quality_report: Any,
     processing_time_ms: float,
     image_metadata: Optional[Dict[str, Any]] = None,
+    region_ocr_data: Optional[Dict[str, Any]] = None,
+    table_words: Optional[List[Dict]] = None,
 ) -> Dict[str, Any]:
     """Build the Dynamic Universal v2.0 JSON response.
 
@@ -51,8 +53,37 @@ def build_dynamic_universal(
     # Build image metadata
     img_meta = image_metadata or {}
 
-    # Determine overall confidence
-    overall_confidence = 0.85  # Default
+    # Determine overall confidence from actual OCR results
+    section_confidences = {}
+    all_region_confs = []
+    if region_ocr_data:
+        for section_name in ["header", "patient", "clinical", "footer", "date"]:
+            ocr_obj = region_ocr_data.get(section_name)
+            if ocr_obj and hasattr(ocr_obj, 'confidence') and ocr_obj.confidence > 0:
+                section_confidences[section_name] = round(ocr_obj.confidence, 3)
+                all_region_confs.append(ocr_obj.confidence)
+    overall_confidence = sum(all_region_confs) / len(all_region_confs) if all_region_confs else 0.85
+
+    # Extract region-level bboxes for structured sections
+    header_bbox = None
+    patient_bbox = None
+    footer_bbox = None
+    date_bbox = None
+    table_bbox_val = None
+    if region_ocr_data:
+        header_obj = region_ocr_data.get("header")
+        if header_obj and hasattr(header_obj, 'bbox') and header_obj.bbox:
+            header_bbox = list(header_obj.bbox)
+        patient_obj = region_ocr_data.get("patient")
+        if patient_obj and hasattr(patient_obj, 'bbox') and patient_obj.bbox:
+            patient_bbox = list(patient_obj.bbox)
+        footer_obj = region_ocr_data.get("footer")
+        if footer_obj and hasattr(footer_obj, 'bbox') and footer_obj.bbox:
+            footer_bbox = list(footer_obj.bbox)
+        date_obj = region_ocr_data.get("date")
+        if date_obj and hasattr(date_obj, 'bbox') and date_obj.bbox:
+            date_bbox = list(date_obj.bbox)
+        table_bbox_val = region_ocr_data.get("table_bbox")
 
     # Build prescriber info from footer
     prescriber = {
@@ -60,7 +91,7 @@ def build_dynamic_universal(
             "full_name": footer_data.get("prescriber_name"),
             "khmer_name": None,
             "title": None,
-            "bbox": None
+            "bbox": footer_bbox
         },
         "credentials": {
             "license_number": None,
@@ -78,12 +109,12 @@ def build_dynamic_universal(
             "issue_date": {
                 "value": footer_data.get("date"),
                 "original_format": None,
-                "bbox": None
+                "bbox": date_bbox
             },
             "issue_datetime": {
                 "value": footer_data.get("datetime"),
                 "original_text": None,
-                "bbox": None
+                "bbox": date_bbox
             },
             "expiry_date": None,
             "valid_until": None
@@ -141,17 +172,17 @@ def build_dynamic_universal(
             "medications": {
                 "table_structure": {
                     "detected": True,
-                    "bbox": None,
+                    "bbox": table_bbox_val,
                     "column_headers": {
-                        "item_number": {"label": "\u179b.\u179a", "bbox": None},
-                        "medication_name": {"label": "\u1788\u17d2\u1798\u17c4\u17c7\u178f\u17d2\u1793\u17b6\u17c6", "bbox": None},
-                        "duration": {"label": "\u1790\u17d2\u1784\u17c3\u1795\u17bb\u178f", "bbox": None},
-                        "instructions": {"label": "\u179c\u17b7\u1792\u17b8\u1794\u17d2\u179a\u17be", "bbox": None},
+                        "item_number": {"label": "ល.រ", "bbox": None},
+                        "medication_name": {"label": "ឈ្មោះត្នាំ", "bbox": None},
+                        "duration": {"label": "ថ្ងៃផុត", "bbox": None},
+                        "instructions": {"label": "វិធីប្រើ", "bbox": None},
                         "time_slots": [
-                            {"period": "morning", "label": "\u1796\u17d2\u179a\u17b9\u1780 (6-8)", "time_range": "06:00-08:00", "bbox": None},
-                            {"period": "midday", "label": "\u1790\u17d2\u1784\u17c3\u178f\u17d2\u179a\u1784\u17cb (11-12)", "time_range": "11:00-12:00", "bbox": None},
-                            {"period": "afternoon", "label": "\u179b\u17d2\u1784\u17b6\u1785 (05-06)", "time_range": "17:00-18:00", "bbox": None},
-                            {"period": "evening", "label": "\u1799\u1794\u17cb (08-10)", "time_range": "20:00-22:00", "bbox": None}
+                            {"period": "morning", "label": "ព្រឹក (6-8)", "time_range": "06:00-08:00", "bbox": None},
+                            {"period": "midday", "label": "ថ្ងៃត្រង់ (11-12)", "time_range": "11:00-12:00", "bbox": None},
+                            {"period": "afternoon", "label": "ល្ងាច (05-06)", "time_range": "17:00-18:00", "bbox": None},
+                            {"period": "evening", "label": "យប់ (08-10)", "time_range": "20:00-22:00", "bbox": None}
                         ]
                     }
                 },
@@ -201,21 +232,62 @@ def build_dynamic_universal(
                 "legal_disclaimers": [],
                 "confidentiality_notice": None
             },
-            "raw_extraction_data": {
-                "full_text": None,
-                "ocr_confidence_by_section": {},
-                "processing_flags": {
-                    "handwritten_detected": False,
-                    "poor_image_quality": False,
-                    "partial_occlusion": False,
-                    "corrections_applied": False
-                },
-                "alternative_readings": []
-            }
+            "raw_extraction_data": _build_raw_extraction_data(
+                region_ocr_data, table_words, section_confidences, quality_report
+            )
         }
     }
 
     return result
+
+
+def _build_raw_extraction_data(
+    region_ocr_data: Optional[Dict[str, Any]],
+    table_words: Optional[List[Dict]],
+    section_confidences: Dict[str, float],
+    quality_report: Any,
+) -> Dict[str, Any]:
+    """Build the raw_extraction_data section with word-level detail for future enhance service."""
+    full_text_parts = []
+    words_by_section = {}
+
+    if region_ocr_data:
+        for section_name in ["header", "patient", "clinical", "footer", "date"]:
+            ocr_obj = region_ocr_data.get(section_name)
+            if ocr_obj and hasattr(ocr_obj, 'text') and ocr_obj.text:
+                full_text_parts.append(ocr_obj.text)
+            if ocr_obj and hasattr(ocr_obj, 'words') and ocr_obj.words:
+                words_by_section[section_name] = [
+                    {'text': w['text'], 'bbox': w.get('bbox'), 'confidence': w.get('confidence')}
+                    for w in ocr_obj.words
+                ]
+
+    if table_words:
+        words_by_section["medications_table"] = [
+            {'text': w['text'], 'bbox': w.get('bbox'), 'confidence': w.get('confidence', w.get('conf', 0) / 100.0)}
+            for w in table_words
+        ]
+        full_text_parts.append(' '.join(w['text'] for w in table_words))
+
+    is_blurry = False
+    corrections_applied = False
+    if quality_report:
+        is_blurry = bool(getattr(quality_report, 'is_blurry', False))
+        preprocessing = getattr(quality_report, 'preprocessing_applied', [])
+        corrections_applied = bool(preprocessing)
+
+    return {
+        "full_text": '\n'.join(full_text_parts) if full_text_parts else None,
+        "ocr_confidence_by_section": section_confidences,
+        "processing_flags": {
+            "handwritten_detected": False,
+            "poor_image_quality": is_blurry,
+            "partial_occlusion": False,
+            "corrections_applied": corrections_applied,
+        },
+        "alternative_readings": [],
+        "words_by_section": words_by_section,
+    }
 
 
 def build_extraction_summary(result: Dict[str, Any], processing_time_ms: float) -> Dict[str, Any]:

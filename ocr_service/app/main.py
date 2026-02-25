@@ -3,6 +3,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse as _JSONResponse
 
 from app.api.routes import router, set_orchestrator
 from app.pipeline.orchestrator import PipelineOrchestrator
@@ -14,6 +15,11 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+
+class UnicodeJSONResponse(_JSONResponse):
+    """JSONResponse that explicitly declares charset=utf-8 for Khmer Unicode safety."""
+    media_type = "application/json; charset=utf-8"
 
 
 @asynccontextmanager
@@ -34,7 +40,8 @@ app = FastAPI(
     title="DAS-TERN OCR Service",
     description="OCR Prescription Scanning Service for Cambodian prescriptions",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    default_response_class=UnicodeJSONResponse,
 )
 
 # CORS
