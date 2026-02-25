@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../providers/locale_provider.dart';
-import '../../../ui/theme/app_colors.dart';
-import '../../../ui/theme/app_spacing.dart';
-import '../../../ui/theme/theme_provider.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../providers/auth_provider.dart';
+import '../../../../providers/locale_provider.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_spacing.dart';
+import '../../theme/theme_provider.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Settings tab for patient – matches Figma tab: ការកំណត់

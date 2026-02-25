@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../providers/dose_provider.dart';
-import '../../../providers/health_monitoring_provider.dart';
-import '../../../models/enums_model/medication_type.dart';
-import '../../../utils/app_router.dart';
-import '../../../ui/theme/app_colors.dart';
-import '../../../ui/theme/app_spacing.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../providers/auth_provider.dart';
+import '../../../../providers/dose_provider.dart';
+import '../../../../providers/health_monitoring_provider.dart';
+import '../../../../models/enums_model/medication_type.dart';
+import '../../../../utils/app_router.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Patient home tab – daily dashboard matching Figma design.

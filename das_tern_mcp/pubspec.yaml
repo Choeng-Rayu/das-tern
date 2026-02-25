@@ -81,3 +81,7 @@ flutter:
 
   assets:
     - .env
+    - assets/backgroundHeader.png
+    - assets/morning.png
+    - assets/afternoon.png
+    - assets/night.png

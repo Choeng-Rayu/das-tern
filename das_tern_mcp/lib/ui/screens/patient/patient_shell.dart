@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../widgets/common_widgets.dart';
-import 'patient_home_tab.dart';
-import 'patient_medications_tab.dart';
-import 'patient_scan_tab.dart';
-import 'patient_family_tab.dart';
-import 'patient_settings_tab.dart';
+import 'tab/patient_home_tab.dart';
+import 'tab/patient_medications_tab.dart';
+import 'tab/patient_scan_tab.dart';
+import 'tab/patient_family_tab.dart';
+import 'tab/patient_settings_tab.dart';
 
 /// Patient dashboard shell with 5-tab bottom navigation.
 /// Figma tabs: ទំព័រដើម | ការវិភាគថ្នាំ | ស្កេនវេជ្ជបញ្ជា | មុខងារគ្រួសារ | ការកំណត់
@@ -31,10 +31,7 @@ class _PatientShellState extends State<PatientShell> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _tabs,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _tabs),
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/auth_provider.dart';
+import '../../utils/app_router.dart';
 import '../theme/app_spacing.dart';
 import '../widgets/language_switcher.dart';
 
@@ -24,9 +27,21 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
 
-    // AuthProvider will determine navigation in main.dart's auth listener
-    // For now, just go to login
-    Navigator.of(context).pushReplacementNamed('/login');
+    // Load auth state (applies dev bypass if DevConfig.skipAuth == true)
+    final auth = context.read<AuthProvider>();
+    await auth.loadAuthState();
+    if (!mounted) return;
+
+    if (auth.isAuthenticated) {
+      final role = auth.user?['role'] as String? ?? '';
+      if (role == 'DOCTOR') {
+        Navigator.of(context).pushReplacementNamed(AppRouter.doctorHome);
+      } else {
+        Navigator.of(context).pushReplacementNamed(AppRouter.patientHome);
+      }
+    } else {
+      Navigator.of(context).pushReplacementNamed(AppRouter.login);
+    }
   }
 
   @override
@@ -41,11 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF2B7A9E),
-              Color(0xFF1A5276),
-              Color(0xFF154360),
-            ],
+            colors: [Color(0xFF2B7A9E), Color(0xFF1A5276), Color(0xFF154360)],
           ),
         ),
         child: SafeArea(

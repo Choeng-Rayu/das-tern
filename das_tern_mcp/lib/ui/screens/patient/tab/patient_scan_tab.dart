@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../../services/api_service.dart';
-import '../../../ui/theme/app_colors.dart';
-import '../../../ui/theme/app_spacing.dart';
-import '../../../utils/app_router.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../services/api_service.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_spacing.dart';
+import '../../../../utils/app_router.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Scan Prescription tab – captures/picks prescription image, extracts via OCR,
