@@ -7,10 +7,38 @@ import { MedicineType, MedicineUnit } from '@prisma/client';
 import { firstValueFrom } from 'rxjs';
 import FormData = require('form-data');
 
+/** Result wrapper from the AI service call — always present, status signals availability. */
+interface AiCallResult {
+  enhanced: AiEnhancement | null;
+  status: 'ok' | 'not_responded';
+  message: string;
+}
+
+/** Shape of the enhanced object returned by the AI service. */
+interface AiEnhancement {
+  medications?: Array<{
+    item_number: number;
+    corrected_brand_name?: string | null;
+    corrected_generic_name?: string | null;
+    strength?: string | null;
+    was_corrected?: boolean;
+  }>;
+  patient?: {
+    name?: string | null;
+    age?: number | null;
+    gender?: string | null;
+    patient_id?: string | null;
+  } | null;
+  prescriber_name?: string | null;
+  diagnoses?: string[];
+  prescription_date?: string | null;
+}
+
 @Injectable()
 export class OcrService {
   private readonly logger = new Logger(OcrService.name);
   readonly ocrBaseUrl: string;
+  private readonly aiBaseUrl: string;
 
   constructor(
     private httpService: HttpService,
@@ -18,6 +46,7 @@ export class OcrService {
     private prescriptionsService: PrescriptionsService,
   ) {
     this.ocrBaseUrl = this.configService.get<string>('OCR_SERVICE_URL') || 'http://localhost:8000';
+    this.aiBaseUrl = this.configService.get<string>('AI_SERVICE_URL') || 'http://localhost:8001';
   }
 
   /**
@@ -74,8 +103,63 @@ export class OcrService {
   }
 
   /**
+   * Call the AI enhancement service with the raw OCR result.
+   * Always returns an AiCallResult — never throws, never blocks the OCR flow.
+   */
+  private async callAiEnhance(ocrResult: OcrExtractionResponse): Promise<AiCallResult> {
+    const url = `${this.aiBaseUrl}/api/v1/enhance`;
+    this.logger.log(`Sending OCR result to AI service: ${url}`);
+
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.post<{ success: boolean; enhanced: AiEnhancement; error?: string }>(
+          url,
+          { ocr_result: ocrResult },
+          { timeout: 90000 },
+        ),
+      );
+
+      if (data.success && data.enhanced) {
+        this.logger.log(
+          `AI enhancement complete: ${data.enhanced.medications?.length ?? 0} medications processed`,
+        );
+        return { enhanced: data.enhanced, status: 'ok', message: 'AI enhancement applied' };
+      }
+
+      const reason = data.error || 'AI service returned no data';
+      this.logger.warn(`AI service did not respond usefully: ${reason}`);
+      return { enhanced: null, status: 'not_responded', message: 'AI did not respond' };
+    } catch (error) {
+      this.logger.warn(`AI enhancement failed (non-blocking): ${error.message}`);
+      return { enhanced: null, status: 'not_responded', message: 'AI did not respond' };
+    }
+  }
+
+  /**
+   * Extract prescription data with optional AI enhancement.
+   * Returns OCR result merged with AI corrections plus an ai_status field
+   * so the client always knows whether AI ran successfully.
+   * Used by the /extract (preview) endpoint.
+   */
+  async extractAndEnhancePrescription(
+    fileBuffer: Buffer,
+    filename: string,
+    mimetype: string,
+  ) {
+    const ocrResult = await this.extractPrescription(fileBuffer, filename, mimetype);
+    const aiResult = await this.callAiEnhance(ocrResult);
+    return {
+      ...ocrResult,
+      ai_status: aiResult.status,
+      ai_message: aiResult.message,
+      ai_enhanced: aiResult.enhanced,
+    };
+  }
+
+  /**
    * Extract prescription from image and create it in the database.
    * Uses the patient-created prescription flow (CreatePatientPrescriptionDto).
+   * AI enhancement is applied to correct medication names, patient info, etc.
    */
   async scanAndCreatePrescription(
     patientId: string,
@@ -84,21 +168,36 @@ export class OcrService {
     mimetype: string,
   ) {
     const ocrResult = await this.extractPrescription(fileBuffer, filename, mimetype);
+    const aiResult = await this.callAiEnhance(ocrResult);
+    const aiEnhancement = aiResult.enhanced;
+
     const prescription = ocrResult.data.prescription;
 
-    // Build diagnosis string from OCR
-    const diagnoses = prescription.clinical_information.diagnoses
+    // Build AI medication corrections lookup by item_number
+    const aiMedMap = new Map<number, NonNullable<AiEnhancement['medications']>[number]>();
+    if (aiEnhancement?.medications) {
+      for (const m of aiEnhancement.medications) {
+        aiMedMap.set(m.item_number, m);
+      }
+    }
+
+    // Build diagnosis string — prefer AI corrections over OCR if meaningful
+    const ocrDiagnoses = prescription.clinical_information.diagnoses
       .map(d => d.diagnosis.english || d.diagnosis.khmer)
       .filter(Boolean);
-    const diagnosis = diagnoses.length > 0 ? diagnoses.join(', ') : null;
+    const aiDiagnoses = aiEnhancement?.diagnoses?.filter(Boolean) ?? [];
+    const diagnosisSource = aiDiagnoses.length > 0 ? aiDiagnoses : ocrDiagnoses;
+    const diagnosis = diagnosisSource.length > 0 ? diagnosisSource.join(', ') : null;
 
-    // Map OCR medications to PatientMedicationDto format
+    // Map OCR medications to PatientMedicationDto format, applying AI corrections
     const medicines = prescription.medications.items.map((item, index) =>
-      this.mapOcrMedicationToDto(item, index),
+      this.mapOcrMedicationToDto(item, index, aiMedMap.get(item.item_number?.value ?? index + 1)),
     );
 
-    // Determine start date (use issue date from prescription or today)
-    const issueDate = prescription.prescription_details?.dates?.issue_date?.value;
+    // Date — prefer AI-detected date
+    const issueDate =
+      aiEnhancement?.prescription_date ||
+      prescription.prescription_details?.dates?.issue_date?.value;
     const startDate = issueDate || new Date().toISOString().split('T')[0];
 
     // Calculate end date from max duration
@@ -110,39 +209,58 @@ export class OcrService {
       endDate = end.toISOString().split('T')[0];
     }
 
+    // Prescriber name — prefer AI
+    const doctorName =
+      aiEnhancement?.prescriber_name ||
+      prescription.prescriber?.name?.full_name ||
+      undefined;
+
     // Build the CreatePatientPrescriptionDto
     const dto = {
       title: diagnosis || 'Scanned Prescription',
-      doctorName: prescription.prescriber?.name?.full_name || undefined,
+      doctorName,
       startDate,
       endDate,
       diagnosis,
-      notes: `OCR scanned (confidence: ${(ocrResult.extraction_summary.confidence_score * 100).toFixed(0)}%)`,
+      notes:
+        `OCR scanned (confidence: ${(ocrResult.extraction_summary.confidence_score * 100).toFixed(0)}%)` +
+        (aiEnhancement ? ' | AI enhanced' : ''),
       medicines,
     };
 
-    this.logger.log(`Creating prescription from scan: ${medicines.length} medications`);
+    this.logger.log(
+      `Creating prescription from scan: ${medicines.length} medications` +
+      (aiEnhancement ? ' (AI-enhanced)' : ' (OCR-only)'),
+    );
 
-    // Create via existing PrescriptionsService
     const created = await this.prescriptionsService.createPatientPrescription(patientId, dto as any);
 
     return {
       prescription: created,
       ocr_summary: ocrResult.extraction_summary,
       needs_review: ocrResult.extraction_summary.needs_review,
+      ai_status: aiResult.status,
+      ai_message: aiResult.message,
     };
   }
 
   /**
    * Map a single OCR medication item to the PatientMedicationDto shape.
+   * Applies AI corrections when available.
    */
-  private mapOcrMedicationToDto(item: OcrMedicationItem, index: number) {
+  private mapOcrMedicationToDto(
+    item: OcrMedicationItem,
+    index: number,
+    aiMed?: NonNullable<AiEnhancement['medications']>[number],
+  ) {
     const med = item.medication;
     const dosing = item.dosing;
     const instructions = item.instructions;
 
-    // Medicine name
-    const medicineName = med.name.brand_name || med.name.full_text || `Medicine ${index + 1}`;
+    // Medicine name — prefer AI-corrected name when it was actually corrected
+    const ocrName = med.name.brand_name || med.name.full_text || `Medicine ${index + 1}`;
+    const medicineName =
+      (aiMed?.was_corrected && aiMed.corrected_brand_name) ? aiMed.corrected_brand_name : ocrName;
     const medicineNameKhmer = med.name.local_name || undefined;
 
     // Medicine type mapping: OCR route/form → Prisma MedicineType
@@ -151,9 +269,11 @@ export class OcrService {
     // Unit mapping
     const unit = this.mapMedicineUnit(med.form?.value);
 
-    // Dosage amount and unit string
-    const dosageAmount = med.strength?.numeric || 1;
-    const dosageUnit = med.strength?.unit || 'tablet';
+    // Dosage amount and unit string — use AI-corrected strength if available
+    const aiStrength = aiMed?.strength;
+    const strengthMatch = aiStrength?.match(/^(\d+(?:\.\d+)?)\s*(\w+)$/);
+    const dosageAmount = strengthMatch ? parseFloat(strengthMatch[1]) : (med.strength?.numeric || 1);
+    const dosageUnit = strengthMatch ? strengthMatch[2] : (med.strength?.unit || 'tablet');
 
     // Form
     const form = med.form?.value || 'tablet';
@@ -165,11 +285,6 @@ export class OcrService {
     const timesPerDay = dosing.schedule?.frequency?.times_per_day || 1;
     const frequency = `${timesPerDay}ដង/១ថ្ងៃ`;
 
-    // Build schedule times array for morningDosage/daytimeDosage/nightDosage mapping
-    // OCR has 4 slots: morning, midday, afternoon, evening
-    // Backend has 3 slots: morning, daytime, night
-    // Mapping: morning→morning, midday→daytime, afternoon→afternoon, evening→evening
-    // The service maps: morning/breakfast→morningDosage, afternoon/daytime/lunch→daytimeDosage, evening/night/dinner→nightDosage
     const scheduleTimes: { timePeriod: string; time: string }[] = [];
 
     if (dosing.schedule?.time_slots) {
@@ -181,11 +296,9 @@ export class OcrService {
             scheduleTimes.push({ timePeriod: 'morning', time: '07:00' });
             break;
           case 'midday':
-            // Maps to daytimeDosage via 'daytime' period
             scheduleTimes.push({ timePeriod: 'daytime', time: '12:00' });
             break;
           case 'afternoon':
-            // Also maps to daytimeDosage via 'afternoon' period
             scheduleTimes.push({ timePeriod: 'afternoon', time: '17:00' });
             break;
           case 'evening':
@@ -196,7 +309,6 @@ export class OcrService {
       }
     }
 
-    // Before/after meal
     const beforeMeal = instructions?.timing_with_food?.before_meal === true;
 
     return {

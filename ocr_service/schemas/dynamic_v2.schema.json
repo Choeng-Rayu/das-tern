@@ -657,7 +657,25 @@
                 "generic_name": { "$ref": "#/definitions/nullable_string" },
                 "local_name": { "$ref": "#/definitions/nullable_string" },
                 "full_text": { "$ref": "#/definitions/nullable_string" },
-                "bbox": { "$ref": "#/definitions/bbox" }
+                "bbox": { "$ref": "#/definitions/bbox" },
+                "words": {
+                  "description": "Word-level OCR data for the medication name field.",
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "properties": {
+                          "text": { "type": "string" },
+                          "bbox": { "$ref": "#/definitions/bbox" },
+                          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+                        }
+                      }
+                    },
+                    { "type": "null" }
+                  ]
+                }
               }
             },
             "strength": {
@@ -1101,6 +1119,22 @@
         "alternative_readings": {
           "type": "array",
           "items": { "type": "object", "additionalProperties": true }
+        },
+        "words_by_section": {
+          "type": "object",
+          "description": "Per-section word-level OCR data with bounding boxes for the enhance service.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "text": { "type": "string" },
+                "bbox": { "$ref": "#/definitions/bbox" },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+              }
+            }
+          }
         }
       }
     }

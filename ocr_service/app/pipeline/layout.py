@@ -78,17 +78,19 @@ def detect_lines(gray: np.ndarray, direction: str = "horizontal") -> List[Tuple[
 def find_table_region(gray: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
     """Find the medication table region by detecting grid structure.
 
-    Attempts multiple strategies to find the table:
-    1. Morphological line detection (H+V lines)
-    2. Large rectangular contour detection
-    3. Text-density based detection
-    Returns None only if all strategies fail.
+    Attempts multiple strategies to find the table.
+    NOTE: Searches only the upper 82% of the image to avoid detecting
+    footer/stamp areas at the bottom as the medication table.
     """
     h, w = gray.shape
+    # Limit search zone to upper 82% — hospital stamps and "please return" notes
+    # are typically at the bottom and would cause false positives
+    search_h = int(h * 0.82)
+    search_gray = gray[:search_h, :]
 
-    # Strategy 1: Morphological line detection
-    h_lines = detect_lines(gray, "horizontal")
-    v_lines = detect_lines(gray, "vertical")
+    # Strategy 1: Morphological line detection in search zone
+    h_lines = detect_lines(search_gray, "horizontal")
+    v_lines = detect_lines(search_gray, "vertical")
 
     if len(h_lines) >= 3 and len(v_lines) >= 2:
         y_min = min(l[1] for l in h_lines)
@@ -97,18 +99,18 @@ def find_table_region(gray: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
         x_max = max(l[2] for l in v_lines)
         return (x_min, y_min, x_max, y_max)
 
-    # Strategy 2: Use only horizontal lines (some prescriptions have no vertical grid lines)
+    # Strategy 2: Use only horizontal lines
     if len(h_lines) >= 3:
         y_min = min(l[1] for l in h_lines)
         y_max = max(l[3] for l in h_lines)
         return (0, y_min, w, y_max)
 
-    # Strategy 3: Contour-based — find large rectangular area with ink
+    # Strategy 3: Contour-based — find large rectangular area in search zone
     for thresh_val in [0, 128, 160]:
         if thresh_val == 0:
-            _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+            _, binary = cv2.threshold(search_gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         else:
-            _, binary = cv2.threshold(gray, thresh_val, 255, cv2.THRESH_BINARY_INV)
+            _, binary = cv2.threshold(search_gray, thresh_val, 255, cv2.THRESH_BINARY_INV)
 
         contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         best = None
@@ -116,21 +118,21 @@ def find_table_region(gray: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
         for cnt in contours:
             x, y, cw, ch = cv2.boundingRect(cnt)
             area = cw * ch
-            if cw > w * 0.4 and ch > h * 0.10 and area > best_area:
+            # Must be wide enough and tall enough, and not touching the very bottom of search zone
+            if (cw > w * 0.4 and ch > h * 0.10 and area > best_area
+                    and (y + ch) < search_h * 0.97):
                 best = (x, y, x + cw, y + ch)
                 best_area = area
         if best:
             return best
 
-    # Strategy 4: Text-density scan — find the vertical region with the most text pixels
-    # Project binary image onto y-axis and find dense band
-    _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    # Strategy 4: Text-density scan in search zone
+    _, binary = cv2.threshold(search_gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
     row_sums = np.sum(binary, axis=1).astype(np.float32)
-    # Smooth
-    kernel_size = max(h // 20, 3)
+    kernel_size = max(search_h // 20, 3)
     row_sums_smooth = np.convolve(row_sums, np.ones(kernel_size) / kernel_size, mode='same')
-    threshold = float(np.max(row_sums_smooth)) * 0.15
-    dense = row_sums_smooth > threshold
+    threshold_val = float(np.max(row_sums_smooth)) * 0.15
+    dense = row_sums_smooth > threshold_val
     dense_rows = np.where(dense)[0]
     if len(dense_rows) > 0:
         return (0, int(dense_rows[0]), w, int(dense_rows[-1]))
