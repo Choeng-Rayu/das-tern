@@ -1,0 +1,30 @@
+{
+  "success": true,
+  "extracted_data": {
+    "medications": [
+      {
+        "medication_name": "Butylscopolamine Ef",
+        "strength": "20mg",
+        "form": "tablet",
+        "dosage": "2 tablets",
+        "frequency": null,
+        "frequency_times": null,
+        "duration": "7 days",
+        "duration_days": 7,
+        "instructions_english": "Take 2 tablets after meals",
+        "instructions_khmer": "ផឹកថ្នាំ ២ គ្រាប់ បន្ទាល់ពេលសម្តៅ"
+      }
+    ],
+    "diagnosis": [
+      "Chronic Cystitis",
+      "Encour ménorhée"
+    ],
+    "prescriber_name": null,
+    "prescriber_facility": "KhmerSovet",
+    "prescription_date": "22/06/2022",
+    "language_detected": "km"
+  },
+  "model_used": "dastern-medical-extractor",
+  "confidence": 0.9,
+  "medications_found": 1
+}

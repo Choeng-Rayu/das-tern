@@ -1,0 +1,97 @@
+{
+  "report_metadata": {
+    "generated_at": "2026-01-28T23:00:33.216365",
+    "ocr_source_file": "data/ocr_result_20260128_215749.json",
+    "processor": "DasTern AI-LLM Service",
+    "model": "LLaMA 3.1 8B via Ollama"
+  },
+  "ocr_input": {
+    "raw_text": "",
+    "overall_confidence": 0.82,
+    "confidence_level": null,
+    "total_blocks": null,
+    "low_confidence_blocks": 0,
+    "needs_manual_review": null,
+    "primary_language": null
+  },
+  "ai_enhanced_output": {
+    "patient_name": "លោក សំអាត រស្មី",
+    "patient_name_romanized": "Mr. Samath Rasmee",
+    "age": 42,
+    "gender": "Male",
+    "date": null,
+    "prescriber_name": "វេជ្ជបណ្ឌិត សារា ហួន",
+    "prescriber_facility": "មន្ទីរពេទ្យកាល់ម៉ិត",
+    "prescriber_contact": null,
+    "medications": [
+      {
+        "medication_name": "Paracetamol",
+        "strength": "500mg",
+        "form": "tablet",
+        "dosage": "1 tablet",
+        "frequency": "twice daily",
+        "frequency_times": 2,
+        "duration": "7 days",
+        "duration_days": 7,
+        "instructions_english": "Take 1 tablet twice daily for 7 days",
+        "instructions_khmer": "ផឹកថ្នាំ ១គ្រាប់ ២ដង ក្នុងមួយថ្ងៃ រយៈពេល ៧ថ្ងៃ"
+      },
+      {
+        "medication_name": "Amoxicillin",
+        "strength": "250mg",
+        "form": "capsule",
+        "dosage": "1 capsule",
+        "frequency": "three times daily",
+        "frequency_times": 3,
+        "duration": "5 days",
+        "duration_days": 5,
+        "instructions_english": "Take 1 capsule three times daily for 5 days",
+        "instructions_khmer": "ផឹកថ្នាំ ១គ្រាប់ ៣ដង ក្នុងមួយថ្ងៃ រយៈពេល ៥ថ្ងៃ"
+      },
+      {
+        "medication_name": "ORS",
+        "strength": "1 sachet",
+        "form": "solution",
+        "dosage": "1 sachet",
+        "frequency": "as needed",
+        "frequency_times": 0,
+        "duration": "as needed",
+        "duration_days": null,
+        "instructions_english": "Dissolve 1 sachet in water, take as needed",
+        "instructions_khmer": "រំលាយ ១កញ្ចប់ ក្នុងទឹក ផឹកតាមត្រូវការ"
+      }
+    ],
+    "language_detected": "mixed_khmer_english",
+    "confidence_score": 0.92
+  },
+  "corrections_made": {
+    "total_corrections": 0,
+    "by_type": {},
+    "details": []
+  },
+  "extraction_summary": {
+    "extracted_fields": [
+      "patient_name",
+      "patient_name_romanized",
+      "age",
+      "gender",
+      "date",
+      "prescriber_name",
+      "prescriber_facility",
+      "prescriber_contact",
+      "medications",
+      "language_detected",
+      "confidence_score"
+    ],
+    "medications_found": 3,
+    "patient_info_complete": true,
+    "prescription_usable": true
+  },
+  "quality_metrics": {
+    "input_confidence": 0.82,
+    "output_confidence": 92.0,
+    "improvement": 91.18,
+    "corrections_made": 0,
+    "data_completeness": 83.33333333333334
+  }
+}
