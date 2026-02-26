@@ -9,6 +9,8 @@ import '../ui/screens/auth/reset_password_screen.dart';
 import '../ui/screens/patient/patient_shell.dart';
 import '../ui/screens/doctor/doctor_shell.dart';
 import '../ui/screens/doctor/patient_detail_screen.dart';
+import '../ui/screens/doctor/med_patient_list_screen.dart';
+import '../ui/screens/doctor/pending_patient_list_screen.dart';
 import '../ui/screens/splash_screen.dart';
 import '../ui/screens/family_ui/family_connect_intro_screen.dart';
 import '../ui/screens/family_ui/access_level_selection_screen.dart';
@@ -51,6 +53,8 @@ class AppRouter {
   static const String patientHome = '/patient';
   static const String doctorHome = '/doctor';
   static const String doctorPatientDetail = '/doctor/patient-detail';
+  static const String doctorMedPatients = '/doctor/med-patients';
+  static const String doctorPendingPatients = '/doctor/pending-patients';
 
   // Family feature routes
   static const String familyConnect = '/family/connect';
@@ -66,8 +70,10 @@ class AppRouter {
 
   // Subscription/payment routes
   static const String subscriptionUpgrade = '/subscription/upgrade';
-  static const String subscriptionPaymentMethod = '/subscription/payment-method';
-  static const String subscriptionBakongPayment = '/subscription/bakong-payment';
+  static const String subscriptionPaymentMethod =
+      '/subscription/payment-method';
+  static const String subscriptionBakongPayment =
+      '/subscription/bakong-payment';
   static const String subscriptionQrCode = '/subscription/qr-code';
   static const String subscriptionSuccess = '/subscription/success';
 
@@ -100,25 +106,31 @@ class AppRouter {
         return _buildRoute(const RegisterDoctorScreen());
       case otpVerification:
         final args = settings.arguments as Map<String, dynamic>?;
-        return _buildRoute(OtpVerificationScreen(
-          identifier: args?['identifier'] ?? args?['phoneNumber'] ?? '',
-        ));
+        return _buildRoute(
+          OtpVerificationScreen(
+            identifier: args?['identifier'] ?? args?['phoneNumber'] ?? '',
+          ),
+        );
       case forgotPassword:
         return _buildRoute(const ForgotPasswordScreen());
       case resetPassword:
         final args = settings.arguments as Map<String, dynamic>?;
-        return _buildRoute(ResetPasswordScreen(
-          identifier: args?['identifier'] ?? '',
-        ));
+        return _buildRoute(
+          ResetPasswordScreen(identifier: args?['identifier'] ?? ''),
+        );
       case patientHome:
         return _buildRoute(const PatientShell());
       case doctorHome:
         return _buildRoute(const DoctorShell());
       case doctorPatientDetail:
         final args = settings.arguments as Map<String, dynamic>?;
-        return _buildRoute(PatientDetailScreen(
-          patientId: args?['patientId'] ?? '',
-        ));
+        return _buildRoute(
+          PatientDetailScreen(patientId: args?['patientId'] ?? ''),
+        );
+      case doctorMedPatients:
+        return _buildRoute(const MedPatientListScreen());
+      case doctorPendingPatients:
+        return _buildRoute(const PendingPatientListScreen());
 
       // Family routes
       case familyConnect:
@@ -136,8 +148,10 @@ class AppRouter {
       case familyAccessList:
         return _buildRoute(const FamilyAccessListScreen());
       case familyCaregiverDashboard:
-        return _buildRoute(const CaregiverDashboardScreen(),
-            settings: settings);
+        return _buildRoute(
+          const CaregiverDashboardScreen(),
+          settings: settings,
+        );
       case familyGracePeriod:
         return _buildRoute(const GracePeriodSettingsScreen());
       case familyHistory:
@@ -166,43 +180,41 @@ class AppRouter {
         return _buildRoute(const CreateBatchScreen());
       case batchDetail:
         final args = settings.arguments as Map<String, dynamic>?;
-        return _buildRoute(BatchDetailScreen(
-          batchId: args?['batchId'] ?? '',
-        ));
+        return _buildRoute(BatchDetailScreen(batchId: args?['batchId'] ?? ''));
       case ocrPreview:
         final args = settings.arguments as Map<String, dynamic>? ?? {};
         return _buildRoute(OcrPreviewScreen(extractedData: args));
       case prescriptionDetail:
         final args = settings.arguments as Map<String, dynamic>?;
-        return _buildRoute(PrescriptionDetailScreen(
-          prescriptionId: args?['prescriptionId'] ?? '',
-        ));
+        return _buildRoute(
+          PrescriptionDetailScreen(
+            prescriptionId: args?['prescriptionId'] ?? '',
+          ),
+        );
 
       // Health monitoring routes
       case patientRecordVital:
         return _buildRoute(const RecordVitalScreen());
       case patientVitalTrend:
         final args = settings.arguments as Map<String, dynamic>?;
-        return _buildRoute(VitalTrendScreen(
-          vitalType: args?['vitalType'] as VitalType? ?? VitalType.heartRate,
-        ));
+        return _buildRoute(
+          VitalTrendScreen(
+            vitalType: args?['vitalType'] as VitalType? ?? VitalType.heartRate,
+          ),
+        );
       case patientVitalThresholds:
         return _buildRoute(const VitalThresholdsScreen());
       case patientEmergency:
         return _buildRoute(const EmergencyScreen());
 
       default:
-        return _buildRoute(const Scaffold(
-          body: Center(child: Text('Page not found')),
-        ));
+        return _buildRoute(
+          const Scaffold(body: Center(child: Text('Page not found'))),
+        );
     }
   }
 
-  static MaterialPageRoute _buildRoute(Widget page,
-      {RouteSettings? settings}) {
-    return MaterialPageRoute(
-      builder: (_) => page,
-      settings: settings,
-    );
+  static MaterialPageRoute _buildRoute(Widget page, {RouteSettings? settings}) {
+    return MaterialPageRoute(builder: (_) => page, settings: settings);
   }
 }

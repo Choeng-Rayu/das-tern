@@ -2108,6 +2108,18 @@ abstract class AppLocalizations {
   /// **'Open in Banking App'**
   String get openInBankingApp;
 
+  /// No description provided for @orOpenDirectly.
+  ///
+  /// In en, this message translates to:
+  /// **'Or tap to open your banking app directly:'**
+  String get orOpenDirectly;
+
+  /// No description provided for @noBankingAppInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open banking app. Please scan the QR code instead.'**
+  String get noBankingAppInstalled;
+
   /// No description provided for @bankNotInstalled.
   ///
   /// In en, this message translates to:
@@ -2539,6 +2551,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Find Patient'**
   String get findPatient;
+
+  /// No description provided for @personUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'person(s)'**
+  String get personUnit;
+
+  /// No description provided for @statisticsChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics Chart'**
+  String get statisticsChart;
+
+  /// No description provided for @receivedMeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get receivedMeds;
+
+  /// No description provided for @missedMeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed'**
+  String get missedMeds;
+
+  /// No description provided for @dayFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get dayFilter;
+
+  /// No description provided for @monthFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get monthFilter;
+
+  /// No description provided for @alertsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get alertsLabel;
+
+  /// No description provided for @missedTimesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'times'**
+  String get missedTimesLabel;
+
+  /// No description provided for @noAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts at this time'**
+  String get noAlerts;
+
+  /// No description provided for @noReceivingPatientsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No patients are currently receiving medication'**
+  String get noReceivingPatientsHint;
+
+  /// No description provided for @noPendingPatientsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'All patients are on track — no pending medication'**
+  String get noPendingPatientsHint;
+
+  /// No description provided for @patientsInTreatment.
+  ///
+  /// In en, this message translates to:
+  /// **'Patients Received Medication'**
+  String get patientsInTreatment;
+
+  /// No description provided for @patientsPendingMeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Patients Pending Medication'**
+  String get patientsPendingMeds;
+
+  /// No description provided for @dayMon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get dayMon;
+
+  /// No description provided for @dayTue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get dayTue;
+
+  /// No description provided for @dayWed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get dayWed;
+
+  /// No description provided for @dayThu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get dayThu;
+
+  /// No description provided for @dayFri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get dayFri;
+
+  /// No description provided for @daySat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get daySat;
+
+  /// No description provided for @daySun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get daySun;
 
   /// No description provided for @myPatients.
   ///
