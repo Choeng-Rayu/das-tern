@@ -1,0 +1,30 @@
+{
+  "success": true,
+  "extracted_data": {
+    "medications": [
+      {
+        "medication_name": "Butylscopolami",
+        "strength": "5mg",
+        "form": null,
+        "dosage": "1 tablet",
+        "frequency": "twice daily",
+        "frequency_times": 2,
+        "duration": "14 days",
+        "duration_days": 14,
+        "instructions_english": "Take 1 tablet twice daily for 14 days",
+        "instructions_khmer": "ផឹកថ្នាំ ១គ្រាប់ ២ដង ក្នុងមួយថ្ងៃ រយៈពេល ១៤ថ្ងៃ"
+      }
+    ],
+    "diagnosis": [
+      "Chronic Cystitis",
+      "Ironic Cystitis"
+    ],
+    "prescriber_name": "Dr. Yu Siu Heng",
+    "prescriber_facility": "Suh Clinic, Phnom Penh",
+    "prescription_date": "2025-06-15T14:20:00",
+    "language_detected": "km"
+  },
+  "model_used": "dastern-medical-extractor",
+  "confidence": 0.9,
+  "medications_found": 1
+}

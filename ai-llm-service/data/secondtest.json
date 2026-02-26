@@ -1,0 +1,226 @@
+{
+  "meta": {
+    "languages": ["eng", "khm", "fra"],
+    "dpi": 71,
+    "processing_time_ms": 1113.839864730835,
+    "model_version": "default",
+    "stage_times": {
+      "validation": 31.834125518798828,
+      "quality_analysis": 32.79995918273926,
+      "preprocessing": 7.3680877685546875,
+      "layout_analysis": 19.215822219848633,
+      "ocr_extraction": 1021.5511322021484,
+      "postprocessing": 0.9088516235351562
+    },
+    "image_size": {
+      "width": 930,
+      "height": 1280
+    }
+  },
+  "quality": {
+    "blur": "low",
+    "blur_score": 1802.9228543629022,
+    "contrast": "ok",
+    "contrast_score": 44.68520600625875,
+    "skew_angle": -2.0825652797308845,
+    "dpi": 71,
+    "is_grayscale": false
+  },
+  "blocks": [
+    {
+      "type": "text",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 975,
+        "height": 1312
+      },
+      "lines": [
+        {
+          "text": "DCE H. យ វ EP |",
+          "bbox": {
+            "x": 96,
+            "y": 34,
+            "width": 879,
+            "height": 153
+          },
+          "confidence": 0.58,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "KhmerSovet កករ Horn",
+          "bbox": {
+            "x": 156,
+            "y": 109,
+            "width": 168,
+            "height": 37
+          },
+          "confidence": 0.22,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "លេខកូដ: HAKF1354164 ឈ្មោះអ្នកជំងឺ: ង៉ាំ ដានី អាយុ: 19 ឆ្នាំ ភេទ: ស្រី |",
+          "bbox": {
+            "x": 92,
+            "y": 166,
+            "width": 877,
+            "height": 37
+          },
+          "confidence": 0.9245454545454546,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "ប្រភេទបង់ប្រាក់ : មូលនិធិសមធម៌ / 20051002-0409 |",
+          "bbox": {
+            "x": 91,
+            "y": 207,
+            "width": 878,
+            "height": 34
+          },
+          "confidence": 0.81,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "រោគវិនិច្ឆ័យ : 1. Chronic Cystitis",
+          "bbox": {
+            "x": 90,
+            "y": 254,
+            "width": 253,
+            "height": 28
+          },
+          "confidence": 0.9380000000000001,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "2. Encour ménorhée",
+          "bbox": {
+            "x": 191,
+            "y": 291,
+            "width": 170,
+            "height": 17
+          },
+          "confidence": 0.9266666666666667,
+          "language": "fr",
+          "tags": []
+        },
+        {
+          "text": "ផ្នែក : ពិគ្រោះជំងឺក្រៅ - បន្ទប់លេខ 5 :",
+          "bbox": {
+            "x": 88,
+            "y": 342,
+            "width": 862,
+            "height": 39
+          },
+          "confidence": 0.8528571428571429,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "វេជ្ជបញ្ជា ស",
+          "bbox": {
+            "x": 456,
+            "y": 386,
+            "width": 439,
+            "height": 46
+          },
+          "confidence": 0.655,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "Butylscopolamine Ef ន a",
+          "bbox": {
+            "x": 130,
+            "y": 504,
+            "width": 824,
+            "height": 52
+          },
+          "confidence": 0.48250000000000004,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "oe eo ie",
+          "bbox": {
+            "x": 81,
+            "y": 544,
+            "width": 872,
+            "height": 105
+          },
+          "confidence": 0.29,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "SA ees",
+          "bbox": {
+            "x": 780,
+            "y": 567,
+            "width": 173,
+            "height": 27
+          },
+          "confidence": 0.30000000000000004,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "Esome 20mg |7 គ្រាប់ស្រោប| PO |គ្រាប់ ក្រោយបាយ ន",
+          "bbox": {
+            "x": 128,
+            "y": 636,
+            "width": 700,
+            "height": 48
+          },
+          "confidence": 0.74625,
+          "language": "kh",
+          "tags": ["time_candidate", "quantity_candidate"]
+        },
+        {
+          "text": "= 2 1 | គ្រាប់ ហង ក",
+          "bbox": {
+            "x": 126,
+            "y": 689,
+            "width": 676,
+            "height": 72
+          },
+          "confidence": 0.3628571428571429,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "ara យ បយ",
+          "bbox": {
+            "x": 138,
+            "y": 712,
+            "width": 639,
+            "height": 33
+          },
+          "confidence": 0.7166666666666667,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "- ; រាជធានីភ្នំពេញ,ថ្ងៃទី 22/06/2",
+          "bbox": {
+            "x": 382,
+            "y": 783,
+            "width": 410,
+            "height": 36
+          },
+          "confidence": 0.595,
+          "language": "kh",
+          "tags": ["time_candidate"]
+        }
+      ],
+      "raw_text": "DCE H. យ វ EP |\nKhmerSovet កករ Horn\nលេខកូដ: HAKF1354164 ឈ្មោះអ្នកជំងឺ: ង៉ាំ ដានី អាយុ: 19 ឆ្នាំ ភេទ: ស្រី |\nប្រភេទបង់ប្រាក់ : មូលនិធិសមធម៌ / 20051002-0409 |\nរោគវិនិច្ឆ័យ : 1. Chronic Cystitis\n2. Encour ménorhée\nផ្នែក : ពិគ្រោះជំងឺក្រៅ - បន្ទប់លេខ 5 :\nវេជ្ជបញ្ជា ស\nButylscopolamine Ef ន a\noe eo ie\nSA ees\nEsome 20mg |7 គ្រាប់ស្រោប| PO |គ្រាប់ ក្រោយបាយ ន\n= 2 1 | គ្រាប់ ហង ក\nara យ បយ\n- ; រាជធានីភ្នំពេញ,ថ្ងៃទី 22/06/2"
+    }
+  ],
+  "full_text": "",
+  "success": false,
+  "error": null
+}
