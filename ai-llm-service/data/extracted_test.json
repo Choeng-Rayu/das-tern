@@ -1,0 +1,41 @@
+{
+  "success": true,
+  "extracted_data": {
+    "medications": [
+      {
+        "medication_name": "Butylscopolami",
+        "strength": null,
+        "form": null,
+        "dosage": null,
+        "frequency": null,
+        "frequency_times": null,
+        "duration": null,
+        "duration_days": null,
+        "instructions_english": null,
+        "instructions_khmer": "ប៉ុតាលស្គូប៉ូឡាម៉ាី"
+      },
+      {
+        "medication_name": "Semen",
+        "strength": null,
+        "form": null,
+        "dosage": null,
+        "frequency": null,
+        "frequency_times": null,
+        "duration": null,
+        "duration_days": null,
+        "instructions_english": null,
+        "instructions_khmer": "សេម៉ែន"
+      }
+    ],
+    "diagnosis": [
+      "Chronic Cystitis"
+    ],
+    "prescriber_name": "Dr. Yu Siu Heng",
+    "prescriber_facility": "Mittapheap Hospital (Khmer= Soviet H-E QIP)",
+    "prescription_date": "15/06/2025",
+    "language_detected": "km"
+  },
+  "model_used": "dastern-medical-extractor",
+  "confidence": 0.9,
+  "medications_found": 2
+}

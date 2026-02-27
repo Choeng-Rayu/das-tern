@@ -1,0 +1,977 @@
+{
+  "success": true,
+  "page": 1,
+  "raw": [
+    {
+      "text": "លេខកូដ:",
+      "confidence": 92,
+      "bbox": {
+        "x": 46,
+        "y": 192,
+        "w": 77,
+        "h": 26
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 1,
+      "word": 1
+    },
+    {
+      "text": "HAKF",
+      "confidence": 89,
+      "bbox": {
+        "x": 139,
+        "y": 192,
+        "w": 46,
+        "h": 19
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 1,
+      "word": 2
+    },
+    {
+      "text": "1354164",
+      "confidence": 93,
+      "bbox": {
+        "x": 191,
+        "y": 183,
+        "w": 79,
+        "h": 39
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 1,
+      "word": 3
+    },
+    {
+      "text": "ឈ្មោះអ្នកជំងឺ:",
+      "confidence": 58,
+      "bbox": {
+        "x": 375,
+        "y": 179,
+        "w": 116,
+        "h": 34
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 1,
+      "word": 4
+    },
+    {
+      "text": "ង៉ាំ",
+      "confidence": 92,
+      "bbox": {
+        "x": 499,
+        "y": 180,
+        "w": 20,
+        "h": 31
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 1,
+      "word": 5
+    },
+    {
+      "text": "ដានី",
+      "confidence": 96,
+      "bbox": {
+        "x": 529,
+        "y": 179,
+        "w": 32,
+        "h": 25
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 1,
+      "word": 6
+    },
+    {
+      "text": "អាយុ:",
+      "confidence": 79,
+      "bbox": {
+        "x": 653,
+        "y": 183,
+        "w": 48,
+        "h": 24
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 1,
+      "word": 7
+    },
+    {
+      "text": "19",
+      "confidence": 87,
+      "bbox": {
+        "x": 710,
+        "y": 183,
+        "w": 22,
+        "h": 17
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 1,
+      "word": 8
+    },
+    {
+      "text": "ឆ្នាំ",
+      "confidence": 96,
+      "bbox": {
+        "x": 739,
+        "y": 176,
+        "w": 20,
+        "h": 30
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 1,
+      "word": 9
+    },
+    {
+      "text": "ភេទ:",
+      "confidence": 90,
+      "bbox": {
+        "x": 766,
+        "y": 174,
+        "w": 77,
+        "h": 30
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 1,
+      "word": 10
+    },
+    {
+      "text": "ស្រី",
+      "confidence": 90,
+      "bbox": {
+        "x": 818,
+        "y": 170,
+        "w": 29,
+        "h": 41
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 1,
+      "word": 11
+    },
+    {
+      "text": "ប្រភេទបង់ប្រាត់",
+      "confidence": 92,
+      "bbox": {
+        "x": 45,
+        "y": 237,
+        "w": 131,
+        "h": 33
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 2,
+      "word": 1
+    },
+    {
+      "text": ":",
+      "confidence": 93,
+      "bbox": {
+        "x": 184,
+        "y": 248,
+        "w": 4,
+        "h": 13
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 2,
+      "word": 2
+    },
+    {
+      "text": "មូលនិនិសមធម៌",
+      "confidence": 86,
+      "bbox": {
+        "x": 195,
+        "y": 233,
+        "w": 130,
+        "h": 34
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 2,
+      "word": 3
+    },
+    {
+      "text": "/",
+      "confidence": 92,
+      "bbox": {
+        "x": 331,
+        "y": 241,
+        "w": 7,
+        "h": 18
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 2,
+      "word": 4
+    },
+    {
+      "text": "20051002-0409",
+      "confidence": 92,
+      "bbox": {
+        "x": 344,
+        "y": 238,
+        "w": 149,
+        "h": 20
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 2,
+      "word": 5
+    },
+    {
+      "text": "ni",
+      "confidence": 56,
+      "bbox": {
+        "x": 80,
+        "y": 306,
+        "w": 38,
+        "h": 26
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 3,
+      "word": 1
+    },
+    {
+      "text": "ae",
+      "confidence": 21,
+      "bbox": {
+        "x": 842,
+        "y": 270,
+        "w": 75,
+        "h": 38
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 3,
+      "word": 2
+    },
+    {
+      "text": "រោគវិនិច្ឆ័យ",
+      "confidence": 92,
+      "bbox": {
+        "x": 46,
+        "y": 313,
+        "w": 139,
+        "h": 20
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 4,
+      "word": 1
+    },
+    {
+      "text": ":",
+      "confidence": 92,
+      "bbox": {
+        "x": 152,
+        "y": 301,
+        "w": 8,
+        "h": 41
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 4,
+      "word": 2
+    },
+    {
+      "text": "Chronic",
+      "confidence": 93,
+      "bbox": {
+        "x": 165,
+        "y": 313,
+        "w": 20,
+        "h": 18
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 4,
+      "word": 3
+    },
+    {
+      "text": "Cystiti",
+      "confidence": 42,
+      "bbox": {
+        "x": 275,
+        "y": 310,
+        "w": 20,
+        "h": 18
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 4,
+      "word": 4
+    },
+    {
+      "text": "fin",
+      "confidence": 17,
+      "bbox": {
+        "x": 853,
+        "y": 302,
+        "w": 32,
+        "h": 20
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 4,
+      "word": 5
+    },
+    {
+      "text": "q",
+      "confidence": 84,
+      "bbox": {
+        "x": 106,
+        "y": 315,
+        "w": 12,
+        "h": 24
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 5,
+      "word": 1
+    },
+    {
+      "text": "ironic",
+      "confidence": 5,
+      "bbox": {
+        "x": 187,
+        "y": 316,
+        "w": 46,
+        "h": 14
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 5,
+      "word": 2
+    },
+    {
+      "text": "Cystitis",
+      "confidence": 96,
+      "bbox": {
+        "x": 254,
+        "y": 314,
+        "w": 52,
+        "h": 19
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 5,
+      "word": 3
+    },
+    {
+      "text": "eee",
+      "confidence": 7,
+      "bbox": {
+        "x": 844,
+        "y": 292,
+        "w": 76,
+        "h": 51
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 5,
+      "word": 4
+    },
+    {
+      "text": "|",
+      "confidence": 95,
+      "bbox": {
+        "x": 954,
+        "y": 299,
+        "w": 4,
+        "h": 43
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 5,
+      "word": 5
+    },
+    {
+      "text": "ផ្នែក",
+      "confidence": 92,
+      "bbox": {
+        "x": 45,
+        "y": 371,
+        "w": 36,
+        "h": 31
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 6,
+      "word": 1
+    },
+    {
+      "text": ":",
+      "confidence": 91,
+      "bbox": {
+        "x": 89,
+        "y": 382,
+        "w": 5,
+        "h": 13
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 6,
+      "word": 2
+    },
+    {
+      "text": "ពិគ្រោះជំងឺក្រៅ",
+      "confidence": 90,
+      "bbox": {
+        "x": 102,
+        "y": 367,
+        "w": 124,
+        "h": 33
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 6,
+      "word": 3
+    },
+    {
+      "text": "-",
+      "confidence": 93,
+      "bbox": {
+        "x": 233,
+        "y": 383,
+        "w": 7,
+        "h": 4
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 6,
+      "word": 4
+    },
+    {
+      "text": "បន្ទប់លេខ",
+      "confidence": 96,
+      "bbox": {
+        "x": 246,
+        "y": 366,
+        "w": 86,
+        "h": 31
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 6,
+      "word": 5
+    },
+    {
+      "text": "5",
+      "confidence": 96,
+      "bbox": {
+        "x": 340,
+        "y": 372,
+        "w": 11,
+        "h": 17
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 6,
+      "word": 6
+    },
+    {
+      "text": "វេជ្ជបញ្ជា",
+      "confidence": 96,
+      "bbox": {
+        "x": 428,
+        "y": 418,
+        "w": 104,
+        "h": 26
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 7,
+      "word": 1
+    },
+    {
+      "text": ":",
+      "confidence": 82,
+      "bbox": {
+        "x": 209,
+        "y": 509,
+        "w": 7,
+        "h": 6
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 8,
+      "word": 1
+    },
+    {
+      "text": "din",
+      "confidence": 65,
+      "bbox": {
+        "x": 600,
+        "y": 476,
+        "w": 37,
+        "h": 39
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 8,
+      "word": 2
+    },
+    {
+      "text": "ល្ងាច",
+      "confidence": 94,
+      "bbox": {
+        "x": 768,
+        "y": 481,
+        "w": 44,
+        "h": 25
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 8,
+      "word": 3
+    },
+    {
+      "text": "|",
+      "confidence": 94,
+      "bbox": {
+        "x": 827,
+        "y": 468,
+        "w": 14,
+        "h": 42
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 8,
+      "word": 4
+    },
+    {
+      "text": "យប់",
+      "confidence": 96,
+      "bbox": {
+        "x": 865,
+        "y": 472,
+        "w": 37,
+        "h": 25
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 8,
+      "word": 5
+    },
+    {
+      "text": "ន",
+      "confidence": 74,
+      "bbox": {
+        "x": 44,
+        "y": 484,
+        "w": 51,
+        "h": 74
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 9,
+      "word": 1
+    },
+    {
+      "text": "ឈ្មោះឱសថ",
+      "confidence": 74,
+      "bbox": {
+        "x": 162,
+        "y": 497,
+        "w": 107,
+        "h": 40
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 9,
+      "word": 2
+    },
+    {
+      "text": "ចំនួន",
+      "confidence": 96,
+      "bbox": {
+        "x": 400,
+        "y": 493,
+        "w": 43,
+        "h": 40
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 9,
+      "word": 3
+    },
+    {
+      "text": "វិធីប្រើ",
+      "confidence": 92,
+      "bbox": {
+        "x": 513,
+        "y": 490,
+        "w": 64,
+        "h": 39
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 9,
+      "word": 4
+    },
+    {
+      "text": "(68)",
+      "confidence": 52,
+      "bbox": {
+        "x": 597,
+        "y": 521,
+        "w": 45,
+        "h": 22
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 9,
+      "word": 5
+    },
+    {
+      "text": "(05-06)",
+      "confidence": 85,
+      "bbox": {
+        "x": 755,
+        "y": 516,
+        "w": 70,
+        "h": 23
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 9,
+      "word": 6
+    },
+    {
+      "text": "|",
+      "confidence": 90,
+      "bbox": {
+        "x": 833,
+        "y": 485,
+        "w": 5,
+        "h": 58
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 9,
+      "word": 7
+    },
+    {
+      "text": "(08-10)",
+      "confidence": 95,
+      "bbox": {
+        "x": 847,
+        "y": 514,
+        "w": 70,
+        "h": 23
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 9,
+      "word": 8
+    },
+    {
+      "text": "Butylscopolami",
+      "confidence": 77,
+      "bbox": {
+        "x": 107,
+        "y": 571,
+        "w": 143,
+        "h": 23
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 10,
+      "word": 1
+    },
+    {
+      "text": "5",
+      "confidence": 5,
+      "bbox": {
+        "x": 451,
+        "y": 571,
+        "w": 4,
+        "h": 7
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 10,
+      "word": 2
+    },
+    {
+      "text": "ន",
+      "confidence": 48,
+      "bbox": {
+        "x": 45,
+        "y": 541,
+        "w": 883,
+        "h": 90
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 11,
+      "word": 1
+    },
+    {
+      "text": "បយ",
+      "confidence": 2,
+      "bbox": {
+        "x": 46,
+        "y": 615,
+        "w": 913,
+        "h": 75
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 12,
+      "word": 1
+    },
+    {
+      "text": "បឬយ272@777ញាញយាយាយ",
+      "confidence": 0,
+      "bbox": {
+        "x": 46,
+        "y": 675,
+        "w": 885,
+        "h": 75
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 13,
+      "word": 1
+    },
+    {
+      "text": "យ",
+      "confidence": 36,
+      "bbox": {
+        "x": 47,
+        "y": 752,
+        "w": 50,
+        "h": 59
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 14,
+      "word": 1
+    },
+    {
+      "text": "RIRES",
+      "confidence": 19,
+      "bbox": {
+        "x": 556,
+        "y": 713,
+        "w": 181,
+        "h": 114
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 14,
+      "word": 2
+    },
+    {
+      "text": "ER",
+      "confidence": 34,
+      "bbox": {
+        "x": 755,
+        "y": 713,
+        "w": 77,
+        "h": 114
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 14,
+      "word": 3
+    },
+    {
+      "text": "ES",
+      "confidence": 34,
+      "bbox": {
+        "x": 841,
+        "y": 713,
+        "w": 95,
+        "h": 114
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 14,
+      "word": 4
+    },
+    {
+      "text": "រាជធានីភ្នំពេញ,ថ្ងៃទី",
+      "confidence": 90,
+      "bbox": {
+        "x": 551,
+        "y": 836,
+        "w": 170,
+        "h": 35
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 15,
+      "word": 1
+    },
+    {
+      "text": "15/06/2025",
+      "confidence": 94,
+      "bbox": {
+        "x": 730,
+        "y": 843,
+        "w": 110,
+        "h": 19
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 15,
+      "word": 2
+    },
+    {
+      "text": "14:20",
+      "confidence": 96,
+      "bbox": {
+        "x": 848,
+        "y": 841,
+        "w": 54,
+        "h": 19
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 15,
+      "word": 3
+    },
+    {
+      "text": "គ្រពេទ្យព្យាបាល",
+      "confidence": 83,
+      "bbox": {
+        "x": 655,
+        "y": 896,
+        "w": 144,
+        "h": 26
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 16,
+      "word": 1
+    },
+    {
+      "text": "Suh",
+      "confidence": 17,
+      "bbox": {
+        "x": 636,
+        "y": 921,
+        "w": 166,
+        "h": 91
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 17,
+      "word": 1
+    },
+    {
+      "text": "|",
+      "confidence": 94,
+      "bbox": {
+        "x": 958,
+        "y": 976,
+        "w": 1,
+        "h": 4
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 17,
+      "word": 2
+    },
+    {
+      "text": "សូមយកវេដ្ជបញ្ជាមកវិញ",
+      "confidence": 51,
+      "bbox": {
+        "x": 68,
+        "y": 1015,
+        "w": 205,
+        "h": 35
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 18,
+      "word": 1
+    },
+    {
+      "text": "ពេលពិនិត្យលើកក្រោយ",
+      "confidence": 90,
+      "bbox": {
+        "x": 281,
+        "y": 1014,
+        "w": 201,
+        "h": 33
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 18,
+      "word": 2
+    },
+    {
+      "text": "វេជ្ជបណ្ឌិត",
+      "confidence": 93,
+      "bbox": {
+        "x": 618,
+        "y": 1020,
+        "w": 89,
+        "h": 33
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 18,
+      "word": 3
+    },
+    {
+      "text": "យុយ",
+      "confidence": 91,
+      "bbox": {
+        "x": 716,
+        "y": 1025,
+        "w": 44,
+        "h": 26
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 18,
+      "word": 4
+    },
+    {
+      "text": "ស៊ីវហេង",
+      "confidence": 89,
+      "bbox": {
+        "x": 768,
+        "y": 1017,
+        "w": 72,
+        "h": 33
+      },
+      "block": 1,
+      "paragraph": 1,
+      "line": 18,
+      "word": 5
+    }
+  ],
+  "stats": {
+    "total_words": 68,
+    "avg_confidence": 73.57,
+    "min_confidence": 0,
+    "max_confidence": 96,
+    "total_blocks": 1,
+    "total_lines": 18,
+    "image_width": 959,
+    "image_height": 1280
+  },
+  "languages_used": "khm+eng+fra",
+  "error": null,
+  "corrected_text": "លេខកូដ: HAKF 1354164 ឈ្មោះអ្នកជំងឺ: ង៉ាំ ដានី អាយុ: 19 ឆ្នាំ ភេទ: ស្រី ប្រភេទបង់ប្រាត់ : មូលនិនិសមធម៌ / 20051002-0409 ni ae រោគវិនិច្ឆ័យ : Chronic Cystiti fin q ironic Cystitis eee | ផ្នែក : ពិគ្រោះជំងឺក្រៅ - បន្ទប់លេខ 5 វេជ្ជបញ្ជា : din ល្ងាច | យប់ ន ឈ្មោះឱសថ ចំនួន វិធីប្រើ (68) (05-06) | (08-10) Butylscopolami 5 ន បយ បឬយ272@777ញាញយាយាយ យ RIRES ER ES រាជធានីភ្នំពេញ,ថ្ងៃទី 15/06/2025 14:20 គ្រពេទ្យព្យាបាល Suh | សូមយកវេដ្ជបញ្ជាមកវិញ ពេលពិនិត្យលើកក្រោយ វេជ្ជបណ្ឌិត យុយ ស៊ីវហេង",
+  "reminder_text": "• លេខកូដ: HAKF 1354164 ឈ្មោះអ្នកជំងឺ: ង៉ាំ ដានី អាយុ: 19 ឆ្នាំ ភេទ: ស្រី ប្រភេទបង់ប្រាត់ : មូលនិនិសមធម៌ / 20051002-0409 ni ae រោគវិនិច្ឆ័យ : Chronic Cystiti fin q ironic Cystitis eee | ផ្នែក : ពិគ្រោះជំងឺក្រៅ - បន្ទប់លេខ 5 វេជ្ជបញ្ជា : din ល្ងាច | យប់ ន ឈ្មោះឱសថ ចំនួន វិធីប្រើ (68) (05-06) | (08-10) Butylscopolami 5 ន បយ បឬយ272@777ញាញយាយាយ យ RIRES ER ES រាជធានីភ្នំពេញ,ថ្ងៃទី 15/06/2025 14:20 គ្រពេទ្យព្យាបាល Suh | សូមយកវេដ្ជបញ្ជាមកវិញ ពេលពិនិត្យលើកក្រោយ វេជ្ជបណ្ឌិត យុយ ស៊ីវហេង",
+  "ai_enhanced": false,
+  "fallback_used": true,
+  "source_file": "image.png",
+  "timestamp": "2026-01-28T20:27:42.759546",
+  "test_number": 7
+}

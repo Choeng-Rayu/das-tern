@@ -1,0 +1,14 @@
+nohup: ignoring input
+INFO:app.core.ollama_client:OllamaClient initialized with base_url: http://localhost:11434, timeout: 300s
+INFO:app.features.reminder_engine:ReminderEngine initialized with model: llama3.2:3b, timeout: 300s
+INFO:     Started server process [8830]
+INFO:     Waiting for application startup.
+INFO:__main__:Starting Ollama AI Service...
+INFO:__main__:Ollama endpoint: http://localhost:11434
+INFO:__main__:Default model: llama3.1:8b
+INFO:__main__:Available Ollama models: ['llama3.2:3b', 'llama3.1:8b']
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8001): address already in use
+INFO:     Waiting for application shutdown.
+INFO:__main__:Shutting down Ollama AI Service...
+INFO:     Application shutdown complete.

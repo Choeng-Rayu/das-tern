@@ -53,7 +53,7 @@ dependencies:
   qr_flutter: ^4.1.0
 
   # QR Code Scanner
-  mobile_scanner: ^5.1.1
+  mobile_scanner: ^7.0.0
 
   # Share functionality
   share_plus: ^9.0.0

@@ -513,6 +513,36 @@ class _BankChooserSheet extends StatefulWidget {
 
 class _BankChooserSheetState extends State<_BankChooserSheet> {
   String? _loadingBank;
+  List<_KhBankInfo> _installedBanks = [];
+  bool _checking = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkInstalledBanks();
+  }
+
+  Future<void> _checkInstalledBanks() async {
+    final installed = <_KhBankInfo>[];
+    for (final bank in _khBanks) {
+      try {
+        final uri = bank.usesBakongDeepLink
+            ? Uri.parse(widget.deepLink)
+            : Uri.parse('intent:#Intent;package=${bank.packageAndroid};end');
+        if (await canLaunchUrl(uri)) {
+          installed.add(bank);
+        }
+      } catch (_) {
+        // skip banks that throw
+      }
+    }
+    if (mounted) {
+      setState(() {
+        _installedBanks = installed;
+        _checking = false;
+      });
+    }
+  }
 
   Future<void> _openBank(_KhBankInfo bank) async {
     if (_loadingBank != null) return;
@@ -598,21 +628,38 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
           const SizedBox(height: 20),
 
           // Bank list
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _khBanks.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
-            itemBuilder: (_, i) {
-              final bank = _khBanks[i];
-              return _BankTile(
-                bank: bank,
-                isLoading: _loadingBank == bank.name,
-                disabled: _loadingBank != null && _loadingBank != bank.name,
-                onTap: () => _openBank(bank),
-              );
-            },
-          ),
+          if (_checking) ...[
+            const SizedBox(height: 16),
+            const Center(child: CircularProgressIndicator()),
+            const SizedBox(height: 16),
+          ] else if (_installedBanks.isEmpty) ...[
+            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                'No compatible banking apps found.\nInstall ABA, ACLEDA, Wing, or Bakong.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ] else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _installedBanks.length,
+              separatorBuilder: (context, index) => const Divider(height: 1),
+              itemBuilder: (_, i) {
+                final bank = _installedBanks[i];
+                return _BankTile(
+                  bank: bank,
+                  isLoading: _loadingBank == bank.name,
+                  disabled: _loadingBank != null && _loadingBank != bank.name,
+                  onTap: () => _openBank(bank),
+                );
+              },
+            ),
         ],
       ),
     );

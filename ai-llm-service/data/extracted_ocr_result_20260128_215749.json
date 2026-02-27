@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "extracted_data": {
+    "medications": [],
+    "diagnosis": [],
+    "prescriber_name": null,
+    "prescriber_facility": null,
+    "error": "Failed to parse response"
+  },
+  "model_used": "dastern-medical-extractor",
+  "confidence": 0.9,
+  "medications_found": 0
+}
