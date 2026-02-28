@@ -8,7 +8,7 @@ import numpy as np
 import pytesseract
 
 from app.pipeline.preprocessor import preprocess_image
-from app.pipeline.layout import analyze_layout, LayoutResult
+from app.pipeline.layout import analyze_layout, LayoutResult, TableRowReconstructor
 from app.pipeline.ocr_engine import OCREngine, OCRResult
 from app.pipeline.postprocessor import PostProcessor
 from app.pipeline.formatter import build_dynamic_universal, build_extraction_summary
@@ -56,6 +56,7 @@ class PipelineOrchestrator:
     def __init__(self):
         self.ocr_engine = OCREngine()
         self.post_processor = PostProcessor()
+        self.row_reconstructor = TableRowReconstructor()
         logger.info("Pipeline orchestrator initialized")
 
     @staticmethod
@@ -384,8 +385,8 @@ class PipelineOrchestrator:
         if not words:
             return [], []
 
-        # Group words into rows by y-position
-        rows = self._cluster_words_by_y(words, threshold=30)
+        # Group words into rows by Y-center alignment (uses configurable tolerance)
+        rows = self.row_reconstructor.cluster_word_dicts(words)
 
         # Map each row's words to columns, then identify medication rows
         med_rows = []
@@ -533,7 +534,7 @@ class PipelineOrchestrator:
                 continue
 
             all_words = words
-            rows = self._cluster_words_by_y(words, threshold=30)
+            rows = self.row_reconstructor.cluster_word_dicts(words)
 
             item_num = 0
             for row_words in rows:
@@ -685,26 +686,15 @@ class PipelineOrchestrator:
 
 
     def _cluster_words_by_y(self, words: list, threshold: int = 30) -> List[list]:
-        """Group words into rows based on y-position proximity."""
+        """Group words into rows based on y-position proximity.
+
+        .. deprecated:: Use ``self.row_reconstructor.cluster_word_dicts`` directly.
+        Kept for backward compatibility.
+        """
         if not words:
             return []
-
-        sorted_words = sorted(words, key=lambda w: w['y'])
-        groups = []
-        current_group = [sorted_words[0]]
-
-        for w in sorted_words[1:]:
-            avg_y = sum(x['y'] for x in current_group) / len(current_group)
-            if abs(w['y'] - avg_y) <= threshold:
-                current_group.append(w)
-            else:
-                groups.append(current_group)
-                current_group = [w]
-
-        if current_group:
-            groups.append(current_group)
-
-        return groups
+        reconstructor = TableRowReconstructor(tolerance=threshold, adaptive=False)
+        return reconstructor.cluster_word_dicts(words)
 
     def _map_words_to_columns(self, words: list, col_x: list) -> Dict[str, Any]:
         """Map words to text columns based on x-position (H-EQIP fixed boundaries).

@@ -37,6 +37,12 @@ class Settings(BaseSettings):
     # Fuzzy Matching
     MED_NAME_MATCH_THRESHOLD: int = 85
 
+    # Table Row Reconstruction
+    ROW_Y_TOLERANCE: int = 10  # max |y1 - y2| for two boxes to be in the same row
+    ROW_Y_TOLERANCE_ADAPTIVE: bool = True  # auto-scale tolerance based on avg box height
+    ROW_Y_TOLERANCE_ADAPTIVE_FACTOR: float = 0.5  # tolerance = max(ROW_Y_TOLERANCE, avg_h * factor)
+    TABLE_MERGE_THRESHOLD: int = 15  # merge close y-values in table grid detection
+
     # Paths
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
