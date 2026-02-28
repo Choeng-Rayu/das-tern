@@ -414,33 +414,19 @@ class _BankChip extends StatelessWidget {
 }
 
 // ─── Known Cambodian Banking App Data ───
-///
-/// Launch strategy per bank:
-/// • [usesBakongDeepLink] == true  → launch the Bakong short-link directly.
-///   The NBC Bakong app is the verified App-Link handler for
-///   `bakong-deeplink.nbc.gov.kh`, so the payment is pre-loaded and the
-///   user only needs to enter their PIN.
-///
-/// • [usesBakongDeepLink] == false → open the bank's app by Android package
-///   using an intent URI (`intent:#Intent;package=...;end`).  The app opens
-///   to its home screen and the user scans the KHQR already visible on this
-///   screen with the bank's built-in QR scanner.
+/// Each entry maps a bank name to its Android package ID for installation
+/// detection and deep-link routing.
 class _KhBankInfo {
   final String name;
   final String packageAndroid;
   final Color color;
   final String initial;
 
-  /// When true the Bakong deep-link URL is used (pre-loaded payment).
-  /// When false the app is opened by its Android package (user scans QR).
-  final bool usesBakongDeepLink;
-
   const _KhBankInfo({
     required this.name,
     required this.packageAndroid,
     required this.color,
     required this.initial,
-    this.usesBakongDeepLink = false,
   });
 }
 
@@ -468,7 +454,6 @@ const List<_KhBankInfo> _khBanks = [
     packageAndroid: 'kh.gov.nbc.bakong',
     color: Color(0xFF003087),
     initial: 'BK',
-    usesBakongDeepLink: true,
   ),
   _KhBankInfo(
     name: 'LOLC Cambodia',
@@ -491,17 +476,21 @@ const List<_KhBankInfo> _khBanks = [
 ];
 
 // ─── Bank Chooser Bottom Sheet ───
-/// Bottom sheet listing KHQR-compatible banks.
+/// Bottom sheet that detects which KHQR-compatible banking apps are installed
+/// on the device and lists only those.
 ///
-/// Tapping **NBC Bakong** launches the verified Bakong deep-link — the Bakong
-/// wallet opens with the payment pre-loaded (user just enters PIN).
+/// Detection uses a MAIN+LAUNCHER intent URI — the most reliable way to test
+/// for a specific Android package when the package is declared in the app's
+/// <queries> manifest block.
 ///
-/// Tapping any other bank opens that bank's app directly by Android package
-/// intent.  Because `bakong-deeplink.nbc.gov.kh` is an App-Link registered
-/// exclusively to the NBC Bakong wallet, routing other banks through that URL
-/// would always open Bakong regardless of what the user tapped.  Opening by
-/// package is the correct alternative: the user sees their chosen bank's home
-/// screen and can scan the KHQR already displayed on this screen.
+/// When the user taps a bank, the Bakong payment deep-link is routed directly
+/// into that bank's package via an Android intent URI:
+///   intent://HOST/PATH#Intent;scheme=https;package=PKG;action=VIEW;end
+///
+/// This bypasses Android's default App-Link resolution (which would always
+/// pick NBC Bakong as the verified handler) and sends the payment context to
+/// the user-chosen bank. The bank app opens with the amount pre-loaded and
+/// the user only needs to enter their PIN.
 class _BankChooserSheet extends StatefulWidget {
   final String deepLink;
 
@@ -522,18 +511,24 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
     _checkInstalledBanks();
   }
 
+  /// Uses MAIN+LAUNCHER intent — the most reliable way to detect whether
+  /// an Android package is installed (requires <queries> in AndroidManifest).
   Future<void> _checkInstalledBanks() async {
     final installed = <_KhBankInfo>[];
     for (final bank in _khBanks) {
       try {
-        final uri = bank.usesBakongDeepLink
-            ? Uri.parse(widget.deepLink)
-            : Uri.parse('intent:#Intent;package=${bank.packageAndroid};end');
+        final uri = Uri.parse(
+          'intent:#Intent;'
+          'action=android.intent.action.MAIN;'
+          'category=android.intent.category.LAUNCHER;'
+          'package=${bank.packageAndroid};'
+          'end',
+        );
         if (await canLaunchUrl(uri)) {
           installed.add(bank);
         }
       } catch (_) {
-        // skip banks that throw
+        // skip
       }
     }
     if (mounted) {
@@ -544,25 +539,42 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
     }
   }
 
+  /// Opens the selected bank with the payment pre-loaded.
+  ///
+  /// For every bank we build an Android intent URI that routes the Bakong
+  /// deep-link URL directly into that bank's package:
+  ///   intent://HOST/PATH#Intent;scheme=https;package=PKG;action=VIEW;end
+  ///
+  /// Major Cambodian banks (ABA, ACLEDA, Wing, Bakong…) register as App-Link
+  /// handlers for the `bakong-deeplink.nbc.gov.kh` domain, so the bank app
+  /// receives the full payment context and the user only needs to enter their
+  /// PIN. By passing the package explicitly we bypass Android's default
+  /// single-app-link resolution and let the user's chosen bank handle it.
   Future<void> _openBank(_KhBankInfo bank) async {
     if (_loadingBank != null) return;
     setState(() => _loadingBank = bank.name);
     try {
-      final Uri uri;
-      if (bank.usesBakongDeepLink) {
-        // NBC Bakong: App-Link verified for bakong-deeplink.nbc.gov.kh
-        // Opens the Bakong wallet with the payment already set up.
-        uri = Uri.parse(widget.deepLink);
-      } else {
-        // All other banks: open the app by its Android package ID.
-        // The bank's home screen appears; the user scans the KHQR on
-        // this screen using the bank's own QR scanner.
-        uri = Uri.parse(
-          'intent:#Intent;package=${bank.packageAndroid};end',
-        );
-      }
+      final deepLinkUri = Uri.parse(widget.deepLink);
 
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      // Reconstruct host+path+query from the short link so we can embed them
+      // in the intent URI.
+      final pathAndQuery = deepLinkUri.hasQuery
+          ? '${deepLinkUri.path}?${deepLinkUri.query}'
+          : deepLinkUri.path;
+
+      final intentUri = Uri.parse(
+        'intent://${deepLinkUri.host}$pathAndQuery'
+        '#Intent;'
+        'scheme=https;'
+        'action=android.intent.action.VIEW;'
+        'package=${bank.packageAndroid};'
+        'end',
+      );
+
+      final launched = await launchUrl(
+        intentUri,
+        mode: LaunchMode.externalApplication,
+      );
       if (!launched && mounted) {
         _showError();
       } else if (mounted) {
@@ -709,10 +721,8 @@ class _BankTile extends StatelessWidget {
           color: disabled ? AppColors.neutralGray : AppColors.textPrimary,
         ),
       ),
-      subtitle: bank.usesBakongDeepLink
-          ? null
-          : Text(
-              'Scan QR to pay',
+      subtitle: Text(
+              'Open and pay',
               style: TextStyle(
                 fontSize: 11,
                 color: disabled
