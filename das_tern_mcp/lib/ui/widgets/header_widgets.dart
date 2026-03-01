@@ -35,7 +35,7 @@ class PatientHeader extends StatelessWidget {
     final hour = DateTime.now().hour;
     if (hour < 12) return 'assets/morning.png';
     if (hour < 17) return 'assets/afternoon.png';
-    return 'assets/night.png';
+    return 'assets/doctorLogo.png';
   }
 
   @override
@@ -71,20 +71,20 @@ class PatientHeader extends StatelessWidget {
             ),
 
             // ── Dark overlay for readability ───────────────────────────
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.darkBlue.withValues(alpha: 0.72),
-                      AppColors.primaryBlue.withValues(alpha: 0.55),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Positioned.fill(
+            //   child: Container(
+            //     decoration: BoxDecoration(
+            //       gradient: LinearGradient(
+            //         begin: Alignment.topLeft,
+            //         end: Alignment.bottomRight,
+            //         colors: [
+            //           AppColors.darkBlue.withValues(alpha: 0.72),
+            //           AppColors.primaryBlue.withValues(alpha: 0.55),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),ដាស់តឿនដាស់តឿន
 
             // ── Content ────────────────────────────────────────────────
             SafeArea(

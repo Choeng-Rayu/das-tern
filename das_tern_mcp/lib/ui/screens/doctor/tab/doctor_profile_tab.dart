@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../providers/locale_provider.dart';
-import '../../../ui/theme/app_colors.dart';
-import '../../../ui/theme/app_spacing.dart';
-import '../../../ui/theme/theme_provider.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../providers/auth_provider.dart';
+import '../../../../providers/locale_provider.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/app_spacing.dart';
+import '../../../theme/theme_provider.dart';
 
 /// Doctor profile tab.
 class DoctorProfileTab extends StatelessWidget {
@@ -31,32 +31,32 @@ class DoctorProfileTab extends StatelessWidget {
             CircleAvatar(
               radius: 40,
               backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
-              child: const Icon(Icons.medical_services,
-                  size: 36, color: AppColors.primaryBlue),
+              child: const Icon(
+                Icons.medical_services,
+                size: 36,
+                color: AppColors.primaryBlue,
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
               'Dr. ${user?['fullName'] ?? l10n.doctorRole}',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             if (user?['specialty'] != null)
               Text(
                 user!['specialty'],
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             if (user?['hospitalClinic'] != null)
               Text(
                 user!['hospitalClinic'],
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
             const SizedBox(height: AppSpacing.lg),
 
@@ -68,19 +68,24 @@ class DoctorProfileTab extends StatelessWidget {
                 trailing: SegmentedButton<ThemeMode>(
                   segments: const [
                     ButtonSegment(
-                        value: ThemeMode.light,
-                        icon: Icon(Icons.light_mode, size: 16)),
+                      value: ThemeMode.light,
+                      icon: Icon(Icons.light_mode, size: 16),
+                    ),
                     ButtonSegment(
-                        value: ThemeMode.system,
-                        icon: Icon(Icons.settings, size: 16)),
+                      value: ThemeMode.system,
+                      icon: Icon(Icons.settings, size: 16),
+                    ),
                     ButtonSegment(
-                        value: ThemeMode.dark,
-                        icon: Icon(Icons.dark_mode, size: 16)),
+                      value: ThemeMode.dark,
+                      icon: Icon(Icons.dark_mode, size: 16),
+                    ),
                   ],
                   selected: {themeProvider.themeMode},
-                  onSelectionChanged: (v) => themeProvider.setThemeMode(v.first),
-                  style:
-                      const ButtonStyle(visualDensity: VisualDensity.compact),
+                  onSelectionChanged: (v) =>
+                      themeProvider.setThemeMode(v.first),
+                  style: const ButtonStyle(
+                    visualDensity: VisualDensity.compact,
+                  ),
                 ),
               ),
             ),
@@ -113,14 +118,15 @@ class DoctorProfileTab extends StatelessWidget {
                 onPressed: () async {
                   await auth.logout();
                   if (!context.mounted) return;
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/login',
-                    (_) => false,
-                  );
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/login', (_) => false);
                 },
                 icon: const Icon(Icons.logout, color: AppColors.alertRed),
-                label: Text(l10n.logOut,
-                    style: TextStyle(color: AppColors.alertRed)),
+                label: Text(
+                  l10n.logOut,
+                  style: TextStyle(color: AppColors.alertRed),
+                ),
               ),
             ),
           ],

@@ -88,6 +88,10 @@ class AppRouter {
   static const String patientVitalThresholds = '/patient/vitals/thresholds';
   static const String patientEmergency = '/patient/emergency';
 
+  static String? patientNotifications;
+
+  // static String get patientNotifications => null;
+
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:

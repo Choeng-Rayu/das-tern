@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../services/api_service.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/app_spacing.dart';
 import '../../../../utils/app_router.dart';
-import '../../widgets/common_widgets.dart';
+import '../../../widgets/common_widgets.dart';
 
 /// Scan Prescription tab – captures/picks prescription image, extracts via OCR,
 /// then navigates to an editable preview screen before saving.
@@ -44,18 +44,28 @@ class _PatientScanTabState extends State<PatientScanTab> {
       // Ensure filename has a valid image extension
       String filename = image.name;
       final knownExts = ['jpg', 'jpeg', 'png', 'webp', 'pdf'];
-      final hasValidExt = filename.contains('.') &&
+      final hasValidExt =
+          filename.contains('.') &&
           knownExts.contains(filename.toLowerCase().split('.').last);
 
       if (!hasValidExt) {
         String ext = 'jpg';
         if (bytes.length >= 4) {
-          if (bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47) {
+          if (bytes[0] == 0x89 &&
+              bytes[1] == 0x50 &&
+              bytes[2] == 0x4E &&
+              bytes[3] == 0x47) {
             ext = 'png';
           } else if (bytes.length >= 12 &&
-              bytes[8] == 0x57 && bytes[9] == 0x45 && bytes[10] == 0x42 && bytes[11] == 0x50) {
+              bytes[8] == 0x57 &&
+              bytes[9] == 0x45 &&
+              bytes[10] == 0x42 &&
+              bytes[11] == 0x50) {
             ext = 'webp';
-          } else if (bytes[0] == 0x25 && bytes[1] == 0x50 && bytes[2] == 0x44 && bytes[3] == 0x46) {
+          } else if (bytes[0] == 0x25 &&
+              bytes[1] == 0x50 &&
+              bytes[2] == 0x44 &&
+              bytes[3] == 0x46) {
             ext = 'pdf';
           }
         }
@@ -86,11 +96,7 @@ class _PatientScanTabState extends State<PatientScanTab> {
       setState(() => _isProcessing = false);
 
       // Navigate to editable preview screen with extracted data
-      Navigator.pushNamed(
-        context,
-        AppRouter.ocrPreview,
-        arguments: result,
-      );
+      Navigator.pushNamed(context, AppRouter.ocrPreview, arguments: result);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -177,19 +183,19 @@ class _PatientScanTabState extends State<PatientScanTab> {
                     Text(
                       l10n.scanPrescriptionTitle,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.xl),
+                        horizontal: AppSpacing.xl,
+                      ),
                       child: Text(
                         l10n.scanPrescriptionDescription,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(color: AppColors.textSecondary),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -209,12 +215,11 @@ class _PatientScanTabState extends State<PatientScanTab> {
                       const SizedBox(height: AppSpacing.lg),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.xl),
+                          horizontal: AppSpacing.xl,
+                        ),
                         child: Text(
                           _errorMessage!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
+                          style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: AppColors.alertRed),
                           textAlign: TextAlign.center,
                         ),

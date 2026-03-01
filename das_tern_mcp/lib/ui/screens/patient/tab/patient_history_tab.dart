@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/dose_provider.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/app_spacing.dart';
 
 /// History tab – dose adherence history with date range.
 class PatientHistoryTab extends StatefulWidget {
@@ -21,9 +21,9 @@ class _PatientHistoryTabState extends State<PatientHistoryTab> {
       final now = DateTime.now();
       final weekAgo = now.subtract(const Duration(days: 7));
       context.read<DoseProvider>().fetchHistory(
-            startDate: weekAgo.toIso8601String().split('T')[0],
-            endDate: now.toIso8601String().split('T')[0],
-          );
+        startDate: weekAgo.toIso8601String().split('T')[0],
+        endDate: now.toIso8601String().split('T')[0],
+      );
     });
   }
 
@@ -40,54 +40,52 @@ class _PatientHistoryTabState extends State<PatientHistoryTab> {
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : provider.history.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.history, size: 64, color: AppColors.neutral300),
-                      const SizedBox(height: AppSpacing.md),
-                      Text(
-                        l10n.noHistoryYet,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        l10n.doseHistoryAppearHere,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: AppColors.textSecondary),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.history, size: 64, color: AppColors.neutral300),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    l10n.noHistoryYet,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  itemCount: provider.history.length,
-                  itemBuilder: (context, index) {
-                    final dose = provider.history[index];
-                    final isTaken = dose.status.contains('TAKEN');
-                    return ListTile(
-                      leading: Icon(
-                        isTaken ? Icons.check_circle : Icons.cancel,
-                        color: isTaken
-                            ? AppColors.successGreen
-                            : AppColors.alertRed,
-                      ),
-                      title: Text(dose.medicationName),
-                      subtitle: Text(
-                        '${dose.scheduledTime.hour}:${dose.scheduledTime.minute.toString().padLeft(2, '0')} – ${dose.status}',
-                      ),
-                      trailing: Text(
-                        '${dose.scheduledTime.day}/${dose.scheduledTime.month}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: AppColors.textSecondary),
-                      ),
-                    );
-                  },
-                ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    l10n.doseHistoryAppearHere,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              itemCount: provider.history.length,
+              itemBuilder: (context, index) {
+                final dose = provider.history[index];
+                final isTaken = dose.status.contains('TAKEN');
+                return ListTile(
+                  leading: Icon(
+                    isTaken ? Icons.check_circle : Icons.cancel,
+                    color: isTaken
+                        ? AppColors.successGreen
+                        : AppColors.alertRed,
+                  ),
+                  title: Text(dose.medicationName),
+                  subtitle: Text(
+                    '${dose.scheduledTime.hour}:${dose.scheduledTime.minute.toString().padLeft(2, '0')} – ${dose.status}',
+                  ),
+                  trailing: Text(
+                    '${dose.scheduledTime.day}/${dose.scheduledTime.month}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

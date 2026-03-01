@@ -1292,7 +1292,9 @@ class ApiService {
     final uri = Uri.parse('$baseUrl/ocr/scan');
     final contentType = _getMediaType(filename, bytes: imageBytes);
     final request = http.MultipartRequest('POST', uri);
-    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
     request.files.add(
       http.MultipartFile.fromBytes(
         'file',
@@ -1309,8 +1311,9 @@ class ApiService {
       if (refreshed) {
         final token2 = await _getAccessToken();
         final request2 = http.MultipartRequest('POST', uri);
-        if (token2 != null)
+        if (token2 != null) {
           request2.headers['Authorization'] = 'Bearer $token2';
+        }
         request2.files.add(
           http.MultipartFile.fromBytes(
             'file',
@@ -1336,7 +1339,9 @@ class ApiService {
     final uri = Uri.parse('$baseUrl/ocr/extract');
     final contentType = _getMediaType(filename, bytes: imageBytes);
     final request = http.MultipartRequest('POST', uri);
-    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
     request.files.add(
       http.MultipartFile.fromBytes(
         'file',
@@ -1353,8 +1358,9 @@ class ApiService {
       if (refreshed) {
         final token2 = await _getAccessToken();
         final request2 = http.MultipartRequest('POST', uri);
-        if (token2 != null)
+        if (token2 != null) {
           request2.headers['Authorization'] = 'Bearer $token2';
+        }
         request2.files.add(
           http.MultipartFile.fromBytes(
             'file',

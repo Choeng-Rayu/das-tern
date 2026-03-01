@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../providers/auth_provider.dart';
 import '../../../../providers/dose_provider.dart';
 import '../../../../providers/health_monitoring_provider.dart';
 import '../../../../models/enums_model/medication_type.dart';
 import '../../../../utils/app_router.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
-import '../../widgets/common_widgets.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/app_spacing.dart';
+import '../../../widgets/header_widgets.dart';
 
 /// Patient home tab – daily dashboard matching Figma design.
 /// Shows greeting, time-period medicine cards, progress circle,
@@ -34,11 +33,8 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final auth = context.watch<AuthProvider>();
     final doseProvider = context.watch<DoseProvider>();
     final healthProvider = context.watch<HealthMonitoringProvider>();
-    final user = auth.user;
-    final firstName = user?['firstName'] ?? l10n.defaultPatientName;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -48,18 +44,15 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Blue header section ──
-              AppGradientHeader(
-                greeting: l10n.greetingName(firstName),
-                trailing: CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Colors.white.withValues(alpha: 0.3),
-                  child: const Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
+              // ── Patient header with background image ──
+              PatientHeader(
+                onNotificationTap: () {
+                  final route = AppRouter.patientNotifications;
+                  if (route != null) {
+                    Navigator.pushNamed(context, route);
+                  }
+                },
+                unreadCount: healthProvider.unresolvedAlertCount,
               ),
 
               // ── Time-period medicine section ──
@@ -94,8 +87,11 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                             icon: Icons.wb_sunny_outlined,
                             color: AppColors.morningYellow,
                             doseCount: _getDoseCountByPeriod(
-                                doseProvider, 'MORNING'),
+                              doseProvider,
+                              'MORNING',
+                            ),
                             badgeText: l10n.beforeMeal,
+                            backgroundImage: 'assets/morning.png',
                           ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
@@ -105,8 +101,11 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                             icon: Icons.wb_twilight,
                             color: AppColors.afternoonOrange,
                             doseCount: _getDoseCountByPeriod(
-                                doseProvider, 'AFTERNOON'),
+                              doseProvider,
+                              'AFTERNOON',
+                            ),
                             badgeText: l10n.afternoon,
+                            backgroundImage: 'assets/afternoon.png',
                           ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
@@ -116,8 +115,11 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                             icon: Icons.nightlight_round,
                             color: AppColors.nightPurple,
                             doseCount: _getDoseCountByPeriod(
-                                doseProvider, 'NIGHT'),
+                              doseProvider,
+                              'NIGHT',
+                            ),
                             badgeText: l10n.night,
+                            backgroundImage: 'assets/night.png',
                           ),
                         ),
                       ],
@@ -144,8 +146,9 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                                 CircularProgressIndicator(
                                   value: doseProvider.progress,
                                   strokeWidth: 6,
-                                  backgroundColor:
-                                      Colors.white.withValues(alpha: 0.5),
+                                  backgroundColor: Colors.white.withValues(
+                                    alpha: 0.5,
+                                  ),
                                   color: AppColors.primaryBlue,
                                 ),
                                 Text(
@@ -174,7 +177,9 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  l10n.dayProgress((doseProvider.progress * 30).toInt()),
+                                  l10n.dayProgress(
+                                    (doseProvider.progress * 30).toInt(),
+                                  ),
                                   style: const TextStyle(
                                     color: AppColors.primaryBlue,
                                     fontWeight: FontWeight.bold,
@@ -266,8 +271,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           name: dose.medicationName,
                           dosage: dose.dosage,
                           isTaken: dose.status == 'TAKEN',
-                          onTake: () =>
-                              doseProvider.markTaken(dose.id ?? ''),
+                          onTake: () => doseProvider.markTaken(dose.id ?? ''),
                         ),
                       ),
 
@@ -326,12 +330,17 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.warning_amber_rounded,
-                                color: AppColors.alertRed, size: 24),
+                            const Icon(
+                              Icons.warning_amber_rounded,
+                              color: AppColors.alertRed,
+                              size: 24,
+                            ),
                             const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Text(
-                                l10n.unresolvedAlerts(healthProvider.unresolvedAlertCount),
+                                l10n.unresolvedAlerts(
+                                  healthProvider.unresolvedAlertCount,
+                                ),
                                 style: const TextStyle(
                                   color: AppColors.alertRed,
                                   fontWeight: FontWeight.w600,
@@ -392,8 +401,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                             padding: const EdgeInsets.all(AppSpacing.sm),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.lg),
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
                               border: Border.all(
                                 color: isAbnormal
                                     ? AppColors.alertRed.withValues(alpha: 0.5)
@@ -401,18 +409,15 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color:
-                                      Colors.black.withValues(alpha: 0.04),
+                                  color: Colors.black.withValues(alpha: 0.04),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
                             child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                              mainAxisAlignment:
-                                  MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Row(
                                   children: [
@@ -436,16 +441,16 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                                       ),
                                     ),
                                     if (isAbnormal)
-                                      const Icon(Icons.warning,
-                                          color: AppColors.alertRed,
-                                          size: 14),
+                                      const Icon(
+                                        Icons.warning,
+                                        color: AppColors.alertRed,
+                                        size: 14,
+                                      ),
                                   ],
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  hasValue
-                                      ? vital.displayValue
-                                      : '--',
+                                  hasValue ? vital.displayValue : '--',
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -481,18 +486,21 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                             child: Container(
                               padding: const EdgeInsets.all(AppSpacing.md),
                               decoration: BoxDecoration(
-                                color: AppColors.primaryBlue
-                                    .withValues(alpha: 0.08),
-                                borderRadius:
-                                    BorderRadius.circular(AppRadius.lg),
+                                color: AppColors.primaryBlue.withValues(
+                                  alpha: 0.08,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.lg,
+                                ),
                               ),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.tune,
-                                      size: 20,
-                                      color: AppColors.primaryBlue),
+                                  const Icon(
+                                    Icons.tune,
+                                    size: 20,
+                                    color: AppColors.primaryBlue,
+                                  ),
                                   const SizedBox(width: AppSpacing.xs),
                                   Text(
                                     l10n.thresholds,
@@ -517,18 +525,21 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                             child: Container(
                               padding: const EdgeInsets.all(AppSpacing.md),
                               decoration: BoxDecoration(
-                                color: AppColors.alertRed
-                                    .withValues(alpha: 0.08),
-                                borderRadius:
-                                    BorderRadius.circular(AppRadius.lg),
+                                color: AppColors.alertRed.withValues(
+                                  alpha: 0.08,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.lg,
+                                ),
                               ),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.emergency,
-                                      size: 20,
-                                      color: AppColors.alertRed),
+                                  const Icon(
+                                    Icons.emergency,
+                                    size: 20,
+                                    color: AppColors.alertRed,
+                                  ),
                                   const SizedBox(width: AppSpacing.xs),
                                   Text(
                                     l10n.emergencyLabel,
@@ -565,8 +576,18 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
 
   String _khmerMonth(int month) {
     const months = [
-      'មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា',
-      'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ',
+      'មករា',
+      'កុម្ភៈ',
+      'មីនា',
+      'មេសា',
+      'ឧសភា',
+      'មិថុនា',
+      'កក្កដា',
+      'សីហា',
+      'កញ្ញា',
+      'តុលា',
+      'វិច្ឆិកា',
+      'ធ្នូ',
     ];
     return months[month - 1];
   }
@@ -596,6 +617,7 @@ class _TimePeriodCard extends StatelessWidget {
   final Color color;
   final int doseCount;
   final String badgeText;
+  final String? backgroundImage;
 
   const _TimePeriodCard({
     required this.label,
@@ -603,6 +625,7 @@ class _TimePeriodCard extends StatelessWidget {
     required this.color,
     required this.doseCount,
     required this.badgeText,
+    this.backgroundImage,
   });
 
   @override
@@ -611,47 +634,64 @@ class _TimePeriodCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: color.withValues(alpha: 0.3)),
+        image: backgroundImage != null
+            ? DecorationImage(
+                image: AssetImage(backgroundImage!),
+                fit: BoxFit.cover,
+              )
+            : null,
       ),
-      child: Column(
+      child: Stack(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          Text(
-            l10n.medicineCountLabel(doseCount),
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 10,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 2,
-            ),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(AppRadius.full),
-            ),
-            child: Text(
-              badgeText,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
+          // Dark overlay for better text readability
+          if (backgroundImage != null)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  color: Colors.black.withValues(alpha: 0.3),
+                ),
               ),
             ),
+          // Content
+          Column(
+            children: [
+              Icon(icon, color: Colors.white, size: 24),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                l10n.medicineCountLabel(doseCount),
+                style: const TextStyle(color: Colors.white70, fontSize: 10),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                ),
+                child: Text(
+                  badgeText,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -740,14 +780,9 @@ class _DoseCheckItem extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: isTaken
-                    ? AppColors.primaryBlue
-                    : Colors.white,
+                color: isTaken ? AppColors.primaryBlue : Colors.white,
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: AppColors.primaryBlue,
-                  width: 2,
-                ),
+                border: Border.all(color: AppColors.primaryBlue, width: 2),
               ),
               child: isTaken
                   ? const Icon(Icons.check, color: Colors.white, size: 18)
@@ -777,9 +812,7 @@ class _QuickActionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color, color.withValues(alpha: 0.8)],
-        ),
+        gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.8)]),
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Row(

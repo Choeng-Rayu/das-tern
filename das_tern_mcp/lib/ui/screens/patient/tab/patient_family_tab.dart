@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../models/connection_model/connection.dart';
 import '../../../../providers/connection_provider.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
-import '../../widgets/common_widgets.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/app_spacing.dart';
+import '../../../widgets/common_widgets.dart';
 
 /// Family Feature tab – manage family connections and monitor linked patients.
 /// Matches Figma tab: មុខងារគ្រួសារ
@@ -66,9 +66,9 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
               // My Caregivers section
               Text(
                 l10n.myCaregivers,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: AppSpacing.sm),
 
@@ -95,8 +95,8 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                   Text(
                     l10n.patientsIMonitor,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   ...connectionProvider.connectedPatients.map<Widget>(
@@ -145,22 +145,20 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
       child: Center(
         child: Column(
           children: [
-            Icon(Icons.family_restroom,
-                size: 64, color: AppColors.neutral300),
+            Icon(Icons.family_restroom, size: 64, color: AppColors.neutral300),
             const SizedBox(height: AppSpacing.md),
             Text(
               l10n.noConnections,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               l10n.connectWithFamily,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: AppColors.textSecondary),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -186,8 +184,7 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
             CircleAvatar(
               radius: 20,
               backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
-              child: Icon(Icons.person,
-                  color: AppColors.primaryBlue, size: 20),
+              child: Icon(Icons.person, color: AppColors.primaryBlue, size: 20),
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
@@ -196,18 +193,17 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                 children: [
                   Text(
                     name.isEmpty ? l10n.unknown : name,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   Text(
                     Connection.permissionLevelToDisplay(
-                        connection.permissionLevel),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: AppColors.textSecondary),
+                      connection.permissionLevel,
+                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -224,7 +220,9 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                connection.status.name == 'accepted' ? l10n.activeStatus : l10n.waitingStatus,
+                connection.status.name == 'accepted'
+                    ? l10n.activeStatus
+                    : l10n.waitingStatus,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -260,10 +258,12 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundColor:
-                  AppColors.successGreen.withValues(alpha: 0.1),
-              child: Icon(Icons.favorite,
-                  color: AppColors.successGreen, size: 20),
+              backgroundColor: AppColors.successGreen.withValues(alpha: 0.1),
+              child: Icon(
+                Icons.favorite,
+                color: AppColors.successGreen,
+                size: 20,
+              ),
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
@@ -272,18 +272,17 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
                 children: [
                   Text(
                     name.isEmpty ? l10n.patient : name,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   Text(
                     Connection.permissionLevelToDisplay(
-                        connection.permissionLevel),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: AppColors.textSecondary),
+                      connection.permissionLevel,
+                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),

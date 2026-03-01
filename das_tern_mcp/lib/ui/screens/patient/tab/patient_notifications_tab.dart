@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/notification_provider.dart';
-import '../../../../ui/theme/app_colors.dart';
-import '../../../../ui/theme/app_spacing.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/app_spacing.dart';
 
 /// Notifications/Alerts tab.
 class PatientNotificationsTab extends StatefulWidget {

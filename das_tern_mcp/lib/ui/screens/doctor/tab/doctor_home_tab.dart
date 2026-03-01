@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../providers/doctor_dashboard_provider.dart';
-import '../../../ui/theme/app_colors.dart';
-import '../../../ui/theme/app_spacing.dart';
-import '../../widgets/common_widgets.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../providers/auth_provider.dart';
+import '../../../../providers/doctor_dashboard_provider.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/app_spacing.dart';
+import '../../../widgets/common_widgets.dart';
 
 /// Doctor home tab – overview dashboard with real API data.
 class DoctorHomeTab extends StatefulWidget {
@@ -57,17 +57,13 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                         children: [
                           Text(
                             _greeting(context),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
+                            style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(color: AppColors.textSecondary),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'Dr. ${user?['fullName'] ?? user?['firstName'] ?? l10n.doctorRole}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
+                            style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -75,9 +71,13 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                     ),
                     CircleAvatar(
                       radius: 24,
-                      backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
-                      child: const Icon(Icons.medical_services,
-                          color: AppColors.primaryBlue),
+                      backgroundColor: AppColors.primaryBlue.withValues(
+                        alpha: 0.1,
+                      ),
+                      child: const Icon(
+                        Icons.medical_services,
+                        color: AppColors.primaryBlue,
+                      ),
                     ),
                   ],
                 ),
@@ -85,10 +85,12 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
 
                 // Loading indicator
                 if (dashboard.dashboardLoading)
-                  const Center(child: Padding(
-                    padding: EdgeInsets.all(AppSpacing.lg),
-                    child: CircularProgressIndicator(),
-                  ))
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(AppSpacing.lg),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
                 else ...[
                   // Stats row
                   Row(
@@ -114,7 +116,8 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                       _StatCard(
                         icon: Icons.pending_actions,
                         label: l10n.pendingRequests,
-                        value: '${overview?.pendingRequests ?? dashboard.pendingConnections.length}',
+                        value:
+                            '${overview?.pendingRequests ?? dashboard.pendingConnections.length}',
                         color: AppColors.warningOrange,
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -132,42 +135,45 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                   if (overview?.todayAlerts.isNotEmpty ?? false) ...[
                     Text(
                       l10n.criticalAlerts,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    ...(overview?.todayAlerts ?? []).map((alert) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                      child: Card(
-                        color: alert.type == 'CRITICAL'
-                            ? AppColors.alertRed.withValues(alpha: 0.05)
-                            : AppColors.warningOrange.withValues(alpha: 0.05),
-                        child: ListTile(
-                          leading: Icon(
-                            alert.type == 'CRITICAL'
-                                ? Icons.error
-                                : Icons.warning,
-                            color: alert.type == 'CRITICAL'
-                                ? AppColors.alertRed
-                                : AppColors.warningOrange,
+                    ...(overview?.todayAlerts ?? []).map(
+                      (alert) => Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: Card(
+                          color: alert.type == 'CRITICAL'
+                              ? AppColors.alertRed.withValues(alpha: 0.05)
+                              : AppColors.warningOrange.withValues(alpha: 0.05),
+                          child: ListTile(
+                            leading: Icon(
+                              alert.type == 'CRITICAL'
+                                  ? Icons.error
+                                  : Icons.warning,
+                              color: alert.type == 'CRITICAL'
+                                  ? AppColors.alertRed
+                                  : AppColors.warningOrange,
+                            ),
+                            title: Text(alert.patientName),
+                            subtitle: Text(
+                              l10n.consecutiveMissedDoses(
+                                alert.consecutiveMissed,
+                              ),
+                            ),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/doctor/patient-detail',
+                                arguments: {'patientId': alert.patientId},
+                              );
+                            },
                           ),
-                          title: Text(alert.patientName),
-                          subtitle: Text(
-                            l10n.consecutiveMissedDoses(alert.consecutiveMissed),
-                          ),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/doctor/patient-detail',
-                              arguments: {'patientId': alert.patientId},
-                            );
-                          },
                         ),
                       ),
-                    )),
+                    ),
                     const SizedBox(height: AppSpacing.md),
                   ],
 
@@ -175,10 +181,9 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                   if (dashboard.pendingConnections.isNotEmpty) ...[
                     Text(
                       l10n.pendingConnectionRequests,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     ...dashboard.pendingConnections.map((conn) {
@@ -188,10 +193,12 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                           child: Row(
                             children: [
                               CircleAvatar(
-                                backgroundColor:
-                                    AppColors.warningOrange.withValues(alpha: 0.1),
-                                child: const Icon(Icons.person_add,
-                                    color: AppColors.warningOrange),
+                                backgroundColor: AppColors.warningOrange
+                                    .withValues(alpha: 0.1),
+                                child: const Icon(
+                                  Icons.person_add,
+                                  color: AppColors.warningOrange,
+                                ),
                               ),
                               const SizedBox(width: AppSpacing.md),
                               Expanded(
@@ -203,28 +210,37 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium
-                                          ?.copyWith(fontWeight: FontWeight.w600),
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                     ),
                                     Text(
-                                      conn.initiator?.phoneNumber ?? l10n.connectionRequest,
+                                      conn.initiator?.phoneNumber ??
+                                          l10n.connectionRequest,
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodySmall
-                                          ?.copyWith(color: AppColors.textSecondary),
+                                          ?.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
                                     ),
                                   ],
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.check_circle,
-                                    color: AppColors.successGreen),
+                                icon: const Icon(
+                                  Icons.check_circle,
+                                  color: AppColors.successGreen,
+                                ),
                                 onPressed: () async {
                                   await dashboard.acceptConnection(conn.id);
                                 },
                               ),
                               IconButton(
-                                icon: const Icon(Icons.cancel,
-                                    color: AppColors.alertRed),
+                                icon: const Icon(
+                                  Icons.cancel,
+                                  color: AppColors.alertRed,
+                                ),
                                 onPressed: () async {
                                   await dashboard.rejectConnection(conn.id);
                                 },
@@ -240,10 +256,9 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                   // Quick actions
                   Text(
                     l10n.quickActions,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Row(
@@ -313,17 +328,15 @@ class _StatCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               Text(
                 value,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
                 label,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -356,8 +369,11 @@ class _ActionCard extends StatelessWidget {
             children: [
               Icon(icon, color: AppColors.primaryBlue, size: 32),
               const SizedBox(height: AppSpacing.sm),
-              Text(label, textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ],
           ),
         ),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../widgets/common_widgets.dart';
-import 'doctor_home_tab.dart';
+import 'tab/doctor_home_tab.dart';
 import 'doctor_patients_tab.dart';
-import 'doctor_prescriptions_tab.dart';
+import 'tab/doctor_prescriptions_tab.dart';
 import 'doctor_prescription_history_tab.dart';
-import 'doctor_settings_tab.dart';
+import 'tab/doctor_settings_tab.dart';
 
 /// Doctor dashboard shell with 5-tab bottom navigation.
 /// Figma tabs: ទំព័រដើម | តាមដានអ្នកជំងឺ | បង្កើតវេជ្ជបញ្ជា | ប្រវិត្តវេជ្ជបញ្ជារ | ការកំណត់
@@ -37,10 +37,7 @@ class _DoctorShellState extends State<DoctorShell> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _tabs,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _tabs),
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),

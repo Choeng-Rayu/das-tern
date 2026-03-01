@@ -4,9 +4,9 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
 import '../../../../providers/subscription_provider.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
-import '../../theme/theme_provider.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/app_spacing.dart';
+import '../../../theme/theme_provider.dart';
 
 /// Patient profile tab – shows user info, settings, and logout.
 class PatientProfileTab extends StatelessWidget {
@@ -47,17 +47,15 @@ class PatientProfileTab extends StatelessWidget {
               user?['firstName'] != null
                   ? '${user!['firstName']} ${user['lastName'] ?? ''}'
                   : l10n.patient,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
               user?['phoneNumber'] ?? '',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: AppColors.textSecondary),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: AppSpacing.lg),
 
@@ -76,14 +74,21 @@ class PatientProfileTab extends StatelessWidget {
                   trailing: SegmentedButton<ThemeMode>(
                     segments: const [
                       ButtonSegment(
-                          value: ThemeMode.light, icon: Icon(Icons.light_mode, size: 16)),
+                        value: ThemeMode.light,
+                        icon: Icon(Icons.light_mode, size: 16),
+                      ),
                       ButtonSegment(
-                          value: ThemeMode.system, icon: Icon(Icons.settings, size: 16)),
+                        value: ThemeMode.system,
+                        icon: Icon(Icons.settings, size: 16),
+                      ),
                       ButtonSegment(
-                          value: ThemeMode.dark, icon: Icon(Icons.dark_mode, size: 16)),
+                        value: ThemeMode.dark,
+                        icon: Icon(Icons.dark_mode, size: 16),
+                      ),
                     ],
                     selected: {themeProvider.themeMode},
-                    onSelectionChanged: (v) => themeProvider.setThemeMode(v.first),
+                    onSelectionChanged: (v) =>
+                        themeProvider.setThemeMode(v.first),
                     style: const ButtonStyle(
                       visualDensity: VisualDensity.compact,
                     ),
@@ -147,10 +152,9 @@ class PatientProfileTab extends StatelessWidget {
                 onPressed: () async {
                   await auth.logout();
                   if (!context.mounted) return;
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/login',
-                    (_) => false,
-                  );
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/login', (_) => false);
                 },
                 icon: const Icon(Icons.logout, color: AppColors.alertRed),
                 label: Text(
@@ -202,7 +206,9 @@ class _SubscriptionCard extends StatelessWidget {
                 ),
                 child: Icon(
                   isPremium ? Icons.diamond : Icons.star_outline,
-                  color: isPremium ? const Color(0xFF6B4AA3) : AppColors.primaryBlue,
+                  color: isPremium
+                      ? const Color(0xFF6B4AA3)
+                      : AppColors.primaryBlue,
                 ),
               ),
               const SizedBox(width: 12),
@@ -213,21 +219,26 @@ class _SubscriptionCard extends StatelessWidget {
                     Text(
                       tier.replaceAll('_', ' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
-                      isPremium ? l10n.allFeaturesUnlocked : l10n.upgradeToUnlock,
+                      isPremium
+                          ? l10n.allFeaturesUnlocked
+                          : l10n.upgradeToUnlock,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
               ),
               if (!isPremium)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primaryBlue,
                     borderRadius: BorderRadius.circular(20),
@@ -267,14 +278,12 @@ class _SettingsSection extends StatelessWidget {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-        Card(
-          child: Column(children: children),
-        ),
+        Card(child: Column(children: children)),
       ],
     );
   }

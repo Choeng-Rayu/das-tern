@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../providers/locale_provider.dart';
-import '../../../ui/theme/app_colors.dart';
-import '../../../ui/theme/app_spacing.dart';
-import '../../../ui/theme/theme_provider.dart';
-import '../../widgets/common_widgets.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../providers/auth_provider.dart';
+import '../../../../providers/locale_provider.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/app_spacing.dart';
+import '../../../theme/theme_provider.dart';
+import '../../../widgets/common_widgets.dart';
 
 /// Settings tab for doctor – matches Figma tab: ការកំណត់
 /// Includes security, theme, language, and logout.
@@ -54,8 +54,9 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundColor:
-                          AppColors.primaryBlue.withValues(alpha: 0.1),
+                      backgroundColor: AppColors.primaryBlue.withValues(
+                        alpha: 0.1,
+                      ),
                       child: const Icon(
                         Icons.medical_services,
                         color: AppColors.primaryBlue,
@@ -69,16 +70,12 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                         children: [
                           Text(
                             _doctorName(auth.user),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
                             auth.user?['specialty'] ?? l10n.doctorRole,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
+                            style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: AppColors.textSecondary),
                           ),
                         ],
@@ -100,9 +97,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                   leading: const Icon(Icons.lock_outline),
                   title: Text(l10n.changePassword),
                   trailing: Icon(
-                    _showChangePassword
-                        ? Icons.expand_less
-                        : Icons.expand_more,
+                    _showChangePassword ? Icons.expand_less : Icons.expand_more,
                   ),
                   onTap: () {
                     setState(() => _showChangePassword = !_showChangePassword);
@@ -213,7 +208,10 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
               title: l10n.subscription,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.upgrade, color: AppColors.primaryBlue),
+                  leading: const Icon(
+                    Icons.upgrade,
+                    color: AppColors.primaryBlue,
+                  ),
                   title: Text(l10n.upgradePlan),
                   subtitle: Text(l10n.unlockPremiumFeatures),
                   trailing: const Icon(Icons.chevron_right),
@@ -286,8 +284,8 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -320,9 +318,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 (_) => false,
               );
             },
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.statusError,
-            ),
+            style: TextButton.styleFrom(foregroundColor: AppColors.statusError),
             child: Text(l10n.logout),
           ),
         ],

@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
-import '../../theme/theme_provider.dart';
-import '../../widgets/common_widgets.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/app_spacing.dart';
+import '../../../theme/theme_provider.dart';
+import '../../../widgets/common_widgets.dart';
 
 /// Settings tab for patient – matches Figma tab: ការកំណត់
 /// Includes security (change password), theme, language, and logout.
@@ -53,9 +53,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                   leading: const Icon(Icons.lock_outline),
                   title: Text(l10n.changePassword),
                   trailing: Icon(
-                    _showChangePassword
-                        ? Icons.expand_less
-                        : Icons.expand_more,
+                    _showChangePassword ? Icons.expand_less : Icons.expand_more,
                   ),
                   onTap: () {
                     setState(() => _showChangePassword = !_showChangePassword);
@@ -167,7 +165,10 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
               title: l10n.subscription,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.upgrade, color: AppColors.primaryBlue),
+                  leading: const Icon(
+                    Icons.upgrade,
+                    color: AppColors.primaryBlue,
+                  ),
                   title: Text(l10n.upgradePlan),
                   subtitle: Text(l10n.unlockPremiumFeatures),
                   trailing: const Icon(Icons.chevron_right),
@@ -233,8 +234,8 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -267,9 +268,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 (_) => false,
               );
             },
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.statusError,
-            ),
+            style: TextButton.styleFrom(foregroundColor: AppColors.statusError),
             child: Text(l10n.logout),
           ),
         ],
