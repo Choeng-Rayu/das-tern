@@ -8,7 +8,7 @@ import numpy as np
 import pytesseract
 
 from app.pipeline.preprocessor import preprocess_image
-from app.pipeline.layout import analyze_layout, LayoutResult
+from app.pipeline.layout import analyze_layout, LayoutResult, TableRowReconstructor
 from app.pipeline.ocr_engine import OCREngine, OCRResult
 from app.pipeline.postprocessor import PostProcessor
 from app.pipeline.formatter import build_dynamic_universal, build_extraction_summary
@@ -56,6 +56,7 @@ class PipelineOrchestrator:
     def __init__(self):
         self.ocr_engine = OCREngine()
         self.post_processor = PostProcessor()
+        self.row_reconstructor = TableRowReconstructor()
         logger.info("Pipeline orchestrator initialized")
 
     @staticmethod
@@ -384,8 +385,45 @@ class PipelineOrchestrator:
         if not words:
             return [], []
 
-        # Group words into rows by y-position
-        rows = self._cluster_words_by_y(words, threshold=30)
+        # Group words into rows by Y-center alignment (uses configurable tolerance)
+        rows = self.row_reconstructor.cluster_word_dicts(words)
+
+        # Supplement: if a significant portion of the table bottom has no detected
+        # words (PSM 4 sometimes misses the last row in tall strips), re-OCR that
+        # bottom region with PSM 11 (sparse text) to catch any missed rows.
+        if words:
+            last_word_bottom = max(w['y'] + w['h'] for w in words)
+            remaining_h = ty2 - last_word_bottom
+            est_row_h = (ty2 - ty1) / max(len(rows) + 1, 4)
+            if remaining_h > est_row_h * 0.6:
+                bottom_y_start = max(ty1, last_word_bottom - 20)
+                bottom_crop = color_img[bottom_y_start:ty2, strip_x1:strip_x2]
+                if bottom_crop.size > 0:
+                    try:
+                        data_b = pytesseract.image_to_data(
+                            bottom_crop, lang=settings.TESSERACT_LANG,
+                            config='--oem 1 --psm 11',
+                            output_type=pytesseract.Output.DICT,
+                        )
+                        for bi, btext in enumerate(data_b['text']):
+                            if btext.strip() and int(data_b['conf'][bi]) > MIN_WORD_CONF:
+                                bwx = data_b['left'][bi] + strip_x1
+                                bwy = data_b['top'][bi] + bottom_y_start
+                                bww = data_b['width'][bi]
+                                bwh = data_b['height'][bi]
+                                # Only add words that are below the already-detected region
+                                if bwy > last_word_bottom - 10:
+                                    words.append({
+                                        'text': btext.strip(),
+                                        'x': bwx, 'y': bwy, 'w': bww, 'h': bwh,
+                                        'conf': int(data_b['conf'][bi]),
+                                        'bbox': [bwx, bwy, bwx + bww, bwy + bwh],
+                                        'confidence': int(data_b['conf'][bi]) / 100.0,
+                                        'from_supplement': True,
+                                    })
+                        rows = self.row_reconstructor.cluster_word_dicts(words)
+                    except Exception as e:
+                        logger.warning(f"Bottom-strip supplement OCR failed: {e}")
 
         # Map each row's words to columns, then identify medication rows
         med_rows = []
@@ -415,6 +453,8 @@ class PipelineOrchestrator:
                 continue
 
             avg_y = sum(w['y'] + w['h'] // 2 for w in row_words) / len(row_words)
+            if any(w.get('from_supplement', False) for w in row_words):
+                row_data['from_supplement'] = True
             med_rows.append((row_data, avg_y, row_words))
 
         if not med_rows:
@@ -440,6 +480,11 @@ class PipelineOrchestrator:
                     dur_text = pytesseract.image_to_string(
                         dur_cell, lang=settings.TESSERACT_LANG, config='--oem 1 --psm 7'
                     ).strip()
+                    if not dur_text:
+                        # PSM 7 (single-line) can fail on taller crops; try PSM 6 as fallback
+                        dur_text = pytesseract.image_to_string(
+                            dur_cell, lang=settings.TESSERACT_LANG, config='--oem 1 --psm 6'
+                        ).strip()
                     if dur_text:
                         row_data['duration'] = dur_text
                         row_data['duration_bbox'] = [dur_x1, min_y, dur_x2, max_y]
@@ -461,6 +506,22 @@ class PipelineOrchestrator:
             dose_results[col_name] = self._analyze_dose_column(
                 gray_img, cell_x1, cell_x2, ty1, ty2, row_centers
             )
+
+        # For rows detected via the bottom-strip supplement, blob analysis may
+        # miss dose marks near column boundaries due to trimming or fold artifacts.
+        # Use row-level OCR to fill in any '-' values that should be '1'.
+        for i, (row_data, avg_y, row_words) in enumerate(med_rows):
+            if not row_data.get('from_supplement', False):
+                continue
+            row_y1 = int((row_centers[i - 1] + row_centers[i]) / 2) if i > 0 else max(ty1, int(avg_y) - half_row)
+            # Extend 50 px below for OCR context (helps Tesseract recognise marks near table edge)
+            row_y2 = min(color_img.shape[0], int(avg_y) + half_row + 50)
+            ocr_doses = self._detect_doses_from_row_ocr(
+                color_img, row_y1, row_y2, col_x, dose_col_start, n_cols, actual_dose_cols
+            )
+            for col_name, ocr_val in ocr_doses.items():
+                if dose_results[col_name].get(i, '-') == '-' and ocr_val == '1':
+                    dose_results[col_name][i] = '1'
 
         medications = []
         for i, (row_data, avg_y, row_words) in enumerate(med_rows):
@@ -533,7 +594,7 @@ class PipelineOrchestrator:
                 continue
 
             all_words = words
-            rows = self._cluster_words_by_y(words, threshold=30)
+            rows = self.row_reconstructor.cluster_word_dicts(words)
 
             item_num = 0
             for row_words in rows:
@@ -685,26 +746,15 @@ class PipelineOrchestrator:
 
 
     def _cluster_words_by_y(self, words: list, threshold: int = 30) -> List[list]:
-        """Group words into rows based on y-position proximity."""
+        """Group words into rows based on y-position proximity.
+
+        .. deprecated:: Use ``self.row_reconstructor.cluster_word_dicts`` directly.
+        Kept for backward compatibility.
+        """
         if not words:
             return []
-
-        sorted_words = sorted(words, key=lambda w: w['y'])
-        groups = []
-        current_group = [sorted_words[0]]
-
-        for w in sorted_words[1:]:
-            avg_y = sum(x['y'] for x in current_group) / len(current_group)
-            if abs(w['y'] - avg_y) <= threshold:
-                current_group.append(w)
-            else:
-                groups.append(current_group)
-                current_group = [w]
-
-        if current_group:
-            groups.append(current_group)
-
-        return groups
+        reconstructor = TableRowReconstructor(tolerance=threshold, adaptive=False)
+        return reconstructor.cluster_word_dicts(words)
 
     def _map_words_to_columns(self, words: list, col_x: list) -> Dict[str, Any]:
         """Map words to text columns based on x-position (H-EQIP fixed boundaries).
@@ -814,10 +864,13 @@ class PipelineOrchestrator:
             # Only apply fold filter if left blobs match most rows
             min_fold_rows = len(row_centers) - 1
             if len(left_blob_rows) >= min_fold_rows:
-                # Count rows that also have centered (non-left) blobs
+                # Count rows that also have centered (non-left) blobs.
+                # Only count center blobs with sufficient area as valid alternatives
+                # (tiny blobs < 20 are noise/grid artefacts, not real marks).
+                MIN_CENTER_BLOB_AREA = 20
                 center_rows = set()
                 for b in blobs:
-                    if b['x'] >= left_threshold:
+                    if b['x'] >= left_threshold and b['area'] >= MIN_CENTER_BLOB_AREA:
                         for i, row_y in enumerate(row_centers):
                             if abs(b['y'] - row_y) <= 30:
                                 center_rows.add(i)
@@ -839,17 +892,105 @@ class PipelineOrchestrator:
 
         # Map blobs to medication rows by y-proximity
         result = {}
-        match_threshold = 40  # wider match window for different prescription layouts
+        match_threshold = 30  # tighter window prevents adjacent-row blob overlap
 
         for i, row_y in enumerate(row_centers):
             nearby = [b for b in blobs if abs(b['y'] - row_y) <= match_threshold]
             if nearby:
                 total_area = sum(b['area'] for b in nearby)
-                if total_area >= 10:
+                if total_area >= 25:
                     result[i] = "1"
                 else:
                     result[i] = "-"
             else:
                 result[i] = "-"
+
+        return result
+
+    def _detect_doses_from_row_ocr(
+        self,
+        color_img: np.ndarray,
+        row_y1: int,
+        row_y2: int,
+        col_x: list,
+        dose_col_start: int,
+        n_cols: int,
+        actual_dose_cols: list,
+    ) -> Dict[str, str]:
+        """OCR-based dose detection for a single supplement row.
+
+        Blob analysis can miss marks that fall near column separator lines or are
+        hidden by the 30 % border trim.  This method crops the FULL TABLE WIDTH of
+        the row (Tesseract needs the surrounding text context for PSM-4 layout
+        analysis) and runs OCR, then assigns detected marks to dose columns using
+        midpoint-based boundaries so that marks near column separators are still
+        assigned to the correct column.
+
+        Returns a dict of {col_name: "1"} for any '1' marks that are found.
+        Only '1' values are returned; callers use this to fill gaps left by blob
+        detection.
+        """
+        n_dose_cols = min(len(actual_dose_cols), n_cols - dose_col_start)
+        if n_dose_cols <= 0:
+            return {}
+
+        # Use the full table width: col_x[0] (table left) to col_x[-1] (table right).
+        # PSM-4 needs full-row context to correctly segment short dose marks.
+        table_x1 = col_x[0]
+        table_x2 = col_x[-1]
+        dose_x1 = col_x[dose_col_start]
+        dose_x2 = col_x[min(dose_col_start + n_dose_cols, len(col_x) - 1)]
+
+        img_h, img_w = color_img.shape[:2]
+        crop_y1 = max(0, row_y1)
+        crop_y2 = min(img_h, row_y2)
+
+        if crop_y2 - crop_y1 < 5:
+            return {}
+
+        crop = color_img[crop_y1:crop_y2, max(0, table_x1):min(img_w, table_x2)]
+        if crop.size == 0:
+            return {}
+
+        try:
+            data = pytesseract.image_to_data(
+                crop,
+                lang=settings.TESSERACT_LANG,
+                config='--oem 1 --psm 4',
+                output_type=pytesseract.Output.DICT,
+            )
+        except Exception:
+            return {}
+
+        # Compute midpoint-based column boundaries so that marks written near the
+        # right edge of a cell (close to the next separator) are still assigned to
+        # the correct column.
+        col_centers = [
+            (col_x[dose_col_start + j] + col_x[dose_col_start + j + 1]) / 2
+            for j in range(n_dose_cols)
+        ]
+        boundaries = [col_x[dose_col_start]]
+        for j in range(1, n_dose_cols):
+            boundaries.append((col_centers[j - 1] + col_centers[j]) / 2)
+        boundaries.append(col_x[min(dose_col_start + n_dose_cols, len(col_x) - 1)])
+
+        result: Dict[str, str] = {}
+        for idx in range(len(data['text'])):
+            t = data['text'][idx].strip()
+            if not t or int(data['conf'][idx]) < 30:
+                continue
+            x_abs = data['left'][idx] + table_x1
+            y_abs = data['top'][idx] + crop_y1
+            # Only process words within the row's y-range and dose x-range
+            if not (row_y1 - 20 <= y_abs <= row_y2 + 20):
+                continue
+            if not (dose_x1 - 10 <= x_abs < dose_x2 + 10):
+                continue
+            for j in range(n_dose_cols):
+                if boundaries[j] <= x_abs < boundaries[j + 1]:
+                    col_name = actual_dose_cols[j]
+                    if re.search(r'^[1lI]$', t):
+                        result[col_name] = '1'
+                    break
 
         return result
