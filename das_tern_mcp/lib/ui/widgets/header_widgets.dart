@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
@@ -22,20 +21,11 @@ class PatientHeader extends StatelessWidget {
   final int unreadCount;
 
   /// Returns a greeting based on current hour.
-  String _greeting(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+  String _greeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return l10n.goodMorning;
-    if (hour < 17) return l10n.goodAfternoon;
-    return l10n.goodEvening;
-  }
-
-  /// Returns the matching time-of-day asset path.
-  String _timeAsset() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'assets/morning.png';
-    if (hour < 17) return 'assets/afternoon.png';
-    return 'assets/doctorLogo.png';
+    if (hour < 12) return 'Morning';
+    if (hour < 17) return 'Afternoon';
+    return 'Night';
   }
 
   @override
@@ -99,18 +89,24 @@ class PatientHeader extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top row: greeting + notification bell
+                    // Top row: doctor logo + greeting + notification bell
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Left: time icon + greeting
+                        // Left: doctor logo + greeting
                         Expanded(
                           child: Row(
                             children: [
-                              Image.asset(_timeAsset(), width: 32, height: 32),
+                              // Doctor logo
+                              Image.asset(
+                                'assets/doctorLogo.png',
+                                width: 40,
+                                height: 40,
+                              ),
                               const SizedBox(width: AppSpacing.sm),
+                              // Greeting text
                               Text(
-                                _greeting(context),
+                                _greeting(),
                                 style: const TextStyle(
                                   color: Colors.white70,
                                   fontSize: 14,
