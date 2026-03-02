@@ -53,8 +53,9 @@ class _PendingPatientListScreenState extends State<PendingPatientListScreen> {
     // sort: RED first, then YELLOW
     displayed.sort((a, b) {
       final order = {'RED': 0, 'YELLOW': 1};
-      return (order[a.adherenceLevel] ?? 2)
-          .compareTo(order[b.adherenceLevel] ?? 2);
+      return (order[a.adherenceLevel] ?? 2).compareTo(
+        order[b.adherenceLevel] ?? 2,
+      );
     });
 
     return Scaffold(
@@ -69,9 +70,10 @@ class _PendingPatientListScreenState extends State<PendingPatientListScreen> {
             Text(
               l10n.patientsPendingMeds,
               style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             Text(
               '${displayed.length} ${l10n.personUnit}',
@@ -93,12 +95,10 @@ class _PendingPatientListScreenState extends State<PendingPatientListScreen> {
               decoration: InputDecoration(
                 hintText: l10n.searchPatients,
                 hintStyle: const TextStyle(color: Colors.white60),
-                prefixIcon:
-                    const Icon(Icons.search, color: Colors.white70),
+                prefixIcon: const Icon(Icons.search, color: Colors.white70),
                 suffixIcon: _search.isNotEmpty
                     ? IconButton(
-                        icon:
-                            const Icon(Icons.clear, color: Colors.white70),
+                        icon: const Icon(Icons.clear, color: Colors.white70),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _search = '');
@@ -123,15 +123,23 @@ class _PendingPatientListScreenState extends State<PendingPatientListScreen> {
               children: [
                 _LevelDot(color: AppColors.alertRed),
                 const SizedBox(width: 4),
-                Text(l10n.adherencePoor,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.textSecondary)),
+                Text(
+                  l10n.adherencePoor,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(width: 16),
                 _LevelDot(color: AppColors.warningOrange),
                 const SizedBox(width: 4),
-                Text(l10n.adherenceModerate,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.textSecondary)),
+                Text(
+                  l10n.adherenceModerate,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -143,29 +151,24 @@ class _PendingPatientListScreenState extends State<PendingPatientListScreen> {
               child: provider.patientListLoading
                   ? const Center(child: CircularProgressIndicator())
                   : displayed.isEmpty
-                      ? _EmptyState(
-                          hasSearch: _search.isNotEmpty,
+                  ? _EmptyState(hasSearch: _search.isNotEmpty, l10n: l10n)
+                  : ListView.separated(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      itemCount: displayed.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        return _PendingPatientCard(
+                          patient: displayed[index],
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            '/doctor/patient-detail',
+                            arguments: {'patientId': displayed[index].id},
+                          ),
                           l10n: l10n,
-                        )
-                      : ListView.separated(
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                          itemCount: displayed.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 10),
-                          itemBuilder: (context, index) {
-                            return _PendingPatientCard(
-                              patient: displayed[index],
-                              onTap: () => Navigator.pushNamed(
-                                context,
-                                '/doctor/patient-detail',
-                                arguments: {
-                                  'patientId': displayed[index].id,
-                                },
-                              ),
-                              l10n: l10n,
-                            );
-                          },
-                        ),
+                        );
+                      },
+                    ),
             ),
           ),
         ],
@@ -205,9 +208,7 @@ class _PendingPatientCard extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border(
-              left: BorderSide(color: _accentColor, width: 4),
-            ),
+            border: Border(left: BorderSide(color: _accentColor, width: 4)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
@@ -248,8 +249,11 @@ class _PendingPatientCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.medication_outlined,
-                            size: 13, color: AppColors.textSecondary),
+                        const Icon(
+                          Icons.medication_outlined,
+                          size: 13,
+                          color: AppColors.textSecondary,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '${patient.activePrescriptions} ${l10n.prescriptions}',
@@ -259,8 +263,11 @@ class _PendingPatientCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Icon(Icons.phone_outlined,
-                            size: 13, color: AppColors.textSecondary),
+                        const Icon(
+                          Icons.phone_outlined,
+                          size: 13,
+                          color: AppColors.textSecondary,
+                        ),
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(
@@ -331,12 +338,13 @@ class _AdherenceBadge extends StatelessWidget {
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration:
-          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Text(
         text,
-        style:
-            TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w600),
+        style: TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -352,10 +360,10 @@ class _LevelDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: 10,
-        height: 10,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      );
+    width: 10,
+    height: 10,
+    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+  );
 }
 
 // ─────────────────────────────────────────────
@@ -373,17 +381,17 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.check_circle_outline,
-              size: 72, color: AppColors.successGreen.withValues(alpha: 0.5)),
+          Icon(
+            Icons.check_circle_outline,
+            size: 72,
+            color: AppColors.successGreen.withValues(alpha: 0.5),
+          ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            hasSearch
-                ? l10n.noPatientsFound
-                : l10n.noPendingPatientsHint,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: AppColors.textSecondary),
+            hasSearch ? l10n.noPatientsFound : l10n.noPendingPatientsHint,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],
