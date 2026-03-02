@@ -1284,6 +1284,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get findPatient => 'Find Patient';
 
   @override
+  String get personUnit => 'person(s)';
+
+  @override
+  String get statisticsChart => 'Statistics Chart';
+
+  @override
+  String get receivedMeds => 'Received';
+
+  @override
+  String get missedMeds => 'Missed';
+
+  @override
+  String get dayFilter => 'Day';
+
+  @override
+  String get monthFilter => 'Month';
+
+  @override
+  String get alertsLabel => 'Alerts';
+
+  @override
+  String get missedTimesLabel => 'times';
+
+  @override
+  String get noAlerts => 'No alerts at this time';
+
+  @override
+  String get noReceivingPatientsHint =>
+      'No patients are currently receiving medication';
+
+  @override
+  String get noPendingPatientsHint =>
+      'All patients are on track — no pending medication';
+
+  @override
+  String get patientsInTreatment => 'Patients Received Medication';
+
+  @override
+  String get patientsPendingMeds => 'Patients Pending Medication';
+
+  @override
+  String get dayMon => 'Mon';
+
+  @override
+  String get dayTue => 'Tue';
+
+  @override
+  String get dayWed => 'Wed';
+
+  @override
+  String get dayThu => 'Thu';
+
+  @override
+  String get dayFri => 'Fri';
+
+  @override
+  String get daySat => 'Sat';
+
+  @override
+  String get daySun => 'Sun';
+
+  @override
   String get myPatients => 'My Patients';
 
   @override

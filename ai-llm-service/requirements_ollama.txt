@@ -1,0 +1,18 @@
+# Ollama AI Service Requirements
+# FastAPI and Server
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# HTTP Client for Ollama
+requests>=2.31.0
+httpx>=0.25.0
+
+# Data Validation
+pydantic>=2.0.0
+
+# Utilities
+python-multipart>=0.0.6
+
+# Testing (optional)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
