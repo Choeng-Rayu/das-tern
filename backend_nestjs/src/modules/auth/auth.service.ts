@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, ConflictException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
@@ -11,6 +11,7 @@ import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   private readonly LOCK_DURATION = 15 * 60 * 1000; // 15 minutes
   private readonly MAX_FAILED_ATTEMPTS = 5;
   private readonly BCRYPT_ROUNDS = 12;
@@ -171,7 +172,9 @@ export class AuthService {
     this.otpService.storeOtp(dto.email, otp);
     try {
       await this.emailService.sendOTP(dto.email, otp);
+      this.logger.log(`OTP email sent to ${dto.email}`);
     } catch (error) {
+      this.logger.error(`Failed to send OTP email to ${dto.email}: ${error.message}`, error.stack);
       // Log but don't fail registration
     }
 
@@ -230,7 +233,9 @@ export class AuthService {
     this.otpService.storeOtp(dto.email, otp);
     try {
       await this.emailService.sendOTP(dto.email, otp);
+      this.logger.log(`OTP email sent to ${dto.email}`);
     } catch (error) {
+      this.logger.error(`Failed to send OTP email to ${dto.email}: ${error.message}`, error.stack);
       // Log but don't fail registration
     }
 
@@ -461,7 +466,9 @@ export class AuthService {
       const resetLink = `${this.configService.get('FRONTEND_URL') || 'http://localhost:3000'}/reset-password?token=${token}`;
       try {
         await this.emailService.sendPasswordResetEmail(user.email, resetLink, otp);
+        this.logger.log(`Password reset email sent to ${user.email}`);
       } catch (error) {
+        this.logger.error(`Failed to send password reset email to ${user.email}: ${error.message}`, error.stack);
         // Log but don't fail - user can still use OTP
       }
       return {

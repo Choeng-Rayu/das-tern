@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -19,13 +18,19 @@ class NotificationService {
 
   Future<void> init() async {
     if (_initialized) return;
+    // flutter_local_notifications does not support web
+    if (kIsWeb) {
+      _initialized = true;
+      return;
+    }
 
     // Timezone setup
     tz_data.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Asia/Phnom_Penh'));
 
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -42,9 +47,11 @@ class NotificationService {
     );
 
     // Request permissions on Android 13+
-    if (Platform.isAndroid) {
-      final android = _plugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      final android = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       await android?.requestNotificationsPermission();
     }
 
@@ -69,6 +76,7 @@ class NotificationService {
     required DateTime reminderTime,
     required String timePeriod,
   }) async {
+    if (kIsWeb) return;
     if (!_initialized) await init();
 
     // Don't schedule past notifications
@@ -113,7 +121,9 @@ class NotificationService {
 
   /// Schedule reminders for a batch of dose events.
   Future<void> scheduleAllReminders(
-      List<Map<String, dynamic>> doseEvents) async {
+    List<Map<String, dynamic>> doseEvents,
+  ) async {
+    if (kIsWeb) return;
     if (!_initialized) await init();
 
     // Cancel all existing reminders first
@@ -148,12 +158,14 @@ class NotificationService {
 
   /// Cancel a specific reminder by dose ID.
   Future<void> cancelReminder(String doseId) async {
+    if (kIsWeb) return;
     final id = doseId.hashCode.abs() % 2147483647;
     await _plugin.cancel(id);
   }
 
   /// Cancel all scheduled reminders.
   Future<void> cancelAllReminders() async {
+    if (kIsWeb) return;
     await _plugin.cancelAll();
   }
 
@@ -169,6 +181,7 @@ class NotificationService {
     required List<String> medicineNames,
     required DateTime reminderTime,
   }) async {
+    if (kIsWeb) return;
     if (!_initialized) await init();
 
     if (reminderTime.isBefore(DateTime.now())) return;
@@ -208,6 +221,7 @@ class NotificationService {
 
   /// Cancel a batch reminder by batch ID.
   Future<void> cancelBatchReminder(String batchId) async {
+    if (kIsWeb) return;
     final id = 'batch_$batchId'.hashCode.abs() % 2147483647;
     await _plugin.cancel(id);
   }
@@ -222,6 +236,7 @@ class NotificationService {
     required String body,
     String? payload,
   }) async {
+    if (kIsWeb) return;
     if (!_initialized) await init();
 
     await _plugin.show(

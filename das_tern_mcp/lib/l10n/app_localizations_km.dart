@@ -1047,6 +1047,13 @@ class AppLocalizationsKm extends AppLocalizations {
   String get openInBankingApp => 'បើកកម្មវិធីធនាគារ';
 
   @override
+  String get orOpenDirectly => 'ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:';
+
+  @override
+  String get noBankingAppInstalled =>
+      'មិនអាចបើកកម្មវិធីធនាគារទេ សូម Scan QR វិញ។';
+
+  @override
   String get bankNotInstalled => 'មិនបានតំឡើងកម្មវិធីនេះទេ។ សូម Scan QR វិញ។';
 
   @override
@@ -1275,6 +1282,67 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get findPatient => 'ស្វែងរកអ្នកជំងឺ';
+
+  @override
+  String get personUnit => 'នាក់';
+
+  @override
+  String get statisticsChart => 'ក្រាបទិន្នន័យ';
+
+  @override
+  String get receivedMeds => 'បានទទួល';
+
+  @override
+  String get missedMeds => 'មិនបានទទួល';
+
+  @override
+  String get dayFilter => 'ថ្ងៃ';
+
+  @override
+  String get monthFilter => 'ខែ';
+
+  @override
+  String get alertsLabel => 'ដំណឹង';
+
+  @override
+  String get missedTimesLabel => 'ដង';
+
+  @override
+  String get noAlerts => 'គ្មានដំណឹងនាពេលនេះ';
+
+  @override
+  String get noReceivingPatientsHint => 'គ្មានអ្នកជំងអ្វយកំពុងត្រូវត្រកេលនេះ';
+
+  @override
+  String get noPendingPatientsHint =>
+      'អ្នកជំងទាមោនត្រឹមត្រក គ្មានអ្នកជំងមិនត្រូវត្រកេល';
+
+  @override
+  String get patientsInTreatment => 'អ្នកជំងឺទទួលថ្នាំរួចរាល់';
+
+  @override
+  String get patientsPendingMeds => 'អ្នកជំងឺមិនទាន់ទទួលថ្នាំ';
+
+  @override
+  String get dayMon => 'ច័ន្ទ';
+
+  @override
+  String get dayTue => 'អង្គារ';
+
+  @override
+  String get dayWed => 'ពុធ';
+
+  @override
+  String get dayThu => 'ព្រហ';
+
+  @override
+  String get dayFri => 'សុក្រ';
+
+  @override
+  String get daySat => 'សៅរ៍';
+
+  @override
+  String get daySun => 'អាទិត្យ';
 
   @override
   String get myPatients => 'អ្នកជំងឺរបស់ខ្ញុំ';
