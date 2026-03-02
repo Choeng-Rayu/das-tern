@@ -1,8 +1,13 @@
 """Layout analysis for prescription images using OpenCV."""
 import cv2
+import logging
 import numpy as np
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, Dict
+
+from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -204,11 +209,204 @@ def _merge_close_values(values: List[int], threshold: int = 10) -> List[int]:
     """Merge values that are within threshold of each other."""
     if not values:
         return []
+    threshold = threshold if threshold > 0 else settings.TABLE_MERGE_THRESHOLD
     merged = [values[0]]
     for v in values[1:]:
         if v - merged[-1] > threshold:
             merged.append(v)
     return merged
+
+
+# ---------------------------------------------------------------------------
+# Table Row Reconstructor — bbox-based row grouping
+# ---------------------------------------------------------------------------
+
+@dataclass
+class BBox:
+    """A single bounding box with associated text and metadata.
+
+    Coordinates follow the [x, y, w, h] convention used by the OCR engine.
+    """
+    x: int
+    y: int
+    w: int
+    h: int
+    text: str = ""
+    confidence: float = 0.0
+    meta: Optional[Dict] = None
+
+    @property
+    def cx(self) -> float:
+        """Horizontal center."""
+        return self.x + self.w / 2.0
+
+    @property
+    def cy(self) -> float:
+        """Vertical center — used for row alignment."""
+        return self.y + self.h / 2.0
+
+    @property
+    def x2(self) -> int:
+        """Right edge."""
+        return self.x + self.w
+
+    @property
+    def y2(self) -> int:
+        """Bottom edge."""
+        return self.y + self.h
+
+    def to_dict(self) -> Dict:
+        return {
+            "text": self.text,
+            "x": self.x, "y": self.y, "w": self.w, "h": self.h,
+            "bbox": [self.x, self.y, self.x + self.w, self.y + self.h],
+            "confidence": self.confidence,
+            **(self.meta or {}),
+        }
+
+
+class TableRowReconstructor:
+    """Reconstruct table rows from OCR bounding boxes using Y-axis alignment.
+
+    Two bounding boxes belong to the same row when:
+        |center_y(box_a) - center_y(box_b)| <= tolerance
+
+    The tolerance is either a fixed value (``ROW_Y_TOLERANCE``) or, when
+    adaptive mode is enabled, ``max(ROW_Y_TOLERANCE, avg_box_height * factor)``.
+
+    Within each row, boxes are sorted left-to-right by X position.
+    Rows themselves are sorted top-to-bottom by their median center-Y.
+    """
+
+    def __init__(
+        self,
+        tolerance: Optional[int] = None,
+        adaptive: Optional[bool] = None,
+        adaptive_factor: Optional[float] = None,
+    ):
+        self.base_tolerance: int = tolerance if tolerance is not None else settings.ROW_Y_TOLERANCE
+        self.adaptive: bool = adaptive if adaptive is not None else settings.ROW_Y_TOLERANCE_ADAPTIVE
+        self.adaptive_factor: float = (
+            adaptive_factor if adaptive_factor is not None
+            else settings.ROW_Y_TOLERANCE_ADAPTIVE_FACTOR
+        )
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    def cluster_into_rows(self, boxes: List[BBox]) -> List[List[BBox]]:
+        """Group *boxes* into rows based on vertical center alignment.
+
+        Algorithm (union-find inspired single-pass):
+        1. Sort boxes by center_y.
+        2. For each box, compare its center_y against the *representative*
+           center_y of the current row (median of the row so far).  This avoids
+           average-drift that can merge unrelated rows.
+        3. If within tolerance → add to current row.  Else → start a new row.
+        4. Sort each row by x (left-to-right).
+        5. Sort rows by median center_y (top-to-bottom).
+
+        Returns a list of rows, each row being a list of ``BBox`` sorted by x.
+        """
+        if not boxes:
+            return []
+
+        tolerance = self._compute_tolerance(boxes)
+
+        sorted_boxes = sorted(boxes, key=lambda b: b.cy)
+
+        rows: List[List[BBox]] = []
+        current_row: List[BBox] = [sorted_boxes[0]]
+
+        for box in sorted_boxes[1:]:
+            row_representative_y = self._row_representative_y(current_row)
+            if abs(box.cy - row_representative_y) <= tolerance:
+                current_row.append(box)
+            else:
+                rows.append(current_row)
+                current_row = [box]
+
+        if current_row:
+            rows.append(current_row)
+
+        # Sort each row left→right and rows top→bottom
+        for row in rows:
+            row.sort(key=lambda b: b.x)
+        rows.sort(key=lambda r: self._row_representative_y(r))
+
+        return rows
+
+    def cluster_word_dicts(self, words: List[Dict]) -> List[List[Dict]]:
+        """Convenience wrapper that accepts raw word dicts (as produced by the
+        OCR engine) and returns grouped rows of word dicts.
+
+        Each word dict is expected to have at least: ``x``, ``y``, ``w``, ``h``.
+        """
+        if not words:
+            return []
+
+        boxes = [
+            BBox(
+                x=w["x"], y=w["y"], w=w["w"], h=w["h"],
+                text=w.get("text", ""),
+                confidence=w.get("confidence", w.get("conf", 0) / 100.0 if "conf" in w else 0.0),
+                meta={k: v for k, v in w.items() if k not in ("x", "y", "w", "h", "text", "confidence")},
+            )
+            for w in words
+        ]
+
+        grouped = self.cluster_into_rows(boxes)
+
+        # Convert back to dicts, preserving original keys + enrichment
+        result: List[List[Dict]] = []
+        for row in grouped:
+            row_dicts = []
+            for b in row:
+                d = {
+                    "text": b.text,
+                    "x": b.x, "y": b.y, "w": b.w, "h": b.h,
+                    "bbox": [b.x, b.y, b.x2, b.y2],
+                    "confidence": b.confidence,
+                }
+                if b.meta:
+                    d.update(b.meta)
+                row_dicts.append(d)
+            result.append(row_dicts)
+
+        return result
+
+    # ------------------------------------------------------------------
+    # Internals
+    # ------------------------------------------------------------------
+
+    def _compute_tolerance(self, boxes: List[BBox]) -> float:
+        """Return the effective tolerance.
+
+        When adaptive mode is on, scale tolerance by the average box height so
+        that prescriptions with larger text automatically get a wider band.
+        """
+        if not self.adaptive or not boxes:
+            return float(self.base_tolerance)
+
+        avg_h = sum(b.h for b in boxes) / len(boxes)
+        adaptive_tol = avg_h * self.adaptive_factor
+        effective = max(float(self.base_tolerance), adaptive_tol)
+        logger.debug(
+            "Row tolerance: base=%d, adaptive=%.1f (avg_h=%.1f × %.2f), effective=%.1f",
+            self.base_tolerance, adaptive_tol, avg_h, self.adaptive_factor, effective,
+        )
+        return effective
+
+    @staticmethod
+    def _row_representative_y(row: List[BBox]) -> float:
+        """Return the median center_y of the row — more robust than mean
+        because it resists outlier pull from misaligned boxes."""
+        centers = sorted(b.cy for b in row)
+        n = len(centers)
+        if n % 2 == 1:
+            return centers[n // 2]
+        return (centers[n // 2 - 1] + centers[n // 2]) / 2.0
 
 
 def _estimate_grid(table_bbox: Tuple[int, int, int, int], gray: np.ndarray) -> TableRegion:
