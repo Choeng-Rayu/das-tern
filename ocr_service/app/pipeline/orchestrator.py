@@ -8,7 +8,7 @@ import numpy as np
 import pytesseract
 
 from app.pipeline.preprocessor import preprocess_image
-from app.pipeline.layout import analyze_layout, LayoutResult
+from app.pipeline.layout import analyze_layout, LayoutResult, TableRowReconstructor
 from app.pipeline.ocr_engine import OCREngine, OCRResult
 from app.pipeline.postprocessor import PostProcessor
 from app.pipeline.formatter import build_dynamic_universal, build_extraction_summary
@@ -17,12 +17,11 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Known H-EQIP prescription column boundaries as proportions of table width
-# Columns: item_number, medication_name, duration, instructions, morning, midday, afternoon, evening
-COL_BOUNDARIES = [0.0, 0.043, 0.322, 0.458, 0.568, 0.648, 0.734, 0.887, 1.0]
-COL_NAMES = ["item_number", "medication_name", "duration", "instructions",
-             "morning", "midday", "afternoon", "evening"]
-DOSE_COLS = {"morning", "midday", "afternoon", "evening"}
+# Semantic column role names (dynamic — actual count may differ per prescription)
+DEFAULT_COL_NAMES = ["item_number", "medication_name", "duration", "instructions",
+                     "morning", "midday", "afternoon", "evening"]
+DOSE_PERIOD_NAMES = ["morning", "midday", "afternoon", "evening"]
+DOSE_COLS = set(DOSE_PERIOD_NAMES)
 
 # Minimum area of ink blob in dose column to count as a mark
 MIN_DOSE_BLOB_AREA = 8
@@ -56,6 +55,7 @@ class PipelineOrchestrator:
     def __init__(self):
         self.ocr_engine = OCREngine()
         self.post_processor = PostProcessor()
+        self.row_reconstructor = TableRowReconstructor()
         logger.info("Pipeline orchestrator initialized")
 
     @staticmethod
@@ -78,6 +78,9 @@ class PipelineOrchestrator:
             # Step 1: Preprocess
             logger.info(f"Step 1: Preprocessing image ({len(image_bytes)} bytes)")
             color_img, gray_img, quality_report = preprocess_image(image_bytes)
+
+            # Keep raw decoded image for OCR fallback (some cells OCR better un-preprocessed)
+            raw_img = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_COLOR)
 
             # Build image metadata
             h, w = color_img.shape[:2]
@@ -129,7 +132,7 @@ class PipelineOrchestrator:
             table_words = []
             if layout.table:
                 logger.info("  Processing medication table (hybrid approach)")
-                medications, table_words = self._process_table_hybrid(color_img, gray_img, layout.table.bbox)
+                medications, table_words = self._process_table_hybrid(color_img, gray_img, layout.table.bbox, raw_img=raw_img)
 
             # Full-image fallback: if no medications found via table, scan the entire upper
             # portion of the image (covers prescriptions with non-standard layouts or wrong
@@ -220,13 +223,17 @@ class PipelineOrchestrator:
             }
 
     def _process_table_hybrid(self, color_img: np.ndarray, gray_img: np.ndarray,
-                               table_bbox: Tuple[int, int, int, int]) -> Tuple[list, list]:
+                               table_bbox: Tuple[int, int, int, int],
+                               raw_img: Optional[np.ndarray] = None) -> Tuple[list, list]:
         """Process medication table using a multi-strategy hybrid approach.
         Returns (medications, table_words).
 
         Strategy 1: Dynamic column detection from actual vertical grid lines
-        Strategy 2: Hardcoded H-EQIP column proportions (original approach)
+        Strategy 2: Text-gap column detection from OCR word x-positions
         Strategy 3: Full-text OCR fallback — parse medication names from raw text lines
+
+        raw_img: optional un-preprocessed image for OCR fallback on cells where
+                 preprocessing degrades text quality.
         """
         tx1, ty1, tx2, ty2 = table_bbox
         tw = tx2 - tx1
@@ -237,20 +244,24 @@ class PipelineOrchestrator:
         dynamic_col_x = self._detect_dynamic_columns(gray_img, table_bbox)
         if dynamic_col_x and len(dynamic_col_x) >= 5:
             logger.info(f"  Dynamic columns found: {len(dynamic_col_x)} boundaries")
-            medications, table_words = self._extract_structured(color_img, gray_img, table_bbox, dynamic_col_x)
+            medications, table_words = self._extract_structured(color_img, gray_img, table_bbox, dynamic_col_x, raw_img=raw_img)
             if medications:
                 logger.info(f"  Strategy 1 (dynamic columns) → {len(medications)} medications")
                 return medications, table_words
             logger.info("  Strategy 1 yielded 0 medications, trying Strategy 2")
 
-        # --- Strategy 2: Hardcoded H-EQIP column proportions ---
-        logger.info("  Using hardcoded H-EQIP column boundaries")
-        heqip_col_x = [tx1 + int(tw * b) for b in COL_BOUNDARIES]
-        medications, table_words = self._extract_structured(color_img, gray_img, table_bbox, heqip_col_x)
-        if medications:
-            logger.info(f"  Strategy 2 (H-EQIP columns) → {len(medications)} medications")
-            return medications, table_words
-        logger.info("  Strategy 2 yielded 0 medications, trying Strategy 3 (text fallback)")
+        # --- Strategy 2: Text-gap column detection from OCR word positions ---
+        logger.info("  Trying text-gap column detection from OCR word positions")
+        gap_col_x = self._detect_columns_from_text_gaps(color_img, table_bbox)
+        if gap_col_x and len(gap_col_x) >= 5:
+            logger.info(f"  Text-gap columns found: {len(gap_col_x)} boundaries")
+            medications, table_words = self._extract_structured(color_img, gray_img, table_bbox, gap_col_x, raw_img=raw_img)
+            if medications:
+                logger.info(f"  Strategy 2 (text-gap columns) → {len(medications)} medications")
+                return medications, table_words
+            logger.info("  Strategy 2 yielded 0 medications, trying Strategy 3")
+        else:
+            logger.info(f"  Text-gap detection found {len(gap_col_x) if gap_col_x else 0} boundaries, trying Strategy 3")
 
         # --- Strategy 3: General text OCR fallback ---
         medications, table_words = self._extract_text_fallback(color_img, gray_img, table_bbox)
@@ -259,7 +270,13 @@ class PipelineOrchestrator:
 
     def _detect_dynamic_columns(self, gray_img: np.ndarray,
                                  table_bbox: Tuple[int, int, int, int]) -> Optional[List[int]]:
-        """Detect actual column x-boundaries by finding vertical grid lines within the table."""
+        """Detect actual column x-boundaries by finding vertical grid lines within the table.
+
+        Uses the layout module's detect_lines() for consistent line detection,
+        then converts to absolute image coordinates.
+        """
+        from app.pipeline.layout import detect_lines as layout_detect_lines
+
         tx1, ty1, tx2, ty2 = table_bbox
         tw = tx2 - tx1
         th = ty2 - ty1
@@ -269,58 +286,154 @@ class PipelineOrchestrator:
 
         table_crop = gray_img[ty1:ty2, tx1:tx2].copy()
 
-        # Binarize with Otsu
-        _, binary = cv2.threshold(table_crop, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-
-        # Detect vertical lines that span at least 35% of the table height
-        v_len = max(int(th * 0.35), 15)
-        v_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, v_len))
-        v_lines_img = cv2.morphologyEx(binary, cv2.MORPH_OPEN, v_kernel, iterations=2)
-
-        # Project onto x-axis — find columns with high vertical density
-        col_sums = np.sum(v_lines_img, axis=0).astype(np.float32)
-        max_val = float(np.max(col_sums))
-        if max_val == 0:
+        # Use the proven detect_lines function
+        v_lines = layout_detect_lines(table_crop, "vertical")
+        if len(v_lines) < 2:
             return None
 
-        threshold = max_val * 0.25
-        above = col_sums > threshold
+        # Extract x-center of each vertical line
+        x_centers = []
+        for x1, y1, x2, y2 in v_lines:
+            cx = (x1 + x2) // 2
+            x_centers.append(cx)
 
-        # Collect centers of contiguous high-density regions
+        x_centers = sorted(set(x_centers))
+
+        # Merge close x-values
+        min_gap = max(int(tw * 0.02), 3)
+        merged = [x_centers[0]]
+        for cx in x_centers[1:]:
+            if cx - merged[-1] > min_gap:
+                merged.append(cx)
+
+        # Build boundary list with endpoints
         boundaries = [0]
-        in_region = False
-        start_x = 0
-        for x in range(tw):
-            if above[x] and not in_region:
-                in_region = True
-                start_x = x
-            elif not above[x] and in_region:
-                in_region = False
-                center = (start_x + x) // 2
-                # Ignore boundaries too close to existing ones (merge noise)
-                if not boundaries or center - boundaries[-1] > tw * 0.02:
-                    boundaries.append(center)
-        if in_region:
-            boundaries.append(start_x)
+        for cx in merged:
+            if cx > min_gap and cx < tw - min_gap:
+                boundaries.append(cx)
         boundaries.append(tw)
         boundaries = sorted(set(boundaries))
 
-        # Need at least 4 internal separators to form meaningful columns
+        # Need at least 5 boundaries (4 columns) for structured extraction
         if len(boundaries) < 5:
             return None
 
         # Convert to image coordinates
         return [tx1 + x for x in boundaries]
 
+    def _detect_columns_from_text_gaps(self, color_img: np.ndarray,
+                                        table_bbox: Tuple[int, int, int, int]) -> Optional[List[int]]:
+        """Detect column boundaries by finding x-gaps between OCR words.
+
+        This is a format-agnostic method: it runs OCR on the table region, collects
+        all word bounding boxes, and identifies vertical gaps where no text appears.
+        Those gaps correspond to column separators.
+        """
+        tx1, ty1, tx2, ty2 = table_bbox
+        tw = tx2 - tx1
+        th = ty2 - ty1
+
+        if tw < 50 or th < 30:
+            return None
+
+        table_crop = color_img[ty1:ty2, tx1:tx2]
+        if table_crop.size == 0:
+            return None
+
+        # Run OCR to get word positions
+        try:
+            data = pytesseract.image_to_data(
+                table_crop, lang=settings.TESSERACT_LANG,
+                config='--oem 1 --psm 4',
+                output_type=pytesseract.Output.DICT
+            )
+        except Exception as e:
+            logger.warning(f"Text-gap column detection OCR failed: {e}")
+            return None
+
+        # Collect word x-ranges with sufficient confidence
+        word_ranges = []  # list of (x_start, x_end)
+        for i, text in enumerate(data['text']):
+            word = text.strip()
+            conf = int(data['conf'][i])
+            if not word or conf <= MIN_WORD_CONF:
+                continue
+            if not re.search(r'[A-Za-z0-9\u1780-\u17FF]', word):
+                continue
+            wx = data['left'][i]
+            ww = data['width'][i]
+            if ww > 0:
+                word_ranges.append((wx, wx + ww))
+
+        if len(word_ranges) < 3:
+            return None
+
+        # Build x-occupancy histogram (which x-positions have text)
+        occupancy = np.zeros(tw, dtype=np.int32)
+        for x_start, x_end in word_ranges:
+            x_s = max(0, x_start)
+            x_e = min(tw, x_end)
+            occupancy[x_s:x_e] += 1
+
+        # Find gaps (runs of zero occupancy wider than 1% of table width)
+        min_gap_width = max(int(tw * 0.01), 3)
+        gaps = []  # list of (gap_center, gap_width)
+        in_gap = False
+        gap_start = 0
+        for x in range(tw):
+            if occupancy[x] == 0 and not in_gap:
+                in_gap = True
+                gap_start = x
+            elif occupancy[x] > 0 and in_gap:
+                in_gap = False
+                gap_width = x - gap_start
+                if gap_width >= min_gap_width:
+                    gaps.append(((gap_start + x) // 2, gap_width))
+        if in_gap:
+            gap_width = tw - gap_start
+            if gap_width >= min_gap_width:
+                gaps.append(((gap_start + tw) // 2, gap_width))
+
+        if len(gaps) < 2:
+            return None
+
+        # Sort gaps by width (wider gaps are more likely column separators)
+        # Keep the most prominent gaps
+        gaps.sort(key=lambda g: g[1], reverse=True)
+
+        # Take top gaps — up to 10 separators for complex tables
+        max_separators = min(len(gaps), 10)
+        selected_gaps = sorted([g[0] for g in gaps[:max_separators]])
+
+        # Build boundary list
+        boundaries = [0] + selected_gaps + [tw]
+        boundaries = sorted(set(boundaries))
+
+        # Merge close boundaries
+        merged = [boundaries[0]]
+        for b in boundaries[1:]:
+            if b - merged[-1] > tw * 0.02:
+                merged.append(b)
+        merged[-1] = tw
+
+        if len(merged) < 3:
+            return None
+
+        # Convert to image coordinates
+        return [tx1 + x for x in merged]
+
     def _extract_structured(self, color_img: np.ndarray, gray_img: np.ndarray,
                              table_bbox: Tuple[int, int, int, int],
-                             col_x: List[int]) -> Tuple[list, list]:
+                             col_x: List[int],
+                             raw_img: Optional[np.ndarray] = None) -> Tuple[list, list]:
         """Extract medications using explicit column x-boundaries.
         Returns (medications, all_words).
 
         col_x must have at least 5 entries ([item_num, ..., med_name_end, ..., dose_cols, end]).
         When the prescription has a different column count than H-EQIP, we auto-assign
         col roles: leftmost narrow = item#, wide middle = medication_name, far-right = doses.
+
+        raw_img: optional un-preprocessed image for OCR fallback on duration cells.
         """
         tx1, ty1, tx2, ty2 = table_bbox
         tw = tx2 - tx1
@@ -362,30 +475,45 @@ class PipelineOrchestrator:
             logger.warning(f"OCR failed on strip: {e}")
             return [], []
 
-        # Collect words with sufficient confidence
+        # Collect words with sufficient confidence, filtering OCR grid-line noise
         words = []
         for i, text in enumerate(data['text']):
-            if text.strip() and int(data['conf'][i]) > MIN_WORD_CONF:
-                wx = data['left'][i] + strip_x1
-                wy = data['top'][i] + ty1
-                ww = data['width'][i]
-                wh = data['height'][i]
-                words.append({
-                    'text': text.strip(),
-                    'x': wx,
-                    'y': wy,
-                    'w': ww,
-                    'h': wh,
-                    'conf': int(data['conf'][i]),
-                    'bbox': [wx, wy, wx + ww, wy + wh],
-                    'confidence': int(data['conf'][i]) / 100.0,
-                })
+            word = text.strip()
+            conf = int(data['conf'][i])
+            if not word or conf <= MIN_WORD_CONF:
+                continue
+            # Skip pure punctuation / symbols leaked from table grid lines
+            if not re.search(r'[A-Za-z0-9\u1780-\u17FF]', word):
+                continue
+            # Strip leading/trailing pipe, bracket, equals characters
+            word = re.sub(r'^[\|\[\]=]+|[\|\[\]=]+$', '', word).strip()
+            if not word:
+                continue
+            wx = data['left'][i] + strip_x1
+            wy = data['top'][i] + ty1
+            ww = data['width'][i]
+            wh = data['height'][i]
+            words.append({
+                'text': word,
+                'x': wx,
+                'y': wy,
+                'w': ww,
+                'h': wh,
+                'conf': conf,
+                'bbox': [wx, wy, wx + ww, wy + wh],
+                'confidence': conf / 100.0,
+            })
 
         if not words:
             return [], []
 
-        # Group words into rows by y-position
-        rows = self._cluster_words_by_y(words, threshold=30)
+        # Filter out OCR noise: pure punctuation/symbols leaked from grid lines
+        words = [w for w in words if re.search(r'[A-Za-z0-9\u1780-\u17FF]', w['text'])]
+        if not words:
+            return [], []
+
+        # Group words into rows by Y-center alignment (configurable tolerance)
+        rows = self.row_reconstructor.cluster_word_dicts(words)
 
         # Map each row's words to columns, then identify medication rows
         med_rows = []
@@ -420,6 +548,68 @@ class PipelineOrchestrator:
         if not med_rows:
             return [], words
 
+        # --- Residual row recovery ---
+        # When PSM 4 on the full text strip misses medication rows (especially
+        # near the bottom of the table), re-scan the uncovered tail region with
+        # a tighter crop so Tesseract can resolve the text.
+        last_med_bottom = max(avg_y for _, avg_y, _ in med_rows) + 20
+        residual_height = ty2 - last_med_bottom
+        if residual_height > th * 0.10:  # >10% of table height remains
+            logger.info(f"  Residual scan: {residual_height}px below last med (table h={th})")
+            residual_crop = color_img[int(last_med_bottom):ty2, strip_x1:strip_x2]
+            if residual_crop.size > 0:
+                try:
+                    rdata = pytesseract.image_to_data(
+                        residual_crop, lang=settings.TESSERACT_LANG,
+                        config='--oem 1 --psm 6',  # PSM 6 = uniform block, better for small regions
+                        output_type=pytesseract.Output.DICT
+                    )
+                    rwords = []
+                    for ri, rtext in enumerate(rdata['text']):
+                        rw = rtext.strip()
+                        rconf = int(rdata['conf'][ri])
+                        if not rw or rconf <= MIN_WORD_CONF:
+                            continue
+                        if not re.search(r'[A-Za-z0-9\u1780-\u17FF]', rw):
+                            continue
+                        rw = re.sub(r'^[\|\[\]=]+|[\|\[\]=]+$', '', rw).strip()
+                        if not rw:
+                            continue
+                        rwx = rdata['left'][ri] + strip_x1
+                        rwy = rdata['top'][ri] + int(last_med_bottom)
+                        rww = rdata['width'][ri]
+                        rwh = rdata['height'][ri]
+                        rwords.append({
+                            'text': rw, 'x': rwx, 'y': rwy, 'w': rww, 'h': rwh,
+                            'conf': rconf, 'bbox': [rwx, rwy, rwx + rww, rwy + rwh],
+                            'confidence': rconf / 100.0,
+                        })
+                    if rwords:
+                        rrows = self.row_reconstructor.cluster_word_dicts(rwords)
+                        for rrow_words in rrows:
+                            rrow_data = self._map_words_to_columns_flexible(rrow_words, col_x, name_col_idx, n_cols)
+                            rmed = rrow_data.get("medication_name", "").strip()
+                            if len(rmed) < MIN_MED_NAME_LEN:
+                                candidate = [w for w in sorted(rrow_words, key=lambda x: x['x'])
+                                             if re.search(r'[A-Za-z\u1780-\u17FF]', w['text'])]
+                                rmed = ' '.join(w['text'] for w in candidate).strip()
+                                if len(rmed) >= MIN_MED_NAME_LEN:
+                                    rrow_data['medication_name'] = rmed
+                                    if candidate:
+                                        rrow_data['medication_name_bbox'] = self._aggregate_bbox(candidate)
+                                        rrow_data['medication_name_words'] = [
+                                            {'text': w['text'], 'bbox': w.get('bbox'), 'confidence': w.get('confidence', w['conf'] / 100.0)}
+                                            for w in candidate
+                                        ]
+                            if len(rmed) < MIN_MED_NAME_LEN or self._is_header_or_label_text(rmed):
+                                continue
+                            ravg_y = sum(w['y'] + w['h'] // 2 for w in rrow_words) / len(rrow_words)
+                            med_rows.append((rrow_data, ravg_y, rrow_words))
+                            words.extend(rwords)
+                            logger.info(f"  Residual recovery: found '{rmed}' at y={ravg_y:.0f}")
+                except Exception as e:
+                    logger.warning(f"Residual OCR scan failed: {e}")
+
         # Re-OCR duration column per row with Khmer+English
         dur_x1 = col_x[min(name_col_idx + 1, len(col_x) - 2)]
         dur_x2 = col_x[min(name_col_idx + 2, len(col_x) - 1)]
@@ -434,21 +624,40 @@ class PipelineOrchestrator:
         for i, (row_data, avg_y, row_words) in enumerate(med_rows):
             min_y = max(ty1, int(avg_y) - half_row) if i == 0 else int((row_centers[i - 1] + row_centers[i]) / 2)
             max_y = min(ty2, int(avg_y) + half_row) if i == len(med_rows) - 1 else int((row_centers[i] + row_centers[i + 1]) / 2)
-            dur_cell = color_img[min_y:max_y, dur_x1:dur_x2]
-            if dur_cell.size > 0:
-                try:
-                    dur_text = pytesseract.image_to_string(
-                        dur_cell, lang=settings.TESSERACT_LANG, config='--oem 1 --psm 7'
-                    ).strip()
-                    if dur_text:
-                        row_data['duration'] = dur_text
-                        row_data['duration_bbox'] = [dur_x1, min_y, dur_x2, max_y]
-                except Exception:
-                    pass
 
-        # Analyze dose columns — try to use the rightmost columns as dose columns
+            # Try duration OCR on preprocessed image first, fallback to raw image
+            dur_text = ""
+            for img_source in [color_img, raw_img]:
+                if img_source is None:
+                    continue
+                dur_cell = img_source[min_y:max_y, dur_x1:dur_x2]
+                if dur_cell.size == 0:
+                    continue
+                for psm in ['--oem 1 --psm 7', '--oem 1 --psm 6']:
+                    try:
+                        dur_text = pytesseract.image_to_string(
+                            dur_cell, lang=settings.TESSERACT_LANG, config=psm
+                        ).strip()
+                        if dur_text and re.search(r'\d', dur_text):
+                            break
+                    except Exception:
+                        continue
+                if dur_text and re.search(r'\d', dur_text):
+                    break
+            if dur_text:
+                row_data['duration'] = dur_text
+                row_data['duration_bbox'] = [dur_x1, min_y, dur_x2, max_y]
+
+        # Analyze dose columns — dynamically determine how many dose columns exist
+        # Heuristic: rightmost narrow columns after name+duration+instructions are dose cols
+        # The number of dose columns depends on the actual table structure
         dose_col_start = max(n_cols - 4, name_col_idx + 2)
-        actual_dose_cols = COL_NAMES[4:]  # morning, midday, afternoon, evening
+        available_dose_cols = n_cols - dose_col_start
+        n_dose_cols = min(available_dose_cols, len(DOSE_PERIOD_NAMES))
+
+        # Map detected dose columns to period names
+        actual_dose_cols = DOSE_PERIOD_NAMES[:n_dose_cols]
+        logger.info(f"  Detected {n_dose_cols} dose columns (start={dose_col_start}, total={n_cols})")
 
         dose_results = {}
         for j, col_name in enumerate(actual_dose_cols):
@@ -462,11 +671,16 @@ class PipelineOrchestrator:
                 gray_img, cell_x1, cell_x2, ty1, ty2, row_centers
             )
 
+        # Fill any missing periods with defaults
+        for period in DOSE_PERIOD_NAMES:
+            if period not in dose_results:
+                dose_results[period] = {k: "-" for k in range(len(med_rows))}
+
         medications = []
         for i, (row_data, avg_y, row_words) in enumerate(med_rows):
             min_y_row = max(ty1, int(avg_y) - half_row) if i == 0 else int((row_centers[i - 1] + row_centers[i]) / 2)
             max_y_row = min(ty2, int(avg_y) + half_row) if i == len(med_rows) - 1 else int((row_centers[i] + row_centers[i + 1]) / 2)
-            for j, col_name in enumerate(actual_dose_cols):
+            for j, col_name in enumerate(DOSE_PERIOD_NAMES):
                 row_data[col_name] = dose_results[col_name].get(i, "-")
                 # Add dose cell bbox from column boundaries
                 col_idx = dose_col_start + j
@@ -513,27 +727,43 @@ class PipelineOrchestrator:
 
             words = []
             for i, text in enumerate(data['text']):
-                if text.strip() and int(data['conf'][i]) > MIN_WORD_CONF:
-                    wx = data['left'][i] + cx1
-                    wy = data['top'][i] + cy1
-                    ww = data['width'][i]
-                    wh = data['height'][i]
-                    words.append({
-                        'text': text.strip(),
-                        'x': wx,
-                        'y': wy,
-                        'w': ww,
-                        'h': wh,
-                        'conf': int(data['conf'][i]),
-                        'bbox': [wx, wy, wx + ww, wy + wh],
-                        'confidence': int(data['conf'][i]) / 100.0,
-                    })
+                word = text.strip()
+                conf = int(data['conf'][i])
+                if not word or conf <= MIN_WORD_CONF:
+                    continue
+                # Skip pure punctuation / symbols leaked from table grid lines
+                if not re.search(r'[A-Za-z0-9\u1780-\u17FF]', word):
+                    continue
+                # Strip leading/trailing pipe, bracket, equals characters
+                word = re.sub(r'^[\|\[\]=]+|[\|\[\]=]+$', '', word).strip()
+                if not word:
+                    continue
+                wx = data['left'][i] + cx1
+                wy = data['top'][i] + cy1
+                ww = data['width'][i]
+                wh = data['height'][i]
+                words.append({
+                    'text': word,
+                    'x': wx,
+                    'y': wy,
+                    'w': ww,
+                    'h': wh,
+                    'conf': conf,
+                    'bbox': [wx, wy, wx + ww, wy + wh],
+                    'confidence': conf / 100.0,
+                })
 
             if not words:
                 continue
 
             all_words = words
-            rows = self._cluster_words_by_y(words, threshold=30)
+
+            # Filter out OCR noise: pure punctuation/symbols from grid lines
+            words = [w for w in words if re.search(r'[A-Za-z0-9\u1780-\u17FF]', w['text'])]
+            if not words:
+                continue
+
+            rows = self.row_reconstructor.cluster_word_dicts(words)
 
             item_num = 0
             for row_words in rows:
@@ -639,6 +869,19 @@ class PipelineOrchestrator:
         if len(alphanumeric) < 2:
             return True
 
+        # Reject purely numeric text (e.g. "1030", "28") — not a medication name
+        if re.match(r'^[\d\s\.\,\-\+]+$', stripped):
+            return True
+
+        # Reject standalone strength values (e.g. "500mg", "10mg", "100 mg")
+        if re.match(r'^\d+\s*(mg|mcg|ml|g|iu|µg|tab|cap)\s*$', stripped, re.IGNORECASE):
+            return True
+
+        # Reject very short text with mostly digits (e.g. "5x", "3/")
+        letters = re.findall(r'[A-Za-z\u1780-\u17FF]', stripped)
+        if len(letters) < 2 and len(stripped) <= 5:
+            return True
+
         return False
 
     def _map_words_to_columns_flexible(self, words: list, col_x: List[int],
@@ -650,7 +893,7 @@ class PipelineOrchestrator:
         Outputs *_bbox and *_words keys for each column.
         """
         result = {}
-        col_words: Dict[str, list] = {name: [] for name in COL_NAMES[:4]}
+        col_words: Dict[str, list] = {name: [] for name in DEFAULT_COL_NAMES[:4]}
 
         for w in sorted(words, key=lambda x: x['x']):
             word_center_x = w['x'] + w['w'] // 2
@@ -682,174 +925,174 @@ class PipelineOrchestrator:
 
         return result
 
-
-
-    def _cluster_words_by_y(self, words: list, threshold: int = 30) -> List[list]:
-        """Group words into rows based on y-position proximity."""
-        if not words:
-            return []
-
-        sorted_words = sorted(words, key=lambda w: w['y'])
-        groups = []
-        current_group = [sorted_words[0]]
-
-        for w in sorted_words[1:]:
-            avg_y = sum(x['y'] for x in current_group) / len(current_group)
-            if abs(w['y'] - avg_y) <= threshold:
-                current_group.append(w)
-            else:
-                groups.append(current_group)
-                current_group = [w]
-
-        if current_group:
-            groups.append(current_group)
-
-        return groups
-
-    def _map_words_to_columns(self, words: list, col_x: list) -> Dict[str, Any]:
-        """Map words to text columns based on x-position (H-EQIP fixed boundaries).
-        Outputs *_bbox and *_words keys for each column."""
-        result = {}
-        col_words = {name: [] for name in COL_NAMES[:4]}
-
-        for w in sorted(words, key=lambda x: x['x']):
-            word_center_x = w['x'] + w['w'] // 2
-            for i, name in enumerate(COL_NAMES[:4]):
-                if col_x[i] <= word_center_x < col_x[i + 1]:
-                    col_words[name].append(w)
-                    break
-
-        for name, word_list in col_words.items():
-            result[name] = ' '.join(w['text'] for w in word_list)
-            if word_list:
-                result[f"{name}_bbox"] = self._aggregate_bbox(word_list)
-                result[f"{name}_words"] = [
-                    {'text': w['text'], 'bbox': w.get('bbox'), 'confidence': w.get('confidence', w['conf'] / 100.0)}
-                    for w in word_list
-                ]
-
-        return result
-
     def _analyze_dose_column(self, gray_img: np.ndarray, col_x1: int, col_x2: int,
                               ty1: int, ty2: int, row_centers: List[float]) -> Dict[int, str]:
-        """Analyze a full dose column strip using contour detection.
+        """Analyze a full dose column strip using hybrid OCR + contour detection.
 
-        Steps:
-        1. Extract column strip with border trimming
-        2. Threshold to binary
-        3. Remove horizontal grid lines
-        4. Find ink blobs using contour detection
-        5. Detect and filter fold/crease artifacts by position analysis
-        6. Map blobs to medication rows by y-proximity
+        For each medication row, crops the individual dose cell and tries:
+        1. OCR the cell — if readable digit/fraction, use it
+        2. Fall back to blob detection with strict filtering
 
-        Returns mapping of row_index -> dose_value ("1" or "-")
+        Returns mapping of row_index -> dose_value ("1", "½", "-", etc.)
         """
         img_h, img_w = gray_img.shape
         x1 = max(0, col_x1)
         x2 = min(img_w, col_x2)
-        y1 = max(0, ty1)
-        y2 = min(img_h, ty2)
 
         cw = x2 - x1
-        if cw < 10:
+        if cw < 8:
             return {i: "-" for i in range(len(row_centers))}
 
-        # Extract the full column strip
-        strip = gray_img[y1:y2, x1:x2].copy()
-        if strip.size == 0:
-            return {i: "-" for i in range(len(row_centers))}
+        # Calculate row intervals for per-row cell cropping
+        if len(row_centers) >= 2:
+            avg_spacing = (row_centers[-1] - row_centers[0]) / (len(row_centers) - 1)
+            half_row = int(avg_spacing / 2)
+        else:
+            half_row = (ty2 - ty1) // 4
 
-        sh, sw = strip.shape
-
-        # Trim vertical borders (30% each side) to remove grid lines at column edges
-        trim_x = max(int(sw * 0.30), 5)
-        inner = strip[:, trim_x:sw - trim_x]
-        if inner.size == 0 or inner.shape[1] < 3:
-            return {i: "-" for i in range(len(row_centers))}
-
-        inner_w = inner.shape[1]
-
-        # Apply adaptive threshold to detect dark ink marks (more robust than fixed 160)
-        # First try Otsu, then use a fixed fallback if the strip is mostly white or uniform
-        otsu_val, binary_otsu = cv2.threshold(inner, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-        fixed_val, binary_fixed = cv2.threshold(inner, 160, 255, cv2.THRESH_BINARY_INV)
-        # Pick whichever threshold captures more ink (higher non-zero pixel count)
-        binary = binary_otsu if cv2.countNonZero(binary_otsu) >= cv2.countNonZero(binary_fixed) else binary_fixed
-
-        # Remove horizontal grid lines using morphological opening
-        h_kernel_len = max(inner_w * 2 // 3, 5)
-        kernel_h = cv2.getStructuringElement(cv2.MORPH_RECT, (h_kernel_len, 1))
-        h_lines = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel_h)
-        binary = cv2.subtract(binary, h_lines)
-
-        # Find contours (remaining ink blobs = actual character marks)
-        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        # Collect significant blobs
-        min_area = MIN_DOSE_BLOB_AREA
-        blobs = []
-        for c in contours:
-            area = cv2.contourArea(c)
-            if area >= min_area:
-                bx, by, bw, bh = cv2.boundingRect(c)
-                if bh >= 3:
-                    blob_center_y = y1 + by + bh // 2
-                    blobs.append({'y': blob_center_y, 'area': area, 'h': bh, 'w': bw, 'x': bx})
-
-        # Fold artifact detection: a paper fold/crease creates blobs at
-        # x-positions near the left edge of the trimmed area across multiple rows.
-        # Real centered characters appear further right in the column.
-        if blobs and len(row_centers) >= 3:
-            left_threshold = inner_w * 0.30
-            # Find left-edge blobs and which rows they match
-            left_blob_rows = set()
-            left_blob_indices = set()
-            for idx, b in enumerate(blobs):
-                if b['x'] < left_threshold:
-                    left_blob_indices.add(idx)
-                    for i, row_y in enumerate(row_centers):
-                        if abs(b['y'] - row_y) <= 30:
-                            left_blob_rows.add(i)
-
-            # Only apply fold filter if left blobs match most rows
-            min_fold_rows = len(row_centers) - 1
-            if len(left_blob_rows) >= min_fold_rows:
-                # Count rows that also have centered (non-left) blobs
-                center_rows = set()
-                for b in blobs:
-                    if b['x'] >= left_threshold:
-                        for i, row_y in enumerate(row_centers):
-                            if abs(b['y'] - row_y) <= 30:
-                                center_rows.add(i)
-
-                if len(center_rows) >= len(row_centers) // 2:
-                    # Most rows have centered alternatives — selectively remove
-                    # left blobs only for rows that have a centered backup
-                    remove_indices = set()
-                    for idx in left_blob_indices:
-                        b = blobs[idx]
-                        for i, row_y in enumerate(row_centers):
-                            if abs(b['y'] - row_y) <= 30 and i in center_rows:
-                                remove_indices.add(idx)
-                                break
-                    blobs = [b for i, b in enumerate(blobs) if i not in remove_indices]
-                else:
-                    # Most rows lack centered blobs — left blobs are pure fold
-                    blobs = [b for i, b in enumerate(blobs) if i not in left_blob_indices]
-
-        # Map blobs to medication rows by y-proximity
         result = {}
-        match_threshold = 40  # wider match window for different prescription layouts
 
         for i, row_y in enumerate(row_centers):
-            nearby = [b for b in blobs if abs(b['y'] - row_y) <= match_threshold]
-            if nearby:
-                total_area = sum(b['area'] for b in nearby)
-                if total_area >= 10:
-                    result[i] = "1"
-                else:
-                    result[i] = "-"
+            # Compute per-row y-bounds
+            if i == 0:
+                cell_y1 = max(ty1, int(row_y) - half_row)
             else:
+                cell_y1 = int((row_centers[i - 1] + row_centers[i]) / 2)
+
+            if i == len(row_centers) - 1:
+                cell_y2 = min(ty2, int(row_y) + half_row)
+            else:
+                cell_y2 = int((row_centers[i] + row_centers[i + 1]) / 2)
+
+            cell_y1 = max(0, cell_y1)
+            cell_y2 = min(img_h, cell_y2)
+            if cell_y2 <= cell_y1:
                 result[i] = "-"
+                continue
+
+            cell = gray_img[cell_y1:cell_y2, x1:x2]
+            if cell.size == 0:
+                result[i] = "-"
+                continue
+
+            ch, cw_actual = cell.shape
+
+            # Trim column edges (15% each side) to avoid grid lines while keeping content
+            trim = max(int(cw_actual * 0.15), 2)
+            inner = cell[:, trim:cw_actual - trim]
+            if inner.size == 0 or inner.shape[1] < 3:
+                result[i] = "-"
+                continue
+
+            # Approach 1: Try OCR — only trust it for special values (fractions, multi-digit)
+            dose_val = self._ocr_dose_cell(inner)
+
+            # Approach 2: Blob detection — always run as the primary for simple dose marks
+            blob_val = self._blob_detect_dose_cell(inner)
+
+            # Decision logic:
+            # - If OCR found a fraction/special value (e.g. "1/2", "½"), prefer OCR
+            # - Otherwise, blob detection is primary — if it detects a mark, return "1"
+            # - Blob detection is more reliable than OCR for mark-based dose cells
+            if dose_val is not None and dose_val != "-" and ('/' in dose_val or '½' in dose_val or '¼' in dose_val or '¾' in dose_val):
+                final_val = dose_val
+            elif blob_val != "-":
+                final_val = "1"
+            else:
+                final_val = "-"
+            result[i] = final_val
 
         return result
+
+    def _ocr_dose_cell(self, cell_img: np.ndarray) -> Optional[str]:
+        """Try to OCR a single dose cell. Returns dose value or None if unreadable."""
+        try:
+            text = pytesseract.image_to_string(
+                cell_img, lang='eng',
+                config='--oem 1 --psm 10 -c tessedit_char_whitelist=0123456789/-½¼¾.'
+            ).strip()
+        except Exception:
+            return None
+
+        if not text:
+            return None
+
+        # Clean up OCR result
+        text = re.sub(r'[^0-9/½¼¾.\-]', '', text)
+        if not text:
+            return None
+
+        # Check if it looks like a dose value
+        if text in ('-', '0', '.'):
+            return "-"
+        if re.match(r'^[\d½¼¾]+(/[\d]+)?$', text):
+            # Validate: per-period dose values are typically 0-3 (e.g. 1, 1/2, 2, 3).
+            # Anything >=4 is almost certainly a misread (item number, quantity, etc.)
+            try:
+                numeric = float(text.split('/')[0]) if '/' in text else float(text)
+                if numeric >= 4:
+                    return None  # reject; fall back to blob detection
+            except ValueError:
+                pass
+            return text
+
+        return None
+
+    def _blob_detect_dose_cell(self, cell_img: np.ndarray) -> str:
+        """Detect dose mark in a single cell using blob/contour analysis.
+        Uses Otsu binarization first, then adaptive thresholding as fallback."""
+        ch, cw = cell_img.shape
+
+        # Filter: must have reasonable size relative to cell
+        min_area = max(MIN_DOSE_BLOB_AREA, ch * cw * 0.004)  # at least 0.4% of cell area
+        min_h = max(4, ch // 10)
+
+        for method in ('otsu', 'adaptive'):
+            if method == 'otsu':
+                _, binary = cv2.threshold(cell_img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+            else:
+                block_size = max(15, (min(ch, cw) // 4) | 1)  # must be odd
+                binary = cv2.adaptiveThreshold(
+                    cell_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                    cv2.THRESH_BINARY_INV, block_size, 5
+                )
+
+            # Remove horizontal grid lines
+            if cw >= 5:
+                h_kernel_len = max(cw * 2 // 3, 5)
+                kernel_h = cv2.getStructuringElement(cv2.MORPH_RECT, (h_kernel_len, 1))
+                h_lines_mask = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel_h)
+                binary = cv2.subtract(binary, h_lines_mask)
+
+            # Remove vertical line artifacts
+            if ch >= 10:
+                v_kernel_len = max(ch // 3, 5)
+                kernel_v = cv2.getStructuringElement(cv2.MORPH_RECT, (1, v_kernel_len))
+                v_lines_mask = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel_v)
+                binary = cv2.subtract(binary, v_lines_mask)
+
+            # Find contours
+            contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            significant_blobs = []
+            for c in contours:
+                area = cv2.contourArea(c)
+                if area < min_area:
+                    continue
+                _, _, bw, bh = cv2.boundingRect(c)
+                if bh < min_h:
+                    continue
+                # Reject blobs that span nearly the full cell width (likely grid line remnant)
+                if bw > cw * 0.8:
+                    continue
+                # Reject blobs that span nearly the full cell height (likely vertical artifact)
+                if bh > ch * 0.8:
+                    continue
+                significant_blobs.append({'area': area, 'w': bw, 'h': bh})
+
+            if significant_blobs:
+                total_area = sum(b['area'] for b in significant_blobs)
+                if total_area >= min_area:
+                    return "1"
+
+        return "-"

@@ -114,20 +114,43 @@ def parse_medication_name(text: str) -> Tuple[str, Optional[str], Optional[str]]
         "Butylscopolamine 10mg" -> ("Butylscopolamine", "10", "mg")
         "Omeprazole 20mg" -> ("Omeprazole", "20", "mg")
         "Multivitamine" -> ("Multivitamine", None, None)
+        "Butylscopolamine 10mg =" -> ("Butylscopolamine", "10", "mg")
+        "Esome 20mg 7" -> ("Esome", "20", "mg")
     """
     text = normalize_text(text)
     if not text:
         return "", None, None
 
+    # Strip trailing noise characters often leaked from OCR grid lines / artifacts
+    text = re.sub(r'[\s|=,;:_\-~]+$', '', text)
+
+    # Strip trailing standalone numbers (leaked column values like row "7" or "14")
+    # Only if there is also a strength match — prevents stripping real name parts
+    cleaned = re.sub(r'\s+\d+$', '', text)
+
     # Pattern: name followed by strength (e.g., "10mg", "100 mg", "0.5g")
-    pattern = r'^(.+?)\s+(\d+(?:\.\d+)?)\s*(mg|g|ml|mcg|IU|%|mEq|mmol|units?)$'
-    match = re.match(pattern, text, re.IGNORECASE)
+    pattern = r'^(.+?)\s+(\d+(?:\.\d+)?)\s*(mg|g|ml|mcg|IU|%|mEq|mmol|units?)(?:\s.*)?$'
+    # Try cleaned version first (without trailing numbers)
+    match = re.match(pattern, cleaned, re.IGNORECASE)
     if match:
         name = match.group(1).strip()
+        # Also strip noise from the name portion
+        name = re.sub(r'[\s|=,;:_~]+$', '', name)
         strength_val = match.group(2)
         strength_unit = match.group(3)
         return name, strength_val, strength_unit
 
+    # Try original text (handles "Esome 20mg 7" where 7 is trailing junk)
+    match = re.match(pattern, text, re.IGNORECASE)
+    if match:
+        name = match.group(1).strip()
+        name = re.sub(r'[\s|=,;:_~]+$', '', name)
+        strength_val = match.group(2)
+        strength_unit = match.group(3)
+        return name, strength_val, strength_unit
+
+    # No strength found — return cleaned name
+    text = re.sub(r'[\s|=,;:_~]+$', '', text)
     return text, None, None
 
 

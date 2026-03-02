@@ -37,6 +37,19 @@ class Settings(BaseSettings):
     # Fuzzy Matching
     MED_NAME_MATCH_THRESHOLD: int = 85
 
+    # Table Row Reconstruction
+    ROW_Y_TOLERANCE: int = 10  # max |cy1 - cy2| for two boxes to be same row
+    ROW_Y_TOLERANCE_ADAPTIVE: bool = True  # auto-scale tolerance by avg box height
+    ROW_Y_TOLERANCE_ADAPTIVE_FACTOR: float = 0.5  # tolerance = max(base, avg_h * factor)
+    TABLE_MERGE_THRESHOLD: int = 15  # merge close y-values in table grid detection
+
+    # Dynamic Column / Row Detection
+    MIN_VERTICAL_LINE_SPAN: float = 0.30  # fraction of table height for a vertical line to count
+    MIN_COLUMN_GAP_RATIO: float = 0.01  # minimum x-gap (as fraction of table width) to be a column separator
+    TEXT_DENSITY_PEAK_THRESHOLD: float = 0.15  # fraction of max density to count as text row
+    TABLE_SEARCH_HEIGHT_RATIO: float = 0.82  # fraction of image height to search for table (avoids footer)
+    MAX_DOSE_COLUMNS: int = 4  # maximum dose columns to detect (morning, midday, afternoon, evening)
+
     # Paths
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
