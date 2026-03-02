@@ -1,0 +1,334 @@
+{
+  "meta": {
+    "languages": ["eng", "khm", "fra"],
+    "dpi": 71,
+    "processing_time_ms": 1934.5111846923828,
+    "model_version": "default",
+    "stage_times": {
+      "validation": 31.818151473999023,
+      "quality_analysis": 38.06495666503906,
+      "preprocessing": 11.72018051147461,
+      "layout_analysis": 21.3320255279541,
+      "ocr_extraction": 1830.2350044250488,
+      "postprocessing": 1.1858940124511719
+    },
+    "image_size": {
+      "width": 959,
+      "height": 1280
+    }
+  },
+  "quality": {
+    "blur": "low",
+    "blur_score": 1707.4952745094997,
+    "contrast": "ok",
+    "contrast_score": 46.278886782433304,
+    "skew_angle": -0.9340875539691632,
+    "dpi": 71,
+    "is_grayscale": false
+  },
+  "blocks": [
+    {
+      "type": "text",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 979,
+        "height": 1295
+      },
+      "lines": [
+        {
+          "text": "ម មន្ទីរពេទ្យមិត្តភាព(ខ្មែរ=សូវៀត H-E QIP",
+          "bbox": {
+            "x": 69,
+            "y": 68,
+            "width": 767,
+            "height": 102
+          },
+          "confidence": 0.535,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "លេខកូដ: HAKF 1354164 ឈ្មោះអ្នកជំងឺ: ង៉ាំ ដានី អាយុ: 19 ឆ្នាំ ភេទ: ស្រី",
+          "bbox": {
+            "x": 64,
+            "y": 183,
+            "width": 801,
+            "height": 41
+          },
+          "confidence": 0.769090909090909,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "ប្រភេទបង់ប្រាក់ : មូលនិធិសមធម៌ / 20051002-0409 អ្នកជំងឺ !",
+          "bbox": {
+            "x": 62,
+            "y": 235,
+            "width": 868,
+            "height": 39
+          },
+          "confidence": 0.9185714285714287,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "ក",
+          "bbox": {
+            "x": 895,
+            "y": 285,
+            "width": 38,
+            "height": 19
+          },
+          "confidence": 0.57,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "រោគវិនិច្ឆ័យ : Chronic Cystitis",
+          "bbox": {
+            "x": 58,
+            "y": 304,
+            "width": 264,
+            "height": 40
+          },
+          "confidence": 0.9425,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "ign : ពិគ្រោះជំងឺក្រៅ - បន្ទប់លេខ 5",
+          "bbox": {
+            "x": 61,
+            "y": 370,
+            "width": 305,
+            "height": 32
+          },
+          "confidence": 0.8966666666666666,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "វេជ្ជបញ្ជា",
+          "bbox": {
+            "x": 442,
+            "y": 426,
+            "width": 103,
+            "height": 25
+          },
+          "confidence": 0.96,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "| ល ឈ្មោះឱសថ ចំនួន វិធីប្រើ an “slt",
+          "bbox": {
+            "x": 52,
+            "y": 481,
+            "width": 878,
+            "height": 82
+          },
+          "confidence": 0.6171428571428572,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": ": ព្រឹក ល្ងាច | យប់",
+          "bbox": {
+            "x": 222,
+            "y": 483,
+            "width": 692,
+            "height": 42
+          },
+          "confidence": 0.9099999999999999,
+          "language": "kh",
+          "tags": ["time_candidate"]
+        },
+        {
+          "text": "Py RE A PIE EE",
+          "bbox": {
+            "x": 52,
+            "y": 523,
+            "width": 881,
+            "height": 151
+          },
+          "confidence": 0.284,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "Butylscopolami រ",
+          "bbox": {
+            "x": 119,
+            "y": 575,
+            "width": 347,
+            "height": 16
+          },
+          "confidence": 0.475,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "Blasco [emo TT",
+          "bbox": {
+            "x": 56,
+            "y": 603,
+            "width": 736,
+            "height": 111
+          },
+          "confidence": 0.11,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "Semen [wwe [et be he |",
+          "bbox": {
+            "x": 55,
+            "y": 661,
+            "width": 891,
+            "height": 113
+          },
+          "confidence": 0.33166666666666667,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "RC cs «25: 4 ឆី",
+          "bbox": {
+            "x": 56,
+            "y": 747,
+            "width": 889,
+            "height": 86
+          },
+          "confidence": 0.20800000000000002,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "រាជធានីភ្នំពេញ,ថ្ងៃទី 15/06/2025 14:20",
+          "bbox": {
+            "x": 558,
+            "y": 847,
+            "width": 350,
+            "height": 34
+          },
+          "confidence": 0.9233333333333333,
+          "language": "kh",
+          "tags": ["time_candidate"]
+        },
+        {
+          "text": "គ្រពេទ្យព្យាបាល",
+          "bbox": {
+            "x": 661,
+            "y": 908,
+            "width": 144,
+            "height": 25
+          },
+          "confidence": 0.88,
+          "language": "kh",
+          "tags": []
+        },
+        {
+          "text": "ShP",
+          "bbox": {
+            "x": 641,
+            "y": 934,
+            "width": 166,
+            "height": 90
+          },
+          "confidence": 0.13,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "សូមយកវេជ្ជបញ្ជាមកវិញ ពេលពិនិត្យលើកក្រោយ វេជ្ជបណ្ឌិត យុយ ស៊ីវហេង",
+          "bbox": {
+            "x": 72,
+            "y": 1019,
+            "width": 773,
+            "height": 44
+          },
+          "confidence": 0.9179999999999999,
+          "language": "kh",
+          "tags": []
+        }
+      ],
+      "raw_text": "ម មន្ទីរពេទ្យមិត្តភាព(ខ្មែរ=សូវៀត H-E QIP\nលេខកូដ: HAKF 1354164 ឈ្មោះអ្នកជំងឺ: ង៉ាំ ដានី អាយុ: 19 ឆ្នាំ ភេទ: ស្រី\nប្រភេទបង់ប្រាក់ : មូលនិធិសមធម៌ / 20051002-0409 អ្នកជំងឺ !\nក\nរោគវិនិច្ឆ័យ : Chronic Cystitis\nign : ពិគ្រោះជំងឺក្រៅ - បន្ទប់លេខ 5\nវេជ្ជបញ្ជា\n| ល ឈ្មោះឱសថ ចំនួន វិធីប្រើ an “slt\n: ព្រឹក ល្ងាច | យប់\nPy RE A PIE EE\nButylscopolami រ\nBlasco [emo TT\nSemen [wwe [et be he |\nRC cs «25: 4 ឆី\nរាជធានីភ្នំពេញ,ថ្ងៃទី 15/06/2025 14:20\nគ្រពេទ្យព្យាបាល\nShP\nសូមយកវេជ្ជបញ្ជាមកវិញ ពេលពិនិត្យលើកក្រោយ វេជ្ជបណ្ឌិត យុយ ស៊ីវហេង"
+    },
+    {
+      "type": "table",
+      "bbox": {
+        "x": 55,
+        "y": 479,
+        "width": 891,
+        "height": 337
+      },
+      "lines": [
+        {
+          "text": "me | ne pe (6-8) (05-06) ele | (08-10)",
+          "bbox": {
+            "x": 56,
+            "y": 479,
+            "width": 874,
+            "height": 122
+          },
+          "confidence": 0.6133333333333333,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "NE EE 2 យី",
+          "bbox": {
+            "x": 56,
+            "y": 519,
+            "width": 885,
+            "height": 154
+          },
+          "confidence": 0.3225,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "fl cee ES",
+          "bbox": {
+            "x": 56,
+            "y": 600,
+            "width": 882,
+            "height": 119
+          },
+          "confidence": 0.38000000000000006,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "sing [ours || a 7",
+          "bbox": {
+            "x": 103,
+            "y": 686,
+            "width": 838,
+            "height": 89
+          },
+          "confidence": 0.40800000000000003,
+          "language": "en",
+          "tags": []
+        },
+        {
+          "text": "4 [muttering = | 21គ្រប់ | 1 1 fa | |",
+          "bbox": {
+            "x": 56,
+            "y": 747,
+            "width": 885,
+            "height": 69
+          },
+          "confidence": 0.5663636363636364,
+          "language": "en",
+          "tags": []
+        }
+      ],
+      "raw_text": "me | ne pe (6-8) (05-06) ele | (08-10)\nNE EE 2 យី\nfl cee ES\nsing [ours || a 7\n4 [muttering = | 21គ្រប់ | 1 1 fa | |"
+    }
+  ],
+  "full_text": "",
+  "success": false,
+  "error": null
+}
