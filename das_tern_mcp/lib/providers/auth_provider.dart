@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
 import '../services/logger_service.dart';
+import '../core/config/dev_config.dart';
 
 /// Manages authentication state: login, register, logout, token storage.
 class AuthProvider extends ChangeNotifier {
@@ -38,6 +39,26 @@ class AuthProvider extends ChangeNotifier {
   /// Load stored auth state on app start.
   Future<void> loadAuthState() async {
     _log.info('AuthProvider', 'Loading auth state from storage');
+
+    // ── DEV BYPASS ──────────────────────────────────────────────────────────
+    // Skips login/register screen during development. Flip DevConfig.skipAuth
+    // to false before building for production.
+    if (DevConfig.skipAuth) {
+      _log.warning(
+        'AuthProvider',
+        '⚠️  DEV MODE: Skipping auth — using dev user',
+      );
+      _accessToken = DevConfig.devAccessToken;
+      _refreshToken = DevConfig.devRefreshToken;
+      _user = Map<String, dynamic>.from(DevConfig.devUser);
+      _isAuthenticated = true;
+      await _secureStorage.write(key: 'accessToken', value: _accessToken);
+      await _secureStorage.write(key: 'refreshToken', value: _refreshToken);
+      notifyListeners();
+      return;
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     _accessToken = await _secureStorage.read(key: 'accessToken');
     _refreshToken = await _secureStorage.read(key: 'refreshToken');
 
@@ -46,7 +67,10 @@ class AuthProvider extends ChangeNotifier {
       try {
         _user = await _api.getProfile(_accessToken!);
         _isAuthenticated = true;
-        _log.success('AuthProvider', 'User authenticated', {'userId': _user?['id'], 'role': _user?['role']});
+        _log.success('AuthProvider', 'User authenticated', {
+          'userId': _user?['id'],
+          'role': _user?['role'],
+        });
       } catch (e) {
         _log.warning('AuthProvider', 'Access token invalid, trying refresh', e);
         // Token expired – try refresh
@@ -58,7 +82,11 @@ class AuthProvider extends ChangeNotifier {
             _isAuthenticated = true;
             _log.success('AuthProvider', 'Token refreshed, user authenticated');
           } catch (e2) {
-            _log.error('AuthProvider', 'Token refresh failed, clearing tokens', e2);
+            _log.error(
+              'AuthProvider',
+              'Token refresh failed, clearing tokens',
+              e2,
+            );
             await _clearTokens();
           }
         }
@@ -79,7 +107,10 @@ class AuthProvider extends ChangeNotifier {
       await _saveTokens(result);
       _user = result['user'];
       _isAuthenticated = true;
-      _log.success('AuthProvider', 'Login successful', {'userId': _user?['id'], 'role': _user?['role']});
+      _log.success('AuthProvider', 'Login successful', {
+        'userId': _user?['id'],
+        'role': _user?['role'],
+      });
       notifyListeners();
       return true;
     } catch (e) {
@@ -112,10 +143,13 @@ class AuthProvider extends ChangeNotifier {
         return false;
       }
 
-      _log.debug('AuthProvider', 'Google account selected', {'email': googleUser.email});
+      _log.debug('AuthProvider', 'Google account selected', {
+        'email': googleUser.email,
+      });
 
       // Get authentication tokens
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       if (googleAuth.idToken == null) {
         _log.error('AuthProvider', 'Failed to get Google ID token', {});
@@ -127,7 +161,10 @@ class AuthProvider extends ChangeNotifier {
       _log.debug('AuthProvider', 'Got Google ID token, sending to backend');
 
       // Send to backend
-      final result = await _api.googleLogin(googleAuth.idToken!, userRole: userRole);
+      final result = await _api.googleLogin(
+        googleAuth.idToken!,
+        userRole: userRole,
+      );
       await _saveTokens(result);
       _user = result['user'];
       _isAuthenticated = true;
@@ -135,13 +172,16 @@ class AuthProvider extends ChangeNotifier {
       _log.success('AuthProvider', 'Google Sign-In successful', {
         'userId': _user?['id'],
         'role': _user?['role'],
-        'email': _user?['email']
+        'email': _user?['email'],
       });
 
       notifyListeners();
       return true;
     } catch (e) {
-      _error = e.toString().replaceFirst('Exception: ', '').replaceFirst('ApiException: ', '');
+      _error = e
+          .toString()
+          .replaceFirst('Exception: ', '')
+          .replaceFirst('ApiException: ', '');
       _log.error('AuthProvider', 'Google Sign-In failed', e);
 
       // Sign out Google account on failure
@@ -277,7 +317,11 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Reset password with OTP code.
-  Future<bool> resetPasswordWithOtp(String identifier, String otp, String newPassword) async {
+  Future<bool> resetPasswordWithOtp(
+    String identifier,
+    String otp,
+    String newPassword,
+  ) async {
     _setLoading(true);
     _error = null;
     try {
@@ -314,7 +358,11 @@ class AuthProvider extends ChangeNotifier {
 
   void _setLoading(bool v) {
     _isLoading = v;
-    _log.stateChange('AuthProvider', _isLoading ? 'idle' : 'loading', v ? 'loading' : 'idle');
+    _log.stateChange(
+      'AuthProvider',
+      _isLoading ? 'idle' : 'loading',
+      v ? 'loading' : 'idle',
+    );
     notifyListeners();
   }
 

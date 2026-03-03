@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Backend NestJS",
+			"type": "shell",
+			"command": "cd d:\\DasTern-Project\\das-tern\\backend_nestjs && npm run start:dev",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}
