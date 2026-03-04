@@ -65,8 +65,9 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 children: [
                   CircleAvatar(
                     radius: 28,
-                    backgroundColor:
-                        AppColors.primaryBlue.withValues(alpha: 0.12),
+                    backgroundColor: AppColors.primaryBlue.withValues(
+                      alpha: 0.12,
+                    ),
                     child: const Icon(
                       Icons.person_outline,
                       color: AppColors.primaryBlue,
@@ -80,17 +81,13 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                       children: [
                         Text(
                           _patientName(auth.user),
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
+                          style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           l10n.patientRole,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
+                          style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: AppColors.textSecondary),
                         ),
                       ],
@@ -105,31 +102,32 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             _sectionLabel('APPEARANCE'),
             _buildGroupCard(isDark, [
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
                     const Icon(Icons.brightness_6_outlined, size: 20),
                     const SizedBox(width: 12),
-                    Text(l10n.theme,
-                        style: Theme.of(context).textTheme.bodyLarge),
+                    Text(
+                      l10n.theme,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
                     const Spacer(),
                     SegmentedButton<ThemeMode>(
                       segments: const [
                         ButtonSegment(
                           value: ThemeMode.system,
-                          label: Text('System',
-                              style: TextStyle(fontSize: 11)),
+                          label: Text('System', style: TextStyle(fontSize: 11)),
                         ),
                         ButtonSegment(
                           value: ThemeMode.light,
-                          label: Text('Light',
-                              style: TextStyle(fontSize: 11)),
+                          label: Text('Light', style: TextStyle(fontSize: 11)),
                         ),
                         ButtonSegment(
                           value: ThemeMode.dark,
-                          label:
-                              Text('Dark', style: TextStyle(fontSize: 11)),
+                          label: Text('Dark', style: TextStyle(fontSize: 11)),
                         ),
                       ],
                       selected: {themeProvider.themeMode},
@@ -145,24 +143,26 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
               ),
               _divider(isDark),
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 child: Row(
                   children: [
                     const Icon(Icons.language_outlined, size: 20),
                     const SizedBox(width: 12),
-                    Text(l10n.language,
-                        style: Theme.of(context).textTheme.bodyLarge),
+                    Text(
+                      l10n.language,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
                     const Spacer(),
                     DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: localeProvider.locale.languageCode,
                         isDense: true,
                         items: const [
-                          DropdownMenuItem(
-                              value: 'en', child: Text('English')),
-                          DropdownMenuItem(
-                              value: 'km', child: Text('ខ្មែរ')),
+                          DropdownMenuItem(value: 'en', child: Text('English')),
+                          DropdownMenuItem(value: 'km', child: Text('ខ្មែរ')),
                         ],
                         onChanged: (v) {
                           if (v != null) {
@@ -180,8 +180,10 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             // NOTIFICATION PERMISSION
             _buildGroupCard(isDark, [
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 child: Row(
                   children: [
                     Container(
@@ -203,22 +205,21 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                       children: [
                         Text(
                           'Notification Permission',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge
+                          style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 2),
                         Row(
                           children: [
-                            const Icon(Icons.check_circle,
-                                color: AppColors.statusSuccess, size: 13),
+                            const Icon(
+                              Icons.check_circle,
+                              color: AppColors.statusSuccess,
+                              size: 13,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               'Granted',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     color: AppColors.statusSuccess,
                                     fontWeight: FontWeight.w500,
@@ -261,21 +262,23 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   child: Row(
                     children: [
-                      const Icon(Icons.logout,
-                          color: AppColors.statusError, size: 20),
+                      const Icon(
+                        Icons.logout,
+                        color: AppColors.statusError,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Text(
                         l10n.logout,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(
-                              color: AppColors.statusError,
-                              fontWeight: FontWeight.w500,
-                            ),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: AppColors.statusError,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -303,8 +306,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Restoring subscription…')),
+                    const SnackBar(content: Text('Restoring subscription…')),
                   );
                 },
               ),
@@ -320,8 +322,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Opening app store…')),
+                    const SnackBar(content: Text('Opening app store…')),
                   );
                 },
               ),
@@ -348,8 +349,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 label: 'Terms of Use',
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Opening Terms of Use…')),
+                    const SnackBar(content: Text('Opening Terms of Use…')),
                   );
                 },
               ),
@@ -361,8 +361,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Opening Privacy Policy…')),
+                    const SnackBar(content: Text('Opening Privacy Policy…')),
                   );
                 },
               ),
@@ -380,9 +379,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     if (user == null) return 'Patient';
     final first = user['firstName'] ?? '';
     final last = user['lastName'] ?? '';
-    return '$first $last'.trim().isEmpty
-        ? 'Patient'
-        : '$first $last'.trim();
+    return '$first $last'.trim().isEmpty ? 'Patient' : '$first $last'.trim();
   }
 
   Widget _sectionLabel(String label) {
@@ -407,8 +404,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
+            color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -441,11 +437,13 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             Icon(icon, size: 20),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(label,
-                  style: Theme.of(context).textTheme.bodyLarge),
+              child: Text(label, style: Theme.of(context).textTheme.bodyLarge),
             ),
-            const Icon(Icons.chevron_right,
-                size: 18, color: AppColors.textSecondary),
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
           ],
         ),
       ),
@@ -463,8 +461,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     );
   }
 
-  void _showChangePasswordSheet(
-      BuildContext context, AppLocalizations l10n) {
+  void _showChangePasswordSheet(BuildContext context, AppLocalizations l10n) {
     _oldPasswordController.clear();
     _newPasswordController.clear();
     showModalBottomSheet(
@@ -498,10 +495,9 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             const SizedBox(height: 20),
             Text(
               l10n.changePassword,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             TextField(
@@ -510,7 +506,8 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
               decoration: InputDecoration(
                 labelText: l10n.oldPasswordHint,
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 prefixIcon: const Icon(Icons.lock_outline),
               ),
             ),
@@ -521,7 +518,8 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
               decoration: InputDecoration(
                 labelText: l10n.newPasswordHint,
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 prefixIcon: const Icon(Icons.lock_reset),
               ),
             ),
@@ -539,8 +537,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                   Navigator.pop(ctx);
                   // TODO: Implement change password API call
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text(l10n.passwordChangeComingSoon)),
+                    SnackBar(content: Text(l10n.passwordChangeComingSoon)),
                   );
                 },
                 child: Text(l10n.changePassword),
@@ -557,8 +554,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(l10n.logout),
         content: Text(l10n.logoutConfirmation),
         actions: [
@@ -571,10 +567,12 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
               Navigator.pop(ctx);
               auth.logout();
               Navigator.pushNamedAndRemoveUntil(
-                  context, '/login', (_) => false);
+                context,
+                '/login',
+                (_) => false,
+              );
             },
-            style: TextButton.styleFrom(
-                foregroundColor: AppColors.statusError),
+            style: TextButton.styleFrom(foregroundColor: AppColors.statusError),
             child: Text(l10n.logout),
           ),
         ],

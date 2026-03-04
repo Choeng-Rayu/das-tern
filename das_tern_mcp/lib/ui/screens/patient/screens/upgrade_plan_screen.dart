@@ -35,25 +35,25 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
     final hasPlans = sub.plans != null && sub.plans!.isNotEmpty;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.upgradePlan),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.upgradePlan), centerTitle: true),
       body: Column(
         children: [
           // ── Error banner (non-blocking) ─────────────────────────────────
           if (sub.errorMessage != null && !sub.isLoading)
             Material(
-              color: isDark
-                  ? const Color(0xFF2A1F1F)
-                  : const Color(0xFFFFF3F3),
+              color: isDark ? const Color(0xFF2A1F1F) : const Color(0xFFFFF3F3),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.wifi_off,
-                        size: 18, color: Color(0xFFE53935)),
+                    const Icon(
+                      Icons.wifi_off,
+                      size: 18,
+                      color: Color(0xFFE53935),
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -65,20 +65,23 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                       ),
                     ),
                     TextButton.icon(
-                      onPressed: () =>
-                          context.read<SubscriptionProvider>().loadSubscription(),
+                      onPressed: () => context
+                          .read<SubscriptionProvider>()
+                          .loadSubscription(),
                       icon: sub.isLoading
                           ? const SizedBox(
                               width: 14,
                               height: 14,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.refresh, size: 16),
-                      label: Text(l10n.retry,
-                          style: const TextStyle(fontSize: 13)),
+                      label: Text(
+                        l10n.retry,
+                        style: const TextStyle(fontSize: 13),
+                      ),
                       style: TextButton.styleFrom(
-                          foregroundColor: const Color(0xFFE53935)),
+                        foregroundColor: const Color(0xFFE53935),
+                      ),
                     ),
                   ],
                 ),
@@ -86,8 +89,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
             ),
 
           // ── Loading indicator (thin bar, non-blocking) ──────────────────
-          if (sub.isLoading)
-            const LinearProgressIndicator(minHeight: 2),
+          if (sub.isLoading) const LinearProgressIndicator(minHeight: 2),
 
           // ── Main scrollable content – always shown ──────────────────────
           Expanded(
@@ -103,10 +105,9 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                   // Section title
                   Text(
                     l10n.choosePlan,
-                    style:
-                        Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.md),
 
@@ -120,10 +121,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                           Navigator.pushNamed(
                             context,
                             '/subscription/payment-method',
-                            arguments: {
-                              'planType': plan['id'],
-                              'plan': plan,
-                            },
+                            arguments: {'planType': plan['id'], 'plan': plan},
                           );
                         },
                       ),
@@ -235,7 +233,10 @@ class _CurrentPlanCard extends StatelessWidget {
         gradient: LinearGradient(
           colors: isPremium
               ? [const Color(0xFF6B4AA3), const Color(0xFF2D5BFF)]
-              : [AppColors.primaryBlue, AppColors.primaryBlue.withValues(alpha: 0.7)],
+              : [
+                  AppColors.primaryBlue,
+                  AppColors.primaryBlue.withValues(alpha: 0.7),
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -261,9 +262,9 @@ class _CurrentPlanCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 l10n.currentPlan,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white70,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
               ),
             ],
           ),
@@ -271,17 +272,17 @@ class _CurrentPlanCard extends StatelessWidget {
           Text(
             tier.replaceAll('_', ' '),
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           if (!isPremium) ...[
             const SizedBox(height: 4),
             Text(
               l10n.upgradeToUnlock,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white60,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.white60),
             ),
           ],
         ],
@@ -326,13 +327,16 @@ class _PlanCard extends StatelessWidget {
               children: [
                 Text(
                   plan['name'] ?? '',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 if (isCurrentPlan)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.successGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -355,30 +359,41 @@ class _PlanCard extends StatelessWidget {
                   TextSpan(
                     text: '\$$price',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryBlue,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryBlue,
+                    ),
                   ),
                   TextSpan(
                     text: ' /${plan['period'] ?? 'month'}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            ...features.map((f) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check_circle, color: AppColors.successGreen, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(f, style: Theme.of(context).textTheme.bodyMedium)),
-                    ],
-                  ),
-                )),
+            ...features.map(
+              (f) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      color: AppColors.successGreen,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        f,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
             if (!isCurrentPlan)
               SizedBox(
@@ -395,7 +410,10 @@ class _PlanCard extends StatelessWidget {
                   ),
                   child: Text(
                     l10n.upgradeNow,
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -420,26 +438,58 @@ class _FeatureComparisonTable extends StatelessWidget {
       children: [
         Text(
           l10n.featureComparison,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppSpacing.sm),
         Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Column(
             children: [
-              _comparisonRow(context, l10n.prescriptionsFeature, '1', '\u221e', '\u221e'),
+              _comparisonRow(
+                context,
+                l10n.prescriptionsFeature,
+                '1',
+                '\u221e',
+                '\u221e',
+              ),
               const Divider(height: 1),
-              _comparisonRow(context, l10n.medicinesFeature, '3', '\u221e', '\u221e'),
+              _comparisonRow(
+                context,
+                l10n.medicinesFeature,
+                '3',
+                '\u221e',
+                '\u221e',
+              ),
               const Divider(height: 1),
               _comparisonRow(context, l10n.familyLinksFeature, '1', '5', '10'),
               const Divider(height: 1),
-              _comparisonRow(context, l10n.storageFeature, '5 GB', '20 GB', '20 GB'),
+              _comparisonRow(
+                context,
+                l10n.storageFeature,
+                '5 GB',
+                '20 GB',
+                '20 GB',
+              ),
               const Divider(height: 1),
-              _comparisonRow(context, l10n.prioritySupportFeature, '\u2715', '\u2713', '\u2713'),
+              _comparisonRow(
+                context,
+                l10n.prioritySupportFeature,
+                '\u2715',
+                '\u2713',
+                '\u2713',
+              ),
               const Divider(height: 1),
-              _comparisonRow(context, l10n.familyPlanFeature, '\u2715', '\u2715', '\u2713 (3)'),
+              _comparisonRow(
+                context,
+                l10n.familyPlanFeature,
+                '\u2715',
+                '\u2715',
+                '\u2713 (3)',
+              ),
             ],
           ),
         ),
@@ -469,7 +519,9 @@ class _FeatureComparisonTable extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: currentTier == 'FREEMIUM' ? FontWeight.bold : FontWeight.normal,
+                fontWeight: currentTier == 'FREEMIUM'
+                    ? FontWeight.bold
+                    : FontWeight.normal,
                 color: currentTier == 'FREEMIUM' ? AppColors.primaryBlue : null,
               ),
             ),
@@ -481,7 +533,9 @@ class _FeatureComparisonTable extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: currentTier == 'PREMIUM' ? FontWeight.bold : FontWeight.normal,
+                fontWeight: currentTier == 'PREMIUM'
+                    ? FontWeight.bold
+                    : FontWeight.normal,
                 color: currentTier == 'PREMIUM' ? AppColors.primaryBlue : null,
               ),
             ),
@@ -493,8 +547,12 @@ class _FeatureComparisonTable extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: currentTier == 'FAMILY_PREMIUM' ? FontWeight.bold : FontWeight.normal,
-                color: currentTier == 'FAMILY_PREMIUM' ? AppColors.primaryBlue : null,
+                fontWeight: currentTier == 'FAMILY_PREMIUM'
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+                color: currentTier == 'FAMILY_PREMIUM'
+                    ? AppColors.primaryBlue
+                    : null,
               ),
             ),
           ),
