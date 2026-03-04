@@ -4141,6 +4141,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Time to take {name}'**
   String timeToTakeMedicine(String name);
+
+  /// No description provided for @rowNumberColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'#'**
+  String get rowNumberColumn;
+
+  /// No description provided for @medicineNameColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Medicine'**
+  String get medicineNameColumn;
+
+  /// No description provided for @morningColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get morningColumn;
+
+  /// No description provided for @daytimeColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Daytime'**
+  String get daytimeColumn;
+
+  /// No description provided for @nightColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get nightColumn;
+
+  /// No description provided for @afterMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'After meal'**
+  String get afterMeal;
+
+  /// No description provided for @addMedicineRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add medicine row'**
+  String get addMedicineRow;
+
+  /// No description provided for @createPrescriptionFab.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Prescription'**
+  String get createPrescriptionFab;
+
+  /// No description provided for @personalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get personalInformation;
+
+  /// No description provided for @currentPrescriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Prescriptions'**
+  String get currentPrescriptions;
+
+  /// No description provided for @missedMedicationCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed Medications'**
+  String get missedMedicationCount;
+
+  /// No description provided for @profileSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileSection;
+
+  /// No description provided for @notificationSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Settings'**
+  String get notificationSettings;
+
+  /// No description provided for @aboutUs.
+  ///
+  /// In en, this message translates to:
+  /// **'About Us'**
+  String get aboutUs;
+
+  /// No description provided for @personalAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Account'**
+  String get personalAccount;
+
+  /// No description provided for @enableNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Notifications'**
+  String get enableNotifications;
+
+  /// No description provided for @medicationReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Reminders'**
+  String get medicationReminders;
+
+  /// No description provided for @missedDoseAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed Dose Alerts'**
+  String get missedDoseAlerts;
+
+  /// No description provided for @connectionAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Alerts'**
+  String get connectionAlerts;
+
+  /// No description provided for @emergencyNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Notifications'**
+  String get emergencyNotifications;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App Version'**
+  String get appVersion;
+
+  /// No description provided for @contactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Support'**
+  String get contactSupport;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @termsOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get termsOfService;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Password'**
+  String get currentPassword;
+
+  /// No description provided for @updatePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Password'**
+  String get updatePassword;
+
+  /// No description provided for @passwordUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated successfully'**
+  String get passwordUpdated;
+
+  /// No description provided for @adherencePercentage.
+  ///
+  /// In en, this message translates to:
+  /// **'{percentage}%'**
+  String adherencePercentage(String percentage);
 }
 
 class _AppLocalizationsDelegate
