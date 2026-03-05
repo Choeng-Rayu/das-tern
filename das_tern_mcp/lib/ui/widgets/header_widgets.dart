@@ -30,22 +30,11 @@ class PatientHeader extends StatelessWidget {
     return l10n.goodEvening;
   }
 
-  /// Returns the matching time-of-day asset path.
-  String _timeAsset() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'assets/morning.png';
-    if (hour < 17) return 'assets/afternoon.png';
-    return 'assets/doctorLogo.png';
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
     final firstName = user?['firstName'] as String? ?? '';
     final lastName = user?['lastName'] as String? ?? '';
-    final initials =
-        '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'
-            .toUpperCase();
 
     return Container(
       width: double.infinity,
@@ -88,7 +77,7 @@ class PatientHeader extends StatelessWidget {
 
             // ── Content ────────────────────────────────────────────────
             SafeArea(
-              bottom: false,
+              // bottom: false,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.lg,
@@ -99,22 +88,76 @@ class PatientHeader extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top row: greeting + notification bell
+                    // Main row: doctor logo + greeting/user info + notification bell
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Left: time icon + greeting
+                        // Doctor logo circle on the left
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              width: 2,
+                            ),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(26),
+                            child: Image.asset(
+                              'assets/doctorLogo.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: AppSpacing.md),
+
+                        // Middle: greeting + user name + patient badge (stacked vertically)
                         Expanded(
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Image.asset(_timeAsset(), width: 32, height: 32),
-                              const SizedBox(width: AppSpacing.sm),
+                              // Greeting text
                               Text(
                                 _greeting(context),
                                 style: const TextStyle(
                                   color: Colors.white70,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // User name
+                              Text(
+                                '$firstName $lastName'.trim(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // Patient badge
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  'Patient',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ],
@@ -165,74 +208,6 @@ class PatientHeader extends StatelessWidget {
                                 ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: AppSpacing.md),
-
-                    // Bottom row: avatar + name
-                    Row(
-                      children: [
-                        // Avatar circle with initials
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.5),
-                              width: 2,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              initials.isEmpty ? '?' : initials,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(width: AppSpacing.md),
-
-                        // Name + role badge
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '$firstName $lastName'.trim(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                'Patient',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
