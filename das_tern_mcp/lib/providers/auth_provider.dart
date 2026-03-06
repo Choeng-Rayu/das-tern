@@ -52,8 +52,13 @@ class AuthProvider extends ChangeNotifier {
       _refreshToken = DevConfig.devRefreshToken;
       _user = Map<String, dynamic>.from(DevConfig.devUser);
       _isAuthenticated = true;
-      await _secureStorage.write(key: 'accessToken', value: _accessToken);
-      await _secureStorage.write(key: 'refreshToken', value: _refreshToken);
+      try {
+        await _secureStorage.deleteAll();
+        await _secureStorage.write(key: 'accessToken', value: _accessToken);
+        await _secureStorage.write(key: 'refreshToken', value: _refreshToken);
+      } catch (_) {
+        // Keychain errors in simulator are non-fatal in dev mode
+      }
       notifyListeners();
       return;
     }

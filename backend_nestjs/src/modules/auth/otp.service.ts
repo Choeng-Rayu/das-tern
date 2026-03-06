@@ -35,6 +35,10 @@ export class OtpService {
       lastSentAt: now,
     });
     this.logger.log(`OTP stored for ${identifier} (expires in 5 minutes)`);
+    // In development, always log OTP to console for easy testing
+    if (this.configService.get('NODE_ENV') === 'development') {
+      console.log(`\n🔐 OTP for ${identifier}: ${otp}\n`);
+    }
   }
 
   async sendOtp(phoneNumber: string): Promise<{ expiresIn: number }> {
