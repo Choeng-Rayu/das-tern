@@ -2130,4 +2130,90 @@ class AppLocalizationsEn extends AppLocalizations {
   String timeToTakeMedicine(String name) {
     return 'Time to take $name';
   }
+
+  @override
+  String get rowNumberColumn => '#';
+
+  @override
+  String get medicineNameColumn => 'Medicine';
+
+  @override
+  String get morningColumn => 'Morning';
+
+  @override
+  String get daytimeColumn => 'Daytime';
+
+  @override
+  String get nightColumn => 'Night';
+
+  @override
+  String get afterMeal => 'After meal';
+
+  @override
+  String get addMedicineRow => 'Add medicine row';
+
+  @override
+  String get createPrescriptionFab => 'Create Prescription';
+
+  @override
+  String get personalInformation => 'Personal Information';
+
+  @override
+  String get currentPrescriptions => 'Current Prescriptions';
+
+  @override
+  String get missedMedicationCount => 'Missed Medications';
+
+  @override
+  String get profileSection => 'Profile';
+
+  @override
+  String get notificationSettings => 'Notification Settings';
+
+  @override
+  String get aboutUs => 'About Us';
+
+  @override
+  String get personalAccount => 'Personal Account';
+
+  @override
+  String get enableNotifications => 'Enable Notifications';
+
+  @override
+  String get medicationReminders => 'Medication Reminders';
+
+  @override
+  String get missedDoseAlerts => 'Missed Dose Alerts';
+
+  @override
+  String get connectionAlerts => 'Connection Alerts';
+
+  @override
+  String get emergencyNotifications => 'Emergency Notifications';
+
+  @override
+  String get appVersion => 'App Version';
+
+  @override
+  String get contactSupport => 'Contact Support';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get currentPassword => 'Current Password';
+
+  @override
+  String get updatePassword => 'Update Password';
+
+  @override
+  String get passwordUpdated => 'Password updated successfully';
+
+  @override
+  String adherencePercentage(String percentage) {
+    return '$percentage%';
+  }
 }

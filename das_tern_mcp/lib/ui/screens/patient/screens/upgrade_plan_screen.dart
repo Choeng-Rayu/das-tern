@@ -31,14 +31,67 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
     final sub = context.watch<SubscriptionProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Use backend plans if loaded, else fall back to static plans
+    final hasPlans = sub.plans != null && sub.plans!.isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.upgradePlan),
         centerTitle: true,
       ),
-      body: sub.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+      body: Column(
+        children: [
+          // ── Error banner (non-blocking) ─────────────────────────────────
+          if (sub.errorMessage != null && !sub.isLoading)
+            Material(
+              color: isDark
+                  ? const Color(0xFF2A1F1F)
+                  : const Color(0xFFFFF3F3),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  children: [
+                    const Icon(Icons.wifi_off,
+                        size: 18, color: Color(0xFFE53935)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        sub.errorMessage!,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFFE53935),
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () =>
+                          context.read<SubscriptionProvider>().loadSubscription(),
+                      icon: sub.isLoading
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2),
+                            )
+                          : const Icon(Icons.refresh, size: 16),
+                      label: Text(l10n.retry,
+                          style: const TextStyle(fontSize: 13)),
+                      style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFFE53935)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // ── Loading indicator (thin bar, non-blocking) ──────────────────
+          if (sub.isLoading)
+            const LinearProgressIndicator(minHeight: 2),
+
+          // ── Main scrollable content – always shown ──────────────────────
+          Expanded(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,27 +103,32 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                   // Section title
                   Text(
                     l10n.choosePlan,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style:
+                        Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                   ),
                   const SizedBox(height: AppSpacing.md),
 
-                  // Plan cards
-                  if (sub.plans != null)
-                    ...sub.plans!.map((plan) => _PlanCard(
-                          plan: plan,
-                          isCurrentPlan: sub.currentTier == plan['id'],
-                          onUpgrade: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/subscription/payment-method',
-                              arguments: {'planType': plan['id'], 'plan': plan},
-                            );
-                          },
-                        )),
-
-                  if (sub.plans == null || sub.plans!.isEmpty)
+                  // Plan cards – from backend or static fallback
+                  if (hasPlans)
+                    ...sub.plans!.map(
+                      (plan) => _PlanCard(
+                        plan: plan,
+                        isCurrentPlan: sub.currentTier == plan['id'],
+                        onUpgrade: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/subscription/payment-method',
+                            arguments: {
+                              'planType': plan['id'],
+                              'plan': plan,
+                            },
+                          );
+                        },
+                      ),
+                    )
+                  else
                     ..._defaultPlanCards(sub.currentTier),
 
                   const SizedBox(height: AppSpacing.lg),
@@ -80,6 +138,9 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
     );
   }
 

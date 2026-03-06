@@ -789,5 +789,41 @@
     "placeholders": {
       "name": {"type": "String"}
     }
+  },
+
+  "rowNumberColumn": "#",
+  "medicineNameColumn": "ថ្នាំ",
+  "morningColumn": "ព្រឹក",
+  "daytimeColumn": "ថ្ងៃ",
+  "nightColumn": "យប់",
+  "afterMeal": "ក្រោយបាយ",
+  "addMedicineRow": "បន្ថែមជួរថ្នាំ",
+  "createPrescriptionFab": "បង្កើតវេជ្ជបញ្ជា",
+
+  "personalInformation": "ព័ត៌មានផ្ទាល់ខ្លួន",
+  "currentPrescriptions": "វេជ្ជបញ្ជាបច្ចុប្បន្ន",
+  "missedMedicationCount": "ថ្នាំដែលខកខាន",
+
+  "profileSection": "ប្រវត្តិរូប",
+  "notificationSettings": "ការកំណត់ការជូនដំណឹង",
+  "aboutUs": "អំពីយើង",
+  "personalAccount": "គណនីផ្ទាល់ខ្លួន",
+  "enableNotifications": "បើកការជូនដំណឹង",
+  "medicationReminders": "ការរំលឹកថ្នាំ",
+  "missedDoseAlerts": "ការជូនដំណឹងថ្នាំខកខាន",
+  "connectionAlerts": "ការជូនដំណឹងតភ្ជាប់",
+  "emergencyNotifications": "ការជូនដំណឹងពេលបន្ទាន់",
+  "appVersion": "កំណែកម្មវិធី",
+  "contactSupport": "ទាក់ទងផ្នែកជំនួយ",
+  "privacyPolicy": "គោលការណ៍ភាពឯកជន",
+  "termsOfService": "លក្ខខណ្ឌប្រើប្រាស់",
+  "currentPassword": "លេខសម្ងាត់បច្ចុប្បន្ន",
+  "updatePassword": "ធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់",
+  "passwordUpdated": "បានធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់ជោគជ័យ",
+  "adherencePercentage": "{percentage}%",
+  "@adherencePercentage": {
+    "placeholders": {
+      "percentage": {"type": "String"}
+    }
   }
 }

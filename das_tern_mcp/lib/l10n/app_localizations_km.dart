@@ -2124,4 +2124,90 @@ class AppLocalizationsKm extends AppLocalizations {
   String timeToTakeMedicine(String name) {
     return 'ដល់ពេលញ៉ាំ $name';
   }
+
+  @override
+  String get rowNumberColumn => '#';
+
+  @override
+  String get medicineNameColumn => 'ថ្នាំ';
+
+  @override
+  String get morningColumn => 'ព្រឹក';
+
+  @override
+  String get daytimeColumn => 'ថ្ងៃ';
+
+  @override
+  String get nightColumn => 'យប់';
+
+  @override
+  String get afterMeal => 'ក្រោយបាយ';
+
+  @override
+  String get addMedicineRow => 'បន្ថែមជួរថ្នាំ';
+
+  @override
+  String get createPrescriptionFab => 'បង្កើតវេជ្ជបញ្ជា';
+
+  @override
+  String get personalInformation => 'ព័ត៌មានផ្ទាល់ខ្លួន';
+
+  @override
+  String get currentPrescriptions => 'វេជ្ជបញ្ជាបច្ចុប្បន្ន';
+
+  @override
+  String get missedMedicationCount => 'ថ្នាំដែលខកខាន';
+
+  @override
+  String get profileSection => 'ប្រវត្តិរូប';
+
+  @override
+  String get notificationSettings => 'ការកំណត់ការជូនដំណឹង';
+
+  @override
+  String get aboutUs => 'អំពីយើង';
+
+  @override
+  String get personalAccount => 'គណនីផ្ទាល់ខ្លួន';
+
+  @override
+  String get enableNotifications => 'បើកការជូនដំណឹង';
+
+  @override
+  String get medicationReminders => 'ការរំលឹកថ្នាំ';
+
+  @override
+  String get missedDoseAlerts => 'ការជូនដំណឹងថ្នាំខកខាន';
+
+  @override
+  String get connectionAlerts => 'ការជូនដំណឹងតភ្ជាប់';
+
+  @override
+  String get emergencyNotifications => 'ការជូនដំណឹងពេលបន្ទាន់';
+
+  @override
+  String get appVersion => 'កំណែកម្មវិធី';
+
+  @override
+  String get contactSupport => 'ទាក់ទងផ្នែកជំនួយ';
+
+  @override
+  String get privacyPolicy => 'គោលការណ៍ភាពឯកជន';
+
+  @override
+  String get termsOfService => 'លក្ខខណ្ឌប្រើប្រាស់';
+
+  @override
+  String get currentPassword => 'លេខសម្ងាត់បច្ចុប្បន្ន';
+
+  @override
+  String get updatePassword => 'ធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់';
+
+  @override
+  String get passwordUpdated => 'បានធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់ជោគជ័យ';
+
+  @override
+  String adherencePercentage(String percentage) {
+    return '$percentage%';
+  }
 }

@@ -892,5 +892,41 @@
     "placeholders": {
       "name": {"type": "String"}
     }
+  },
+
+  "rowNumberColumn": "#",
+  "medicineNameColumn": "Medicine",
+  "morningColumn": "Morning",
+  "daytimeColumn": "Daytime",
+  "nightColumn": "Night",
+  "afterMeal": "After meal",
+  "addMedicineRow": "Add medicine row",
+  "createPrescriptionFab": "Create Prescription",
+
+  "personalInformation": "Personal Information",
+  "currentPrescriptions": "Current Prescriptions",
+  "missedMedicationCount": "Missed Medications",
+
+  "profileSection": "Profile",
+  "notificationSettings": "Notification Settings",
+  "aboutUs": "About Us",
+  "personalAccount": "Personal Account",
+  "enableNotifications": "Enable Notifications",
+  "medicationReminders": "Medication Reminders",
+  "missedDoseAlerts": "Missed Dose Alerts",
+  "connectionAlerts": "Connection Alerts",
+  "emergencyNotifications": "Emergency Notifications",
+  "appVersion": "App Version",
+  "contactSupport": "Contact Support",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfService": "Terms of Service",
+  "currentPassword": "Current Password",
+  "updatePassword": "Update Password",
+  "passwordUpdated": "Password updated successfully",
+  "adherencePercentage": "{percentage}%",
+  "@adherencePercentage": {
+    "placeholders": {
+      "percentage": {"type": "String"}
+    }
   }
 }
