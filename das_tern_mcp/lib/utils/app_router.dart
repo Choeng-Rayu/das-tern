@@ -9,6 +9,8 @@ import '../ui/screens/auth/reset_password_screen.dart';
 import '../ui/screens/patient/patient_shell.dart';
 import '../ui/screens/doctor/doctor_shell.dart';
 import '../ui/screens/doctor/patient_detail_screen.dart';
+import '../ui/screens/doctor/med_patient_list_screen.dart';
+import '../ui/screens/doctor/pending_patient_list_screen.dart';
 import '../ui/screens/splash_screen.dart';
 import '../ui/screens/family_ui/family_connect_intro_screen.dart';
 import '../ui/screens/family_ui/access_level_selection_screen.dart';
@@ -51,6 +53,8 @@ class AppRouter {
   static const String patientHome = '/patient';
   static const String doctorHome = '/doctor';
   static const String doctorPatientDetail = '/doctor/patient-detail';
+  static const String doctorMedPatients = '/doctor/med-patients';
+  static const String doctorPendingPatients = '/doctor/pending-patients';
 
   // Family feature routes
   static const String familyConnect = '/family/connect';
@@ -127,6 +131,10 @@ class AppRouter {
         return _buildRoute(
           PatientDetailScreen(patientId: args?['patientId'] ?? ''),
         );
+      case doctorMedPatients:
+        return _buildRoute(const MedPatientListScreen());
+      case doctorPendingPatients:
+        return _buildRoute(const PendingPatientListScreen());
 
       // Family routes
       case familyConnect:

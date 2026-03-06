@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
@@ -32,6 +31,13 @@ class PatientHeader extends StatelessWidget {
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
+  /// Returns a greeting based on current hour.
+  String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Morning';
+    if (hour < 17) return 'Afternoon';
+    return 'Night';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +95,109 @@ class PatientHeader extends StatelessWidget {
                     child: Divider(
                       color: Colors.white.withValues(alpha: 0.35),
                       thickness: 1,
+            // ── Dark overlay for readability ───────────────────────────
+            // Positioned.fill(
+            //   child: Container(
+            //     decoration: BoxDecoration(
+            //       gradient: LinearGradient(
+            //         begin: Alignment.topLeft,
+            //         end: Alignment.bottomRight,
+            //         colors: [
+            //           AppColors.darkBlue.withValues(alpha: 0.72),
+            //           AppColors.primaryBlue.withValues(alpha: 0.55),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),ដាស់តឿនដាស់តឿន
+
+            // ── Content ────────────────────────────────────────────────
+            SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.md,
+                  AppSpacing.lg,
+                  AppSpacing.xl,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top row: doctor logo + greeting + notification bell
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Left: doctor logo + greeting
+                        Expanded(
+                          child: Row(
+                            children: [
+                              // Doctor logo
+                              Image.asset(
+                                'assets/doctorLogo.png',
+                                width: 40,
+                                height: 40,
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              // Greeting text
+                              Text(
+                                _greeting(),
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Right: notification bell
+                        GestureDetector(
+                          onTap: onNotificationTap,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.notifications_outlined,
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                              ),
+                              if (unreadCount > 0)
+                                Positioned(
+                                  top: -2,
+                                  right: -2,
+                                  child: Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.alertRed,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        unreadCount > 9 ? '9+' : '$unreadCount',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 

@@ -1,0 +1,103 @@
+{
+  "success": true,
+  "languages": [
+    "eng",
+    "khm",
+    "fra"
+  ],
+  "text_blocks": [
+    {
+      "raw_text": "eae វ.\nលេខកូដ HAKF 1354164 ឈ្មោះអ្នកជំងឺ: ង៉ាំ ដានី អាយុ 19ឆ្នាំ ភេទ ស្រី\nប្រភេទបង់ប្រាក់ មូលនិធិសមធម៌ / 20051002-0409 អ្នកជំងឺ |\nរោគវិនិច្ឆ័យ 1 Chronic Cystitis\n2. Encour ménorhée\nផ្នែក : ពិគ្រោះជំងឺក្រៅ - បន្ទប់លេខ 5\nវេជ្ជបញ្ជា\nfmm | ol = -\n- — |\nយ\n10ក9\n[uname [er | | តត្រ\n1\nSecor ses el\n1\ncf Le elma lore\nរាជធានីភ្នំពេញ,ថ្ងៃទី 22/06/2025 14 47\nគ្រពេទ្យព្យាបាល\noe\nគឹមអ៊ាង\nស te",
+      "corrected_text": "eae វ.\nលេខកូដ HAKF 1354164 ឈ្មោះអ្នកជំងឺ: ង៉ាំ ដានី អាយុ 19ឆ្នាំ ភេទ ស្រី\nប្រភេទបង់ប្រាក់ មូលនិធិសមធម៌ / 20051002-0409 អ្នកជំងឺ |\nរោគវិនិច្ឆ័យ 1 Chronic Cystitis\n2. Encour ménorhée\nផ្នែក : ពិគ្រោះជំងឺក្រៅ - បន្ទប់លេខ 5\nវេជ្ជបញ្ជា\nfmm | ol = -\n- — |\nយ\n10ក9\n[uname [er | | តត្រ\n1\nSecor ses el\n1\ncf Le elma lore\nរាជធានីភ្នំពេញ,ថ្ងៃទី 22/06/2025 14 47\nគ្រពេទ្យព្យាបាល\noe\nគឹមអ៊ាង\nស te",
+      "final_text": "eae វ. លេខកូដ HAKF 1354164 ឈ្មោះអ្នកជំងឺ: ង៉ាំ ដានី អាយុ 19ឆ្នាំ ភេទ ស្រី ប្រភេទបង់ប្រាក់ មូលនិធិសមធម៌ / 20051002-0409 អ្នកជំងឺ | រោគវិនិច្ឆ័យ 1 Chronic Cystitis 2. Encour ménorhée ផ្នែក: ពិគ្រោះជំងឺក្រ - បន្ទប់លេខ 5 វេជ្ជបញ្ជា fmm | ol = - - — | យ 10ក9 [uname [er | | តត្រ 1 Secor ses el 1 cf Le elma lore រាជធានីភ្នំពេញ,ថ្ងៃទី 22/06/2025 14 47 គ្រពេទ្យព្យាបាល oe គឹមអ៊ាង ស te",
+      "confidence": 0.84,
+      "region_type": "header",
+      "bounding_box": {
+        "x": 0,
+        "y": 0,
+        "width": 930,
+        "height": 981
+      },
+      "detected_language": "khm",
+      "needs_review": false
+    },
+    {
+      "raw_text": "រោគវិនិច្ឆ័យ 1. Chronic Cystitis\n2. Encour ménorhée",
+      "corrected_text": "រោគវិនិច្ឆ័យ 1. Chronic Cystitis\n2. Encour ménorhée",
+      "final_text": "រោគវិនិច្ឆ័យ 1. Chronic Cystitis 2. Encour ménorhée",
+      "confidence": 0.98,
+      "region_type": "body",
+      "bounding_box": {
+        "x": 0,
+        "y": 247,
+        "width": 374,
+        "height": 58
+      },
+      "detected_language": "khm",
+      "needs_review": false
+    },
+    {
+      "raw_text": "_ វេជ្ជបណ្ឌិត ហឹង គឹមអ៊ាង",
+      "corrected_text": "_ វេជ្ជបណ្ឌិត ហឹង គឹមអ៊ាង",
+      "final_text": "_ វេជ្ជបណ្ឌិត ហឹង គឹមអ៊ាង",
+      "confidence": 0.94,
+      "region_type": "body",
+      "bounding_box": {
+        "x": 603,
+        "y": 843,
+        "width": 327,
+        "height": 110
+      },
+      "detected_language": "khm",
+      "needs_review": false
+    },
+    {
+      "raw_text": "ad FN\n# Py\nLe a Li",
+      "corrected_text": "ad FN\n# Py\nLe a Li",
+      "final_text": "ad FN # Py Le a Li",
+      "confidence": 0.76,
+      "region_type": "body",
+      "bounding_box": {
+        "x": 0,
+        "y": 942,
+        "width": 930,
+        "height": 210
+      },
+      "detected_language": "eng+fra",
+      "needs_review": false
+    },
+    {
+      "raw_text": "4 #4 \"+ ~",
+      "corrected_text": "4 #4 \"+ ~",
+      "final_text": "4 #4 \"+ ~",
+      "confidence": 0.57,
+      "region_type": "footer",
+      "bounding_box": {
+        "x": 0,
+        "y": 1076,
+        "width": 930,
+        "height": 204
+      },
+      "detected_language": "eng+khm+fra",
+      "needs_review": true
+    }
+  ],
+  "full_text": "eae វ. លេខកូដ HAKF 1354164 ឈ្មោះអ្នកជំងឺ: ង៉ាំ ដានី អាយុ 19ឆ្នាំ ភេទ ស្រី ប្រភេទបង់ប្រាក់ មូលនិធិសមធម៌ / 20051002-0409 អ្នកជំងឺ | រោគវិនិច្ឆ័យ 1 Chronic Cystitis 2. Encour ménorhée ផ្នែក: ពិគ្រោះជំងឺក្រ - បន្ទប់លេខ 5 វេជ្ជបញ្ជា fmm | ol = - - — | យ 10ក9 [uname [er | | តត្រ 1 Secor ses el 1 cf Le elma lore រាជធានីភ្នំពេញ,ថ្ងៃទី 22/06/2025 14 47 គ្រពេទ្យព្យាបាល oe គឹមអ៊ាង ស te\nរោគវិនិច្ឆ័យ 1. Chronic Cystitis 2. Encour ménorhée\n_ វេជ្ជបណ្ឌិត ហឹង គឹមអ៊ាង\nad FN # Py Le a Li\n4 #4 \"+ ~",
+  "medications": [],
+  "overall_confidence": 0.82,
+  "needs_review": true,
+  "quality_metrics": {
+    "blur_score": 1802.92,
+    "brightness": 192.86,
+    "resolution": {
+      "height": 1280,
+      "width": 930
+    },
+    "contrast": 44.69,
+    "passed": true,
+    "message": "Image quality acceptable"
+  },
+  "processing_time_ms": 11453,
+  "error": null,
+  "timestamp": "2026-01-28T14:57:49.796285"
+}

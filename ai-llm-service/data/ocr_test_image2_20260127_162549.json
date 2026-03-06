@@ -1,0 +1,1056 @@
+{
+  "success": true,
+  "image_path": "/tmp/16f480c4-7391-4428-a0d3-de8c474f3fe7.png",
+  "raw_text": "oviet\nFriendship\nHospital\niy\neh\nHAKF1354164\nH-EQIp\nint\n19\ngh\n1n9:\n:\n/\n20051002-0409\n{und\n|\n:\n1.\nChronic\nCystitis\n2.\nEncour\nménorhée\nign:\n-\n5\ntin\nans\nwo\nfa]\nup:\nBrus\n—\n[Tain\nsi\nFoc\nButylscopolamine\n14\n[pu\n1\n2\n|\nMultivitamine\n10\n[nts\n4\n|\n1\n3\n|\nEsome\n20mg\n7\nPO\nja\n1\n1\na\nParacetamol\n|\nPO\n|\n4\n|\ns00mg\nta\njad\nyess\n|\n22/06/2025\n14:47\nvia",
+  "blocks": [
+    {
+      "text": "oviet",
+      "confidence": 0.85,
+      "bbox": {
+        "x1": 162,
+        "y1": 122,
+        "x2": 182,
+        "y2": 128
+      },
+      "original_text": "oviet"
+    },
+    {
+      "text": "Friendship",
+      "confidence": 0.89,
+      "bbox": {
+        "x1": 188,
+        "y1": 119,
+        "x2": 238,
+        "y2": 129
+      },
+      "original_text": "Friendship"
+    },
+    {
+      "text": "Hospital",
+      "confidence": 0.91,
+      "bbox": {
+        "x1": 243,
+        "y1": 118,
+        "x2": 282,
+        "y2": 128
+      },
+      "original_text": "Hospital"
+    },
+    {
+      "text": "iy",
+      "confidence": 0.31,
+      "bbox": {
+        "x1": 85,
+        "y1": 65,
+        "x2": 131,
+        "y2": 122
+      },
+      "original_text": "iy"
+    },
+    {
+      "text": "eh",
+      "confidence": 0.48,
+      "bbox": {
+        "x1": 116,
+        "y1": 122,
+        "x2": 138,
+        "y2": 130
+      },
+      "original_text": "eh"
+    },
+    {
+      "text": "HAKF1354164",
+      "confidence": 0.86,
+      "bbox": {
+        "x1": 130,
+        "y1": 163,
+        "x2": 252,
+        "y2": 180
+      },
+      "original_text": "HAKF1354164"
+    },
+    {
+      "text": "H-EQIp",
+      "confidence": 0.56,
+      "bbox": {
+        "x1": 591,
+        "y1": 33,
+        "x2": 808,
+        "y2": 146
+      },
+      "original_text": "H-EQIp"
+    },
+    {
+      "text": "int",
+      "confidence": 0.35,
+      "bbox": {
+        "x1": 503,
+        "y1": 151,
+        "x2": 531,
+        "y2": 171
+      },
+      "original_text": "int"
+    },
+    {
+      "text": "19",
+      "confidence": 0.89,
+      "bbox": {
+        "x1": 678,
+        "y1": 153,
+        "x2": 694,
+        "y2": 167
+      },
+      "original_text": "19"
+    },
+    {
+      "text": "gh",
+      "confidence": 0.64,
+      "bbox": {
+        "x1": 705,
+        "y1": 141,
+        "x2": 717,
+        "y2": 177
+      },
+      "original_text": "gh"
+    },
+    {
+      "text": "1n9:",
+      "confidence": 0.49,
+      "bbox": {
+        "x1": 724,
+        "y1": 145,
+        "x2": 788,
+        "y2": 172
+      },
+      "original_text": "1n9:"
+    },
+    {
+      "text": ":",
+      "confidence": 0.49,
+      "bbox": {
+        "x1": 177,
+        "y1": 222,
+        "x2": 179,
+        "y2": 224
+      },
+      "original_text": ":"
+    },
+    {
+      "text": "/",
+      "confidence": 0.49,
+      "bbox": {
+        "x1": 308,
+        "y1": 207,
+        "x2": 313,
+        "y2": 221
+      },
+      "original_text": "/"
+    },
+    {
+      "text": "20051002-0409",
+      "confidence": 0.49,
+      "bbox": {
+        "x1": 319,
+        "y1": 203,
+        "x2": 448,
+        "y2": 221
+      },
+      "original_text": "20051002-0409"
+    },
+    {
+      "text": "{und",
+      "confidence": 0.46,
+      "bbox": {
+        "x1": 780,
+        "y1": 180,
+        "x2": 833,
+        "y2": 220
+      },
+      "original_text": "{und"
+    },
+    {
+      "text": "|",
+      "confidence": 0.66,
+      "bbox": {
+        "x1": 852,
+        "y1": 179,
+        "x2": 864,
+        "y2": 222
+      },
+      "original_text": "|"
+    },
+    {
+      "text": ":",
+      "confidence": 0.76,
+      "bbox": {
+        "x1": 142,
+        "y1": 245,
+        "x2": 149,
+        "y2": 282
+      },
+      "original_text": ":"
+    },
+    {
+      "text": "1.",
+      "confidence": 0.92,
+      "bbox": {
+        "x1": 157,
+        "y1": 256,
+        "x2": 169,
+        "y2": 270
+      },
+      "original_text": "1."
+    },
+    {
+      "text": "Chronic",
+      "confidence": 0.96,
+      "bbox": {
+        "x1": 182,
+        "y1": 245,
+        "x2": 242,
+        "y2": 282
+      },
+      "original_text": "Chronic"
+    },
+    {
+      "text": "Cystitis",
+      "confidence": 0.96,
+      "bbox": {
+        "x1": 250,
+        "y1": 245,
+        "x2": 307,
+        "y2": 282
+      },
+      "original_text": "Cystitis"
+    },
+    {
+      "text": "2.",
+      "confidence": 0.93,
+      "bbox": {
+        "x1": 156,
+        "y1": 287,
+        "x2": 169,
+        "y2": 301
+      },
+      "original_text": "2."
+    },
+    {
+      "text": "Encour",
+      "confidence": 0.91,
+      "bbox": {
+        "x1": 178,
+        "y1": 286,
+        "x2": 237,
+        "y2": 300
+      },
+      "original_text": "Encour"
+    },
+    {
+      "text": "ménorhée",
+      "confidence": 0.91,
+      "bbox": {
+        "x1": 243,
+        "y1": 283,
+        "x2": 326,
+        "y2": 298
+      },
+      "original_text": "ménorhée"
+    },
+    {
+      "text": "ign:",
+      "confidence": 0.67,
+      "bbox": {
+        "x1": 55,
+        "y1": 341,
+        "x2": 86,
+        "y2": 368
+      },
+      "original_text": "ign:"
+    },
+    {
+      "text": "-",
+      "confidence": 0.91,
+      "bbox": {
+        "x1": 223,
+        "y1": 351,
+        "x2": 228,
+        "y2": 353
+      },
+      "original_text": "-"
+    },
+    {
+      "text": "5",
+      "confidence": 0.86,
+      "bbox": {
+        "x1": 317,
+        "y1": 340,
+        "x2": 326,
+        "y2": 354
+      },
+      "original_text": "5"
+    },
+    {
+      "text": "tin",
+      "confidence": 0.56,
+      "bbox": {
+        "x1": 494,
+        "y1": 427,
+        "x2": 527,
+        "y2": 461
+      },
+      "original_text": "tin"
+    },
+    {
+      "text": "ans",
+      "confidence": 0.86,
+      "bbox": {
+        "x1": 709,
+        "y1": 418,
+        "x2": 745,
+        "y2": 452
+      },
+      "original_text": "ans"
+    },
+    {
+      "text": "wo",
+      "confidence": 0.51,
+      "bbox": {
+        "x1": 822,
+        "y1": 413,
+        "x2": 853,
+        "y2": 447
+      },
+      "original_text": "wo"
+    },
+    {
+      "text": "fa]",
+      "confidence": 0.53,
+      "bbox": {
+        "x1": 60,
+        "y1": 463,
+        "x2": 88,
+        "y2": 478
+      },
+      "original_text": "fa]"
+    },
+    {
+      "text": "up:",
+      "confidence": 0.46,
+      "bbox": {
+        "x1": 143,
+        "y1": 451,
+        "x2": 178,
+        "y2": 485
+      },
+      "original_text": "up:"
+    },
+    {
+      "text": "Brus",
+      "confidence": 0.38,
+      "bbox": {
+        "x1": 183,
+        "y1": 451,
+        "x2": 220,
+        "y2": 485
+      },
+      "original_text": "Brus"
+    },
+    {
+      "text": "—",
+      "confidence": 0.39,
+      "bbox": {
+        "x1": 358,
+        "y1": 441,
+        "x2": 371,
+        "y2": 478
+      },
+      "original_text": "—"
+    },
+    {
+      "text": "[Tain",
+      "confidence": 0.5,
+      "bbox": {
+        "x1": 388,
+        "y1": 445,
+        "x2": 431,
+        "y2": 470
+      },
+      "original_text": "[Tain"
+    },
+    {
+      "text": "si",
+      "confidence": 0.44,
+      "bbox": {
+        "x1": 703,
+        "y1": 453,
+        "x2": 756,
+        "y2": 471
+      },
+      "original_text": "si"
+    },
+    {
+      "text": "Foc",
+      "confidence": 0.38,
+      "bbox": {
+        "x1": 813,
+        "y1": 448,
+        "x2": 865,
+        "y2": 467
+      },
+      "original_text": "Foc"
+    },
+    {
+      "text": "Butylscopolamine",
+      "confidence": 0.88,
+      "bbox": {
+        "x1": 104,
+        "y1": 506,
+        "x2": 251,
+        "y2": 536
+      },
+      "original_text": "Butylscopolamine"
+    },
+    {
+      "text": "14",
+      "confidence": 0.71,
+      "bbox": {
+        "x1": 295,
+        "y1": 517,
+        "x2": 313,
+        "y2": 532
+      },
+      "original_text": "14"
+    },
+    {
+      "text": "[pu",
+      "confidence": 0.47,
+      "bbox": {
+        "x1": 320,
+        "y1": 515,
+        "x2": 357,
+        "y2": 537
+      },
+      "original_text": "[pu"
+    },
+    {
+      "text": "1",
+      "confidence": 0.93,
+      "bbox": {
+        "x1": 510,
+        "y1": 510,
+        "x2": 515,
+        "y2": 524
+      },
+      "original_text": "1"
+    },
+    {
+      "text": "2",
+      "confidence": 0.91,
+      "bbox": {
+        "x1": 71,
+        "y1": 586,
+        "x2": 80,
+        "y2": 601
+      },
+      "original_text": "2"
+    },
+    {
+      "text": "|",
+      "confidence": 0.91,
+      "bbox": {
+        "x1": 87,
+        "y1": 577,
+        "x2": 97,
+        "y2": 607
+      },
+      "original_text": "|"
+    },
+    {
+      "text": "Multivitamine",
+      "confidence": 0.92,
+      "bbox": {
+        "x1": 105,
+        "y1": 581,
+        "x2": 215,
+        "y2": 600
+      },
+      "original_text": "Multivitamine"
+    },
+    {
+      "text": "10",
+      "confidence": 0.78,
+      "bbox": {
+        "x1": 296,
+        "y1": 575,
+        "x2": 313,
+        "y2": 590
+      },
+      "original_text": "10"
+    },
+    {
+      "text": "[nts",
+      "confidence": 0.52,
+      "bbox": {
+        "x1": 322,
+        "y1": 563,
+        "x2": 361,
+        "y2": 599
+      },
+      "original_text": "[nts"
+    },
+    {
+      "text": "4",
+      "confidence": 0.8,
+      "bbox": {
+        "x1": 511,
+        "y1": 567,
+        "x2": 516,
+        "y2": 581
+      },
+      "original_text": "4"
+    },
+    {
+      "text": "|",
+      "confidence": 0.41,
+      "bbox": {
+        "x1": 574,
+        "y1": 582,
+        "x2": 591,
+        "y2": 597
+      },
+      "original_text": "|"
+    },
+    {
+      "text": "1",
+      "confidence": 0.94,
+      "bbox": {
+        "x1": 512,
+        "y1": 613,
+        "x2": 517,
+        "y2": 626
+      },
+      "original_text": "1"
+    },
+    {
+      "text": "3",
+      "confidence": 0.93,
+      "bbox": {
+        "x1": 72,
+        "y1": 651,
+        "x2": 81,
+        "y2": 666
+      },
+      "original_text": "3"
+    },
+    {
+      "text": "|",
+      "confidence": 0.92,
+      "bbox": {
+        "x1": 92,
+        "y1": 642,
+        "x2": 102,
+        "y2": 671
+      },
+      "original_text": "|"
+    },
+    {
+      "text": "Esome",
+      "confidence": 0.92,
+      "bbox": {
+        "x1": 111,
+        "y1": 649,
+        "x2": 163,
+        "y2": 664
+      },
+      "original_text": "Esome"
+    },
+    {
+      "text": "20mg",
+      "confidence": 0.96,
+      "bbox": {
+        "x1": 171,
+        "y1": 646,
+        "x2": 216,
+        "y2": 663
+      },
+      "original_text": "20mg"
+    },
+    {
+      "text": "7",
+      "confidence": 0.77,
+      "bbox": {
+        "x1": 276,
+        "y1": 640,
+        "x2": 283,
+        "y2": 654
+      },
+      "original_text": "7"
+    },
+    {
+      "text": "PO",
+      "confidence": 0.95,
+      "bbox": {
+        "x1": 402,
+        "y1": 634,
+        "x2": 427,
+        "y2": 649
+      },
+      "original_text": "PO"
+    },
+    {
+      "text": "ja",
+      "confidence": 0.59,
+      "bbox": {
+        "x1": 445,
+        "y1": 627,
+        "x2": 485,
+        "y2": 666
+      },
+      "original_text": "ja"
+    },
+    {
+      "text": "1",
+      "confidence": 0.95,
+      "bbox": {
+        "x1": 513,
+        "y1": 685,
+        "x2": 518,
+        "y2": 699
+      },
+      "original_text": "1"
+    },
+    {
+      "text": "1",
+      "confidence": 0.94,
+      "bbox": {
+        "x1": 618,
+        "y1": 680,
+        "x2": 624,
+        "y2": 694
+      },
+      "original_text": "1"
+    },
+    {
+      "text": "a",
+      "confidence": 0.45,
+      "bbox": {
+        "x1": 701,
+        "y1": 685,
+        "x2": 704,
+        "y2": 691
+      },
+      "original_text": "a"
+    },
+    {
+      "text": "Paracetamol",
+      "confidence": 0.95,
+      "bbox": {
+        "x1": 107,
+        "y1": 704,
+        "x2": 212,
+        "y2": 737
+      },
+      "original_text": "Paracetamol"
+    },
+    {
+      "text": "|",
+      "confidence": 0.89,
+      "bbox": {
+        "x1": 380,
+        "y1": 705,
+        "x2": 381,
+        "y2": 725
+      },
+      "original_text": "|"
+    },
+    {
+      "text": "PO",
+      "confidence": 0.89,
+      "bbox": {
+        "x1": 403,
+        "y1": 708,
+        "x2": 428,
+        "y2": 723
+      },
+      "original_text": "PO"
+    },
+    {
+      "text": "|",
+      "confidence": 0.71,
+      "bbox": {
+        "x1": 650,
+        "y1": 682,
+        "x2": 657,
+        "y2": 717
+      },
+      "original_text": "|"
+    },
+    {
+      "text": "4",
+      "confidence": 0.82,
+      "bbox": {
+        "x1": 73,
+        "y1": 728,
+        "x2": 83,
+        "y2": 742
+      },
+      "original_text": "4"
+    },
+    {
+      "text": "|",
+      "confidence": 0.66,
+      "bbox": {
+        "x1": 89,
+        "y1": 720,
+        "x2": 100,
+        "y2": 761
+      },
+      "original_text": "|"
+    },
+    {
+      "text": "s00mg",
+      "confidence": 0.4,
+      "bbox": {
+        "x1": 107,
+        "y1": 736,
+        "x2": 164,
+        "y2": 753
+      },
+      "original_text": "s00mg"
+    },
+    {
+      "text": "ta",
+      "confidence": 0.32,
+      "bbox": {
+        "x1": 319,
+        "y1": 707,
+        "x2": 347,
+        "y2": 748
+      },
+      "original_text": "ta"
+    },
+    {
+      "text": "jad",
+      "confidence": 0.44,
+      "bbox": {
+        "x1": 450,
+        "y1": 714,
+        "x2": 486,
+        "y2": 736
+      },
+      "original_text": "jad"
+    },
+    {
+      "text": "yess",
+      "confidence": 0.35,
+      "bbox": {
+        "x1": 498,
+        "y1": 709,
+        "x2": 583,
+        "y2": 733
+      },
+      "original_text": "yess"
+    },
+    {
+      "text": "|",
+      "confidence": 0.89,
+      "bbox": {
+        "x1": 587,
+        "y1": 694,
+        "x2": 596,
+        "y2": 740
+      },
+      "original_text": "|"
+    },
+    {
+      "text": "22/06/2025",
+      "confidence": 0.9,
+      "bbox": {
+        "x1": 715,
+        "y1": 760,
+        "x2": 805,
+        "y2": 780
+      },
+      "original_text": "22/06/2025"
+    },
+    {
+      "text": "14:47",
+      "confidence": 0.94,
+      "bbox": {
+        "x1": 812,
+        "y1": 757,
+        "x2": 855,
+        "y2": 774
+      },
+      "original_text": "14:47"
+    },
+    {
+      "text": "via",
+      "confidence": 0.68,
+      "bbox": {
+        "x1": 713,
+        "y1": 903,
+        "x2": 738,
+        "y2": 945
+      },
+      "original_text": "via"
+    }
+  ],
+  "block_count": 72,
+  "primary_language": "en",
+  "structured_data": {
+    "patient_name": null,
+    "patient_age": null,
+    "patient_gender": null,
+    "hospital_name": null,
+    "prescription_number": null,
+    "diagnosis": null,
+    "date": null,
+    "doctor_name": null,
+    "medications": []
+  },
+  "table_detected": false,
+  "table_data": null,
+  "overall_confidence": 0.7086111111111113,
+  "confidence_level": "low",
+  "needs_manual_review": true,
+  "review_reasons": [
+    "Overall confidence too low: 70.86%",
+    "32 blocks have low confidence"
+  ],
+  "low_confidence_blocks": [
+    {
+      "index": 3,
+      "text": "iy",
+      "confidence": 0.31,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 65,
+      "text": "ta",
+      "confidence": 0.32,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 7,
+      "text": "int",
+      "confidence": 0.35,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 67,
+      "text": "yess",
+      "confidence": 0.35,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 31,
+      "text": "Brus",
+      "confidence": 0.38,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 35,
+      "text": "Foc",
+      "confidence": 0.38,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 32,
+      "text": "—",
+      "confidence": 0.39,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 64,
+      "text": "s00mg",
+      "confidence": 0.4,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 46,
+      "text": "|",
+      "confidence": 0.41,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 34,
+      "text": "si",
+      "confidence": 0.44,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 66,
+      "text": "jad",
+      "confidence": 0.44,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 57,
+      "text": "a",
+      "confidence": 0.45,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 14,
+      "text": "{und",
+      "confidence": 0.46,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 30,
+      "text": "up:",
+      "confidence": 0.46,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 38,
+      "text": "[pu",
+      "confidence": 0.47,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 4,
+      "text": "eh",
+      "confidence": 0.48,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 10,
+      "text": "1n9:",
+      "confidence": 0.49,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 11,
+      "text": ":",
+      "confidence": 0.49,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 12,
+      "text": "/",
+      "confidence": 0.49,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 13,
+      "text": "20051002-0409",
+      "confidence": 0.49,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 33,
+      "text": "[Tain",
+      "confidence": 0.5,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 28,
+      "text": "wo",
+      "confidence": 0.51,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 44,
+      "text": "[nts",
+      "confidence": 0.52,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 29,
+      "text": "fa]",
+      "confidence": 0.53,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 6,
+      "text": "H-EQIp",
+      "confidence": 0.56,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 26,
+      "text": "tin",
+      "confidence": 0.56,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 54,
+      "text": "ja",
+      "confidence": 0.59,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 9,
+      "text": "gh",
+      "confidence": 0.64,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 15,
+      "text": "|",
+      "confidence": 0.66,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 63,
+      "text": "|",
+      "confidence": 0.66,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 23,
+      "text": "ign:",
+      "confidence": 0.67,
+      "block_type": "unknown",
+      "box": {}
+    },
+    {
+      "index": 71,
+      "text": "via",
+      "confidence": 0.68,
+      "block_type": "unknown",
+      "box": {}
+    }
+  ],
+  "ai_enhanced": false,
+  "test_metadata": {
+    "image_name": "image2.png",
+    "image_path": "/home/rayu/DasTern/.ignore-ocr-service/images_for_Test_yu/image2.png",
+    "test_timestamp": "2026-01-27T16:25:49.274591",
+    "ocr_service_url": "http://localhost:8000",
+    "response_status": 200
+  },
+  "ai_status": "not_enhanced"
+}
