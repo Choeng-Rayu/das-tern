@@ -13,7 +13,7 @@ A Python microservice that extracts structured JSON from Cambodian prescription 
   - [Layer 0 — HTTP Transport (FastAPI)](#layer-0--http-transport-fastapi)
   - [Layer 1 — Image Preprocessing (OpenCV)](#layer-1--image-preprocessing-opencv)
   - [Layer 2 — Layout Analysis (OpenCV Morphology)](#layer-2--layout-analysis-opencv-morphology)
-  - [Layer 3 — OCR Engine (Tesseract)](#layer-3--ocr-engine-tesseract)
+  - [Layer 3 — OCR Engine (kiri_ocr)](#layer-3--ocr-engine-kiri_ocr)
   - [Layer 4 — Hybrid Table Processing](#layer-4--hybrid-table-processing)
   - [Layer 5 — Post-Processing](#layer-5--post-processing)
   - [Layer 6 — Output Formatting (Dynamic Universal v2.0)](#layer-6--output-formatting-dynamic-universal-v20)
@@ -34,10 +34,10 @@ Key design decisions:
 
 | Decision | Reason |
 |---|---|
-| **Tesseract only** (no PaddleOCR) | PaddleOCR does not support the Khmer script. Tesseract with `khm+eng+fra` language pack is the only viable open-source engine for Khmer. |
+| **kiri_ocr only** (no PaddleOCR) | PaddleOCR does not support the Khmer script. kiri_ocr with `khm+eng+fra` language pack is the only viable open-source engine for Khmer. |
 | **Hybrid table method** | Pure cell-by-cell OCR fails on dose columns (checkmarks/ticks). A contour-blob approach is used for dose cells instead. |
 | **CPU-only** | Deployed on low-cost VPS. No GPU dependency. |
-| **Single-engine, multi-PSM** | Tesseract is invoked with different Page Segmentation Modes (PSM) per region type to maximise accuracy. |
+| **Single-engine, multi-PSM** | kiri_ocr is invoked with different Page Segmentation Modes (PSM) per region type to maximise accuracy. |
 
 ---
 
@@ -47,7 +47,7 @@ Key design decisions:
 |---|---|---|
 | Web framework | `FastAPI` + `uvicorn` | Async HTTP server |
 | Image I/O & processing | `OpenCV` (`cv2`) | Decoding, preprocessing, morphological analysis |
-| OCR engine | `pytesseract` → Tesseract 5 | Text recognition (Khmer, English, French) |
+| OCR engine | `pykiri_ocr` → kiri_ocr 5 | Text recognition (Khmer, English, French) |
 | Fuzzy matching | `rapidfuzz` | Medication name matching against drug lexicon |
 | Schema validation | `Pydantic v2` | Request/response models |
 | Configuration | `pydantic-settings` | `.env` + environment variable loading |
@@ -99,7 +99,7 @@ The orchestrator is the central coordinator. All other modules are stateless fun
 
 FastAPI uses an `asynccontextmanager` lifespan hook. On startup it:
 1. Instantiates `PipelineOrchestrator`, which in turn creates `OCREngine` and `PostProcessor`.
-2. `OCREngine.__init__` calls `pytesseract.get_tesseract_version()` — this immediately fails if Tesseract is not installed, making a broken deployment obvious at boot time rather than at the first request.
+2. `OCREngine.__init__` calls `pykiri_ocr.get_kiri_ocr_version()` — this immediately fails if kiri_ocr is not installed, making a broken deployment obvious at boot time rather than at the first request.
 3. The orchestrator instance is stored in a module-level variable (`_orchestrator`) and injected into the route handler via `set_orchestrator()`.
 
 #### Request Validation (routes.py)
@@ -126,7 +126,7 @@ The raw bytes are then passed straight to `orchestrator.extract(image_bytes, fil
     "needs_review": false,
     "fields_needing_review": [],
     "processing_time_ms": 2340.5,
-    "engines_used": ["tesseract"]
+    "engines_used": ["kiri_ocr"]
   }
 }
 ```
@@ -183,7 +183,7 @@ grayscale copy for analysis
 
 **Why CLAHE on LAB L-channel?** Applying CLAHE directly to BGR would shift the hue of ink and paper. By operating only on the Luminance channel in LAB space, contrast is boosted without distorting colour. This matters for downstream contour detection in the dose-column analysis.
 
-**Why unsharp mask instead of a Laplacian sharpen?** Unsharp mask (`addWeighted`) preserves edges while suppressing ringing artefacts, which makes Tesseract character recognition more reliable on slightly blurry photos taken with a mobile camera.
+**Why unsharp mask instead of a Laplacian sharpen?** Unsharp mask (`addWeighted`) preserves edges while suppressing ringing artefacts, which makes kiri_ocr character recognition more reliable on slightly blurry photos taken with a mobile camera.
 
 ---
 
@@ -237,11 +237,11 @@ Each cell is represented as a `CellInfo(row, col, bbox, content_type)` dataclass
 
 ---
 
-### Layer 3 — OCR Engine (Tesseract)
+### Layer 3 — OCR Engine (kiri_ocr)
 
 **File:** [app/pipeline/ocr_engine.py](app/pipeline/ocr_engine.py)
 
-`OCREngine` is a thin wrapper around `pytesseract`. Its main job is to select the right **language pack** and **Page Segmentation Mode (PSM)** per region type, then return an `OCRResult(text, confidence, engine, bbox, needs_review, language)`.
+`OCREngine` is a thin wrapper around `pykiri_ocr`. Its main job is to select the right **language pack** and **Page Segmentation Mode (PSM)** per region type, then return an `OCRResult(text, confidence, engine, bbox, needs_review, language)`.
 
 #### PSM selection strategy
 
@@ -262,15 +262,15 @@ For dose and item-number cells, an extra preparation step trims 15% of both widt
 -c tessedit_char_whitelist=0123456789-/
 ```
 
-This tells Tesseract to only emit digits, hyphens, and slashes — completely eliminating false positive letters from the limited visual vocabulary of a dose cell.
+This tells kiri_ocr to only emit digits, hyphens, and slashes — completely eliminating false positive letters from the limited visual vocabulary of a dose cell.
 
 #### Upscaling small crops
 
-Any crop shorter than 50 px is upscaled with `cv2.INTER_CUBIC` to a minimum height of 50 px. Tesseract's default training data performs best at font sizes equivalent to roughly 30–50 px character height; below that, recognition accuracy degrades significantly.
+Any crop shorter than 50 px is upscaled with `cv2.INTER_CUBIC` to a minimum height of 50 px. kiri_ocr's default training data performs best at font sizes equivalent to roughly 30–50 px character height; below that, recognition accuracy degrades significantly.
 
 #### Confidence scoring
 
-`pytesseract.image_to_data` returns a per-word confidence in `[0, 100]`. The engine computes the mean of all word confidences, then divides by 100 to produce a normalised `[0.0, 1.0]` score. Words with `conf <= 0` (which Tesseract uses for structural blocks like paragraphs) are excluded from the mean.
+`pykiri_ocr.image_to_data` returns a per-word confidence in `[0, 100]`. The engine computes the mean of all word confidences, then divides by 100 to produce a normalised `[0.0, 1.0]` score. Words with `conf <= 0` (which kiri_ocr uses for structural blocks like paragraphs) are excluded from the mean.
 
 A result is marked `needs_review = True` when `confidence < FLAG_REVIEW_THRESHOLD` (default 0.60).
 
@@ -294,7 +294,7 @@ Columns 0–3 (`item_number` through `instructions`) are concatenated into a hor
 
 ```python
 config = '--oem 1 --psm 4'
-data = pytesseract.image_to_data(strip_crop, lang='eng', config=config, output_type=DICT)
+data = pykiri_ocr.image_to_data(strip_crop, lang='eng', config=config, output_type=DICT)
 ```
 
 Words are then **clustered into rows** by y-proximity (threshold: 25 px):
@@ -456,7 +456,7 @@ The summary is computed from the assembled result dict:
 - `confidence_score` — currently `0.85` (static default; per-field scoring is a planned improvement)
 - `needs_review` — `true` if any field's confidence fell below `FLAG_REVIEW_THRESHOLD`
 - `processing_time_ms` — wall-clock time from orchestrator entry to formatter exit
-- `engines_used` — `["tesseract"]`
+- `engines_used` — `["kiri_ocr"]`
 
 ---
 
@@ -491,7 +491,7 @@ POST /api/v1/extract
   ▼
 [ocr_engine.py] ocr_region() × N regions
   │   crop region  →  upscale if < 50px  →  PSM + lang selection
-  │   pytesseract.image_to_data → word list → mean confidence
+  │   pykiri_ocr.image_to_data → word list → mean confidence
   │
   │  OCRResult { text, confidence } per region
   │
@@ -562,9 +562,9 @@ All settings live in [app/config.py](app/config.py) and are loaded from environm
 | `OCR_BLUR_THRESHOLD` | `100.0` | Laplacian variance below which image is considered blurry |
 | `OCR_MAX_IMAGE_DIMENSION` | `2000` | Longest edge pixel cap before downscale |
 | `OCR_CLAHE_CLIP_LIMIT` | `2.0` | CLAHE clip limit for contrast enhancement |
-| `OCR_TESSERACT_LANG` | `khm+eng+fra` | Default Tesseract language string |
-| `OCR_TESSERACT_OEM` | `1` | OCR Engine Mode (1 = LSTM neural net only) |
-| `OCR_TESSERACT_PSM` | `6` | Default Page Segmentation Mode |
+| `OCR_kiri_ocr_LANG` | `khm+eng+fra` | Default kiri_ocr language string |
+| `OCR_kiri_ocr_OEM` | `1` | OCR Engine Mode (1 = LSTM neural net only) |
+| `OCR_kiri_ocr_PSM` | `6` | Default Page Segmentation Mode |
 | `OCR_MED_NAME_MATCH_THRESHOLD` | `85` | Minimum rapidfuzz score for lexicon match |
 
 ---
@@ -590,7 +590,7 @@ Upload a prescription image and receive structured JSON.
     "needs_review": false,
     "fields_needing_review": [],
     "processing_time_ms": 1890.3,
-    "engines_used": ["tesseract"]
+    "engines_used": ["kiri_ocr"]
   }
 }
 ```
@@ -607,7 +607,7 @@ Upload a prescription image and receive structured JSON.
 
 ### `GET /api/v1/health`
 
-Returns Tesseract version, available language packs, and whether the orchestrator is loaded.
+Returns kiri_ocr version, available language packs, and whether the orchestrator is loaded.
 
 ### `GET /api/v1/config`
 
@@ -619,7 +619,7 @@ Returns the current effective configuration thresholds.
 
 ```bash
 # Install system dependency
-sudo apt-get install tesseract-ocr tesseract-ocr-khm tesseract-ocr-fra
+sudo apt-get install kiri_ocr-ocr kiri_ocr-ocr-khm kiri_ocr-ocr-fra
 
 # Install Python dependencies
 pip install -r requirements.txt
@@ -647,7 +647,7 @@ ocr_service/
 │   │   ├── orchestrator.py   # Central coordinator (5-step pipeline)
 │   │   ├── preprocessor.py   # OpenCV image enhancement
 │   │   ├── layout.py         # Region detection, table cell extraction
-│   │   ├── ocr_engine.py     # Tesseract wrapper (PSM + lang routing)
+│   │   ├── ocr_engine.py     # kiri_ocr wrapper (PSM + lang routing)
 │   │   ├── postprocessor.py  # Text → structured data (names, dates, doses)
 │   │   └── formatter.py      # Assemble Dynamic Universal v2.0 response
 │   ├── models/
