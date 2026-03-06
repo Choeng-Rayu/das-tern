@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -24,25 +25,32 @@ import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
   final log = LoggerService.instance;
-  
+
   // Capture Flutter errors
   FlutterError.onError = (FlutterErrorDetails details) {
-    log.error('FlutterError', 'Uncaught Flutter error', details.exception, details.stack);
+    log.error(
+      'FlutterError',
+      'Uncaught Flutter error',
+      details.exception,
+      details.stack,
+    );
     FlutterError.presentError(details);
   };
 
   log.info('App', '🚀 Starting DAS TERN MCP App');
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   try {
     log.debug('App', 'Loading environment variables');
     await dotenv.load(fileName: '.env');
     log.success('App', 'Environment loaded');
 
-    // Initialize offline services
+    // Initialize offline services (not supported on web)
     log.info('App', 'Initializing services');
-    await NotificationService.instance.init();
-    await SyncService.instance.startListening();
+    if (!kIsWeb) {
+      await NotificationService.instance.init();
+      await SyncService.instance.startListening();
+    }
     log.success('App', 'Services initialized');
 
     runApp(const DasTernApp());
@@ -59,8 +67,12 @@ class DasTernApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()..loadThemePreference()),
-        ChangeNotifierProvider(create: (_) => LocaleProvider()..loadLocalePreference()),
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider()..loadThemePreference(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LocaleProvider()..loadLocalePreference(),
+        ),
         ChangeNotifierProvider(create: (_) => AuthProvider()..loadAuthState()),
         ChangeNotifierProvider(create: (_) => DoseProvider()),
         ChangeNotifierProvider(create: (_) => PrescriptionProvider()),

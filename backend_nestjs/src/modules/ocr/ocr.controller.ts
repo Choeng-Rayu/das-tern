@@ -74,7 +74,7 @@ export class OcrController {
   async extractOnly(
     @CurrentUser() user: any,
     @UploadedFile() file: Express.Multer.File,
-  ) {
+  ): Promise<any> {
     if (!file) {
       throw new BadRequestException('No file uploaded.');
     }

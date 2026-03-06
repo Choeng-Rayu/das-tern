@@ -52,6 +52,7 @@
     "google-auth-library": "^10.5.0",
     "helmet": "^7.1.0",
     "ioredis": "^5.4.2",
+    "nest.js": "^1.0.8",
     "nodemailer": "^8.0.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
@@ -88,7 +89,8 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "webpack": "^5.105.2"
   },
   "jest": {
     "moduleFileExtensions": [

@@ -13,8 +13,10 @@ async function bootstrap() {
   app.use(helmet());
 
   const allowedOrigins = configService.get('ALLOWED_ORIGINS')?.split(',') || [];
+  const isDev = configService.get('NODE_ENV') !== 'production';
   app.enableCors({
-    origin: allowedOrigins.length > 0 ? allowedOrigins : false,
+    // In development allow all origins; in production restrict to the list
+    origin: isDev ? true : (allowedOrigins.length > 0 ? allowedOrigins : false),
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

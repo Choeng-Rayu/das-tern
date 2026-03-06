@@ -30,7 +30,7 @@ import { BatchMedicationModule } from './modules/batch-medication/batch-medicati
     }),
     ThrottlerModule.forRoot([{
       ttl: 60000,
-      limit: 100,
+      limit: 500, // Increased for development - reduce in production
     }]),
     CacheModule.register({
       isGlobal: true,
