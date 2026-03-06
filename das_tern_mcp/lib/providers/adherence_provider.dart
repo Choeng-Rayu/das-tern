@@ -23,6 +23,21 @@ class AdherenceProvider extends ChangeNotifier {
       (_todayAdherence?['percentage'] as num?)?.toDouble() ?? 0.0;
   int get todayTaken => (_todayAdherence?['taken'] as int?) ?? 0;
   int get todayTotal => (_todayAdherence?['total'] as int?) ?? 0;
+  String get todayColorCode =>
+      _todayAdherence?['colorCode'] as String? ?? 'GREEN';
+
+  /// Returns a Color based on adherence color code from the backend.
+  static Color getAdherenceColor(String colorCode) {
+    switch (colorCode) {
+      case 'RED':
+        return const Color(0xFFE53935);
+      case 'YELLOW':
+        return const Color(0xFFFFC107);
+      case 'GREEN':
+      default:
+        return const Color(0xFF4CAF50);
+    }
+  }
 
   /// Fetch today's adherence summary.
   Future<void> fetchTodayAdherence() async {

@@ -38,6 +38,9 @@ import '../ui/screens/patient/screens/record_vital_screen.dart';
 import '../ui/screens/patient/screens/vital_trend_screen.dart';
 import '../ui/screens/patient/screens/vital_thresholds_screen.dart';
 import '../ui/screens/patient/screens/emergency_screen.dart';
+import '../ui/screens/patient/screens/reminder_list_screen.dart';
+import '../ui/screens/patient/screens/adherence_detail_screen.dart';
+import '../ui/screens/patient/screens/reminder_settings_screen.dart';
 import '../models/enums_model/medication_type.dart';
 
 /// Centralized route definitions.
@@ -91,6 +94,11 @@ class AppRouter {
   static const String patientVitalTrend = '/patient/vitals/trend';
   static const String patientVitalThresholds = '/patient/vitals/thresholds';
   static const String patientEmergency = '/patient/emergency';
+
+  // Reminder routes
+  static const String patientReminders = '/patient/reminders';
+  static const String patientAdherence = '/patient/adherence';
+  static const String patientReminderSettings = '/patient/reminder-settings';
 
   static String? patientNotifications;
 
@@ -210,6 +218,14 @@ class AppRouter {
         return _buildRoute(const VitalThresholdsScreen());
       case patientEmergency:
         return _buildRoute(const EmergencyScreen());
+
+      // Reminder routes
+      case patientReminders:
+        return _buildRoute(const ReminderListScreen());
+      case patientAdherence:
+        return _buildRoute(const AdherenceDetailScreen());
+      case patientReminderSettings:
+        return _buildRoute(const ReminderSettingsScreen());
 
       default:
         return _buildRoute(

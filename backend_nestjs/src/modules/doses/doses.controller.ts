@@ -39,12 +39,12 @@ export class DosesController {
 
   @Patch(':id/taken')
   async markTaken(@Param('id') id: string, @CurrentUser() user: any, @Body() dto: MarkDoseTakenDto) {
-    return this.dosesService.markTaken(id, user.id, dto.takenAt, dto.offline);
+    return this.dosesService.markTaken(id, user.id, dto.takenAt, dto.offline, dto.reminderId);
   }
 
   @Post(':id/taken')
   async markDoseTaken(@Param('id') id: string, @CurrentUser() user: any, @Body() dto: MarkDoseTakenDto) {
-    return this.dosesService.markTaken(id, user.id, dto.takenAt, dto.offline);
+    return this.dosesService.markTaken(id, user.id, dto.takenAt, dto.offline, dto.reminderId);
   }
 
   @Patch(':id/skipped')

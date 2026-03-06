@@ -261,4 +261,100 @@ class NotificationService {
       payload: payload,
     );
   }
+
+  // ────────────────────────────────────────────
+  // Reminder notifications
+  // ────────────────────────────────────────────
+
+  /// Schedule a local notification for a server-side reminder.
+  Future<void> scheduleReminderNotification({
+    required String reminderId,
+    required String medicationName,
+    required String dosage,
+    required DateTime scheduledTime,
+    required String timePeriod,
+    int repeatCount = 0,
+  }) async {
+    if (kIsWeb) return;
+    if (!_initialized) await init();
+
+    if (scheduledTime.isBefore(DateTime.now())) return;
+
+    final id = 'reminder_$reminderId'.hashCode.abs() % 2147483647;
+
+    final periodLabel = timePeriod == 'MORNING'
+        ? 'Morning'
+        : timePeriod == 'DAYTIME'
+            ? 'Daytime'
+            : 'Night';
+    final prefix = repeatCount > 0 ? '[Repeat] ' : '';
+
+    await _plugin.zonedSchedule(
+      id,
+      '$prefix$periodLabel Dose Reminder',
+      'Time to take $medicationName ($dosage)',
+      tz.TZDateTime.from(scheduledTime, tz.local),
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'dose_reminders',
+          'Dose Reminders',
+          channelDescription: 'Reminders to take your medication',
+          importance: Importance.high,
+          priority: Priority.high,
+          playSound: true,
+          enableVibration: true,
+          icon: '@mipmap/ic_launcher',
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      payload: 'reminder:$reminderId',
+    );
+  }
+
+  /// Show an immediate missed dose alert notification.
+  Future<void> showMissedDoseAlert({
+    required String medicationName,
+    required String scheduledTime,
+  }) async {
+    if (kIsWeb) return;
+    if (!_initialized) await init();
+
+    await _plugin.show(
+      DateTime.now().millisecondsSinceEpoch % 2147483647,
+      'Missed Dose',
+      'You missed $medicationName scheduled at $scheduledTime',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'missed_dose_alerts',
+          'Missed Dose Alerts',
+          channelDescription: 'Alerts for missed medication doses',
+          importance: Importance.max,
+          priority: Priority.max,
+          playSound: true,
+          enableVibration: true,
+          icon: '@mipmap/ic_launcher',
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: 'missed_dose',
+    );
+  }
+
+  /// Cancel a reminder notification.
+  Future<void> cancelReminderNotification(String reminderId) async {
+    if (kIsWeb) return;
+    final id = 'reminder_$reminderId'.hashCode.abs() % 2147483647;
+    await _plugin.cancel(id);
+  }
 }

@@ -892,5 +892,81 @@
     "placeholders": {
       "name": {"type": "String"}
     }
-  }
+  },
+
+  "reminderStatusUpcoming": "Upcoming",
+  "reminderStatusDueNow": "Due Now",
+  "reminderStatusSnoozed": "Snoozed",
+  "snoozedUntilTime": "Snoozed until {time}",
+  "@snoozedUntilTime": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "takeAction": "Take",
+  "snoozeAction": "Snooze",
+  "skipAction": "Skip",
+
+  "snoozeReminder": "Snooze Reminder",
+  "snoozeLimitReached": "Maximum snooze limit reached (3/3)",
+  "snoozesRemaining": "{count} snooze(s) remaining",
+  "@snoozesRemaining": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "nMinutes": "{count} minutes",
+  "@nMinutes": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "todaysAdherence": "Today's Adherence",
+  "dosesOfTotalTaken": "{taken} of {total} doses taken",
+  "@dosesOfTotalTaken": {
+    "placeholders": {
+      "taken": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "noAdherenceDataAvailable": "No adherence data available",
+
+  "missedDoseCount": "{count} Missed Dose(s)",
+  "@missedDoseCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "plusNMore": "+{count} more",
+  "@plusNMore": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "markTakenAction": "Mark Taken",
+
+  "noUpcomingReminders": "No upcoming reminders",
+  "todayLabel": "Today",
+  "tomorrowLabel": "Tomorrow",
+  "skippedFromReminder": "Skipped from reminder",
+
+  "thirtyDayTrend": "30-Day Trend",
+  "weeklyTab": "Weekly",
+  "monthlyTab": "Monthly",
+  "excellentAdherence": "Excellent",
+  "needsImprovement": "Needs Improvement",
+  "lowAdherence": "Low Adherence",
+
+  "reminderSettingsTitle": "Reminder Settings",
+  "timeBeforeDoseMarkedMissed": "Time before a dose is marked as missed",
+  "repeatReminders": "Repeat Reminders",
+  "remindAgainIfNotTaken": "Remind again if dose not taken",
+  "repeatInterval": "Repeat interval",
+  "medicationRemindersTitle": "Medication Reminders",
+
+  "syncPending": "Sync pending",
+  "syncComplete": "All data synced",
+  "syncFailed": "Sync failed, will retry",
+  "offlineMode": "You are offline"
 }

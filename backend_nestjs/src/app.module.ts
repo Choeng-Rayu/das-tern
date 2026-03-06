@@ -21,6 +21,7 @@ import { BakongPaymentModule } from './modules/bakong-payment/bakong-payment.mod
 import { HealthMonitoringModule } from './modules/health-monitoring/health-monitoring.module';
 import { OcrModule } from './modules/ocr/ocr.module';
 import { BatchMedicationModule } from './modules/batch-medication/batch-medication.module';
+import { RemindersModule } from './modules/reminders/reminders.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { BatchMedicationModule } from './modules/batch-medication/batch-medicati
     HealthMonitoringModule,
     OcrModule,
     BatchMedicationModule,
+    RemindersModule,
   ],
   providers: [
     {

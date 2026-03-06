@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { DoseEventStatus } from '@prisma/client';
+import { AdherenceService } from '../adherence/adherence.service';
 
 @Injectable()
 export class DosesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private adherenceService: AdherenceService,
+  ) {}
 
   async getSchedule(patientId: string, date?: string, groupBy?: string) {
     const targetDate = date ? new Date(date) : new Date();
@@ -48,9 +52,9 @@ export class DosesService {
     return { date: targetDate.toISOString(), dailyProgress, doses: doses.map(this.formatDose) };
   }
 
-  async markTaken(id: string, patientId: string, takenAt?: string, offline = false) {
+  async markTaken(id: string, patientId: string, takenAt?: string, offline = false, reminderId?: string) {
     const dose = await this.prisma.doseEvent.findUnique({ where: { id } });
-    
+
     if (!dose) {
       throw new NotFoundException('Dose event not found');
     }
@@ -74,7 +78,21 @@ export class DosesService {
       },
     });
 
+    // Link reminder and mark as COMPLETED
+    if (reminderId) {
+      await this.prisma.doseEvent.update({
+        where: { id },
+        data: { reminderId },
+      });
+      await this.prisma.reminder.update({
+        where: { id: reminderId },
+        data: { status: 'COMPLETED', completedAt: new Date() },
+      });
+    }
+
     const dailyProgress = await this.calculateDailyProgress(patientId, dose.scheduledTime);
+
+    await this.adherenceService.invalidateCache(patientId);
 
     return { dose: await this.prisma.doseEvent.findUnique({ where: { id } }), dailyProgress };
   }
@@ -95,6 +113,8 @@ export class DosesService {
         details: { reason },
       },
     });
+
+    await this.adherenceService.invalidateCache(patientId);
 
     return dose;
   }

@@ -4141,6 +4141,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Time to take {name}'**
   String timeToTakeMedicine(String name);
+
+  /// No description provided for @reminderStatusUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get reminderStatusUpcoming;
+
+  /// No description provided for @reminderStatusDueNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Due Now'**
+  String get reminderStatusDueNow;
+
+  /// No description provided for @reminderStatusSnoozed.
+  ///
+  /// In en, this message translates to:
+  /// **'Snoozed'**
+  String get reminderStatusSnoozed;
+
+  /// No description provided for @snoozedUntilTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Snoozed until {time}'**
+  String snoozedUntilTime(String time);
+
+  /// No description provided for @takeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Take'**
+  String get takeAction;
+
+  /// No description provided for @snoozeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze'**
+  String get snoozeAction;
+
+  /// No description provided for @skipAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skipAction;
+
+  /// No description provided for @snoozeReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze Reminder'**
+  String get snoozeReminder;
+
+  /// No description provided for @snoozeLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum snooze limit reached (3/3)'**
+  String get snoozeLimitReached;
+
+  /// No description provided for @snoozesRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} snooze(s) remaining'**
+  String snoozesRemaining(int count);
+
+  /// No description provided for @nMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} minutes'**
+  String nMinutes(int count);
+
+  /// No description provided for @todaysAdherence.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Adherence'**
+  String get todaysAdherence;
+
+  /// No description provided for @dosesOfTotalTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'{taken} of {total} doses taken'**
+  String dosesOfTotalTaken(int taken, int total);
+
+  /// No description provided for @noAdherenceDataAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No adherence data available'**
+  String get noAdherenceDataAvailable;
+
+  /// No description provided for @missedDoseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Missed Dose(s)'**
+  String missedDoseCount(int count);
+
+  /// No description provided for @plusNMore.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String plusNMore(int count);
+
+  /// No description provided for @markTakenAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark Taken'**
+  String get markTakenAction;
+
+  /// No description provided for @noUpcomingReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming reminders'**
+  String get noUpcomingReminders;
+
+  /// No description provided for @todayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayLabel;
+
+  /// No description provided for @tomorrowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get tomorrowLabel;
+
+  /// No description provided for @skippedFromReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped from reminder'**
+  String get skippedFromReminder;
+
+  /// No description provided for @thirtyDayTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'30-Day Trend'**
+  String get thirtyDayTrend;
+
+  /// No description provided for @weeklyTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get weeklyTab;
+
+  /// No description provided for @monthlyTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthlyTab;
+
+  /// No description provided for @excellentAdherence.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent'**
+  String get excellentAdherence;
+
+  /// No description provided for @needsImprovement.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Improvement'**
+  String get needsImprovement;
+
+  /// No description provided for @lowAdherence.
+  ///
+  /// In en, this message translates to:
+  /// **'Low Adherence'**
+  String get lowAdherence;
+
+  /// No description provided for @reminderSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder Settings'**
+  String get reminderSettingsTitle;
+
+  /// No description provided for @timeBeforeDoseMarkedMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Time before a dose is marked as missed'**
+  String get timeBeforeDoseMarkedMissed;
+
+  /// No description provided for @repeatReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat Reminders'**
+  String get repeatReminders;
+
+  /// No description provided for @remindAgainIfNotTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind again if dose not taken'**
+  String get remindAgainIfNotTaken;
+
+  /// No description provided for @repeatInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat interval'**
+  String get repeatInterval;
+
+  /// No description provided for @medicationRemindersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Reminders'**
+  String get medicationRemindersTitle;
+
+  /// No description provided for @syncPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync pending'**
+  String get syncPending;
+
+  /// No description provided for @syncComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'All data synced'**
+  String get syncComplete;
+
+  /// No description provided for @syncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed, will retry'**
+  String get syncFailed;
+
+  /// No description provided for @offlineMode.
+  ///
+  /// In en, this message translates to:
+  /// **'You are offline'**
+  String get offlineMode;
 }
 
 class _AppLocalizationsDelegate

@@ -14,6 +14,7 @@ import 'providers/doctor_dashboard_provider.dart';
 import 'providers/subscription_provider.dart';
 import 'providers/health_monitoring_provider.dart';
 import 'providers/batch_provider.dart';
+import 'providers/reminder_provider.dart';
 import 'services/notification_service.dart';
 import 'services/sync_service.dart';
 import 'services/logger_service.dart';
@@ -82,6 +83,7 @@ class DasTernApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => HealthMonitoringProvider()),
         ChangeNotifierProvider(create: (_) => BatchProvider()),
+        ChangeNotifierProvider(create: (_) => ReminderProvider()),
         ChangeNotifierProvider.value(value: SyncService.instance),
       ],
       child: Consumer2<ThemeProvider, LocaleProvider>(

@@ -56,7 +56,7 @@ dependencies:
   mobile_scanner: ^7.0.0
 
   # Share functionality
-  share_plus: ^12.0.0
+  share_plus: ^10.1.4
 
   # URL Launcher (open deeplinks in banking apps)
   url_launcher: ^6.3.0

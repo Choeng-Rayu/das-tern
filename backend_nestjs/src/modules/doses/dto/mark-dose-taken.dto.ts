@@ -1,4 +1,4 @@
-import { IsOptional, IsDateString, IsBoolean } from 'class-validator';
+import { IsOptional, IsDateString, IsBoolean, IsUUID } from 'class-validator';
 
 export class MarkDoseTakenDto {
   @IsOptional()
@@ -8,4 +8,8 @@ export class MarkDoseTakenDto {
   @IsOptional()
   @IsBoolean()
   offline?: boolean;
+
+  @IsOptional()
+  @IsUUID()
+  reminderId?: string;
 }

@@ -4,7 +4,7 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-figma"],
       "env": {
-        "FIGMA_PERSONAL_ACCESS_TOKEN": "figd_pCgXNOe34LSE7Ur-PDpzDcuVhXtDahUc44dVARXK"
+        "FIGMA_PERSONAL_ACCESS_TOKEN": "${env:FIGMA_PERSONAL_ACCESS_TOKEN}"
       },
       "disabled": false,
       "autoApprove": []

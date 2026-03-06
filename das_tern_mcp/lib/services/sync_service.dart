@@ -8,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'database_service.dart';
 import 'notification_service.dart';
+import 'reminder_sync_service.dart';
 import 'logger_service.dart';
 
 /// Monitors connectivity and auto-syncs offline actions when back online.
@@ -120,6 +121,9 @@ class SyncService extends ChangeNotifier {
 
       // 5. Pull fresh medication batches
       await _pullBatches();
+
+      // 6. Sync reminders
+      await _pullReminders();
 
       _log.success('SyncService', 'Sync complete');
     } catch (e) {
@@ -308,6 +312,18 @@ class SyncService extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('[SyncService] Pull batches error: $e');
+    }
+  }
+
+  // ────────────────────────────────────────────
+  // Pull: fresh reminders
+  // ────────────────────────────────────────────
+
+  Future<void> _pullReminders() async {
+    try {
+      await ReminderSyncService.instance.syncReminders();
+    } catch (e) {
+      debugPrint('[SyncService] Pull reminders error: $e');
     }
   }
 

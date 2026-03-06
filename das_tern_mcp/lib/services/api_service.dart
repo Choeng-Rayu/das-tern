@@ -523,6 +523,7 @@ class ApiService {
     String id, {
     DateTime? takenAt,
     bool offline = false,
+    String? reminderId,
   }) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
@@ -532,6 +533,7 @@ class ApiService {
           body: jsonEncode({
             if (takenAt != null) 'takenAt': takenAt.toIso8601String(),
             'offline': offline,
+            if (reminderId != null) 'reminderId': reminderId,
           }),
         ),
       ),
@@ -1734,6 +1736,119 @@ class ApiService {
             '$baseUrl/batch-medications/$batchId/medicines/$medicineId',
           ),
           headers: h,
+        ),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────
+  // Reminder endpoints
+  // ────────────────────────────────────────────
+
+  /// POST /reminders/generate/:prescriptionId – generate reminders
+  Future<Map<String, dynamic>> generateReminders(String prescriptionId) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.post(
+          Uri.parse('$baseUrl/reminders/generate/$prescriptionId'),
+          headers: h,
+          body: jsonEncode({}),
+        ),
+      ),
+    );
+  }
+
+  /// GET /reminders/upcoming – get upcoming reminders
+  Future<List<dynamic>> getUpcomingReminders({int days = 7, int limit = 50}) async {
+    final uri = Uri.parse('$baseUrl/reminders/upcoming').replace(
+      queryParameters: {'days': days.toString(), 'limit': limit.toString()},
+    );
+    return List<dynamic>.from(
+      await _authenticatedRequest((h) => http.get(uri, headers: h)),
+    );
+  }
+
+  /// POST /reminders/:reminderId/snooze – snooze a reminder
+  Future<Map<String, dynamic>> snoozeReminder(String reminderId, int durationMinutes) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.post(
+          Uri.parse('$baseUrl/reminders/$reminderId/snooze'),
+          headers: h,
+          body: jsonEncode({'durationMinutes': durationMinutes}),
+        ),
+      ),
+    );
+  }
+
+  /// GET /reminders/history – get reminder history
+  Future<Map<String, dynamic>> getReminderHistory({
+    String? startDate,
+    String? endDate,
+    String? status,
+    int page = 1,
+  }) async {
+    final params = <String, String>{'page': page.toString()};
+    if (startDate != null) params['startDate'] = startDate;
+    if (endDate != null) params['endDate'] = endDate;
+    if (status != null) params['status'] = status;
+    final uri = Uri.parse('$baseUrl/reminders/history').replace(
+      queryParameters: params,
+    );
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest((h) => http.get(uri, headers: h)),
+    );
+  }
+
+  /// PATCH /reminders/settings – update reminder settings
+  Future<Map<String, dynamic>> updateReminderSettings(Map<String, dynamic> data) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.patch(
+          Uri.parse('$baseUrl/reminders/settings'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
+      ),
+    );
+  }
+
+  /// GET /reminders/settings – get reminder settings
+  Future<Map<String, dynamic>> getReminderSettings() async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.get(Uri.parse('$baseUrl/reminders/settings'), headers: h),
+      ),
+    );
+  }
+
+  /// PATCH /reminders/medications/:medicationId/time – update medication reminder time
+  Future<Map<String, dynamic>> updateMedicationReminderTime(
+    String medicationId,
+    Map<String, dynamic> data,
+  ) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.patch(
+          Uri.parse('$baseUrl/reminders/medications/$medicationId/time'),
+          headers: h,
+          body: jsonEncode(data),
+        ),
+      ),
+    );
+  }
+
+  /// PATCH /reminders/medications/:medicationId/toggle – toggle medication reminders
+  Future<Map<String, dynamic>> toggleMedicationReminders(
+    String medicationId,
+    bool enabled,
+  ) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.patch(
+          Uri.parse('$baseUrl/reminders/medications/$medicationId/toggle'),
+          headers: h,
+          body: jsonEncode({'enabled': enabled}),
         ),
       ),
     );

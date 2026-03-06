@@ -127,13 +127,13 @@ class DoseProvider extends ChangeNotifier {
   }
 
   /// Mark a dose as taken (works offline).
-  Future<bool> markTaken(String doseId) async {
-    _log.info('DoseProvider', 'Marking dose taken', {'doseId': doseId, 'online': _sync.isOnline});
+  Future<bool> markTaken(String doseId, {String? reminderId}) async {
+    _log.info('DoseProvider', 'Marking dose taken', {'doseId': doseId, 'reminderId': reminderId, 'online': _sync.isOnline});
     try {
       final now = DateTime.now();
 
       if (_sync.isOnline) {
-        await _api.markDoseTaken(doseId, takenAt: now);
+        await _api.markDoseTaken(doseId, takenAt: now, reminderId: reminderId);
         _log.success('DoseProvider', 'Dose marked taken (online)');
       } else {
         // Save locally and queue for sync
@@ -142,7 +142,11 @@ class DoseProvider extends ChangeNotifier {
           action: 'mark_taken',
           endpoint: '/doses/$doseId/taken',
           method: 'PATCH',
-          body: {'takenAt': now.toIso8601String(), 'offline': true},
+          body: {
+            'takenAt': now.toIso8601String(),
+            'offline': true,
+            if (reminderId != null) 'reminderId': reminderId,
+          },
         );
         _log.info('DoseProvider', 'Dose marked taken (offline, queued for sync)');
       }
