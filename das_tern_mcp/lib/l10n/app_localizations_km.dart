@@ -1047,6 +1047,10 @@ class AppLocalizationsKm extends AppLocalizations {
   String get openInBankingApp => 'បើកកម្មវិធីធនាគារ';
 
   @override
+  String get bankAmountPreFilled =>
+      'ចំនួនទឹកប្រាក់បំពេញរួចហើយ — បញ្ចូល PIN ដើម្បីបង់';
+
+  @override
   String get orOpenDirectly => 'ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:';
 
   @override
@@ -1648,6 +1652,11 @@ class AppLocalizationsKm extends AppLocalizations {
   @override
   String shareCodeMessage(String token) {
     return 'កូដតភ្ជាប់ DasTern: $token';
+  }
+
+  @override
+  String shareQrAndCodeMessage(String token) {
+    return 'នេះជាកូដតភ្ជាប់ DasTern របស់ខ្ញុំ: $token\n\nស្កេនរូបភាព QR ឬបញ្ចូលកូដដោយដៃនៅក្នុងកម្មវិធី DasTern ដើម្បីភ្ជាប់ជាមួយខ្ញុំ។';
   }
 
   @override

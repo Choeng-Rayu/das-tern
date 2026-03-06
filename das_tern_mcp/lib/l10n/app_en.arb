@@ -422,6 +422,7 @@
   "payWithBankingApp": "Pay with Banking App",
   "selectYourBank": "Select Your Bank",
   "openInBankingApp": "Open in Banking App",
+  "bankAmountPreFilled": "Amount pre-filled — enter PIN to pay",
   "orOpenDirectly": "Or tap to open your banking app directly:",
   "noBankingAppInstalled": "Could not open banking app. Please scan the QR code instead.",
   "bankNotInstalled": "App not installed. Please scan the QR code instead.",
@@ -690,6 +691,12 @@
   "shareCodeButton": "Share Code",
   "shareCodeMessage": "DasTern connection code: {token}",
   "@shareCodeMessage": {
+    "placeholders": {
+      "token": {"type": "String"}
+    }
+  },
+  "shareQrAndCodeMessage": "Here is my DasTern connection code: {token}\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.",
+  "@shareQrAndCodeMessage": {
     "placeholders": {
       "token": {"type": "String"}
     }

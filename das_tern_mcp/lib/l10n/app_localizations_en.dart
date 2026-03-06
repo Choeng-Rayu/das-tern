@@ -1045,6 +1045,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openInBankingApp => 'Open in Banking App';
 
   @override
+  String get bankAmountPreFilled => 'Amount pre-filled — enter PIN to pay';
+
+  @override
   String get orOpenDirectly => 'Or tap to open your banking app directly:';
 
   @override
@@ -1650,6 +1653,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String shareCodeMessage(String token) {
     return 'DasTern connection code: $token';
+  }
+
+  @override
+  String shareQrAndCodeMessage(String token) {
+    return 'Here is my DasTern connection code: $token\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.';
   }
 
   @override

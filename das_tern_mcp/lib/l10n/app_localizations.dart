@@ -2108,6 +2108,12 @@ abstract class AppLocalizations {
   /// **'Open in Banking App'**
   String get openInBankingApp;
 
+  /// No description provided for @bankAmountPreFilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount pre-filled — enter PIN to pay'**
+  String get bankAmountPreFilled;
+
   /// No description provided for @orOpenDirectly.
   ///
   /// In en, this message translates to:
@@ -3247,6 +3253,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'DasTern connection code: {token}'**
   String shareCodeMessage(String token);
+
+  /// No description provided for @shareQrAndCodeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Here is my DasTern connection code: {token}\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.'**
+  String shareQrAndCodeMessage(String token);
 
   /// No description provided for @generateNewCode.
   ///

@@ -382,6 +382,7 @@
   "payWithBankingApp": "បង់ប្រាក់តាមកម្មវិធីធនាគារ",
   "selectYourBank": "ជ្រើសរើសធនាគាររបស់អ្នក",
   "openInBankingApp": "បើកកម្មវិធីធនាគារ",
+  "bankAmountPreFilled": "ចំនួនទឹកប្រាក់បំពេញរួចហើយ — បញ្ចូល PIN ដើម្បីបង់",
   "orOpenDirectly": "ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:",
   "noBankingAppInstalled": "មិនអាចបើកកម្មវិធីធនាគារទេ សូម Scan QR វិញ។",
   "bankNotInstalled": "មិនបានតំឡើងកម្មវិធីនេះទេ។ សូម Scan QR វិញ។",
@@ -591,6 +592,7 @@
   "instructionStep3Family": "ស្កេនកូដ QR នេះ ឬបញ្ចូលកូដ",
   "shareCodeButton": "ចែករំលែកកូដ",
   "shareCodeMessage": "កូដតភ្ជាប់ DasTern: {token}",
+  "shareQrAndCodeMessage": "នេះជាកូដតភ្ជាប់ DasTern របស់ខ្ញុំ: {token}\n\nស្កេនរូបភាព QR ឬបញ្ចូលកូដដោយដៃនៅក្នុងកម្មវិធី DasTern ដើម្បីភ្ជាប់ជាមួយខ្ញុំ។",
   "generateNewCode": "បង្កើតកូដថ្មី",
   "codeCopied": "កូដត្រូវបានចម្លង",
 
