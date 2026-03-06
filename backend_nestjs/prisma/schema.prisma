@@ -68,7 +68,6 @@ enum PrescriptionStatus {
 }
 
 enum TimePeriod {
-  MORNING
   DAYTIME
   NIGHT
 }
@@ -95,8 +94,6 @@ enum NotificationType {
   FAMILY_ALERT
   VITAL_ANOMALY
   EMERGENCY_ALERT
-  REMINDER_DELIVERED
-  REMINDER_SNOOZED
 }
 
 enum AuditActionType {
@@ -119,8 +116,6 @@ enum AuditActionType {
   DOCTOR_DISCONNECT
   VITAL_RECORDED
   EMERGENCY_TRIGGERED
-  REMINDER_GENERATED
-  REMINDER_SNOOZED
 }
 
 // ============================================
@@ -195,10 +190,6 @@ model User {
   
   // Grace Period (for missed dose detection)
   gracePeriodMinutes   Int            @default(30)
-
-  // Reminder Settings
-  repeatRemindersEnabled Boolean      @default(true)
-  repeatIntervalMinutes  Int          @default(10)
   
   // Account Security
   accountStatus        AccountStatus  @default(ACTIVE)
@@ -230,8 +221,7 @@ model User {
   vitalThresholds      VitalThreshold[]      @relation("PatientThresholds")
   healthAlerts         HealthAlert[]         @relation("PatientAlerts")
   medicationBatches    MedicationBatch[]
-  reminders            Reminder[]
-
+  
   @@index([phoneNumber])
   @@index([email])
   @@index([role])
@@ -310,7 +300,6 @@ model Prescription {
   medications    Medication[]
   doseEvents     DoseEvent[]
   versions       PrescriptionVersion[]
-  reminders      Reminder[]
 
   @@index([patientId])
   @@index([doctorId])
@@ -368,10 +357,6 @@ model Medication {
   isPRN            Boolean      @default(false)
   beforeMeal       Boolean      @default(false)
 
-  // Reminder Configuration
-  remindersEnabled Boolean      @default(true)
-  customTimes      Json?        @db.JsonB  // { morning?: "HH:mm", daytime?: "HH:mm", night?: "HH:mm" }
-
   // Timestamps
   createdAt        DateTime     @default(now()) @db.Timestamptz(3)
   updatedAt        DateTime     @updatedAt @db.Timestamptz(3)
@@ -380,7 +365,6 @@ model Medication {
   prescription     Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
   batch            MedicationBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
   doseEvents       DoseEvent[]
-  reminders        Reminder[]
 
   @@index([prescriptionId])
   @@index([batchId])
@@ -407,9 +391,6 @@ model DoseEvent {
   takenAt        DateTime?       @db.Timestamptz(3)
   skipReason     String?         @db.Text
   wasOffline     Boolean         @default(false)
-
-  // Reminder Link
-  reminderId     String?         @unique @db.Uuid
   
   // Timestamps
   createdAt      DateTime        @default(now()) @db.Timestamptz(3)
@@ -419,7 +400,6 @@ model DoseEvent {
   prescription   Prescription    @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
   medication     Medication      @relation(fields: [medicationId], references: [id], onDelete: Cascade)
   patient        User            @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  reminder       Reminder?       @relation(fields: [reminderId], references: [id], onDelete: SetNull)
   
   @@index([patientId])
   @@index([scheduledTime])
@@ -704,56 +684,4 @@ model MedicationBatch {
   @@index([patientId])
   @@index([patientId, isActive])
   @@map("medication_batches")
-}
-
-// ============================================
-// REMINDER SYSTEM
-// ============================================
-
-enum ReminderStatus {
-  PENDING
-  DELIVERING
-  DELIVERED
-  SNOOZED
-  COMPLETED
-  MISSED
-  FAILED
-}
-
-model Reminder {
-  id              String         @id @default(uuid()) @db.Uuid
-  patientId       String         @db.Uuid
-  medicationId    String         @db.Uuid
-  prescriptionId  String         @db.Uuid
-
-  // Schedule
-  scheduledTime   DateTime       @db.Timestamptz(3)
-  timePeriod      TimePeriod
-
-  // Status
-  status          ReminderStatus @default(PENDING)
-  deliveredAt     DateTime?      @db.Timestamptz(3)
-  completedAt     DateTime?      @db.Timestamptz(3)
-
-  // Snooze
-  snoozedUntil    DateTime?      @db.Timestamptz(3)
-  snoozeCount     Int            @default(0)
-
-  // Repeat
-  repeatCount     Int            @default(0)
-
-  // Timestamps
-  createdAt       DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime       @updatedAt @db.Timestamptz(3)
-
-  // Relations
-  patient         User           @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  medication      Medication     @relation(fields: [medicationId], references: [id], onDelete: Cascade)
-  prescription    Prescription   @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
-  doseEvent       DoseEvent?
-
-  @@index([patientId, scheduledTime])
-  @@index([status, scheduledTime])
-  @@index([medicationId])
-  @@map("reminders")
 }

@@ -10,7 +10,7 @@ class DatabaseService {
 
   final LoggerService _log = LoggerService.instance;
   static Database? _database;
-  static const int _dbVersion = 4;
+  static const int _dbVersion = 3;
   static const String _dbName = 'das_tern.db';
 
   Future<Database> get database async {
@@ -94,9 +94,6 @@ class DatabaseService {
     // Medication batches table
     await _createMedicationBatchesTable(db);
 
-    // Reminders table
-    await _createRemindersTable(db);
-
     _log.success('DatabaseService', 'Database schema created successfully');
   }
 
@@ -139,34 +136,6 @@ class DatabaseService {
     await db.execute('CREATE INDEX idx_batch_active ON medication_batches(patient_id, is_active)');
   }
 
-  Future<void> _createRemindersTable(Database db) async {
-    await db.execute('''
-      CREATE TABLE reminders (
-        id TEXT PRIMARY KEY,
-        patient_id TEXT NOT NULL,
-        medication_id TEXT NOT NULL,
-        prescription_id TEXT NOT NULL,
-        scheduled_time TEXT NOT NULL,
-        time_period TEXT NOT NULL,
-        status TEXT NOT NULL DEFAULT 'PENDING',
-        delivered_at TEXT,
-        completed_at TEXT,
-        snoozed_until TEXT,
-        snooze_count INTEGER NOT NULL DEFAULT 0,
-        repeat_count INTEGER NOT NULL DEFAULT 0,
-        medication_name TEXT NOT NULL DEFAULT '',
-        dosage TEXT NOT NULL DEFAULT '',
-        medication_json TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
-        synced INTEGER NOT NULL DEFAULT 1
-      )
-    ''');
-    await db.execute('CREATE INDEX idx_reminder_scheduled ON reminders(scheduled_time)');
-    await db.execute('CREATE INDEX idx_reminder_status ON reminders(status)');
-    await db.execute('CREATE INDEX idx_reminder_patient ON reminders(patient_id, scheduled_time)');
-  }
-
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       _log.info('DatabaseService', 'Migrating database from v$oldVersion to v2');
@@ -177,11 +146,6 @@ class DatabaseService {
       _log.info('DatabaseService', 'Migrating database to v3');
       await _createMedicationBatchesTable(db);
       _log.success('DatabaseService', 'Migration to v3 complete');
-    }
-    if (oldVersion < 4) {
-      _log.info('DatabaseService', 'Migrating database to v4');
-      await _createRemindersTable(db);
-      _log.success('DatabaseService', 'Migration to v4 complete');
     }
   }
 
@@ -548,61 +512,6 @@ class DatabaseService {
   }
 
   // ────────────────────────────────────────────
-  // Reminders cache
-  // ────────────────────────────────────────────
-
-  /// Cache reminders from the server.
-  Future<void> cacheReminders(List<Map<String, dynamic>> reminders) async {
-    _log.dbOperation('CACHE', 'reminders', {'count': reminders.length});
-    final db = await database;
-    final batch = db.batch();
-    for (final r in reminders) {
-      batch.insert(
-        'reminders',
-        _reminderToRow(r),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
-    await batch.commit(noResult: true);
-  }
-
-  /// Get cached reminders for a given date (yyyy-MM-dd).
-  Future<List<Map<String, dynamic>>> getCachedRemindersByDate(String date) async {
-    final db = await database;
-    final rows = await db.query(
-      'reminders',
-      where: "scheduled_time LIKE ?",
-      whereArgs: ['$date%'],
-      orderBy: 'scheduled_time ASC',
-    );
-    return rows.map(_rowToReminder).toList();
-  }
-
-  /// Get upcoming cached reminders (PENDING, DELIVERED, or SNOOZED).
-  Future<List<Map<String, dynamic>>> getUpcomingCachedReminders() async {
-    final db = await database;
-    final now = DateTime.now().toIso8601String();
-    final rows = await db.query(
-      'reminders',
-      where: "status IN ('PENDING', 'DELIVERED', 'SNOOZED') AND scheduled_time >= ?",
-      whereArgs: [now],
-      orderBy: 'scheduled_time ASC',
-    );
-    return rows.map(_rowToReminder).toList();
-  }
-
-  /// Update a single reminder's status.
-  Future<void> updateReminderStatus(String id, String status) async {
-    final db = await database;
-    await db.update(
-      'reminders',
-      {'status': status, 'updated_at': DateTime.now().toIso8601String()},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
-
-  // ────────────────────────────────────────────
   // Utilities
   // ────────────────────────────────────────────
 
@@ -615,7 +524,6 @@ class DatabaseService {
     await db.delete('prescriptions');
     await db.delete('health_vitals');
     await db.delete('medication_batches');
-    await db.delete('reminders');
     _log.info('DatabaseService', 'All local data cleared');
   }
 
@@ -671,60 +579,6 @@ class DatabaseService {
       'takenAt': row['taken_at'],
       'skipReason': row['skip_reason'],
       'wasOffline': row['was_offline'] == 1,
-      'medicationName': row['medication_name'],
-      'dosage': row['dosage'],
-      'medication': row['medication_json'] != null
-          ? jsonDecode(row['medication_json'] as String)
-          : null,
-      'createdAt': row['created_at'],
-      'updatedAt': row['updated_at'],
-    };
-  }
-
-  Map<String, dynamic> _reminderToRow(Map<String, dynamic> reminder) {
-    return {
-      'id': reminder['id'],
-      'patient_id': reminder['patientId'],
-      'medication_id': reminder['medicationId'],
-      'prescription_id': reminder['prescriptionId'],
-      'scheduled_time': reminder['scheduledTime'],
-      'time_period': reminder['timePeriod'],
-      'status': reminder['status'],
-      'delivered_at': reminder['deliveredAt'],
-      'completed_at': reminder['completedAt'],
-      'snoozed_until': reminder['snoozedUntil'],
-      'snooze_count': reminder['snoozeCount'] ?? 0,
-      'repeat_count': reminder['repeatCount'] ?? 0,
-      'medication_name': reminder['medicationName'] ??
-          (reminder['medication'] is Map
-              ? reminder['medication']['medicineName'] ?? ''
-              : ''),
-      'dosage': reminder['dosage'] ??
-          (reminder['medication'] is Map
-              ? '${reminder['medication']['dosageAmount'] ?? ''}'
-              : ''),
-      'medication_json':
-          reminder['medication'] != null ? jsonEncode(reminder['medication']) : null,
-      'created_at': reminder['createdAt'],
-      'updated_at': reminder['updatedAt'],
-      'synced': 1,
-    };
-  }
-
-  Map<String, dynamic> _rowToReminder(Map<String, dynamic> row) {
-    return {
-      'id': row['id'],
-      'patientId': row['patient_id'],
-      'medicationId': row['medication_id'],
-      'prescriptionId': row['prescription_id'],
-      'scheduledTime': row['scheduled_time'],
-      'timePeriod': row['time_period'],
-      'status': row['status'],
-      'deliveredAt': row['delivered_at'],
-      'completedAt': row['completed_at'],
-      'snoozedUntil': row['snoozed_until'],
-      'snoozeCount': row['snooze_count'],
-      'repeatCount': row['repeat_count'],
       'medicationName': row['medication_name'],
       'dosage': row['dosage'],
       'medication': row['medication_json'] != null

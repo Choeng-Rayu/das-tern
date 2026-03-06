@@ -894,79 +894,39 @@
     }
   },
 
-  "reminderStatusUpcoming": "Upcoming",
-  "reminderStatusDueNow": "Due Now",
-  "reminderStatusSnoozed": "Snoozed",
-  "snoozedUntilTime": "Snoozed until {time}",
-  "@snoozedUntilTime": {
+  "rowNumberColumn": "#",
+  "medicineNameColumn": "Medicine",
+  "morningColumn": "Morning",
+  "daytimeColumn": "Daytime",
+  "nightColumn": "Night",
+  "afterMeal": "After meal",
+  "addMedicineRow": "Add medicine row",
+  "createPrescriptionFab": "Create Prescription",
+
+  "personalInformation": "Personal Information",
+  "currentPrescriptions": "Current Prescriptions",
+  "missedMedicationCount": "Missed Medications",
+
+  "profileSection": "Profile",
+  "notificationSettings": "Notification Settings",
+  "aboutUs": "About Us",
+  "personalAccount": "Personal Account",
+  "enableNotifications": "Enable Notifications",
+  "medicationReminders": "Medication Reminders",
+  "missedDoseAlerts": "Missed Dose Alerts",
+  "connectionAlerts": "Connection Alerts",
+  "emergencyNotifications": "Emergency Notifications",
+  "appVersion": "App Version",
+  "contactSupport": "Contact Support",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfService": "Terms of Service",
+  "currentPassword": "Current Password",
+  "updatePassword": "Update Password",
+  "passwordUpdated": "Password updated successfully",
+  "adherencePercentage": "{percentage}%",
+  "@adherencePercentage": {
     "placeholders": {
-      "time": {"type": "String"}
+      "percentage": {"type": "String"}
     }
-  },
-  "takeAction": "Take",
-  "snoozeAction": "Snooze",
-  "skipAction": "Skip",
-
-  "snoozeReminder": "Snooze Reminder",
-  "snoozeLimitReached": "Maximum snooze limit reached (3/3)",
-  "snoozesRemaining": "{count} snooze(s) remaining",
-  "@snoozesRemaining": {
-    "placeholders": {
-      "count": {"type": "int"}
-    }
-  },
-  "nMinutes": "{count} minutes",
-  "@nMinutes": {
-    "placeholders": {
-      "count": {"type": "int"}
-    }
-  },
-
-  "todaysAdherence": "Today's Adherence",
-  "dosesOfTotalTaken": "{taken} of {total} doses taken",
-  "@dosesOfTotalTaken": {
-    "placeholders": {
-      "taken": {"type": "int"},
-      "total": {"type": "int"}
-    }
-  },
-  "noAdherenceDataAvailable": "No adherence data available",
-
-  "missedDoseCount": "{count} Missed Dose(s)",
-  "@missedDoseCount": {
-    "placeholders": {
-      "count": {"type": "int"}
-    }
-  },
-  "plusNMore": "+{count} more",
-  "@plusNMore": {
-    "placeholders": {
-      "count": {"type": "int"}
-    }
-  },
-  "markTakenAction": "Mark Taken",
-
-  "noUpcomingReminders": "No upcoming reminders",
-  "todayLabel": "Today",
-  "tomorrowLabel": "Tomorrow",
-  "skippedFromReminder": "Skipped from reminder",
-
-  "thirtyDayTrend": "30-Day Trend",
-  "weeklyTab": "Weekly",
-  "monthlyTab": "Monthly",
-  "excellentAdherence": "Excellent",
-  "needsImprovement": "Needs Improvement",
-  "lowAdherence": "Low Adherence",
-
-  "reminderSettingsTitle": "Reminder Settings",
-  "timeBeforeDoseMarkedMissed": "Time before a dose is marked as missed",
-  "repeatReminders": "Repeat Reminders",
-  "remindAgainIfNotTaken": "Remind again if dose not taken",
-  "repeatInterval": "Repeat interval",
-  "medicationRemindersTitle": "Medication Reminders",
-
-  "syncPending": "Sync pending",
-  "syncComplete": "All data synced",
-  "syncFailed": "Sync failed, will retry",
-  "offlineMode": "You are offline"
+  }
 }

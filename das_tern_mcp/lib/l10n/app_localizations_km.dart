@@ -2126,126 +2126,88 @@ class AppLocalizationsKm extends AppLocalizations {
   }
 
   @override
-  String get reminderStatusUpcoming => 'នៅមកដល់';
+  String get rowNumberColumn => '#';
 
   @override
-  String get reminderStatusDueNow => 'ដល់ពេលហើយ';
+  String get medicineNameColumn => 'ថ្នាំ';
 
   @override
-  String get reminderStatusSnoozed => 'បានពន្យារ';
+  String get morningColumn => 'ព្រឹក';
 
   @override
-  String snoozedUntilTime(String time) {
-    return 'ពន្យាររហូតដល់ $time';
+  String get daytimeColumn => 'ថ្ងៃ';
+
+  @override
+  String get nightColumn => 'យប់';
+
+  @override
+  String get afterMeal => 'ក្រោយបាយ';
+
+  @override
+  String get addMedicineRow => 'បន្ថែមជួរថ្នាំ';
+
+  @override
+  String get createPrescriptionFab => 'បង្កើតវេជ្ជបញ្ជា';
+
+  @override
+  String get personalInformation => 'ព័ត៌មានផ្ទាល់ខ្លួន';
+
+  @override
+  String get currentPrescriptions => 'វេជ្ជបញ្ជាបច្ចុប្បន្ន';
+
+  @override
+  String get missedMedicationCount => 'ថ្នាំដែលខកខាន';
+
+  @override
+  String get profileSection => 'ប្រវត្តិរូប';
+
+  @override
+  String get notificationSettings => 'ការកំណត់ការជូនដំណឹង';
+
+  @override
+  String get aboutUs => 'អំពីយើង';
+
+  @override
+  String get personalAccount => 'គណនីផ្ទាល់ខ្លួន';
+
+  @override
+  String get enableNotifications => 'បើកការជូនដំណឹង';
+
+  @override
+  String get medicationReminders => 'ការរំលឹកថ្នាំ';
+
+  @override
+  String get missedDoseAlerts => 'ការជូនដំណឹងថ្នាំខកខាន';
+
+  @override
+  String get connectionAlerts => 'ការជូនដំណឹងតភ្ជាប់';
+
+  @override
+  String get emergencyNotifications => 'ការជូនដំណឹងពេលបន្ទាន់';
+
+  @override
+  String get appVersion => 'កំណែកម្មវិធី';
+
+  @override
+  String get contactSupport => 'ទាក់ទងផ្នែកជំនួយ';
+
+  @override
+  String get privacyPolicy => 'គោលការណ៍ភាពឯកជន';
+
+  @override
+  String get termsOfService => 'លក្ខខណ្ឌប្រើប្រាស់';
+
+  @override
+  String get currentPassword => 'លេខសម្ងាត់បច្ចុប្បន្ន';
+
+  @override
+  String get updatePassword => 'ធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់';
+
+  @override
+  String get passwordUpdated => 'បានធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់ជោគជ័យ';
+
+  @override
+  String adherencePercentage(String percentage) {
+    return '$percentage%';
   }
-
-  @override
-  String get takeAction => 'ទទួលទាន';
-
-  @override
-  String get snoozeAction => 'ពន្យារ';
-
-  @override
-  String get skipAction => 'រំលង';
-
-  @override
-  String get snoozeReminder => 'ពន្យារការរំលឹក';
-
-  @override
-  String get snoozeLimitReached => 'បានឈានដល់កម្រិតពន្យារអតិបរមា (៣/៣)';
-
-  @override
-  String snoozesRemaining(int count) {
-    return 'នៅសល់ការពន្យារ $count ដង';
-  }
-
-  @override
-  String nMinutes(int count) {
-    return '$count នាទី';
-  }
-
-  @override
-  String get todaysAdherence => 'ការប្រតិបត្តិតាមថ្ងៃនេះ';
-
-  @override
-  String dosesOfTotalTaken(int taken, int total) {
-    return 'ទទួលទាន $taken នៃ $total ដង';
-  }
-
-  @override
-  String get noAdherenceDataAvailable => 'មិនមានទិន្នន័យការប្រតិបត្តិតាម';
-
-  @override
-  String missedDoseCount(int count) {
-    return 'ខកខានថ្នាំ $count ដង';
-  }
-
-  @override
-  String plusNMore(int count) {
-    return '+$count ទៀត';
-  }
-
-  @override
-  String get markTakenAction => 'សម្គាល់ថាបានទទួលទាន';
-
-  @override
-  String get noUpcomingReminders => 'មិនមានការរំលឹកនៅមកដល់';
-
-  @override
-  String get todayLabel => 'ថ្ងៃនេះ';
-
-  @override
-  String get tomorrowLabel => 'ថ្ងៃស្អែក';
-
-  @override
-  String get skippedFromReminder => 'បានរំលងពីការរំលឹក';
-
-  @override
-  String get thirtyDayTrend => 'និន្នាការ ៣០ ថ្ងៃ';
-
-  @override
-  String get weeklyTab => 'ប្រចាំសប្តាហ៍';
-
-  @override
-  String get monthlyTab => 'ប្រចាំខែ';
-
-  @override
-  String get excellentAdherence => 'ល្អប្រសើរ';
-
-  @override
-  String get needsImprovement => 'ត្រូវការកែលម្អ';
-
-  @override
-  String get lowAdherence => 'ការប្រតិបត្តិតាមទាប';
-
-  @override
-  String get reminderSettingsTitle => 'ការកំណត់ការរំលឹក';
-
-  @override
-  String get timeBeforeDoseMarkedMissed =>
-      'ពេលវេលាមុនពេលថ្នាំត្រូវបានសម្គាល់ថាខកខាន';
-
-  @override
-  String get repeatReminders => 'រំលឹកម្ដងទៀត';
-
-  @override
-  String get remindAgainIfNotTaken => 'រំលឹកម្ដងទៀតប្រសិនបើមិនទាន់ទទួលទានថ្នាំ';
-
-  @override
-  String get repeatInterval => 'ចន្លោះពេលរំលឹកម្ដងទៀត';
-
-  @override
-  String get medicationRemindersTitle => 'ការរំលឹកថ្នាំ';
-
-  @override
-  String get syncPending => 'រង់ចាំធ្វើសមកាលកម្ម';
-
-  @override
-  String get syncComplete => 'ទិន្នន័យទាំងអស់បានធ្វើសមកាលកម្មរួចរាល់';
-
-  @override
-  String get syncFailed => 'ធ្វើសមកាលកម្មបរាជ័យ នឹងព្យាយាមម្ដងទៀត';
-
-  @override
-  String get offlineMode => 'អ្នកមិនមានអ៊ីនធឺណិត';
 }

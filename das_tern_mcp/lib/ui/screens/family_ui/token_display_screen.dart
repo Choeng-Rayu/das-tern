@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:share_plus/share_plus.dart' show Share;
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';

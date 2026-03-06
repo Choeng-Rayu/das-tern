@@ -5,10 +5,9 @@ import { DosesController } from './doses.controller';
 import { MissedDoseJob } from './missed-dose.job';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AuditModule } from '../audit/audit.module';
-import { AdherenceModule } from '../adherence/adherence.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), NotificationsModule, AuditModule, AdherenceModule],
+  imports: [ScheduleModule.forRoot(), NotificationsModule, AuditModule],
   controllers: [DosesController],
   providers: [DosesService, MissedDoseJob],
   exports: [DosesService],

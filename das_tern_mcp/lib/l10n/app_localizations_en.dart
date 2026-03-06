@@ -2132,126 +2132,88 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get reminderStatusUpcoming => 'Upcoming';
+  String get rowNumberColumn => '#';
 
   @override
-  String get reminderStatusDueNow => 'Due Now';
+  String get medicineNameColumn => 'Medicine';
 
   @override
-  String get reminderStatusSnoozed => 'Snoozed';
+  String get morningColumn => 'Morning';
 
   @override
-  String snoozedUntilTime(String time) {
-    return 'Snoozed until $time';
+  String get daytimeColumn => 'Daytime';
+
+  @override
+  String get nightColumn => 'Night';
+
+  @override
+  String get afterMeal => 'After meal';
+
+  @override
+  String get addMedicineRow => 'Add medicine row';
+
+  @override
+  String get createPrescriptionFab => 'Create Prescription';
+
+  @override
+  String get personalInformation => 'Personal Information';
+
+  @override
+  String get currentPrescriptions => 'Current Prescriptions';
+
+  @override
+  String get missedMedicationCount => 'Missed Medications';
+
+  @override
+  String get profileSection => 'Profile';
+
+  @override
+  String get notificationSettings => 'Notification Settings';
+
+  @override
+  String get aboutUs => 'About Us';
+
+  @override
+  String get personalAccount => 'Personal Account';
+
+  @override
+  String get enableNotifications => 'Enable Notifications';
+
+  @override
+  String get medicationReminders => 'Medication Reminders';
+
+  @override
+  String get missedDoseAlerts => 'Missed Dose Alerts';
+
+  @override
+  String get connectionAlerts => 'Connection Alerts';
+
+  @override
+  String get emergencyNotifications => 'Emergency Notifications';
+
+  @override
+  String get appVersion => 'App Version';
+
+  @override
+  String get contactSupport => 'Contact Support';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get currentPassword => 'Current Password';
+
+  @override
+  String get updatePassword => 'Update Password';
+
+  @override
+  String get passwordUpdated => 'Password updated successfully';
+
+  @override
+  String adherencePercentage(String percentage) {
+    return '$percentage%';
   }
-
-  @override
-  String get takeAction => 'Take';
-
-  @override
-  String get snoozeAction => 'Snooze';
-
-  @override
-  String get skipAction => 'Skip';
-
-  @override
-  String get snoozeReminder => 'Snooze Reminder';
-
-  @override
-  String get snoozeLimitReached => 'Maximum snooze limit reached (3/3)';
-
-  @override
-  String snoozesRemaining(int count) {
-    return '$count snooze(s) remaining';
-  }
-
-  @override
-  String nMinutes(int count) {
-    return '$count minutes';
-  }
-
-  @override
-  String get todaysAdherence => 'Today\'s Adherence';
-
-  @override
-  String dosesOfTotalTaken(int taken, int total) {
-    return '$taken of $total doses taken';
-  }
-
-  @override
-  String get noAdherenceDataAvailable => 'No adherence data available';
-
-  @override
-  String missedDoseCount(int count) {
-    return '$count Missed Dose(s)';
-  }
-
-  @override
-  String plusNMore(int count) {
-    return '+$count more';
-  }
-
-  @override
-  String get markTakenAction => 'Mark Taken';
-
-  @override
-  String get noUpcomingReminders => 'No upcoming reminders';
-
-  @override
-  String get todayLabel => 'Today';
-
-  @override
-  String get tomorrowLabel => 'Tomorrow';
-
-  @override
-  String get skippedFromReminder => 'Skipped from reminder';
-
-  @override
-  String get thirtyDayTrend => '30-Day Trend';
-
-  @override
-  String get weeklyTab => 'Weekly';
-
-  @override
-  String get monthlyTab => 'Monthly';
-
-  @override
-  String get excellentAdherence => 'Excellent';
-
-  @override
-  String get needsImprovement => 'Needs Improvement';
-
-  @override
-  String get lowAdherence => 'Low Adherence';
-
-  @override
-  String get reminderSettingsTitle => 'Reminder Settings';
-
-  @override
-  String get timeBeforeDoseMarkedMissed =>
-      'Time before a dose is marked as missed';
-
-  @override
-  String get repeatReminders => 'Repeat Reminders';
-
-  @override
-  String get remindAgainIfNotTaken => 'Remind again if dose not taken';
-
-  @override
-  String get repeatInterval => 'Repeat interval';
-
-  @override
-  String get medicationRemindersTitle => 'Medication Reminders';
-
-  @override
-  String get syncPending => 'Sync pending';
-
-  @override
-  String get syncComplete => 'All data synced';
-
-  @override
-  String get syncFailed => 'Sync failed, will retry';
-
-  @override
-  String get offlineMode => 'You are offline';
 }

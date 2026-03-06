@@ -791,79 +791,39 @@
     }
   },
 
-  "reminderStatusUpcoming": "នៅមកដល់",
-  "reminderStatusDueNow": "ដល់ពេលហើយ",
-  "reminderStatusSnoozed": "បានពន្យារ",
-  "snoozedUntilTime": "ពន្យាររហូតដល់ {time}",
-  "@snoozedUntilTime": {
+  "rowNumberColumn": "#",
+  "medicineNameColumn": "ថ្នាំ",
+  "morningColumn": "ព្រឹក",
+  "daytimeColumn": "ថ្ងៃ",
+  "nightColumn": "យប់",
+  "afterMeal": "ក្រោយបាយ",
+  "addMedicineRow": "បន្ថែមជួរថ្នាំ",
+  "createPrescriptionFab": "បង្កើតវេជ្ជបញ្ជា",
+
+  "personalInformation": "ព័ត៌មានផ្ទាល់ខ្លួន",
+  "currentPrescriptions": "វេជ្ជបញ្ជាបច្ចុប្បន្ន",
+  "missedMedicationCount": "ថ្នាំដែលខកខាន",
+
+  "profileSection": "ប្រវត្តិរូប",
+  "notificationSettings": "ការកំណត់ការជូនដំណឹង",
+  "aboutUs": "អំពីយើង",
+  "personalAccount": "គណនីផ្ទាល់ខ្លួន",
+  "enableNotifications": "បើកការជូនដំណឹង",
+  "medicationReminders": "ការរំលឹកថ្នាំ",
+  "missedDoseAlerts": "ការជូនដំណឹងថ្នាំខកខាន",
+  "connectionAlerts": "ការជូនដំណឹងតភ្ជាប់",
+  "emergencyNotifications": "ការជូនដំណឹងពេលបន្ទាន់",
+  "appVersion": "កំណែកម្មវិធី",
+  "contactSupport": "ទាក់ទងផ្នែកជំនួយ",
+  "privacyPolicy": "គោលការណ៍ភាពឯកជន",
+  "termsOfService": "លក្ខខណ្ឌប្រើប្រាស់",
+  "currentPassword": "លេខសម្ងាត់បច្ចុប្បន្ន",
+  "updatePassword": "ធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់",
+  "passwordUpdated": "បានធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់ជោគជ័យ",
+  "adherencePercentage": "{percentage}%",
+  "@adherencePercentage": {
     "placeholders": {
-      "time": {"type": "String"}
+      "percentage": {"type": "String"}
     }
-  },
-  "takeAction": "ទទួលទាន",
-  "snoozeAction": "ពន្យារ",
-  "skipAction": "រំលង",
-
-  "snoozeReminder": "ពន្យារការរំលឹក",
-  "snoozeLimitReached": "បានឈានដល់កម្រិតពន្យារអតិបរមា (៣/៣)",
-  "snoozesRemaining": "នៅសល់ការពន្យារ {count} ដង",
-  "@snoozesRemaining": {
-    "placeholders": {
-      "count": {"type": "int"}
-    }
-  },
-  "nMinutes": "{count} នាទី",
-  "@nMinutes": {
-    "placeholders": {
-      "count": {"type": "int"}
-    }
-  },
-
-  "todaysAdherence": "ការប្រតិបត្តិតាមថ្ងៃនេះ",
-  "dosesOfTotalTaken": "ទទួលទាន {taken} នៃ {total} ដង",
-  "@dosesOfTotalTaken": {
-    "placeholders": {
-      "taken": {"type": "int"},
-      "total": {"type": "int"}
-    }
-  },
-  "noAdherenceDataAvailable": "មិនមានទិន្នន័យការប្រតិបត្តិតាម",
-
-  "missedDoseCount": "ខកខានថ្នាំ {count} ដង",
-  "@missedDoseCount": {
-    "placeholders": {
-      "count": {"type": "int"}
-    }
-  },
-  "plusNMore": "+{count} ទៀត",
-  "@plusNMore": {
-    "placeholders": {
-      "count": {"type": "int"}
-    }
-  },
-  "markTakenAction": "សម្គាល់ថាបានទទួលទាន",
-
-  "noUpcomingReminders": "មិនមានការរំលឹកនៅមកដល់",
-  "todayLabel": "ថ្ងៃនេះ",
-  "tomorrowLabel": "ថ្ងៃស្អែក",
-  "skippedFromReminder": "បានរំលងពីការរំលឹក",
-
-  "thirtyDayTrend": "និន្នាការ ៣០ ថ្ងៃ",
-  "weeklyTab": "ប្រចាំសប្តាហ៍",
-  "monthlyTab": "ប្រចាំខែ",
-  "excellentAdherence": "ល្អប្រសើរ",
-  "needsImprovement": "ត្រូវការកែលម្អ",
-  "lowAdherence": "ការប្រតិបត្តិតាមទាប",
-
-  "reminderSettingsTitle": "ការកំណត់ការរំលឹក",
-  "timeBeforeDoseMarkedMissed": "ពេលវេលាមុនពេលថ្នាំត្រូវបានសម្គាល់ថាខកខាន",
-  "repeatReminders": "រំលឹកម្ដងទៀត",
-  "remindAgainIfNotTaken": "រំលឹកម្ដងទៀតប្រសិនបើមិនទាន់ទទួលទានថ្នាំ",
-  "repeatInterval": "ចន្លោះពេលរំលឹកម្ដងទៀត",
-  "medicationRemindersTitle": "ការរំលឹកថ្នាំ",
-
-  "syncPending": "រង់ចាំធ្វើសមកាលកម្ម",
-  "syncComplete": "ទិន្នន័យទាំងអស់បានធ្វើសមកាលកម្មរួចរាល់",
-  "syncFailed": "ធ្វើសមកាលកម្មបរាជ័យ នឹងព្យាយាមម្ដងទៀត",
-  "offlineMode": "អ្នកមិនមានអ៊ីនធឺណិត"
+  }
 }

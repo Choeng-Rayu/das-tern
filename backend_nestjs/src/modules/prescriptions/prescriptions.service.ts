@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import { ReminderGeneratorService } from '../reminders/reminder-generator.service';
 import { CreatePrescriptionDto, UpdatePrescriptionDto, CreatePatientPrescriptionDto } from './dto';
 
 @Injectable()
@@ -9,7 +8,6 @@ export class PrescriptionsService {
   constructor(
     private prisma: PrismaService,
     private notifications: NotificationsService,
-    private reminderGenerator: ReminderGeneratorService,
   ) {}
 
   async create(doctorId: string, dto: CreatePrescriptionDto) {
@@ -242,9 +240,6 @@ export class PrescriptionsService {
     // Generate dose events
     await this.generateDoseEvents(activated);
 
-    // Generate reminders for the activated prescription
-    await this.reminderGenerator.generateRemindersForPrescription(id);
-
     // Create audit log entry
     await this.prisma.auditLog.create({
       data: {
@@ -407,9 +402,6 @@ export class PrescriptionsService {
     // Generate dose events
     await this.generateDoseEvents(prescription);
 
-    // Generate reminders for the new prescription
-    await this.reminderGenerator.generateRemindersForPrescription(prescription.id);
-
     // Create audit log entry
     await this.prisma.auditLog.create({
       data: {
@@ -441,11 +433,6 @@ export class PrescriptionsService {
 
     // Delete associated dose events first
     await this.prisma.doseEvent.deleteMany({
-      where: { prescriptionId: id },
-    });
-
-    // Delete associated reminders
-    await this.prisma.reminder.deleteMany({
       where: { prescriptionId: id },
     });
 
@@ -482,14 +469,6 @@ export class PrescriptionsService {
       where: { id },
       data: { status: 'PAUSED' },
       include: { medications: true },
-    });
-
-    // Cancel pending reminders
-    await this.prisma.reminder.deleteMany({
-      where: {
-        prescriptionId: id,
-        status: { in: ['PENDING', 'DELIVERING'] },
-      },
     });
 
     // Create audit log entry
@@ -538,9 +517,6 @@ export class PrescriptionsService {
     });
 
     await this.generateDoseEvents(resumed);
-
-    // Regenerate reminders for the resumed prescription
-    await this.reminderGenerator.generateRemindersForPrescription(id);
 
     // Create audit log entry
     await this.prisma.auditLog.create({

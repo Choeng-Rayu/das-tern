@@ -40,7 +40,6 @@ export class AdherenceService {
       where: {
         patientId,
         scheduledTime: { gte: today, lt: tomorrow },
-        medication: { isPRN: false },
       },
     });
 
@@ -51,7 +50,7 @@ export class AdherenceService {
     const due = doses.filter(d => d.status === 'DUE').length;
     const percentage = total > 0 ? Math.round((taken / total) * 100) : 0;
 
-    const result = { percentage, taken, missed, skipped, due, total, date: today.toISOString(), colorCode: this.getColorCode(percentage) };
+    const result = { percentage, taken, missed, skipped, due, total, date: today.toISOString() };
     await this.cacheSet(cacheKey, result, 300000);
     return result;
   }
@@ -70,7 +69,6 @@ export class AdherenceService {
       where: {
         patientId,
         scheduledTime: { gte: weekAgo, lt: new Date() },
-        medication: { isPRN: false },
       },
     });
 
@@ -102,7 +100,7 @@ export class AdherenceService {
       });
     }
 
-    const result = { percentage, taken, total, period: '7days', dailyData, colorCode: this.getColorCode(percentage) };
+    const result = { percentage, taken, total, period: '7days', dailyData };
     await this.cacheSet(cacheKey, result, 300000);
     return result;
   }
@@ -121,7 +119,6 @@ export class AdherenceService {
       where: {
         patientId,
         scheduledTime: { gte: monthAgo, lt: new Date() },
-        medication: { isPRN: false },
       },
     });
 
@@ -154,13 +151,12 @@ export class AdherenceService {
       });
     }
 
-    const result = { percentage, taken, total, period: '30days', weeklyData, colorCode: this.getColorCode(percentage) };
+    const result = { percentage, taken, total, period: '30days', weeklyData };
     await this.cacheSet(cacheKey, result, 300000);
     return result;
   }
 
   async getAdherenceTrends(patientId: string, days = 7) {
-    days = Math.min(days, 90);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const startDate = new Date(today);
@@ -170,7 +166,6 @@ export class AdherenceService {
       where: {
         patientId,
         scheduledTime: { gte: startDate, lt: new Date() },
-        medication: { isPRN: false },
       },
       orderBy: { scheduledTime: 'asc' },
     });
@@ -188,19 +183,15 @@ export class AdherenceService {
       });
 
       const dayTotal = dayDoses.length;
-      if (dayTotal === 0) continue;
-
       const dayTaken = dayDoses.filter(d => d.status === 'TAKEN_ON_TIME' || d.status === 'TAKEN_LATE').length;
-      const dayPercentage = Math.round((dayTaken / dayTotal) * 100);
 
       trendData.push({
         date: date.toISOString().split('T')[0],
-        percentage: dayPercentage,
+        percentage: dayTotal > 0 ? Math.round((dayTaken / dayTotal) * 100) : 0,
         taken: dayTaken,
         missed: dayDoses.filter(d => d.status === 'MISSED').length,
         skipped: dayDoses.filter(d => d.status === 'SKIPPED').length,
         total: dayTotal,
-        colorCode: this.getColorCode(dayPercentage),
       });
     }
 
@@ -217,14 +208,14 @@ export class AdherenceService {
     }
 
     const doses = await this.prisma.doseEvent.findMany({
-      where: { prescriptionId, medication: { isPRN: false } },
+      where: { prescriptionId },
     });
 
     const total = doses.length;
     const taken = doses.filter(d => d.status === 'TAKEN_ON_TIME' || d.status === 'TAKEN_LATE').length;
     const percentage = total > 0 ? Math.round((taken / total) * 100) : 0;
 
-    return { prescriptionId, percentage, taken, total, colorCode: this.getColorCode(percentage) };
+    return { prescriptionId, percentage, taken, total };
   }
 
   async invalidateCache(patientId: string) {
@@ -236,11 +227,5 @@ export class AdherenceService {
     } catch (e) {
       // Cache deletion failure is non-critical
     }
-  }
-
-  private getColorCode(percentage: number): 'GREEN' | 'YELLOW' | 'RED' {
-    if (percentage >= 90) return 'GREEN';
-    if (percentage >= 70) return 'YELLOW';
-    return 'RED';
   }
 }

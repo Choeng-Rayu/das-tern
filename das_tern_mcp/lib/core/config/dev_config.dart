@@ -2,7 +2,7 @@
 /// ⚠️ Set [skipAuth] to false before building for production!
 class DevConfig {
   /// Toggle to skip login/register screen during development.
-  static const bool skipAuth = false;
+  static const bool skipAuth = true;
 
   /// Pre-generated 365-day token for dev user (PATIENT role).
   /// User: Dev User | Email: dev@dev.com | Phone: +85500000000

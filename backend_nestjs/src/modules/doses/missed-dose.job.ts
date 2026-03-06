@@ -3,7 +3,6 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { AuditService } from '../audit/audit.service';
-import { AdherenceService } from '../adherence/adherence.service';
 
 @Injectable()
 export class MissedDoseJob {
@@ -13,7 +12,6 @@ export class MissedDoseJob {
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
     private auditService: AuditService,
-    private adherenceService: AdherenceService,
   ) {}
 
   /**
@@ -29,99 +27,20 @@ export class MissedDoseJob {
 
       if (missedDoses.length === 0) {
         this.logger.debug('No missed doses found');
-      } else {
-        this.logger.log(`Found ${missedDoses.length} missed doses`);
-
-        for (const dose of missedDoses) {
-          await this.markAsMissed(dose);
-          await this.notifyPatient(dose);
-          await this.triggerCaregiverAlerts(dose);
-          await this.logAudit(dose);
-        }
+        return;
       }
 
-      // --- Reminder-aware missed dose detection ---
-      const missedReminders = await this.findMissedReminders();
+      this.logger.log(`Found ${missedDoses.length} missed doses`);
 
-      if (missedReminders.length > 0) {
-        this.logger.log(`Found ${missedReminders.length} missed reminders`);
-
-        for (const reminder of missedReminders) {
-          const doseEvent = await this.markReminderAsMissed(reminder);
-          // Reuse existing notification methods with a dose-like shape
-          const doseShape = {
-            id: doseEvent.id,
-            patientId: reminder.patientId,
-            prescriptionId: reminder.prescriptionId,
-            medicationId: reminder.medicationId,
-            scheduledTime: reminder.scheduledTime,
-            patient: reminder.patient,
-            medication: reminder.medication,
-            prescription: reminder.prescription,
-          };
-          await this.notifyPatient(doseShape);
-          await this.triggerCaregiverAlerts(doseShape);
-          await this.logAudit(doseShape);
-          await this.adherenceService.invalidateCache(reminder.patientId);
-        }
+      for (const dose of missedDoses) {
+        await this.markAsMissed(dose);
+        await this.notifyPatient(dose);
+        await this.triggerCaregiverAlerts(dose);
+        await this.logAudit(dose);
       }
     } catch (error) {
       this.logger.error('Error in missed dose detection job', error);
     }
-  }
-
-  private async findMissedReminders() {
-    const now = new Date();
-
-    const deliveredReminders = await this.prisma.reminder.findMany({
-      where: {
-        status: 'DELIVERED',
-        doseEvent: null,
-      },
-      include: {
-        patient: {
-          select: {
-            id: true, firstName: true, lastName: true, fullName: true,
-            gracePeriodMinutes: true,
-          },
-        },
-        medication: {
-          select: { id: true, medicineName: true, medicineNameKhmer: true },
-        },
-        prescription: {
-          select: { id: true },
-        },
-      },
-    });
-
-    return deliveredReminders.filter(reminder => {
-      const gracePeriod = reminder.patient.gracePeriodMinutes || 30;
-      const deadline = new Date(reminder.scheduledTime.getTime() + gracePeriod * 60 * 1000);
-      return deadline < now;
-    });
-  }
-
-  private async markReminderAsMissed(reminder: any) {
-    // Create a MISSED dose event linked to this reminder
-    const doseEvent = await this.prisma.doseEvent.create({
-      data: {
-        prescriptionId: reminder.prescriptionId,
-        medicationId: reminder.medicationId,
-        patientId: reminder.patientId,
-        scheduledTime: reminder.scheduledTime,
-        timePeriod: reminder.timePeriod,
-        status: 'MISSED',
-        reminderId: reminder.id,
-      },
-    });
-
-    // Update reminder status to MISSED
-    await this.prisma.reminder.update({
-      where: { id: reminder.id },
-      data: { status: 'MISSED' },
-    });
-
-    return doseEvent;
   }
 
   /**
