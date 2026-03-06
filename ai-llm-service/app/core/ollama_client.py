@@ -1,165 +1,107 @@
 """
-HTTP Client for Ollama API
-Supports both simple generate and chat-style completion.
-Enhanced with comprehensive logging for debugging.
+OllamaClient — backward-compatible shim over LLMClient.
+
+All real work is now performed by LLMClient (app/core/llm_client.py).
+OllamaClient keeps the original interface so every existing caller
+(ReminderEngine, PrescriptionProcessor, FinetunedMedicalExtractor, …)
+continues to work without changes, regardless of which provider is active.
 """
-import requests
+
 import logging
 import os
-import time
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 try:
-    from .logging_config import get_logger, truncate_for_log
+    from .llm_client import LLMClient, get_llm_client
+    from .logging_config import get_logger
 except ImportError:
+    from app.core.llm_client import LLMClient, get_llm_client
     from logging import getLogger as get_logger
-    def truncate_for_log(data, max_length=200):
-        return data[:max_length] + "..." if len(data) > max_length else data
 
 logger = get_logger(__name__)
 
-# Configuration
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-# Use llama3.1:8b as default (available model)
-DEFAULT_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
-FAST_MODEL = os.getenv("OLLAMA_FAST_MODEL", "llama3.2:3b")
-
 
 class OllamaClient:
-    """HTTP client for Ollama API calls with enhanced logging"""
-    
-    def __init__(self, base_url: str = None, timeout: int = None):
-        self.base_url = base_url or OLLAMA_BASE_URL
-        # Default timeout is 60 seconds for fast 3B model
-        self.timeout = timeout or int(os.getenv("OLLAMA_TIMEOUT", "60"))
-        logger.info(f"OllamaClient initialized with base_url: {self.base_url}, timeout: {self.timeout}s (3B optimized)")
-    
+    """
+    Thin compatibility wrapper around LLMClient.
+
+    Constructor arguments are accepted but ignored; all configuration
+    is read from environment variables by LLMClient.
+    """
+
+    def __init__(self, base_url: str = None, timeout: int = None) -> None:
+        # Delegate to the shared singleton
+        self._client: LLMClient = get_llm_client()
+        logger.info(
+            f"OllamaClient initialised — delegating to provider={self._client.provider}"
+        )
+
+    # ── Main generation methods ───────────────────────────────────────────────
+
     def generate_response(self, payload: Dict, use_fast_model: bool = False) -> str:
         """
-        Generate response using Ollama /api/generate endpoint (3B optimized).
-        
-        Args:
-            payload: Request payload with model, prompt, options
-            use_fast_model: If True, use faster 3B model instead of default
-            
-        Returns:
-            Generated text response
+        Generate using an Ollama-style payload dict.
+        Raises on failure to preserve the original contract.
         """
-        start_time = time.time()
-        
-        try:
-            # Use model from payload or default
-            if "model" not in payload:
-                payload["model"] = self.fast_model if use_fast_model else self.default_model
-            
-            # Ensure stream is disabled for sync call
-            payload["stream"] = False
-            
-            # Add optimization options for 3B model
-            if "options" not in payload:
-                payload["options"] = {}
-            if "top_k" not in payload["options"]:
-                payload["options"]["top_k"] = 40
-            if "top_p" not in payload["options"]:
-                payload["options"]["top_p"] = 0.9
-            
-            logger.debug(f"Calling Ollama with 3B model: {payload['model']}, timeout: {self.timeout}s")
-            
-            response = requests.post(
-                f"{self.base_url}/api/generate",
-                json=payload,
-                timeout=self.timeout
-            )
-            
-            elapsed = time.time() - start_time
-            
-            if response.status_code == 200:
-                result = response.json()
-                response_text = result.get("response", "").strip()
-                response_preview = truncate_for_log(response_text, 200)
-                
-                logger.info(f"[OLLAMA-COMPLETE] {elapsed:.1f}s - response_len={len(response_text)}")
-                logger.debug(f"[OLLAMA-RESPONSE] {response_preview}")
-                
-                return response_text
-            else:
-                logger.error(f"[OLLAMA-ERROR] {elapsed:.1f}s - status={response.status_code}")
-                raise Exception(f"Ollama API error: {response.status_code} - {response.text}")
-                
-        except requests.exceptions.Timeout:
-            elapsed = time.time() - start_time
-            logger.error(f"[OLLAMA-TIMEOUT] {elapsed:.1f}s - Request timed out after {self.timeout}s")
-            raise TimeoutError(f"Ollama request timed out after {self.timeout} seconds. Try using a faster model or increase OLLAMA_TIMEOUT.")
-        except Exception as e:
-            elapsed = time.time() - start_time
-            logger.error(f"[OLLAMA-FAILED] {elapsed:.1f}s - {str(e)}")
-            raise
-    
+        return self._client.generate_response(payload, use_fast_model=use_fast_model)
+
     def chat(
         self,
-        messages: list,
+        messages: List[Dict],
         model: str = None,
         temperature: float = 0.2,
-        max_tokens: int = 4096
+        max_tokens: int = 4096,
     ) -> str:
         """
-        Chat-style completion using Ollama /api/chat endpoint.
-        Better for structured prompts with system/user separation.
-        
-        Args:
-            messages: List of {"role": "system"|"user"|"assistant", "content": str}
-            model: Model to use
-            temperature: Sampling temperature (lower = more deterministic)
-            max_tokens: Maximum tokens to generate
-            
-        Returns:
-            Assistant's response text
+        Chat-style completion.
+        Returns the assistant's reply text; raises on failure.
         """
-        try:
-            payload = {
-                "model": model or DEFAULT_MODEL,
-                "messages": messages,
-                "stream": False,
-                "options": {
-                    "temperature": temperature,
-                    "num_ctx": max_tokens,
-                }
-            }
-            
-            logger.debug(f"Chat request with {len(messages)} messages, timeout: {self.timeout}s")
-            
-            response = requests.post(
-                f"{self.base_url}/api/chat",
-                json=payload,
-                timeout=self.timeout
+        result = self._client.chat(
+            messages=messages,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+        if result is None:
+            raise RuntimeError(
+                f"LLM chat failed (provider={self._client.provider})"
             )
-            
-            if response.status_code == 200:
-                result = response.json()
-                message = result.get("message", {})
-                return message.get("content", "").strip()
-            else:
-                raise Exception(f"Ollama chat error: {response.status_code} - {response.text}")
-                
-        except Exception as e:
-            logger.error(f"Ollama chat failed: {str(e)}")
-            raise
-    
+        return result
+
+    # ── Utility methods ───────────────────────────────────────────────────────
+
     def is_available(self) -> bool:
-        """Check if Ollama is running and accessible"""
-        try:
-            response = requests.get(f"{self.base_url}/api/tags", timeout=5)
-            return response.status_code == 200
-        except:
-            return False
-    
+        """Check if the active provider is reachable / configured."""
+        return self._client.is_available()
+
     def list_models(self) -> list:
-        """Get list of available models"""
-        try:
-            response = requests.get(f"{self.base_url}/api/tags", timeout=5)
-            if response.status_code == 200:
-                models = response.json().get("models", [])
-                return [m.get("name", "") for m in models]
+        """
+        Return a list of available model names.
+        Only meaningful for the Ollama provider; returns the configured
+        model name for API providers.
+        """
+        if self._client.provider == "ollama":
+            import requests
+            try:
+                resp = requests.get(
+                    f"{self._client.base_url}/api/tags", timeout=5
+                )
+                if resp.status_code == 200:
+                    models = resp.json().get("models", [])
+                    return [m.get("name", "") for m in models]
+            except Exception:
+                pass
             return []
-        except:
-            return []
+        else:
+            # For API providers just report the configured model
+            return [self._client.model]
+
+    # ── Expose underlying model names for callers that need them ──────────────
+
+    @property
+    def default_model(self) -> str:
+        return self._client.model
+
+    @property
+    def fast_model(self) -> str:
+        return self._client.fast_model
