@@ -2108,6 +2108,24 @@ abstract class AppLocalizations {
   /// **'Open in Banking App'**
   String get openInBankingApp;
 
+  /// No description provided for @bankAmountPreFilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Bakong: payment pre-loaded · Others: open app and scan the QR above'**
+  String get bankAmountPreFilled;
+
+  /// No description provided for @orOpenDirectly.
+  ///
+  /// In en, this message translates to:
+  /// **'Or tap to open your banking app directly:'**
+  String get orOpenDirectly;
+
+  /// No description provided for @noBankingAppInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open banking app. Please scan the QR code instead.'**
+  String get noBankingAppInstalled;
+
   /// No description provided for @bankNotInstalled.
   ///
   /// In en, this message translates to:
@@ -2539,6 +2557,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Find Patient'**
   String get findPatient;
+
+  /// No description provided for @personUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'person(s)'**
+  String get personUnit;
+
+  /// No description provided for @statisticsChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics Chart'**
+  String get statisticsChart;
+
+  /// No description provided for @receivedMeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get receivedMeds;
+
+  /// No description provided for @missedMeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed'**
+  String get missedMeds;
+
+  /// No description provided for @dayFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get dayFilter;
+
+  /// No description provided for @monthFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get monthFilter;
+
+  /// No description provided for @alertsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get alertsLabel;
+
+  /// No description provided for @missedTimesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'times'**
+  String get missedTimesLabel;
+
+  /// No description provided for @noAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts at this time'**
+  String get noAlerts;
+
+  /// No description provided for @noReceivingPatientsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No patients are currently receiving medication'**
+  String get noReceivingPatientsHint;
+
+  /// No description provided for @noPendingPatientsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'All patients are on track — no pending medication'**
+  String get noPendingPatientsHint;
+
+  /// No description provided for @patientsInTreatment.
+  ///
+  /// In en, this message translates to:
+  /// **'Patients Received Medication'**
+  String get patientsInTreatment;
+
+  /// No description provided for @patientsPendingMeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Patients Pending Medication'**
+  String get patientsPendingMeds;
+
+  /// No description provided for @dayMon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get dayMon;
+
+  /// No description provided for @dayTue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get dayTue;
+
+  /// No description provided for @dayWed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get dayWed;
+
+  /// No description provided for @dayThu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get dayThu;
+
+  /// No description provided for @dayFri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get dayFri;
+
+  /// No description provided for @daySat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get daySat;
+
+  /// No description provided for @daySun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get daySun;
 
   /// No description provided for @myPatients.
   ///
@@ -3115,6 +3253,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'DasTern connection code: {token}'**
   String shareCodeMessage(String token);
+
+  /// No description provided for @shareQrAndCodeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Here is my DasTern connection code: {token}\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.'**
+  String shareQrAndCodeMessage(String token);
 
   /// No description provided for @generateNewCode.
   ///
@@ -4009,6 +4153,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Time to take {name}'**
   String timeToTakeMedicine(String name);
+
+  /// No description provided for @rowNumberColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'#'**
+  String get rowNumberColumn;
+
+  /// No description provided for @medicineNameColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Medicine'**
+  String get medicineNameColumn;
+
+  /// No description provided for @morningColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get morningColumn;
+
+  /// No description provided for @daytimeColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Daytime'**
+  String get daytimeColumn;
+
+  /// No description provided for @nightColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get nightColumn;
+
+  /// No description provided for @afterMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'After meal'**
+  String get afterMeal;
+
+  /// No description provided for @addMedicineRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add medicine row'**
+  String get addMedicineRow;
+
+  /// No description provided for @createPrescriptionFab.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Prescription'**
+  String get createPrescriptionFab;
+
+  /// No description provided for @personalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get personalInformation;
+
+  /// No description provided for @currentPrescriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Prescriptions'**
+  String get currentPrescriptions;
+
+  /// No description provided for @missedMedicationCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed Medications'**
+  String get missedMedicationCount;
+
+  /// No description provided for @profileSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileSection;
+
+  /// No description provided for @notificationSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Settings'**
+  String get notificationSettings;
+
+  /// No description provided for @aboutUs.
+  ///
+  /// In en, this message translates to:
+  /// **'About Us'**
+  String get aboutUs;
+
+  /// No description provided for @personalAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Account'**
+  String get personalAccount;
+
+  /// No description provided for @enableNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Notifications'**
+  String get enableNotifications;
+
+  /// No description provided for @medicationReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Reminders'**
+  String get medicationReminders;
+
+  /// No description provided for @missedDoseAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed Dose Alerts'**
+  String get missedDoseAlerts;
+
+  /// No description provided for @connectionAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Alerts'**
+  String get connectionAlerts;
+
+  /// No description provided for @emergencyNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Notifications'**
+  String get emergencyNotifications;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App Version'**
+  String get appVersion;
+
+  /// No description provided for @contactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Support'**
+  String get contactSupport;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @termsOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get termsOfService;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Password'**
+  String get currentPassword;
+
+  /// No description provided for @updatePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Password'**
+  String get updatePassword;
+
+  /// No description provided for @passwordUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated successfully'**
+  String get passwordUpdated;
+
+  /// No description provided for @adherencePercentage.
+  ///
+  /// In en, this message translates to:
+  /// **'{percentage}%'**
+  String adherencePercentage(String percentage);
 }
 
 class _AppLocalizationsDelegate

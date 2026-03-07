@@ -422,6 +422,9 @@
   "payWithBankingApp": "Pay with Banking App",
   "selectYourBank": "Select Your Bank",
   "openInBankingApp": "Open in Banking App",
+  "bankAmountPreFilled": "Bakong: payment pre-loaded · Others: open app and scan the QR above",
+  "orOpenDirectly": "Or tap to open your banking app directly:",
+  "noBankingAppInstalled": "Could not open banking app. Please scan the QR code instead.",
   "bankNotInstalled": "App not installed. Please scan the QR code instead.",
   "supportedByAllKHQR": "Supported by all KHQR banks",
   "cancelPayment": "Cancel Payment?",
@@ -528,6 +531,26 @@
   "connectionRequest": "Connection request",
   "newPrescription": "New Prescription",
   "findPatient": "Find Patient",
+  "personUnit": "person(s)",
+  "statisticsChart": "Statistics Chart",
+  "receivedMeds": "Received",
+  "missedMeds": "Missed",
+  "dayFilter": "Day",
+  "monthFilter": "Month",
+  "alertsLabel": "Alerts",
+  "missedTimesLabel": "times",
+  "noAlerts": "No alerts at this time",
+  "noReceivingPatientsHint": "No patients are currently receiving medication",
+  "noPendingPatientsHint": "All patients are on track — no pending medication",
+  "patientsInTreatment": "Patients Received Medication",
+  "patientsPendingMeds": "Patients Pending Medication",
+  "dayMon": "Mon",
+  "dayTue": "Tue",
+  "dayWed": "Wed",
+  "dayThu": "Thu",
+  "dayFri": "Fri",
+  "daySat": "Sat",
+  "daySun": "Sun",
 
   "myPatients": "My Patients",
   "searchPatients": "Search patients...",
@@ -668,6 +691,12 @@
   "shareCodeButton": "Share Code",
   "shareCodeMessage": "DasTern connection code: {token}",
   "@shareCodeMessage": {
+    "placeholders": {
+      "token": {"type": "String"}
+    }
+  },
+  "shareQrAndCodeMessage": "Here is my DasTern connection code: {token}\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.",
+  "@shareQrAndCodeMessage": {
     "placeholders": {
       "token": {"type": "String"}
     }
@@ -869,6 +898,42 @@
   "@timeToTakeMedicine": {
     "placeholders": {
       "name": {"type": "String"}
+    }
+  },
+
+  "rowNumberColumn": "#",
+  "medicineNameColumn": "Medicine",
+  "morningColumn": "Morning",
+  "daytimeColumn": "Daytime",
+  "nightColumn": "Night",
+  "afterMeal": "After meal",
+  "addMedicineRow": "Add medicine row",
+  "createPrescriptionFab": "Create Prescription",
+
+  "personalInformation": "Personal Information",
+  "currentPrescriptions": "Current Prescriptions",
+  "missedMedicationCount": "Missed Medications",
+
+  "profileSection": "Profile",
+  "notificationSettings": "Notification Settings",
+  "aboutUs": "About Us",
+  "personalAccount": "Personal Account",
+  "enableNotifications": "Enable Notifications",
+  "medicationReminders": "Medication Reminders",
+  "missedDoseAlerts": "Missed Dose Alerts",
+  "connectionAlerts": "Connection Alerts",
+  "emergencyNotifications": "Emergency Notifications",
+  "appVersion": "App Version",
+  "contactSupport": "Contact Support",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfService": "Terms of Service",
+  "currentPassword": "Current Password",
+  "updatePassword": "Update Password",
+  "passwordUpdated": "Password updated successfully",
+  "adherencePercentage": "{percentage}%",
+  "@adherencePercentage": {
+    "placeholders": {
+      "percentage": {"type": "String"}
     }
   }
 }

@@ -1047,6 +1047,17 @@ class AppLocalizationsKm extends AppLocalizations {
   String get openInBankingApp => 'បើកកម្មវិធីធនាគារ';
 
   @override
+  String get bankAmountPreFilled =>
+      'បាកុង: ទូទាត់ត្រូវបានដំឡើងរួច · ធ.ផ្សេង: បើក និងស្កែន QR ខាងលើ';
+
+  @override
+  String get orOpenDirectly => 'ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:';
+
+  @override
+  String get noBankingAppInstalled =>
+      'មិនអាចបើកកម្មវិធីធនាគារទេ សូម Scan QR វិញ។';
+
+  @override
   String get bankNotInstalled => 'មិនបានតំឡើងកម្មវិធីនេះទេ។ សូម Scan QR វិញ។';
 
   @override
@@ -1275,6 +1286,67 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get findPatient => 'ស្វែងរកអ្នកជំងឺ';
+
+  @override
+  String get personUnit => 'នាក់';
+
+  @override
+  String get statisticsChart => 'ក្រាបទិន្នន័យ';
+
+  @override
+  String get receivedMeds => 'បានទទួល';
+
+  @override
+  String get missedMeds => 'មិនបានទទួល';
+
+  @override
+  String get dayFilter => 'ថ្ងៃ';
+
+  @override
+  String get monthFilter => 'ខែ';
+
+  @override
+  String get alertsLabel => 'ដំណឹង';
+
+  @override
+  String get missedTimesLabel => 'ដង';
+
+  @override
+  String get noAlerts => 'គ្មានដំណឹងនាពេលនេះ';
+
+  @override
+  String get noReceivingPatientsHint => 'គ្មានអ្នកជំងអ្វយកំពុងត្រូវត្រកេលនេះ';
+
+  @override
+  String get noPendingPatientsHint =>
+      'អ្នកជំងទាមោនត្រឹមត្រក គ្មានអ្នកជំងមិនត្រូវត្រកេល';
+
+  @override
+  String get patientsInTreatment => 'អ្នកជំងឺទទួលថ្នាំរួចរាល់';
+
+  @override
+  String get patientsPendingMeds => 'អ្នកជំងឺមិនទាន់ទទួលថ្នាំ';
+
+  @override
+  String get dayMon => 'ច័ន្ទ';
+
+  @override
+  String get dayTue => 'អង្គារ';
+
+  @override
+  String get dayWed => 'ពុធ';
+
+  @override
+  String get dayThu => 'ព្រហ';
+
+  @override
+  String get dayFri => 'សុក្រ';
+
+  @override
+  String get daySat => 'សៅរ៍';
+
+  @override
+  String get daySun => 'អាទិត្យ';
 
   @override
   String get myPatients => 'អ្នកជំងឺរបស់ខ្ញុំ';
@@ -1580,6 +1652,11 @@ class AppLocalizationsKm extends AppLocalizations {
   @override
   String shareCodeMessage(String token) {
     return 'កូដតភ្ជាប់ DasTern: $token';
+  }
+
+  @override
+  String shareQrAndCodeMessage(String token) {
+    return 'នេះជាកូដតភ្ជាប់ DasTern របស់ខ្ញុំ: $token\n\nស្កេនរូបភាព QR ឬបញ្ចូលកូដដោយដៃនៅក្នុងកម្មវិធី DasTern ដើម្បីភ្ជាប់ជាមួយខ្ញុំ។';
   }
 
   @override
@@ -2055,5 +2132,91 @@ class AppLocalizationsKm extends AppLocalizations {
   @override
   String timeToTakeMedicine(String name) {
     return 'ដល់ពេលញ៉ាំ $name';
+  }
+
+  @override
+  String get rowNumberColumn => '#';
+
+  @override
+  String get medicineNameColumn => 'ថ្នាំ';
+
+  @override
+  String get morningColumn => 'ព្រឹក';
+
+  @override
+  String get daytimeColumn => 'ថ្ងៃ';
+
+  @override
+  String get nightColumn => 'យប់';
+
+  @override
+  String get afterMeal => 'ក្រោយបាយ';
+
+  @override
+  String get addMedicineRow => 'បន្ថែមជួរថ្នាំ';
+
+  @override
+  String get createPrescriptionFab => 'បង្កើតវេជ្ជបញ្ជា';
+
+  @override
+  String get personalInformation => 'ព័ត៌មានផ្ទាល់ខ្លួន';
+
+  @override
+  String get currentPrescriptions => 'វេជ្ជបញ្ជាបច្ចុប្បន្ន';
+
+  @override
+  String get missedMedicationCount => 'ថ្នាំដែលខកខាន';
+
+  @override
+  String get profileSection => 'ប្រវត្តិរូប';
+
+  @override
+  String get notificationSettings => 'ការកំណត់ការជូនដំណឹង';
+
+  @override
+  String get aboutUs => 'អំពីយើង';
+
+  @override
+  String get personalAccount => 'គណនីផ្ទាល់ខ្លួន';
+
+  @override
+  String get enableNotifications => 'បើកការជូនដំណឹង';
+
+  @override
+  String get medicationReminders => 'ការរំលឹកថ្នាំ';
+
+  @override
+  String get missedDoseAlerts => 'ការជូនដំណឹងថ្នាំខកខាន';
+
+  @override
+  String get connectionAlerts => 'ការជូនដំណឹងតភ្ជាប់';
+
+  @override
+  String get emergencyNotifications => 'ការជូនដំណឹងពេលបន្ទាន់';
+
+  @override
+  String get appVersion => 'កំណែកម្មវិធី';
+
+  @override
+  String get contactSupport => 'ទាក់ទងផ្នែកជំនួយ';
+
+  @override
+  String get privacyPolicy => 'គោលការណ៍ភាពឯកជន';
+
+  @override
+  String get termsOfService => 'លក្ខខណ្ឌប្រើប្រាស់';
+
+  @override
+  String get currentPassword => 'លេខសម្ងាត់បច្ចុប្បន្ន';
+
+  @override
+  String get updatePassword => 'ធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់';
+
+  @override
+  String get passwordUpdated => 'បានធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់ជោគជ័យ';
+
+  @override
+  String adherencePercentage(String percentage) {
+    return '$percentage%';
   }
 }

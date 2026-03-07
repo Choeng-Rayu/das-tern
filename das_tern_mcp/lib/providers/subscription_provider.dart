@@ -49,6 +49,8 @@ class SubscriptionProvider extends ChangeNotifier {
   String? get deepLink => _currentPayment?['payment']?['deepLink'];
 
   /// Load subscription info and available plans.
+  /// Uses a 10-second timeout so the UI never hangs indefinitely.
+  /// On failure the screen falls back to the built-in static plan cards.
   Future<void> loadSubscription() async {
     try {
       _isLoading = true;
@@ -58,7 +60,10 @@ class SubscriptionProvider extends ChangeNotifier {
       final results = await Future.wait([
         _api.getBakongSubscription(),
         _api.getBakongPlans(),
-      ]);
+      ]).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw Exception('Connection timed out. Please check your network.'),
+      );
 
       _subscription = results[0]['subscription'] as Map<String, dynamic>?;
       _limits = results[0]['limits'] as Map<String, dynamic>?;
@@ -70,7 +75,13 @@ class SubscriptionProvider extends ChangeNotifier {
       _log.info('Subscription', 'Loaded: tier=${_subscription?['tier']}');
     } catch (e) {
       _log.error('Subscription', 'Failed to load subscription', e);
-      _errorMessage = 'Failed to load subscription info';
+      final msg = e.toString();
+      if (msg.contains('timed out') || msg.contains('SocketException') ||
+          msg.contains('Connection refused') || msg.contains('Failed host lookup')) {
+        _errorMessage = 'Connection timed out. Please check your network.';
+      } else {
+        _errorMessage = 'Failed to load subscription info.';
+      }
     } finally {
       _isLoading = false;
       notifyListeners();

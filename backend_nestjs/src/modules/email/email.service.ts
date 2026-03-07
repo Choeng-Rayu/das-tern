@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import * as validator from 'validator';
@@ -6,15 +6,31 @@ import * as validator from 'validator';
 @Injectable()
 export class EmailService {
   private transporter;
+  private readonly logger = new Logger(EmailService.name);
+  private readonly isDev: boolean;
+  private readonly emailConfigured: boolean;
 
   constructor(private configService: ConfigService) {
+    this.isDev = configService.get('NODE_ENV') === 'development';
+    const emailUser = configService.get('SENDGRID_FROM_EMAIL');
+    const emailPass = configService.get('SENDGRID_API_KEY');
+    this.emailConfigured =
+      !!emailUser &&
+      !!emailPass &&
+      emailUser !== 'noreply@dastern.com' &&
+      emailPass !== 'your-gmail-app-password-or-sendgrid-key';
+
+    if (!this.emailConfigured) {
+      this.logger.warn('⚠️  Email credentials not configured — emails will be logged to console in dev mode');
+    }
+
     this.transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
       secure: false,
       auth: {
-        user: this.configService.get('SENDGRID_FROM_EMAIL'),
-        pass: this.configService.get('SENDGRID_API_KEY'),
+        user: emailUser,
+        pass: emailPass,
       },
     });
   }
@@ -28,7 +44,13 @@ export class EmailService {
 
   async sendOTP(email: string, otp: string) {
     const sanitizedEmail = this.validateAndSanitizeEmail(email);
-    
+
+    if (!this.emailConfigured) {
+      this.logger.log(`[DEV] OTP email skipped — credentials not set`);
+      console.log(`\n📧 OTP Email to ${sanitizedEmail}:\n🔐 OTP Code: ${otp}\n`);
+      return;
+    }
+
     await this.transporter.sendMail({
       from: `"Das Tern" <${this.configService.get('SENDGRID_FROM_EMAIL')}>`,
       to: sanitizedEmail,

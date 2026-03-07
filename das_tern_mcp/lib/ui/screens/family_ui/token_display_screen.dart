@@ -1,8 +1,12 @@
+import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:share_plus/share_plus.dart' show Share;
+import 'package:share_plus/share_plus.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
@@ -23,6 +27,10 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
   String? _token;
   DateTime? _expiresAt;
   String? _error;
+
+  /// Key attached to the RepaintBoundary that wraps the QR widget.
+  /// Used by [_shareTokenWithQr] to capture the QR as a PNG image.
+  final GlobalKey _qrKey = GlobalKey();
 
   @override
   void didChangeDependencies() {
@@ -84,18 +92,15 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.connectionCodeTitle),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.connectionCodeTitle), centerTitle: true),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: _isGenerating
               ? const Center(child: CircularProgressIndicator())
               : _error != null
-                  ? _buildErrorState(context)
-                  : _buildTokenDisplay(context),
+              ? _buildErrorState(context)
+              : _buildTokenDisplay(context),
         ),
       ),
     );
@@ -118,15 +123,12 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
           Text(
             _error!,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.lg),
-          PrimaryButton(
-            text: l10n.retry,
-            onPressed: _generateToken,
-          ),
+          PrimaryButton(text: l10n.retry, onPressed: _generateToken),
         ],
       ),
     );
@@ -156,17 +158,44 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
             ),
             child: Column(
               children: [
-                QrImageView(
-                  data: _token ?? '',
-                  version: QrVersions.auto,
-                  size: 220,
-                  eyeStyle: const QrEyeStyle(
-                    eyeShape: QrEyeShape.square,
-                    color: AppColors.darkBlue,
-                  ),
-                  dataModuleStyle: const QrDataModuleStyle(
-                    dataModuleShape: QrDataModuleShape.square,
-                    color: AppColors.darkBlue,
+                // RepaintBoundary captures both the QR image and the token
+                // text as a single PNG.  The white Container gives the PNG a
+                // solid background so it looks clean when shared.
+                // _qrKey is used by _shareTokenWithQr() to find this boundary.
+                RepaintBoundary(
+                  key: _qrKey,
+                  child: Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    color: Colors.white,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        QrImageView(
+                          data: _token ?? '',
+                          version: QrVersions.auto,
+                          size: 200,
+                          backgroundColor: Colors.white,
+                          eyeStyle: const QrEyeStyle(
+                            eyeShape: QrEyeShape.square,
+                            color: AppColors.darkBlue,
+                          ),
+                          dataModuleStyle: const QrDataModuleStyle(
+                            dataModuleShape: QrDataModuleShape.square,
+                            color: AppColors.darkBlue,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          _token ?? '',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 4,
+                            color: AppColors.darkBlue,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -176,13 +205,14 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
                   children: [
                     Expanded(child: Divider(color: AppColors.neutral300)),
                     Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                      ),
                       child: Text(
                         l10n.orUseCode,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                     Expanded(child: Divider(color: AppColors.neutral300)),
@@ -210,9 +240,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
                       children: [
                         Text(
                           _token ?? '',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
+                          style: Theme.of(context).textTheme.headlineMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 4,
@@ -220,8 +248,11 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
                               ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
-                        Icon(Icons.copy,
-                            size: 20, color: AppColors.primaryBlue),
+                        Icon(
+                          Icons.copy,
+                          size: 20,
+                          color: AppColors.primaryBlue,
+                        ),
                       ],
                     ),
                   ),
@@ -235,14 +266,17 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.timer_outlined,
-                  size: 16, color: AppColors.textSecondary),
+              Icon(
+                Icons.timer_outlined,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
               const SizedBox(width: AppSpacing.xs),
               Text(
                 _getTimeRemaining(l10n),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -255,9 +289,9 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
               children: [
                 Text(
                   l10n.instructions,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 _buildStep(context, '1', l10n.instructionStep1Family),
@@ -272,9 +306,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
           PrimaryButton(
             text: l10n.shareCodeButton,
             icon: Icons.share,
-            onPressed: () {
-              Share.share(l10n.shareCodeMessage(_token ?? ''));
-            },
+            onPressed: _shareTokenWithQr,
           ),
           const SizedBox(height: AppSpacing.sm),
           PrimaryButton(
@@ -317,9 +349,9 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
           Expanded(
             child: Text(
               text,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
           ),
         ],
@@ -327,13 +359,73 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
     );
   }
 
+  /// Captures the QR code widget as a PNG, saves it to a temporary file,
+  /// then opens the native OS share sheet with both the image and a text
+  /// message that contains the token.
+  ///
+  /// How it works step-by-step:
+  /// 1. Find the [RenderRepaintBoundary] associated with [_qrKey].
+  /// 2. Call [toImage()] on it to rasterise the widget into a [ui.Image].
+  /// 3. Convert the image to raw PNG bytes via [toByteData()] + [Uint8List].
+  /// 4. Write those bytes to a temp PNG file using [path_provider].
+  /// 5. Call [Share.shareXFiles()] with an [XFile] pointing at the PNG
+  ///    and a plain-text body containing the token code.
+  Future<void> _shareTokenWithQr() async {
+    if (_token == null) return;
+    final l10n = AppLocalizations.of(context)!;
+
+    try {
+      // 1. Locate the render object for the RepaintBoundary.
+      final boundary =
+          _qrKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        // Fallback: share text only if the boundary is not yet painted.
+        await Share.share(l10n.shareQrAndCodeMessage(_token!));
+        return;
+      }
+
+      // 2. Rasterise the widget to a ui.Image at 3× device-pixel density
+      //    so the exported PNG is crisp on high-DPI screens.
+      final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+
+      // 3. Encode the ui.Image to PNG byte data.
+      final ByteData? byteData = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+      if (byteData == null) {
+        await Share.share(l10n.shareQrAndCodeMessage(_token!));
+        return;
+      }
+      final pngBytes = byteData.buffer.asUint8List();
+
+      // 4. Write the PNG to a temporary file in the system's temp directory.
+      final Directory tempDir = await getTemporaryDirectory();
+      final File qrFile = await File(
+        '${tempDir.path}/dastern_qr_$_token.png',
+      ).create();
+      await qrFile.writeAsBytes(pngBytes);
+
+      // 5. Share both the image file and the token text via the native sheet.
+      await Share.shareXFiles(
+        [XFile(qrFile.path, mimeType: 'image/png')],
+        text: l10n.shareQrAndCodeMessage(_token!),
+      );
+    } catch (e) {
+      // If anything goes wrong (e.g., rendering not ready), fall back to
+      // sharing the token text only.
+      if (mounted) {
+        await Share.share(l10n.shareQrAndCodeMessage(_token ?? ''));
+      }
+    }
+  }
+
   void _copyToken() {
     if (_token != null) {
       final l10n = AppLocalizations.of(context)!;
       Clipboard.setData(ClipboardData(text: _token!));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.codeCopied)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.codeCopied)));
     }
   }
 }

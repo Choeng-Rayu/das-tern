@@ -382,6 +382,9 @@
   "payWithBankingApp": "បង់ប្រាក់តាមកម្មវិធីធនាគារ",
   "selectYourBank": "ជ្រើសរើសធនាគាររបស់អ្នក",
   "openInBankingApp": "បើកកម្មវិធីធនាគារ",
+  "bankAmountPreFilled": "បាកុង: ទូទាត់ត្រូវបានដំឡើងរួច · ធ.ផ្សេង: បើក និងស្កែន QR ខាងលើ",
+  "orOpenDirectly": "ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:",
+  "noBankingAppInstalled": "មិនអាចបើកកម្មវិធីធនាគារទេ សូម Scan QR វិញ។",
   "bankNotInstalled": "មិនបានតំឡើងកម្មវិធីនេះទេ។ សូម Scan QR វិញ។",
   "supportedByAllKHQR": "គាំទ្រដោយធនាគារ KHQR ទាំងអស់",
   "cancelPayment": "បោះបង់ការទូទាត់?",
@@ -463,6 +466,26 @@
   "connectionRequest": "សំណើតភ្ជាប់",
   "newPrescription": "វេជ្ជបញ្ជាថ្មី",
   "findPatient": "ស្វែងរកអ្នកជំងឺ",
+  "personUnit": "នាក់",
+  "statisticsChart": "ក្រាបទិន្នន័យ",
+  "receivedMeds": "បានទទួល",
+  "missedMeds": "មិនបានទទួល",
+  "dayFilter": "ថ្ងៃ",
+  "monthFilter": "ខែ",
+  "alertsLabel": "ដំណឹង",
+  "missedTimesLabel": "ដង",
+  "noAlerts": "គ្មានដំណឹងនាពេលនេះ",
+  "noReceivingPatientsHint": "គ្មានអ្នកជំងអ្វយកំពុងត្រូវត្រកេលនេះ",
+  "noPendingPatientsHint": "អ្នកជំងទាមោនត្រឹមត្រក គ្មានអ្នកជំងមិនត្រូវត្រកេល",
+  "patientsInTreatment": "អ្នកជំងឺទទួលថ្នាំរួចរាល់",
+  "patientsPendingMeds": "អ្នកជំងឺមិនទាន់ទទួលថ្នាំ",
+  "dayMon": "ច័ន្ទ",
+  "dayTue": "អង្គារ",
+  "dayWed": "ពុធ",
+  "dayThu": "ព្រហ",
+  "dayFri": "សុក្រ",
+  "daySat": "សៅរ៍",
+  "daySun": "អាទិត្យ",
 
   "myPatients": "អ្នកជំងឺរបស់ខ្ញុំ",
   "searchPatients": "ស្វែងរកអ្នកជំងឺ...",
@@ -569,6 +592,7 @@
   "instructionStep3Family": "ស្កេនកូដ QR នេះ ឬបញ្ចូលកូដ",
   "shareCodeButton": "ចែករំលែកកូដ",
   "shareCodeMessage": "កូដតភ្ជាប់ DasTern: {token}",
+  "shareQrAndCodeMessage": "នេះជាកូដតភ្ជាប់ DasTern របស់ខ្ញុំ: {token}\n\nស្កេនរូបភាព QR ឬបញ្ចូលកូដដោយដៃនៅក្នុងកម្មវិធី DasTern ដើម្បីភ្ជាប់ជាមួយខ្ញុំ។",
   "generateNewCode": "បង្កើតកូដថ្មី",
   "codeCopied": "កូដត្រូវបានចម្លង",
 
@@ -766,6 +790,42 @@
   "@timeToTakeMedicine": {
     "placeholders": {
       "name": {"type": "String"}
+    }
+  },
+
+  "rowNumberColumn": "#",
+  "medicineNameColumn": "ថ្នាំ",
+  "morningColumn": "ព្រឹក",
+  "daytimeColumn": "ថ្ងៃ",
+  "nightColumn": "យប់",
+  "afterMeal": "ក្រោយបាយ",
+  "addMedicineRow": "បន្ថែមជួរថ្នាំ",
+  "createPrescriptionFab": "បង្កើតវេជ្ជបញ្ជា",
+
+  "personalInformation": "ព័ត៌មានផ្ទាល់ខ្លួន",
+  "currentPrescriptions": "វេជ្ជបញ្ជាបច្ចុប្បន្ន",
+  "missedMedicationCount": "ថ្នាំដែលខកខាន",
+
+  "profileSection": "ប្រវត្តិរូប",
+  "notificationSettings": "ការកំណត់ការជូនដំណឹង",
+  "aboutUs": "អំពីយើង",
+  "personalAccount": "គណនីផ្ទាល់ខ្លួន",
+  "enableNotifications": "បើកការជូនដំណឹង",
+  "medicationReminders": "ការរំលឹកថ្នាំ",
+  "missedDoseAlerts": "ការជូនដំណឹងថ្នាំខកខាន",
+  "connectionAlerts": "ការជូនដំណឹងតភ្ជាប់",
+  "emergencyNotifications": "ការជូនដំណឹងពេលបន្ទាន់",
+  "appVersion": "កំណែកម្មវិធី",
+  "contactSupport": "ទាក់ទងផ្នែកជំនួយ",
+  "privacyPolicy": "គោលការណ៍ភាពឯកជន",
+  "termsOfService": "លក្ខខណ្ឌប្រើប្រាស់",
+  "currentPassword": "លេខសម្ងាត់បច្ចុប្បន្ន",
+  "updatePassword": "ធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់",
+  "passwordUpdated": "បានធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់ជោគជ័យ",
+  "adherencePercentage": "{percentage}%",
+  "@adherencePercentage": {
+    "placeholders": {
+      "percentage": {"type": "String"}
     }
   }
 }
