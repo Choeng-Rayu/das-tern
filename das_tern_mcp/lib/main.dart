@@ -3,6 +3,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';// import to test 
+
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/dose_provider.dart';
@@ -24,6 +27,13 @@ import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
   final log = LoggerService.instance;
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (!kIsWeb) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi; // Test widget to run on Window desk
+  }
   
   // Capture Flutter errors
   FlutterError.onError = (FlutterErrorDetails details) {

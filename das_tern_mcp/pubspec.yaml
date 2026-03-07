@@ -66,6 +66,7 @@ dependencies:
 
   # Charts
   fl_chart: ^0.69.0
+  sqflite_common_ffi: ^2.3.5
 
   # Clipboard
   # (already available via Flutter SDK)

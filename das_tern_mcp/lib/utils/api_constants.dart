@@ -8,8 +8,9 @@ class ApiConstants {
   static const String hostIpAddress = '10.138.213.210'; // UPDATE THIS FOR YOUR NETWORK
 
   // Toggle emulator host via --dart-define=USE_ANDROID_EMULATOR=true
+  // Defaults to TRUE so Android emulator can reach the host machine at 10.0.2.2
   static const bool useAndroidEmulator =
-      bool.fromEnvironment('USE_ANDROID_EMULATOR', defaultValue: false);
+      bool.fromEnvironment('USE_ANDROID_EMULATOR', defaultValue: true);
   static const String androidEmulatorHost = '10.0.2.2';
 
   // Backend API configuration
