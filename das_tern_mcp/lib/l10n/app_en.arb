@@ -422,7 +422,7 @@
   "payWithBankingApp": "Pay with Banking App",
   "selectYourBank": "Select Your Bank",
   "openInBankingApp": "Open in Banking App",
-  "bankAmountPreFilled": "Amount pre-filled — enter PIN to pay",
+  "bankAmountPreFilled": "Bakong: payment pre-loaded · Others: open app and scan the QR above",
   "orOpenDirectly": "Or tap to open your banking app directly:",
   "noBankingAppInstalled": "Could not open banking app. Please scan the QR code instead.",
   "bankNotInstalled": "App not installed. Please scan the QR code instead.",

@@ -1045,7 +1045,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openInBankingApp => 'Open in Banking App';
 
   @override
-  String get bankAmountPreFilled => 'Amount pre-filled — enter PIN to pay';
+  String get bankAmountPreFilled =>
+      'Bakong: payment pre-loaded · Others: open app and scan the QR above';
 
   @override
   String get orOpenDirectly => 'Or tap to open your banking app directly:';

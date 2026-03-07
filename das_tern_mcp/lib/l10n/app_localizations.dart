@@ -2111,7 +2111,7 @@ abstract class AppLocalizations {
   /// No description provided for @bankAmountPreFilled.
   ///
   /// In en, this message translates to:
-  /// **'Amount pre-filled — enter PIN to pay'**
+  /// **'Bakong: payment pre-loaded · Others: open app and scan the QR above'**
   String get bankAmountPreFilled;
 
   /// No description provided for @orOpenDirectly.

@@ -440,13 +440,23 @@ class _BankChip extends StatelessWidget {
 ///   screen with the bank's built-in QR scanner.
 class _KhBankInfo {
   final String name;
+
+  /// Verified Android package name for this bank's app.
   final String packageAndroid;
   final Color color;
   final String initial;
 
-  /// When true the Bakong deep-link URL is used (pre-loaded payment).
-  /// When false the app is opened by its Android package (user scans QR).
+  /// When true the Bakong App-Link deeplink from the backend is used —
+  /// the Bakong wallet opens with the payment already loaded (user enters PIN).
+  /// When false the app is opened to its home screen and the user scans the
+  /// KHQR code visible on the payment screen.
   final bool usesBakongDeepLink;
+
+  /// Custom URL scheme registered by this bank app (e.g. `abamobilebank`).
+  /// When set, `$customScheme://` is used to open the app — more reliable
+  /// than the generic intent URI on both Android and iOS.
+  /// When null, falls back to an Android Intent launcher URI.
+  final String? customScheme;
 
   const _KhBankInfo({
     required this.name,
@@ -454,15 +464,18 @@ class _KhBankInfo {
     required this.color,
     required this.initial,
     this.usesBakongDeepLink = false,
+    this.customScheme,
   });
 }
 
 const List<_KhBankInfo> _khBanks = [
+  // ABA Mobile — package: com.paygo24.ibank, scheme: abamobilebank (PayWay docs)
   _KhBankInfo(
     name: 'ABA Bank',
-    packageAndroid: 'com.ababank.abaapp',
+    packageAndroid: 'com.paygo24.ibank',
     color: Color(0xFF003D99),
     initial: 'A',
+    customScheme: 'abamobilebank',
   ),
   _KhBankInfo(
     name: 'ACLEDA Bank',
@@ -476,6 +489,7 @@ const List<_KhBankInfo> _khBanks = [
     color: Color(0xFFE5242B),
     initial: 'W',
   ),
+  // NBC Bakong — backend returns an App-Link for this bank only
   _KhBankInfo(
     name: 'NBC Bakong',
     packageAndroid: 'kh.gov.nbc.bakong',
@@ -506,17 +520,16 @@ const List<_KhBankInfo> _khBanks = [
 // ─── Bank Chooser Bottom Sheet ───
 /// Grid-style bottom sheet for selecting a KHQR-compatible bank.
 ///
-/// For **NBC Bakong** the verified App-Link deeplink is used — Bakong opens
-/// with the payment already loaded (user enters PIN only).
+/// **NBC Bakong**: Backend returns an App-Link deeplink — Bakong opens with
+/// the payment already loaded (user enters PIN only).
 ///
-/// For all **other banks** an Android Intent URI embedding the KHQR string is
-/// launched.  Because the KHQR encodes the exact transaction amount, the bank
-/// app opens straight to the pre-filled payment confirmation screen.
+/// **All other banks**: An Android Intent launcher URI opens the bank app to
+/// its home screen.  The user then uses the bank app's built-in QR scanner to
+/// scan the KHQR code still visible on the payment screen behind this sheet.
 class _BankChooserSheet extends StatefulWidget {
   final String deepLink;
 
-  /// The KHQR string from the backend.  Encoded into the intent URI so
-  /// non-Bakong bank apps can pre-fill the amount.
+  /// KHQR string (kept for potential future use / iOS fallback).
   final String qrCode;
 
   const _BankChooserSheet({required this.deepLink, required this.qrCode});
@@ -534,17 +547,25 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
     try {
       final Uri uri;
       if (bank.usesBakongDeepLink) {
-        // NBC Bakong: App-Link verified for bakong-deeplink.nbc.gov.kh.
-        // Opens the Bakong wallet with the payment already set up.
+        // NBC Bakong: use the App-Link returned by the backend.
+        // The Bakong wallet opens with the payment already set up.
         uri = Uri.parse(widget.deepLink);
+      } else if (bank.customScheme != null) {
+        // Bank with a known registered URL scheme (e.g. ABA → abamobilebank://).
+        // Using the app's own scheme is more reliable than an intent URI and
+        // works on both Android and iOS.
+        uri = Uri.parse('${bank.customScheme}://');
       } else {
-        // All other KHQR-compatible banks: embed the KHQR string in an
-        // Android Intent so the bank app opens to the pre-filled payment
-        // confirmation screen (amount already set — user only enters PIN).
-        final encodedQr = Uri.encodeComponent(widget.qrCode);
+        // Remaining KHQR-compatible banks: open the bank app's main launcher
+        // screen via Android Intent URI.  The user then scans the KHQR code
+        // visible on the payment screen with the bank app's built-in scanner.
         uri = Uri.parse(
-          'intent://payment?qr=$encodedQr'
-          '#Intent;package=${bank.packageAndroid};end',
+          'intent://open'
+          '#Intent'
+          ';action=android.intent.action.MAIN'
+          ';category=android.intent.category.LAUNCHER'
+          ';package=${bank.packageAndroid}'
+          ';end',
         );
       }
 

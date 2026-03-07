@@ -158,22 +158,43 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
             ),
             child: Column(
               children: [
-                // RepaintBoundary lets us capture this widget as a PNG image.
+                // RepaintBoundary captures both the QR image and the token
+                // text as a single PNG.  The white Container gives the PNG a
+                // solid background so it looks clean when shared.
                 // _qrKey is used by _shareTokenWithQr() to find this boundary.
                 RepaintBoundary(
                   key: _qrKey,
-                  child: QrImageView(
-                    data: _token ?? '',
-                    version: QrVersions.auto,
-                    size: 220,
-                    backgroundColor: Colors.white,
-                    eyeStyle: const QrEyeStyle(
-                      eyeShape: QrEyeShape.square,
-                      color: AppColors.darkBlue,
-                    ),
-                    dataModuleStyle: const QrDataModuleStyle(
-                      dataModuleShape: QrDataModuleShape.square,
-                      color: AppColors.darkBlue,
+                  child: Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    color: Colors.white,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        QrImageView(
+                          data: _token ?? '',
+                          version: QrVersions.auto,
+                          size: 200,
+                          backgroundColor: Colors.white,
+                          eyeStyle: const QrEyeStyle(
+                            eyeShape: QrEyeShape.square,
+                            color: AppColors.darkBlue,
+                          ),
+                          dataModuleStyle: const QrDataModuleStyle(
+                            dataModuleShape: QrDataModuleShape.square,
+                            color: AppColors.darkBlue,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          _token ?? '',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 4,
+                            color: AppColors.darkBlue,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

@@ -382,7 +382,7 @@
   "payWithBankingApp": "បង់ប្រាក់តាមកម្មវិធីធនាគារ",
   "selectYourBank": "ជ្រើសរើសធនាគាររបស់អ្នក",
   "openInBankingApp": "បើកកម្មវិធីធនាគារ",
-  "bankAmountPreFilled": "ចំនួនទឹកប្រាក់បំពេញរួចហើយ — បញ្ចូល PIN ដើម្បីបង់",
+  "bankAmountPreFilled": "បាកុង: ទូទាត់ត្រូវបានដំឡើងរួច · ធ.ផ្សេង: បើក និងស្កែន QR ខាងលើ",
   "orOpenDirectly": "ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:",
   "noBankingAppInstalled": "មិនអាចបើកកម្មវិធីធនាគារទេ សូម Scan QR វិញ។",
   "bankNotInstalled": "មិនបានតំឡើងកម្មវិធីនេះទេ។ សូម Scan QR វិញ។",

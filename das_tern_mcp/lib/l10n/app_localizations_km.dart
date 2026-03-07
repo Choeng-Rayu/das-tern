@@ -1048,7 +1048,7 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get bankAmountPreFilled =>
-      'ចំនួនទឹកប្រាក់បំពេញរួចហើយ — បញ្ចូល PIN ដើម្បីបង់';
+      'បាកុង: ទូទាត់ត្រូវបានដំឡើងរួច · ធ.ផ្សេង: បើក និងស្កែន QR ខាងលើ';
 
   @override
   String get orOpenDirectly => 'ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:';
