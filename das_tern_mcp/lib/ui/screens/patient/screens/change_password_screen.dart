@@ -118,8 +118,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 label: l10n.newPassword,
                 hint: l10n.newPasswordHint,
                 obscure: _obscureNew,
-                onToggle: () =>
-                    setState(() => _obscureNew = !_obscureNew),
+                onToggle: () => setState(() => _obscureNew = !_obscureNew),
                 isDark: isDark,
                 validator: (v) {
                   if (v == null || v.isEmpty) return l10n.newPasswordEmpty;
@@ -221,20 +220,21 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: Colors.black
-                    .withValues(alpha: isDark ? 0.28 : 0.06),
+                color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
             child: Row(
               children: [
-                Icon(Icons.lock_outline,
-                    size: 20, color: AppColors.textSecondary),
+                Icon(
+                  Icons.lock_outline,
+                  size: 20,
+                  color: AppColors.textSecondary,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextFormField(
@@ -244,8 +244,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     decoration: InputDecoration(
                       hintText: hint,
                       border: InputBorder.none,
-                      contentPadding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                   ),
                 ),

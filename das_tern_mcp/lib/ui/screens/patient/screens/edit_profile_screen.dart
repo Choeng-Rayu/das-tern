@@ -32,15 +32,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     final user = context.read<AuthProvider>().user;
 
-    _firstNameController =
-        TextEditingController(text: user?['firstName'] ?? '');
-    _lastNameController =
-        TextEditingController(text: user?['lastName'] ?? '');
+    _firstNameController = TextEditingController(
+      text: user?['firstName'] ?? '',
+    );
+    _lastNameController = TextEditingController(text: user?['lastName'] ?? '');
     _emailController = TextEditingController(text: user?['email'] ?? '');
-    _phoneController =
-        TextEditingController(text: user?['phoneNumber'] ?? '');
-    _idCardController =
-        TextEditingController(text: user?['idCardNumber'] ?? '');
+    _phoneController = TextEditingController(text: user?['phoneNumber'] ?? '');
+    _idCardController = TextEditingController(
+      text: user?['idCardNumber'] ?? '',
+    );
     _gender = user?['gender'] ?? 'MALE';
 
     if (user?['dateOfBirth'] != null) {
@@ -161,8 +161,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   children: [
                     CircleAvatar(
                       radius: 50,
-                      backgroundColor:
-                          AppColors.primaryBlue.withValues(alpha: 0.12),
+                      backgroundColor: AppColors.primaryBlue.withValues(
+                        alpha: 0.12,
+                      ),
                       child: const Icon(
                         Icons.person,
                         color: AppColors.primaryBlue,
@@ -222,11 +223,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               _buildGroupCard(isDark, [
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 4),
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
                   child: Row(
                     children: [
-                      Icon(Icons.wc_outlined,
-                          size: 20, color: AppColors.textSecondary),
+                      Icon(
+                        Icons.wc_outlined,
+                        size: 20,
+                        color: AppColors.textSecondary,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: DropdownButtonHideUnderline(
@@ -235,13 +241,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             isExpanded: true,
                             items: [
                               DropdownMenuItem(
-                                  value: 'MALE', child: Text(l10n.genderMale)),
+                                value: 'MALE',
+                                child: Text(l10n.genderMale),
+                              ),
                               DropdownMenuItem(
-                                  value: 'FEMALE',
-                                  child: Text(l10n.genderFemale)),
+                                value: 'FEMALE',
+                                child: Text(l10n.genderFemale),
+                              ),
                               DropdownMenuItem(
-                                  value: 'OTHER',
-                                  child: Text(l10n.genderOther)),
+                                value: 'OTHER',
+                                child: Text(l10n.genderOther),
+                              ),
                             ],
                             onChanged: (v) {
                               setState(() {
@@ -267,20 +277,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   borderRadius: BorderRadius.circular(14),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_today_outlined,
-                            size: 20, color: AppColors.textSecondary),
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 20,
+                          color: AppColors.textSecondary,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             _dateOfBirth != null
                                 ? '${_dateOfBirth!.day.toString().padLeft(2, '0')}/${_dateOfBirth!.month.toString().padLeft(2, '0')}/${_dateOfBirth!.year}'
                                 : l10n.selectDateOfBirth,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
+                            style: Theme.of(context).textTheme.bodyLarge
                                 ?.copyWith(
                                   color: _dateOfBirth != null
                                       ? null
@@ -288,8 +301,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 ),
                           ),
                         ),
-                        const Icon(Icons.chevron_right,
-                            size: 18, color: AppColors.textSecondary),
+                        const Icon(
+                          Icons.chevron_right,
+                          size: 18,
+                          color: AppColors.textSecondary,
+                        ),
                       ],
                     ),
                   ),
@@ -375,8 +391,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         const SizedBox(height: 6),
         _buildGroupCard(isDark, [
           Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
             child: Row(
               children: [
                 Icon(icon, size: 20, color: AppColors.textSecondary),
@@ -388,20 +403,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     keyboardType: keyboardType,
                     validator: validator,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: readOnly ? AppColors.textSecondary : null,
-                        ),
+                      color: readOnly ? AppColors.textSecondary : null,
+                    ),
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
                 ),
                 if (readOnly)
-                  Icon(Icons.lock_outline,
-                      size: 16,
-                      color:
-                          AppColors.textSecondary.withValues(alpha: 0.5)),
+                  Icon(
+                    Icons.lock_outline,
+                    size: 16,
+                    color: AppColors.textSecondary.withValues(alpha: 0.5),
+                  ),
               ],
             ),
           ),
@@ -417,8 +432,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
+            color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

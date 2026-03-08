@@ -370,7 +370,9 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = e is ApiException ? e.message : e.toString().replaceFirst('Exception: ', '');
+      _error = e is ApiException
+          ? e.message
+          : e.toString().replaceFirst('Exception: ', '');
       _log.error('AuthProvider', 'Profile update failed', e);
       notifyListeners();
       return false;
@@ -380,7 +382,10 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Change password for current user.
-  Future<bool> changePassword(String currentPassword, String newPassword) async {
+  Future<bool> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
     _setLoading(true);
     _error = null;
     try {
@@ -389,7 +394,9 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = e is ApiException ? e.message : e.toString().replaceFirst('Exception: ', '');
+      _error = e is ApiException
+          ? e.message
+          : e.toString().replaceFirst('Exception: ', '');
       _log.error('AuthProvider', 'Password change failed', e);
       notifyListeners();
       return false;

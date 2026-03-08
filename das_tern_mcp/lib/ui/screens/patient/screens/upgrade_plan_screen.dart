@@ -141,7 +141,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
                       isDark: isDark,
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    
+
                     // Claim Free Trial button (only for Freemium users who haven't claimed)
                     if (!_trialClaimed)
                       _ClaimTrialButton(
@@ -150,25 +150,29 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
                           setState(() => _trialClaimed = true);
                         },
                       ),
-                    
+
                     // Trial status banner (after claim or actual trial)
                     if (_trialClaimed || sub.isOnTrial) ...[
                       const SizedBox(height: AppSpacing.md),
                       _TrialBanner(
-                        daysRemaining: _trialClaimed ? 30 : sub.trialDaysRemaining,
+                        daysRemaining: _trialClaimed
+                            ? 30
+                            : sub.trialDaysRemaining,
                         expiresAt: _trialClaimed
                             ? DateTime.now().add(const Duration(days: 30))
                             : sub.trialExpiresAt!,
                         isDark: isDark,
                       ),
                     ],
-                    
+
                     const SizedBox(height: AppSpacing.xl),
 
                     // Show trial period info if claimed/on trial, otherwise show plan selection
                     if (_trialClaimed || sub.isOnTrial)
                       _TrialPeriodInfo(
-                        daysRemaining: _trialClaimed ? 30 : sub.trialDaysRemaining,
+                        daysRemaining: _trialClaimed
+                            ? 30
+                            : sub.trialDaysRemaining,
                         expiresAt: _trialClaimed
                             ? DateTime.now().add(const Duration(days: 30))
                             : sub.trialExpiresAt!,
@@ -214,7 +218,8 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
                             ),
                             child: _PlanCard(
                               plan: entry.value,
-                              isCurrentPlan: sub.currentTier == entry.value['id'],
+                              isCurrentPlan:
+                                  sub.currentTier == entry.value['id'],
                               isRecommended: entry.value['id'] == 'PREMIUM',
                               isDark: isDark,
                               onUpgrade: () {
@@ -292,7 +297,11 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
                 'period': 'month',
                 'priceOptions': [
                   {'price': 0.5, 'period': 'month', 'display': '\$0.5/month'},
-                  {'price': 1.0, 'period': '3months', 'display': '\$1/3 months'},
+                  {
+                    'price': 1.0,
+                    'period': '3months',
+                    'display': '\$1/3 months',
+                  },
                 ],
               },
             },
@@ -514,7 +523,7 @@ class _TrialBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -639,10 +648,7 @@ class _ClaimTrialButtonState extends State<_ClaimTrialButton> {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            const Color(0xFF4CAF50),
-            const Color(0xFF66BB6A),
-          ],
+          colors: [const Color(0xFF4CAF50), const Color(0xFF66BB6A)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -945,22 +951,24 @@ class _PlanCard extends StatelessWidget {
                         children: [
                           Text(
                             '\$${(priceOptions[0]['price'] as num).toStringAsFixed((priceOptions[0]['price'] as num).truncateToDouble() == priceOptions[0]['price'] ? 1 : 2)}',
-                            style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.primaryBlue,
-                              height: 1,
-                              letterSpacing: -1,
-                            ),
+                            style: Theme.of(context).textTheme.displaySmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.primaryBlue,
+                                  height: 1,
+                                  letterSpacing: -1,
+                                ),
                           ),
                           const SizedBox(width: 6),
                           Padding(
                             padding: const EdgeInsets.only(bottom: 6),
                             child: Text(
                               '/${priceOptions[0]['period'] ?? 'month'}',
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: AppColors.textSecondary,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: Theme.of(context).textTheme.bodyLarge
+                                  ?.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                             ),
                           ),
                         ],
@@ -969,17 +977,21 @@ class _PlanCard extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primaryBlue.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               'or ${priceOptions[1]['display']}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.primaryBlue,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: AppColors.primaryBlue,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                             ),
                           ),
                         ),
@@ -991,22 +1003,24 @@ class _PlanCard extends StatelessWidget {
                     children: [
                       Text(
                         '\$${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)}',
-                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.primaryBlue,
-                          height: 1,
-                          letterSpacing: -1,
-                        ),
+                        style: Theme.of(context).textTheme.displaySmall
+                            ?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.primaryBlue,
+                              height: 1,
+                              letterSpacing: -1,
+                            ),
                       ),
                       const SizedBox(width: 6),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 6),
                         child: Text(
                           '/${plan['period'] ?? 'month'}',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
                         ),
                       ),
                     ],
@@ -1466,7 +1480,7 @@ class _PremiumTrialDialog extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   // Feature list
                   _FeatureItem(
                     icon: Icons.check_circle_outline,
@@ -1524,7 +1538,7 @@ class _PremiumTrialDialog extends StatelessWidget {
                     valueColor: Colors.white70,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Total
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1617,20 +1631,12 @@ class _FeatureItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: color,
-          ),
+          Icon(icon, size: 20, color: color),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
-                color: color,
-                fontSize: 14,
-                height: 1.4,
-              ),
+              style: TextStyle(color: color, fontSize: 14, height: 1.4),
             ),
           ),
         ],
@@ -1664,19 +1670,13 @@ class _PriceRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                ),
+                style: const TextStyle(color: Colors.white70, fontSize: 14),
               ),
               if (sublabel != null) ...[
                 const SizedBox(height: 2),
                 Text(
                   sublabel!,
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.white54, fontSize: 12),
                 ),
               ],
             ],
@@ -1712,7 +1712,7 @@ class _TrialPeriodInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1766,7 +1766,7 @@ class _TrialPeriodInfo extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               // Days remaining - BIG NUMBER
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1795,7 +1795,7 @@ class _TrialPeriodInfo extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              
+
               // Expiration date
               Text(
                 '${l10n.trialExpiresOn} ${_formatDate(expiresAt)}',
@@ -1807,7 +1807,7 @@ class _TrialPeriodInfo extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              
+
               Text(
                 l10n.enjoyingPremium,
                 style: TextStyle(
@@ -1820,7 +1820,7 @@ class _TrialPeriodInfo extends StatelessWidget {
             ],
           ),
         ),
-        
+
         const SizedBox(height: 24),
 
         // What happens after trial
@@ -1828,14 +1828,10 @@ class _TrialPeriodInfo extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: isDark 
-                ? const Color(0xFF2A2A2A) 
-                : const Color(0xFFFFF8E1),
+            color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFFFF8E1),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isDark 
-                  ? const Color(0xFF3D3D3D) 
-                  : const Color(0xFFFFD54F),
+              color: isDark ? const Color(0xFF3D3D3D) : const Color(0xFFFFD54F),
               width: 1.5,
             ),
           ),
@@ -1885,9 +1881,9 @@ class _TrialPeriodInfo extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Text(
             l10n.whatYouGet,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(height: 12),
@@ -2005,8 +2001,18 @@ class _TrialPeriodInfo extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
@@ -2044,11 +2050,7 @@ class _LargeFeatureItem extends StatelessWidget {
               color: AppColors.primaryBlue.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
-              icon,
-              color: AppColors.primaryBlue,
-              size: 28,
-            ),
+            child: Icon(icon, color: AppColors.primaryBlue, size: 28),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -2060,11 +2062,7 @@ class _LargeFeatureItem extends StatelessWidget {
               ),
             ),
           ),
-          Icon(
-            Icons.check_circle,
-            color: AppColors.successGreen,
-            size: 24,
-          ),
+          Icon(Icons.check_circle, color: AppColors.successGreen, size: 24),
         ],
       ),
     );
