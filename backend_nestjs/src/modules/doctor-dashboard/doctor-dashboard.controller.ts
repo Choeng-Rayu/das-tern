@@ -26,6 +26,15 @@ export class DoctorDashboardController {
     return this.dashboardService.getDashboardOverview(user.id);
   }
 
+  @Get('dashboard/graph')
+  async getDashboardGraph(
+    @CurrentUser() user: any,
+    @Query('period') period?: string,
+  ) {
+    const p = period === 'month' ? 'month' : 'week';
+    return this.dashboardService.getAdherenceGraphData(user.id, p);
+  }
+
   // ── Patient Management ──
 
   @Get('patients')

@@ -98,6 +98,19 @@ export class PrescriptionsService {
       },
     });
 
+    // Notify patient about new prescription
+    const doctorUser = await this.prisma.user.findUnique({
+      where: { id: doctorId },
+      select: { fullName: true },
+    });
+    await this.notifications.send(
+      dto.patientId,
+      'PRESCRIPTION_UPDATE',
+      'New Prescription',
+      `Dr. ${doctorUser?.fullName || 'Your doctor'} has created a new prescription for you.`,
+      { prescriptionId: prescription.id },
+    );
+
     return prescription;
   }
 

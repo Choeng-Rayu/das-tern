@@ -38,6 +38,8 @@ import '../ui/screens/patient/screens/record_vital_screen.dart';
 import '../ui/screens/patient/screens/vital_trend_screen.dart';
 import '../ui/screens/patient/screens/vital_thresholds_screen.dart';
 import '../ui/screens/patient/screens/emergency_screen.dart';
+import '../ui/screens/patient/notification/patient_notifications_screen.dart';
+import '../ui/screens/doctor/notification/doctor_notifications_screen.dart';
 import '../models/enums_model/medication_type.dart';
 
 /// Centralized route definitions.
@@ -92,9 +94,8 @@ class AppRouter {
   static const String patientVitalThresholds = '/patient/vitals/thresholds';
   static const String patientEmergency = '/patient/emergency';
 
-  static String? patientNotifications;
-
-  // static String get patientNotifications => null;
+  static const String patientNotifications = '/patient/notifications';
+  static const String doctorNotifications = '/doctor/notifications';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -210,6 +211,16 @@ class AppRouter {
         return _buildRoute(const VitalThresholdsScreen());
       case patientEmergency:
         return _buildRoute(const EmergencyScreen());
+      case patientNotifications:
+        return _buildRoute(const PatientNotificationsScreen());
+      case doctorNotifications:
+        return _buildRoute(const DoctorNotificationsScreen());
+
+      // Account routes
+      case patientEditProfile:
+        return _buildRoute(const EditProfileScreen());
+      case patientChangePassword:
+        return _buildRoute(const ChangePasswordScreen());
 
       default:
         return _buildRoute(

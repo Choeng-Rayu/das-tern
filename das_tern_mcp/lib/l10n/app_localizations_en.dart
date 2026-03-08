@@ -283,7 +283,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscription => 'Subscription';
 
   @override
-  String get unlockPremiumFeatures => 'Unlock premium features';
+  String get unlockPremiumFeatures =>
+      'Unlock premium features and get the most out of DasTern';
 
   @override
   String get todaySchedule => 'Today\'s Schedule';
@@ -894,7 +895,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allFeaturesUnlocked => 'All features unlocked';
 
   @override
-  String get upgradeToUnlock => 'Upgrade to unlock all features';
+  String get upgradeToUnlock => 'Upgrade to unlock Premium features';
 
   @override
   String get upgrade => 'Upgrade';
@@ -1126,6 +1127,137 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get familyPlanFeature => 'Family Plan';
+
+  @override
+  String get premiumTrialActive => '🎉 Premium Trial Active';
+
+  @override
+  String get dayRemaining => 'day remaining';
+
+  @override
+  String get daysRemaining => 'days remaining';
+
+  @override
+  String get expiresToday => 'Expires today';
+
+  @override
+  String get enjoyUnlimitedFeatures => 'Enjoy unlimited OCR & family features';
+
+  @override
+  String get claimFreeTrial => 'Claim 1-Month Free Trial';
+
+  @override
+  String get trialAlreadyClaimed => 'Trial already claimed';
+
+  @override
+  String get claimingTrial => 'Activating trial...';
+
+  @override
+  String get trialClaimedSuccess =>
+      'Free trial activated! Enjoy Premium features for 1 month.';
+
+  @override
+  String get trialClaimFailed => 'Failed to activate trial. Please try again.';
+
+  @override
+  String get premiumTrial => 'Premium Trial';
+
+  @override
+  String get topFeatures => 'Top Features';
+
+  @override
+  String get cancelAnytime => 'Cancel anytime';
+
+  @override
+  String get trialReminderNote =>
+      'We\'ll remind you 3 days before your trial ends';
+
+  @override
+  String get expandedOcrFeature => 'Unlimited OCR prescription scanning';
+
+  @override
+  String get familyConnectionsFeature => 'Connect up to 5 family members';
+
+  @override
+  String get expandedStorageFeature =>
+      '20 GB cloud storage for medical records';
+
+  @override
+  String get trialPeriod => 'Trial Period';
+
+  @override
+  String get oneMonthFree => '1 month free';
+
+  @override
+  String get promotion => 'Promotion';
+
+  @override
+  String get hundredPercentOff => '100% off for 1 month';
+
+  @override
+  String get afterTrial => 'After Trial';
+
+  @override
+  String get dueToday => 'Due today';
+
+  @override
+  String get premiumFeature => 'Premium Feature';
+
+  @override
+  String get ocrPremiumMessage =>
+      'OCR scanning is a Premium feature. Upgrade to Premium to unlock:';
+
+  @override
+  String get unlimitedOcrScanning => 'Unlimited OCR scanning';
+
+  @override
+  String get connectFamilyMembers => 'Connect up to 5 family members';
+
+  @override
+  String get twentyGBStorage => '20 GB storage';
+
+  @override
+  String get prioritySupport => 'Priority support';
+
+  @override
+  String get freeTrialOffer => '1-month free trial for new users!';
+
+  @override
+  String get yourTrialPeriod => 'Your Trial Period';
+
+  @override
+  String get trialExpiresOn => 'Trial expires on';
+
+  @override
+  String get daysLeft => 'days left';
+
+  @override
+  String get dayLeft => 'day left';
+
+  @override
+  String get enjoyingPremium => 'You are enjoying Premium features';
+
+  @override
+  String get afterTrialEnds => 'After trial ends';
+
+  @override
+  String get autoRevertToFree =>
+      'Your plan will automatically revert to Freemium (Free plan)';
+
+  @override
+  String get keepPremiumFeatures => 'Want to keep Premium features?';
+
+  @override
+  String get upgradeToPremium => 'Upgrade to Premium';
+
+  @override
+  String get onlyPerMonth => 'Only \$0.50/month or \$1 for 3 months';
+
+  @override
+  String get whatYouGet => 'What you\'re enjoying now';
+
+  @override
+  String get continuePremium => 'Continue with Premium';
 
   @override
   String get addAtLeastOneMedicine => 'Add at least one medicine';
@@ -2213,6 +2345,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get termsOfService => 'Terms of Service';
 
   @override
+  String get manageSubscriptions => 'Manage Subscriptions';
+
+  @override
+  String get restoreSubscription => 'Restore Subscription';
+
+  @override
+  String get rateApp => 'Rate App';
+
+  @override
+  String get support => 'Support';
+
+  @override
   String get currentPassword => 'Current Password';
 
   @override
@@ -2372,4 +2516,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missedDoseBanner => 'You have missed doses today';
+
+  @override
+  String get connectNewPatient => 'Connect New Patient';
+
+  @override
+  String get searchPatientByContact => 'Search by phone or email';
+
+  @override
+  String get enterPhoneOrEmail => 'Enter patient\'s phone number or email';
+
+  @override
+  String get searchPatient => 'Search';
+
+  @override
+  String get patientFound => 'Patient found';
+
+  @override
+  String get sendConnectionRequest => 'Send Connection Request';
+
+  @override
+  String get connectionRequestSent => 'Connection request sent successfully';
+
+  @override
+  String get connectionRequestFailed => 'Failed to send connection request';
+
+  @override
+  String get noPatientFound => 'No patient found with that contact';
+
+  @override
+  String get connectionAlreadyExists =>
+      'Connection already exists with this patient';
+
+  @override
+  String get pendingConnectionRequest => 'Pending Connection Request';
+
+  @override
+  String doctorWantsToConnect(String doctorName) {
+    return '$doctorName wants to connect with you to manage your prescriptions.';
+  }
+
+  @override
+  String get approveConnection => 'Approve';
+
+  @override
+  String get rejectConnection => 'Reject';
+
+  @override
+  String get connectionApproved => 'Connection approved';
+
+  @override
+  String get connectionRejected => 'Connection rejected';
+
+  @override
+  String get removeNotification => 'Remove Notification';
+
+  @override
+  String get removeNotificationConfirm =>
+      'Are you sure you want to remove this notification?';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get pendingPrescriptions => 'Pending Prescriptions';
+
+  @override
+  String prescriptionFromDoctor(String doctorName) {
+    return 'From Dr. $doctorName';
+  }
+
+  @override
+  String get rejectPrescription => 'Reject';
+
+  @override
+  String get confirmPrescription => 'Confirm';
+
+  @override
+  String get prescriptionConfirmed => 'Prescription confirmed';
+
+  @override
+  String get prescriptionRejected => 'Prescription rejected';
 }
