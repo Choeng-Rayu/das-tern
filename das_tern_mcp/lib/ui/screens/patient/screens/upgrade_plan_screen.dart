@@ -135,10 +135,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Current plan card
-                    _CurrentPlanCard(
-                      tier: sub.currentTier,
-                      isDark: isDark,
-                    ),
+                    _CurrentPlanCard(tier: sub.currentTier, isDark: isDark),
                     const SizedBox(height: AppSpacing.md),
 
                     // Claim Free Trial button (only for Freemium users)
@@ -158,21 +155,26 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
 
                     // Plan cards – from backend or static fallback
                     if (hasPlans)
-                      ...sub.plans!.where((plan) => plan['id'] != 'FAMILY_PREMIUM').map(
-                        (plan) => _PlanCard(
-                          plan: plan,
-                          isCurrentPlan: sub.currentTier == plan['id'],
-                          isRecommended: plan['id'] == 'PREMIUM',
-                          isDark: isDark,
-                          onUpgrade: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/subscription/payment-method',
-                              arguments: {'planType': plan['id'], 'plan': plan},
-                            );
-                          },
-                        ),
-                      )
+                      ...sub.plans!
+                          .where((plan) => plan['id'] != 'FAMILY_PREMIUM')
+                          .map(
+                            (plan) => _PlanCard(
+                              plan: plan,
+                              isCurrentPlan: sub.currentTier == plan['id'],
+                              isRecommended: plan['id'] == 'PREMIUM',
+                              isDark: isDark,
+                              onUpgrade: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/subscription/payment-method',
+                                  arguments: {
+                                    'planType': plan['id'],
+                                    'plan': plan,
+                                  },
+                                );
+                              },
+                            ),
+                          )
                     else
                       ..._defaultPlanCards(sub.currentTier, isDark),
 
@@ -492,10 +494,7 @@ class _TrialConfirmSheet extends StatelessWidget {
                           Colors.white.withValues(alpha: 0.8),
                         ),
                         const SizedBox(height: 14),
-                        Container(
-                          height: 1,
-                          color: dividerColor,
-                        ),
+                        Container(height: 1, color: dividerColor),
                         const SizedBox(height: 14),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -535,13 +534,11 @@ class _TrialConfirmSheet extends StatelessWidget {
               width: double.infinity,
               height: 52,
               child: ElevatedButton(
-                onPressed:
-                    sub.isLoading ? null : () => _handleConfirm(context),
+                onPressed: sub.isLoading ? null : () => _handleConfirm(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
-                  disabledBackgroundColor:
-                      Colors.white.withValues(alpha: 0.4),
+                  disabledBackgroundColor: Colors.white.withValues(alpha: 0.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(26),
                   ),
@@ -694,10 +691,9 @@ class _CurrentPlanCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: (isPremium
-                    ? const Color(0xFF764BA2)
-                    : const Color(0xFF2D5BFF))
-                .withValues(alpha: 0.35),
+            color:
+                (isPremium ? const Color(0xFF764BA2) : const Color(0xFF2D5BFF))
+                    .withValues(alpha: 0.35),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -796,7 +792,9 @@ class _CurrentPlanCard extends StatelessWidget {
                 // Tier badge
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 5),
+                    horizontal: 12,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -808,9 +806,7 @@ class _CurrentPlanCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        isPremium
-                            ? Icons.verified
-                            : Icons.info_outline,
+                        isPremium ? Icons.verified : Icons.info_outline,
                         size: 13,
                         color: Colors.white,
                       ),
