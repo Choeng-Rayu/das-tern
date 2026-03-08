@@ -976,14 +976,65 @@
   "removeNotificationConfirm": "តើអ្នកប្រាកដថាចង់លុបការជូនដំណឹងនេះមែនទេ?",
   "remove": "លុប",
   "pendingPrescriptions": "វេជ្ជបញ្ជារង់ចាំ",
-  "prescriptionFromDoctor": "ពីវេជ្ជបណ្ឌិត {doctorName}",
+  "prescriptionFromDoctor": "ពីវេជ្ជបណ្ឌិត {doctor}",
   "@prescriptionFromDoctor": {
     "placeholders": {
-      "doctorName": {"type": "String"}
+      "doctor": {"type": "String"}
     }
   },
   "rejectPrescription": "បដិសេធ",
   "confirmPrescription": "បញ្ជាក់",
   "prescriptionConfirmed": "វេជ្ជបញ្ជាត្រូវបានបញ្ជាក់",
-  "prescriptionRejected": "វេជ្ជបញ្ជាត្រូវបានបដិសេធ"
+  "prescriptionRejected": "វេជ្ជបញ្ជាត្រូវបានបដិសេធ",
+  "missedDoseBanner": "អ្នកបងាVerified្រ់ឈានទៅលើដូស",
+  "connectNewPatient": "ភ្ជាប់ផ្នែកថ្មីនៃអ្នកជំងឺ",
+  "enterPhoneOrEmail": "បញ្ចូលលេខទូរស័ព្ទឬសារឡើងលេខ",
+  "sendConnectionRequest": "ផ្ញើសំណើភ្ជាប់",
+
+  "ocrOutpatient": "អ្នកជំងឺទូលទាត់",
+  "ocrInpatient": "អ្នកជំងឺស្នាក់នៅ",
+  "ocrFacilityHospital": "មន្ទីរពេទ្យ",
+  "ocrFacilityClinic": "ឯកសារ",
+  "ocrNotAvailable": "មិនមាន",
+  "ocrNeedsReviewYes": "ដាច់ដោយឡែក សូមពិនិត្យ",
+  "ocrPatientInfoSection": "ព័ត៌មានអ្នកជំងឺ",
+  "ocrPatientId": "លេខសម្គាល់អ្នកជំងឺ",
+  "ocrPatientName": "ឈ្មោះអ្នកជំងឺ",
+  "ocrPatientKhmerName": "ឈ្មោះអ្នកជំងឺ (ខ្មែរ)",
+  "ocrPatientAge": "ក្ដីឈរឈរលេង",
+  "ocrYearsOld": "{age} ឆ្នាំចាស់",
+  "@ocrYearsOld": {
+    "placeholders": {
+      "age": {"type": "String"}
+    }
+  },
+  "ocrPatientGender": "ភេទ",
+  "ocrPrescriberSection": "ព័ត៌មានលម្អិត",
+  "ocrPrescriberName": "ឈ្មោះបែបលម្អិត",
+  "ocrFacilitySection": "ព័ត៌មានលម្អិតមន្ទីរ",
+  "ocrFacilityName": "ឈ្មោះមន្ទីរ",
+  "ocrFacilityType": "ប្រភេទមន្ទីរ",
+  "ocrClinicalSection": "ព័ត៌មានលម្អិតឆ្នាំ",
+  "ocrDiagnosis": "ការបង្ហាញលក្ខណៈរោគ",
+  "ocrMetadataSection": "ទិន្នន័យលម្អិត",
+  "ocrConfidenceScore": "ពិន្ទុសុវត្ថិភាព",
+  "ocrConfidencePercent": "{confidence}%",
+  "@ocrConfidencePercent": {
+    "placeholders": {
+      "confidence": {"type": "String"}
+    }
+  },
+  "ocrEngine": "ម៉ាស៊ីនស្កេន",
+  "ocrProcessingTime": "ពេលវេលាដែលប្រើប្រាស់",
+  "ocrMilliseconds": "{ms}ms",
+  "@ocrMilliseconds": {
+    "placeholders": {
+      "ms": {"type": "String"}
+    }
+  },
+  "ocrPrescriptionType": "ប្រភេទវេជ្ជបញ្ជា",
+  "ocrLanguagesDetected": "ភាសាដែលរកឃើញ",
+  "ocrValidationStatus": "ស្ថានភាពផ្ទៀងផ្ទាត់",
+  "ocrValidated": "ផ្ទៀងផ្ទាត់រួច",
+  "ocrScanInfoSection": "ព័ត៌មានលម្អិតស្កេន"
 }

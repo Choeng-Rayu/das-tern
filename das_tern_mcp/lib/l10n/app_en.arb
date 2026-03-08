@@ -985,5 +985,78 @@
     "placeholders": {
       "percentage": {"type": "String"}
     }
-  }
+  },
+
+  "connectNewPatient": "Connect New Patient",
+  "enterPhoneOrEmail": "Enter phone number or email",
+  "noPatientFound": "No patient found",
+  "connectionRequestSent": "Connection request sent",
+  "connectionRequestFailed": "Connection request failed",
+  "sendConnectionRequest": "Send Connection Request",
+  "connectionApproved": "Connection approved",
+  "connectionRejected": "Connection rejected",
+  "approveConnection": "Approve Connection",
+  "rejectConnection": "Reject Connection",
+  "removeNotification": "Remove Notification",
+  "removeNotificationConfirm": "Remove notification?",
+  "remove": "Remove",
+  "prescriptionConfirmed": "Prescription confirmed",
+  "prescriptionRejected": "Prescription rejected",
+  "rejectPrescription": "Reject Prescription",
+  "confirmPrescription": "Confirm Prescription",
+  "prescriptionFromDoctor": "Prescription from {doctor}",
+  "@prescriptionFromDoctor": {
+    "placeholders": {
+      "doctor": {"type": "String"}
+    }
+  },
+  "pendingPrescriptions": "Pending Prescriptions",
+  "missedDoseBanner": "You missed a dose",
+
+  "ocrOutpatient": "Outpatient",
+  "ocrInpatient": "Inpatient",
+  "ocrFacilityHospital": "Hospital",
+  "ocrFacilityClinic": "Clinic",
+  "ocrNotAvailable": "Not available",
+  "ocrNeedsReviewYes": "Yes, needs review",
+  "ocrPatientInfoSection": "Patient Information",
+  "ocrPatientId": "Patient ID",
+  "ocrPatientName": "Patient Name",
+  "ocrPatientKhmerName": "Patient Name (Khmer)",
+  "ocrPatientAge": "Age",
+  "ocrYearsOld": "{age} years old",
+  "@ocrYearsOld": {
+    "placeholders": {
+      "age": {"type": "String"}
+    }
+  },
+  "ocrPatientGender": "Gender",
+  "ocrPrescriberSection": "Prescriber Information",
+  "ocrPrescriberName": "Prescriber Name",
+  "ocrFacilitySection": "Facility Information",
+  "ocrFacilityName": "Facility Name",
+  "ocrFacilityType": "Facility Type",
+  "ocrClinicalSection": "Clinical Information",
+  "ocrDiagnosis": "Diagnosis",
+  "ocrMetadataSection": "Metadata",
+  "ocrConfidenceScore": "Confidence Score",
+  "ocrConfidencePercent": "{confidence}%",
+  "@ocrConfidencePercent": {
+    "placeholders": {
+      "confidence": {"type": "String"}
+    }
+  },
+  "ocrEngine": "OCR Engine",
+  "ocrProcessingTime": "Processing Time",
+  "ocrMilliseconds": "{ms}ms",
+  "@ocrMilliseconds": {
+    "placeholders": {
+      "ms": {"type": "String"}
+    }
+  },
+  "ocrPrescriptionType": "Prescription Type",
+  "ocrLanguagesDetected": "Languages Detected",
+  "ocrValidationStatus": "Validation Status",
+  "ocrValidated": "Validated",
+  "ocrScanInfoSection": "Scan Information"
 }

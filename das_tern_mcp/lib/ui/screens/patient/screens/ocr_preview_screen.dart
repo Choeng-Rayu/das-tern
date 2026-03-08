@@ -535,7 +535,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
                 OcrInfoEntry(
                   label: l10n.ocrPatientAge,
                   value: _patientAge != null
-                      ? l10n.ocrYearsOld(_patientAge!)
+                      ? l10n.ocrYearsOld(_patientAge!.toString())
                       : '',
                 ),
                 OcrInfoEntry(

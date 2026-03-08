@@ -2368,168 +2368,13 @@ class AppLocalizationsKm extends AppLocalizations {
   }
 
   @override
-  String get ocrPatientInfoSection => 'ព័ត៌មានអ្នកជំងឺ';
+  String get connectNewPatient => 'ភ្ជាប់ផ្នែកថ្មីនៃអ្នកជំងឺ';
 
   @override
-  String get ocrPatientId => 'លេខសម្គាល់អ្នកជំងឺ';
+  String get enterPhoneOrEmail => 'បញ្ចូលលេខទូរស័ព្ទឬសារឡើងលេខ';
 
   @override
-  String get ocrPatientName => 'ឈ្មោះអ្នកជំងឺ';
-
-  @override
-  String get ocrPatientKhmerName => 'ឈ្មោះអ្នកជំងឺ (ខ្មែរ)';
-
-  @override
-  String get ocrPatientAge => 'អាយុ';
-
-  @override
-  String get ocrPatientGender => 'ភេទ';
-
-  @override
-  String ocrYearsOld(int age) {
-    return '$age ឆ្នាំ';
-  }
-
-  @override
-  String get ocrPrescriberSection => 'ព័ត៌មានវេជ្ជបណ្ឌិត';
-
-  @override
-  String get ocrPrescriberName => 'វេជ្ជបណ្ឌិត';
-
-  @override
-  String get ocrFacilitySection => 'គ្រឹះស្ថានសុខាភិបាល';
-
-  @override
-  String get ocrFacilityName => 'ឈ្មោះគ្រឹះស្ថាន';
-
-  @override
-  String get ocrFacilityType => 'ប្រភេទគ្រឹះស្ថាន';
-
-  @override
-  String get ocrFacilityHospital => 'មន្ទីរពេទ្យ';
-
-  @override
-  String get ocrFacilityClinic => 'គ្លីនិក';
-
-  @override
-  String get ocrClinicalSection => 'ព័ត៌មានវេជ្ជសាស្ត្រ';
-
-  @override
-  String get ocrDiagnosis => 'រោគវិនិច្ឆ័យ';
-
-  @override
-  String get ocrMetadataSection => 'ព័ត៌មានការស្កេន';
-
-  @override
-  String get ocrConfidenceScore => 'ពិន្ទុទំនុកចិត្ត';
-
-  @override
-  String get ocrEngine => 'ម៉ាស៊ីន OCR';
-
-  @override
-  String get ocrProcessingTime => 'រយៈពេលដំណើរការ';
-
-  @override
-  String get ocrPrescriptionType => 'ប្រភេទវេជ្ជបញ្ជា';
-
-  @override
-  String get ocrLanguagesDetected => 'ភាសាដែលបានរកឃើញ';
-
-  @override
-  String get ocrValidationStatus => 'ស្ថានភាពផ្ទៀងផ្ទាត់';
-
-  @override
-  String get ocrNeedsReview => 'ត្រូវការពិនិត្យ';
-
-  @override
-  String get ocrNeedsReviewYes => 'បាទ/ចាស - សូមផ្ទៀងផ្ទាត់ទិន្នន័យ';
-
-  @override
-  String get ocrNeedsReviewNo => 'ទេ';
-
-  @override
-  String ocrMilliseconds(String ms) {
-    return '${ms}ms';
-  }
-
-  @override
-  String ocrConfidencePercent(String percent) {
-    return '$percent%';
-  }
-
-  @override
-  String get ocrOutpatient => 'អ្នកជំងឺក្រៅ';
-
-  @override
-  String get ocrInpatient => 'អ្នកជំងឺក្នុង';
-
-  @override
-  String get ocrValidated => 'បានផ្ទៀងផ្ទាត់';
-
-  @override
-  String get ocrNotAvailable => 'គ្មានទិន្នន័យ';
-
-  @override
-  String get ocrScanInfoSection => 'ពីការស្កែន OCR';
-
-  @override
-  String get ocrScanInfoSectionKhmer => 'ពីការស្កែន OCR';
-
-  @override
-  String get approve => 'យល់ព្រម';
-
-  @override
-  String get deny => 'បដិសេធ';
-
-  @override
-  String get familyLinked => 'ភ្ជាប់គ្រួសារដោយជោគជ័យ';
-
-  @override
-  String get connectionDenied => 'ការតភ្ជាប់ត្រូវបានបដិសេធ';
-
-  @override
-  String get operationFailed => 'ប្រតិបត្តិការបានបរាជ័យ។ សូមព្យាយាមម្តងទៀត។';
-
-  @override
-  String get nudgeTitle => 'ទទួលបានការរំលឹក';
-
-  @override
-  String get nudgeMessage => 'អ្នកថែទាំរបស់អ្នកបានរំលឹកអ្នកឱ្យពិសាថ្នាំ។';
-
-  @override
-  String get missedDoseAlertTitle => 'ខ្លួនអ្នកបានខ្លាចថ្នាំ';
-
-  @override
-  String missedDoseBannerMessage(String medicationName) {
-    return 'អ្នកបានខ្លាចដូស $medicationName';
-  }
-
-  @override
-  String get needFamilySupport => 'ត្រូវការការគាំទ្រពីគ្រួសារ?';
-
-  @override
-  String get dismiss => 'ច្រាន';
-
-  @override
-  String get missedDoseBanner => 'អ្នកមានដូសដែលខ្លាចថ្ងៃនេះ';
-
-  @override
-  String get connectNewPatient => 'ភ្ជាប់អ្នកជំងឺថ្មី';
-
-  @override
-  String get searchPatientByContact => 'ស្វែងរកតាមលេខទូរស័ព្ទ ឬអ៊ីមែល';
-
-  @override
-  String get enterPhoneOrEmail => 'បញ្ចូលលេខទូរស័ព្ទ ឬអ៊ីមែលរបស់អ្នកជំងឺ';
-
-  @override
-  String get searchPatient => 'ស្វែងរក';
-
-  @override
-  String get patientFound => 'រកឃើញអ្នកជំងឺ';
-
-  @override
-  String get sendConnectionRequest => 'ផ្ញើសំណើភ្ជាប់';
+  String get noPatientFound => 'រកមិនឃើញអ្នកជំងឺដោយទំនាក់ទំនងនោះ';
 
   @override
   String get connectionRequestSent => 'បានផ្ញើសំណើភ្ជាប់ដោយជោគជ័យ';
@@ -2538,30 +2383,19 @@ class AppLocalizationsKm extends AppLocalizations {
   String get connectionRequestFailed => 'សំណើភ្ជាប់បរាជ័យ';
 
   @override
-  String get noPatientFound => 'រកមិនឃើញអ្នកជំងឺដោយទំនាក់ទំនងនោះ';
-
-  @override
-  String get connectionAlreadyExists => 'មានការភ្ជាប់ជាមួយអ្នកជំងឺនេះរួចហើយ';
-
-  @override
-  String get pendingConnectionRequest => 'សំណើភ្ជាប់រង់ចាំ';
-
-  @override
-  String doctorWantsToConnect(String doctorName) {
-    return '$doctorName ចង់ភ្ជាប់ជាមួយអ្នកដើម្បីគ្រប់គ្រងវេជ្ជបញ្ជា។';
-  }
-
-  @override
-  String get approveConnection => 'យល់ព្រម';
-
-  @override
-  String get rejectConnection => 'បដិសេធ';
+  String get sendConnectionRequest => 'ផ្ញើសំណើភ្ជាប់';
 
   @override
   String get connectionApproved => 'បានយល់ព្រមការភ្ជាប់';
 
   @override
   String get connectionRejected => 'បានបដិសេធការភ្ជាប់';
+
+  @override
+  String get approveConnection => 'យល់ព្រម';
+
+  @override
+  String get rejectConnection => 'បដិសេធ';
 
   @override
   String get removeNotification => 'លុបការជូនដំណឹង';
@@ -2574,12 +2408,10 @@ class AppLocalizationsKm extends AppLocalizations {
   String get remove => 'លុប';
 
   @override
-  String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
+  String get prescriptionConfirmed => 'វេជ្ជបញ្ជាត្រូវបានបញ្ជាក់';
 
   @override
-  String prescriptionFromDoctor(String doctorName) {
-    return 'ពីវេជ្ជបណ្ឌិត $doctorName';
-  }
+  String get prescriptionRejected => 'វេជ្ជបញ្ជាត្រូវបានបដិសេធ';
 
   @override
   String get rejectPrescription => 'បដិសេធ';
@@ -2588,8 +2420,112 @@ class AppLocalizationsKm extends AppLocalizations {
   String get confirmPrescription => 'បញ្ជាក់';
 
   @override
-  String get prescriptionConfirmed => 'វេជ្ជបញ្ជាត្រូវបានបញ្ជាក់';
+  String prescriptionFromDoctor(String doctor) {
+    return 'ពីវេជ្ជបណ្ឌិត $doctor';
+  }
 
   @override
-  String get prescriptionRejected => 'វេជ្ជបញ្ជាត្រូវបានបដិសេធ';
+  String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
+
+  @override
+  String get missedDoseBanner => 'អ្នកបងាVerified្រ់ឈានទៅលើដូស';
+
+  @override
+  String get ocrOutpatient => 'អ្នកជំងឺទូលទាត់';
+
+  @override
+  String get ocrInpatient => 'អ្នកជំងឺស្នាក់នៅ';
+
+  @override
+  String get ocrFacilityHospital => 'មន្ទីរពេទ្យ';
+
+  @override
+  String get ocrFacilityClinic => 'ឯកសារ';
+
+  @override
+  String get ocrNotAvailable => 'មិនមាន';
+
+  @override
+  String get ocrNeedsReviewYes => 'ដាច់ដោយឡែក សូមពិនិត្យ';
+
+  @override
+  String get ocrPatientInfoSection => 'ព័ត៌មានអ្នកជំងឺ';
+
+  @override
+  String get ocrPatientId => 'លេខសម្គាល់អ្នកជំងឺ';
+
+  @override
+  String get ocrPatientName => 'ឈ្មោះអ្នកជំងឺ';
+
+  @override
+  String get ocrPatientKhmerName => 'ឈ្មោះអ្នកជំងឺ (ខ្មែរ)';
+
+  @override
+  String get ocrPatientAge => 'ក្ដីឈរឈរលេង';
+
+  @override
+  String ocrYearsOld(String age) {
+    return '$age ឆ្នាំចាស់';
+  }
+
+  @override
+  String get ocrPatientGender => 'ភេទ';
+
+  @override
+  String get ocrPrescriberSection => 'ព័ត៌មានលម្អិត';
+
+  @override
+  String get ocrPrescriberName => 'ឈ្មោះបែបលម្អិត';
+
+  @override
+  String get ocrFacilitySection => 'ព័ត៌មានលម្អិតមន្ទីរ';
+
+  @override
+  String get ocrFacilityName => 'ឈ្មោះមន្ទីរ';
+
+  @override
+  String get ocrFacilityType => 'ប្រភេទមន្ទីរ';
+
+  @override
+  String get ocrClinicalSection => 'ព័ត៌មានលម្អិតឆ្នាំ';
+
+  @override
+  String get ocrDiagnosis => 'ការបង្ហាញលក្ខណៈរោគ';
+
+  @override
+  String get ocrMetadataSection => 'ទិន្នន័យលម្អិត';
+
+  @override
+  String get ocrConfidenceScore => 'ពិន្ទុសុវត្ថិភាព';
+
+  @override
+  String ocrConfidencePercent(String confidence) {
+    return '$confidence%';
+  }
+
+  @override
+  String get ocrEngine => 'ម៉ាស៊ីនស្កេន';
+
+  @override
+  String get ocrProcessingTime => 'ពេលវេលាដែលប្រើប្រាស់';
+
+  @override
+  String ocrMilliseconds(String ms) {
+    return '${ms}ms';
+  }
+
+  @override
+  String get ocrPrescriptionType => 'ប្រភេទវេជ្ជបញ្ជា';
+
+  @override
+  String get ocrLanguagesDetected => 'ភាសាដែលរកឃើញ';
+
+  @override
+  String get ocrValidationStatus => 'ស្ថានភាពផ្ទៀងផ្ទាត់';
+
+  @override
+  String get ocrValidated => 'ផ្ទៀងផ្ទាត់រួច';
+
+  @override
+  String get ocrScanInfoSection => 'ព័ត៌មានលម្អិតស្កេន';
 }

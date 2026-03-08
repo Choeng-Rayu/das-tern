@@ -2371,6 +2371,86 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get connectNewPatient => 'Connect New Patient';
+
+  @override
+  String get enterPhoneOrEmail => 'Enter phone number or email';
+
+  @override
+  String get noPatientFound => 'No patient found';
+
+  @override
+  String get connectionRequestSent => 'Connection request sent';
+
+  @override
+  String get connectionRequestFailed => 'Connection request failed';
+
+  @override
+  String get sendConnectionRequest => 'Send Connection Request';
+
+  @override
+  String get connectionApproved => 'Connection approved';
+
+  @override
+  String get connectionRejected => 'Connection rejected';
+
+  @override
+  String get approveConnection => 'Approve Connection';
+
+  @override
+  String get rejectConnection => 'Reject Connection';
+
+  @override
+  String get removeNotification => 'Remove Notification';
+
+  @override
+  String get removeNotificationConfirm => 'Remove notification?';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get prescriptionConfirmed => 'Prescription confirmed';
+
+  @override
+  String get prescriptionRejected => 'Prescription rejected';
+
+  @override
+  String get rejectPrescription => 'Reject Prescription';
+
+  @override
+  String get confirmPrescription => 'Confirm Prescription';
+
+  @override
+  String prescriptionFromDoctor(String doctor) {
+    return 'Prescription from $doctor';
+  }
+
+  @override
+  String get pendingPrescriptions => 'Pending Prescriptions';
+
+  @override
+  String get missedDoseBanner => 'You missed a dose';
+
+  @override
+  String get ocrOutpatient => 'Outpatient';
+
+  @override
+  String get ocrInpatient => 'Inpatient';
+
+  @override
+  String get ocrFacilityHospital => 'Hospital';
+
+  @override
+  String get ocrFacilityClinic => 'Clinic';
+
+  @override
+  String get ocrNotAvailable => 'Not available';
+
+  @override
+  String get ocrNeedsReviewYes => 'Yes, needs review';
+
+  @override
   String get ocrPatientInfoSection => 'Patient Information';
 
   @override
@@ -2386,21 +2466,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrPatientAge => 'Age';
 
   @override
-  String get ocrPatientGender => 'Gender';
-
-  @override
-  String ocrYearsOld(int age) {
+  String ocrYearsOld(String age) {
     return '$age years old';
   }
+
+  @override
+  String get ocrPatientGender => 'Gender';
 
   @override
   String get ocrPrescriberSection => 'Prescriber Information';
 
   @override
-  String get ocrPrescriberName => 'Prescriber';
+  String get ocrPrescriberName => 'Prescriber Name';
 
   @override
-  String get ocrFacilitySection => 'Healthcare Facility';
+  String get ocrFacilitySection => 'Facility Information';
 
   @override
   String get ocrFacilityName => 'Facility Name';
@@ -2409,28 +2489,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrFacilityType => 'Facility Type';
 
   @override
-  String get ocrFacilityHospital => 'Hospital';
-
-  @override
-  String get ocrFacilityClinic => 'Clinic';
-
-  @override
   String get ocrClinicalSection => 'Clinical Information';
 
   @override
   String get ocrDiagnosis => 'Diagnosis';
 
   @override
-  String get ocrMetadataSection => 'Scan Metadata';
+  String get ocrMetadataSection => 'Metadata';
 
   @override
   String get ocrConfidenceScore => 'Confidence Score';
+
+  @override
+  String ocrConfidencePercent(String confidence) {
+    return '$confidence%';
+  }
 
   @override
   String get ocrEngine => 'OCR Engine';
 
   @override
   String get ocrProcessingTime => 'Processing Time';
+
+  @override
+  String ocrMilliseconds(String ms) {
+    return '${ms}ms';
+  }
 
   @override
   String get ocrPrescriptionType => 'Prescription Type';
@@ -2442,159 +2526,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrValidationStatus => 'Validation Status';
 
   @override
-  String get ocrNeedsReview => 'Needs Review';
-
-  @override
-  String get ocrNeedsReviewYes => 'Yes - Please verify extracted data';
-
-  @override
-  String get ocrNeedsReviewNo => 'No';
-
-  @override
-  String ocrMilliseconds(String ms) {
-    return '${ms}ms';
-  }
-
-  @override
-  String ocrConfidencePercent(String percent) {
-    return '$percent%';
-  }
-
-  @override
-  String get ocrOutpatient => 'Outpatient';
-
-  @override
-  String get ocrInpatient => 'Inpatient';
-
-  @override
   String get ocrValidated => 'Validated';
 
   @override
-  String get ocrNotAvailable => 'N/A';
-
-  @override
-  String get ocrScanInfoSection => 'From OCR Scan';
-
-  @override
-  String get ocrScanInfoSectionKhmer => 'ពីការស្កែន OCR';
-
-  @override
-  String get approve => 'Approve';
-
-  @override
-  String get deny => 'Deny';
-
-  @override
-  String get familyLinked => 'Family linked successfully';
-
-  @override
-  String get connectionDenied => 'Connection denied';
-
-  @override
-  String get operationFailed => 'Operation failed. Please try again.';
-
-  @override
-  String get nudgeTitle => 'Nudge Received';
-
-  @override
-  String get nudgeMessage =>
-      'Your caregiver reminded you to take your medication.';
-
-  @override
-  String get missedDoseAlertTitle => 'Missed Dose';
-
-  @override
-  String missedDoseBannerMessage(String medicationName) {
-    return 'You missed a dose of $medicationName';
-  }
-
-  @override
-  String get needFamilySupport => 'Need family support?';
-
-  @override
-  String get dismiss => 'Dismiss';
-
-  @override
-  String get missedDoseBanner => 'You have missed doses today';
-
-  @override
-  String get connectNewPatient => 'Connect New Patient';
-
-  @override
-  String get searchPatientByContact => 'Search by phone or email';
-
-  @override
-  String get enterPhoneOrEmail => 'Enter patient\'s phone number or email';
-
-  @override
-  String get searchPatient => 'Search';
-
-  @override
-  String get patientFound => 'Patient found';
-
-  @override
-  String get sendConnectionRequest => 'Send Connection Request';
-
-  @override
-  String get connectionRequestSent => 'Connection request sent successfully';
-
-  @override
-  String get connectionRequestFailed => 'Failed to send connection request';
-
-  @override
-  String get noPatientFound => 'No patient found with that contact';
-
-  @override
-  String get connectionAlreadyExists =>
-      'Connection already exists with this patient';
-
-  @override
-  String get pendingConnectionRequest => 'Pending Connection Request';
-
-  @override
-  String doctorWantsToConnect(String doctorName) {
-    return '$doctorName wants to connect with you to manage your prescriptions.';
-  }
-
-  @override
-  String get approveConnection => 'Approve';
-
-  @override
-  String get rejectConnection => 'Reject';
-
-  @override
-  String get connectionApproved => 'Connection approved';
-
-  @override
-  String get connectionRejected => 'Connection rejected';
-
-  @override
-  String get removeNotification => 'Remove Notification';
-
-  @override
-  String get removeNotificationConfirm =>
-      'Are you sure you want to remove this notification?';
-
-  @override
-  String get remove => 'Remove';
-
-  @override
-  String get pendingPrescriptions => 'Pending Prescriptions';
-
-  @override
-  String prescriptionFromDoctor(String doctorName) {
-    return 'From Dr. $doctorName';
-  }
-
-  @override
-  String get rejectPrescription => 'Reject';
-
-  @override
-  String get confirmPrescription => 'Confirm';
-
-  @override
-  String get prescriptionConfirmed => 'Prescription confirmed';
-
-  @override
-  String get prescriptionRejected => 'Prescription rejected';
+  String get ocrScanInfoSection => 'Scan Information';
 }

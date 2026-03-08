@@ -61,6 +61,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
     final doseProvider = context.watch<DoseProvider>();
     final healthProvider = context.watch<HealthMonitoringProvider>();
     final notifProvider = context.watch<NotificationProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -117,7 +118,6 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           child: _TimePeriodCard(
                             label: l10n.morning,
                             icon: Icons.wb_sunny_outlined,
-                            color: AppColors.morningYellow,
                             doseCount: _getDoseCountByPeriod(
                               doseProvider,
                               'MORNING',
@@ -131,7 +131,6 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           child: _TimePeriodCard(
                             label: l10n.afternoon,
                             icon: Icons.wb_twilight,
-                            color: AppColors.afternoonOrange,
                             doseCount: _getDoseCountByPeriod(
                               doseProvider,
                               'AFTERNOON',
@@ -145,7 +144,6 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           child: _TimePeriodCard(
                             label: l10n.night,
                             icon: Icons.nightlight_round,
-                            color: AppColors.nightPurple,
                             doseCount: _getDoseCountByPeriod(
                               doseProvider,
                               'NIGHT',
@@ -619,9 +617,53 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  /// Get dose count for a specific time period
+  int _getDoseCountByPeriod(DoseProvider provider, String period) {
+    return provider.todaysDoses
+        .where((d) => d.timePeriod.toUpperCase() == period)
+        .length;
+  }
+
+  /// Convert month number to Khmer month name
+  String _khmerMonth(int month) {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return months[month - 1];
+  }
+
+  /// Get icon for vital type
+  IconData _vitalIcon(VitalType type) {
+    switch (type) {
+      case VitalType.bloodPressure:
+        return Icons.favorite;
+      case VitalType.heartRate:
+        return Icons.favorite_outline;
+      case VitalType.temperature:
+        return Icons.thermostat;
+      case VitalType.glucose:
+        return Icons.bloodtype;
+      case VitalType.spo2:
+        return Icons.air;
+      case VitalType.weight:
+        return Icons.scale;
+    }
   }
 }
 
@@ -689,10 +731,11 @@ class _MedicationTrackerSection extends StatelessWidget {
     );
   }
 
-  int _getDoseCountByPeriod(DoseProvider provider, String period) => provider
-      .todaysDoses
-      .where((d) => d.timePeriod.toUpperCase() == period)
-      .length;
+  int _getDoseCountByPeriod(DoseProvider provider, String period) {
+    return provider.todaysDoses
+        .where((d) => d.timePeriod.toUpperCase() == period)
+        .length;
+  }
 
   String _dayName(int weekday) {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -1493,8 +1536,11 @@ class _MissedDoseBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded,
-              color: AppColors.alertRed, size: 22),
+          const Icon(
+            Icons.warning_amber_rounded,
+            color: AppColors.alertRed,
+            size: 22,
+          ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
@@ -1513,8 +1559,7 @@ class _MissedDoseBanner extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               minimumSize: const Size(0, 32),
             ),
-            child: Text(l10n.markAsTaken,
-                style: const TextStyle(fontSize: 12)),
+            child: Text(l10n.markAsTaken, style: const TextStyle(fontSize: 12)),
           ),
         ],
       ),

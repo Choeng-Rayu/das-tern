@@ -4598,6 +4598,162 @@ abstract class AppLocalizations {
   /// **'{percentage}%'**
   String adherencePercentage(String percentage);
 
+  /// No description provided for @connectNewPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect New Patient'**
+  String get connectNewPatient;
+
+  /// No description provided for @enterPhoneOrEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone number or email'**
+  String get enterPhoneOrEmail;
+
+  /// No description provided for @noPatientFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No patient found'**
+  String get noPatientFound;
+
+  /// No description provided for @connectionRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection request sent'**
+  String get connectionRequestSent;
+
+  /// No description provided for @connectionRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection request failed'**
+  String get connectionRequestFailed;
+
+  /// No description provided for @sendConnectionRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Connection Request'**
+  String get sendConnectionRequest;
+
+  /// No description provided for @connectionApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection approved'**
+  String get connectionApproved;
+
+  /// No description provided for @connectionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection rejected'**
+  String get connectionRejected;
+
+  /// No description provided for @approveConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Connection'**
+  String get approveConnection;
+
+  /// No description provided for @rejectConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Connection'**
+  String get rejectConnection;
+
+  /// No description provided for @removeNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Notification'**
+  String get removeNotification;
+
+  /// No description provided for @removeNotificationConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove notification?'**
+  String get removeNotificationConfirm;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @prescriptionConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription confirmed'**
+  String get prescriptionConfirmed;
+
+  /// No description provided for @prescriptionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription rejected'**
+  String get prescriptionRejected;
+
+  /// No description provided for @rejectPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Prescription'**
+  String get rejectPrescription;
+
+  /// No description provided for @confirmPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Prescription'**
+  String get confirmPrescription;
+
+  /// No description provided for @prescriptionFromDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription from {doctor}'**
+  String prescriptionFromDoctor(String doctor);
+
+  /// No description provided for @pendingPrescriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Prescriptions'**
+  String get pendingPrescriptions;
+
+  /// No description provided for @missedDoseBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You missed a dose'**
+  String get missedDoseBanner;
+
+  /// No description provided for @ocrOutpatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Outpatient'**
+  String get ocrOutpatient;
+
+  /// No description provided for @ocrInpatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Inpatient'**
+  String get ocrInpatient;
+
+  /// No description provided for @ocrFacilityHospital.
+  ///
+  /// In en, this message translates to:
+  /// **'Hospital'**
+  String get ocrFacilityHospital;
+
+  /// No description provided for @ocrFacilityClinic.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinic'**
+  String get ocrFacilityClinic;
+
+  /// No description provided for @ocrNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get ocrNotAvailable;
+
+  /// No description provided for @ocrNeedsReviewYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, needs review'**
+  String get ocrNeedsReviewYes;
+
   /// No description provided for @ocrPatientInfoSection.
   ///
   /// In en, this message translates to:
@@ -4628,17 +4784,17 @@ abstract class AppLocalizations {
   /// **'Age'**
   String get ocrPatientAge;
 
+  /// No description provided for @ocrYearsOld.
+  ///
+  /// In en, this message translates to:
+  /// **'{age} years old'**
+  String ocrYearsOld(String age);
+
   /// No description provided for @ocrPatientGender.
   ///
   /// In en, this message translates to:
   /// **'Gender'**
   String get ocrPatientGender;
-
-  /// No description provided for @ocrYearsOld.
-  ///
-  /// In en, this message translates to:
-  /// **'{age} years old'**
-  String ocrYearsOld(int age);
 
   /// No description provided for @ocrPrescriberSection.
   ///
@@ -4649,13 +4805,13 @@ abstract class AppLocalizations {
   /// No description provided for @ocrPrescriberName.
   ///
   /// In en, this message translates to:
-  /// **'Prescriber'**
+  /// **'Prescriber Name'**
   String get ocrPrescriberName;
 
   /// No description provided for @ocrFacilitySection.
   ///
   /// In en, this message translates to:
-  /// **'Healthcare Facility'**
+  /// **'Facility Information'**
   String get ocrFacilitySection;
 
   /// No description provided for @ocrFacilityName.
@@ -4669,18 +4825,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Facility Type'**
   String get ocrFacilityType;
-
-  /// No description provided for @ocrFacilityHospital.
-  ///
-  /// In en, this message translates to:
-  /// **'Hospital'**
-  String get ocrFacilityHospital;
-
-  /// No description provided for @ocrFacilityClinic.
-  ///
-  /// In en, this message translates to:
-  /// **'Clinic'**
-  String get ocrFacilityClinic;
 
   /// No description provided for @ocrClinicalSection.
   ///
@@ -4697,7 +4841,7 @@ abstract class AppLocalizations {
   /// No description provided for @ocrMetadataSection.
   ///
   /// In en, this message translates to:
-  /// **'Scan Metadata'**
+  /// **'Metadata'**
   String get ocrMetadataSection;
 
   /// No description provided for @ocrConfidenceScore.
@@ -4705,6 +4849,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confidence Score'**
   String get ocrConfidenceScore;
+
+  /// No description provided for @ocrConfidencePercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{confidence}%'**
+  String ocrConfidencePercent(String confidence);
 
   /// No description provided for @ocrEngine.
   ///
@@ -4717,6 +4867,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Processing Time'**
   String get ocrProcessingTime;
+
+  /// No description provided for @ocrMilliseconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms}ms'**
+  String ocrMilliseconds(String ms);
 
   /// No description provided for @ocrPrescriptionType.
   ///
@@ -4736,293 +4892,17 @@ abstract class AppLocalizations {
   /// **'Validation Status'**
   String get ocrValidationStatus;
 
-  /// No description provided for @ocrNeedsReview.
-  ///
-  /// In en, this message translates to:
-  /// **'Needs Review'**
-  String get ocrNeedsReview;
-
-  /// No description provided for @ocrNeedsReviewYes.
-  ///
-  /// In en, this message translates to:
-  /// **'Yes - Please verify extracted data'**
-  String get ocrNeedsReviewYes;
-
-  /// No description provided for @ocrNeedsReviewNo.
-  ///
-  /// In en, this message translates to:
-  /// **'No'**
-  String get ocrNeedsReviewNo;
-
-  /// No description provided for @ocrMilliseconds.
-  ///
-  /// In en, this message translates to:
-  /// **'{ms}ms'**
-  String ocrMilliseconds(String ms);
-
-  /// No description provided for @ocrConfidencePercent.
-  ///
-  /// In en, this message translates to:
-  /// **'{percent}%'**
-  String ocrConfidencePercent(String percent);
-
-  /// No description provided for @ocrOutpatient.
-  ///
-  /// In en, this message translates to:
-  /// **'Outpatient'**
-  String get ocrOutpatient;
-
-  /// No description provided for @ocrInpatient.
-  ///
-  /// In en, this message translates to:
-  /// **'Inpatient'**
-  String get ocrInpatient;
-
   /// No description provided for @ocrValidated.
   ///
   /// In en, this message translates to:
   /// **'Validated'**
   String get ocrValidated;
 
-  /// No description provided for @ocrNotAvailable.
-  ///
-  /// In en, this message translates to:
-  /// **'N/A'**
-  String get ocrNotAvailable;
-
   /// No description provided for @ocrScanInfoSection.
   ///
   /// In en, this message translates to:
-  /// **'From OCR Scan'**
+  /// **'Scan Information'**
   String get ocrScanInfoSection;
-
-  /// No description provided for @ocrScanInfoSectionKhmer.
-  ///
-  /// In en, this message translates to:
-  /// **'ពីការស្កែន OCR'**
-  String get ocrScanInfoSectionKhmer;
-
-  /// No description provided for @approve.
-  ///
-  /// In en, this message translates to:
-  /// **'Approve'**
-  String get approve;
-
-  /// No description provided for @deny.
-  ///
-  /// In en, this message translates to:
-  /// **'Deny'**
-  String get deny;
-
-  /// No description provided for @familyLinked.
-  ///
-  /// In en, this message translates to:
-  /// **'Family linked successfully'**
-  String get familyLinked;
-
-  /// No description provided for @connectionDenied.
-  ///
-  /// In en, this message translates to:
-  /// **'Connection denied'**
-  String get connectionDenied;
-
-  /// No description provided for @operationFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Operation failed. Please try again.'**
-  String get operationFailed;
-
-  /// No description provided for @nudgeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Nudge Received'**
-  String get nudgeTitle;
-
-  /// No description provided for @nudgeMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Your caregiver reminded you to take your medication.'**
-  String get nudgeMessage;
-
-  /// No description provided for @missedDoseAlertTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Missed Dose'**
-  String get missedDoseAlertTitle;
-
-  /// No description provided for @missedDoseBannerMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'You missed a dose of {medicationName}'**
-  String missedDoseBannerMessage(String medicationName);
-
-  /// No description provided for @needFamilySupport.
-  ///
-  /// In en, this message translates to:
-  /// **'Need family support?'**
-  String get needFamilySupport;
-
-  /// No description provided for @dismiss.
-  ///
-  /// In en, this message translates to:
-  /// **'Dismiss'**
-  String get dismiss;
-
-  /// No description provided for @missedDoseBanner.
-  ///
-  /// In en, this message translates to:
-  /// **'You have missed doses today'**
-  String get missedDoseBanner;
-
-  /// No description provided for @connectNewPatient.
-  ///
-  /// In en, this message translates to:
-  /// **'Connect New Patient'**
-  String get connectNewPatient;
-
-  /// No description provided for @searchPatientByContact.
-  ///
-  /// In en, this message translates to:
-  /// **'Search by phone or email'**
-  String get searchPatientByContact;
-
-  /// No description provided for @enterPhoneOrEmail.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter patient\'s phone number or email'**
-  String get enterPhoneOrEmail;
-
-  /// No description provided for @searchPatient.
-  ///
-  /// In en, this message translates to:
-  /// **'Search'**
-  String get searchPatient;
-
-  /// No description provided for @patientFound.
-  ///
-  /// In en, this message translates to:
-  /// **'Patient found'**
-  String get patientFound;
-
-  /// No description provided for @sendConnectionRequest.
-  ///
-  /// In en, this message translates to:
-  /// **'Send Connection Request'**
-  String get sendConnectionRequest;
-
-  /// No description provided for @connectionRequestSent.
-  ///
-  /// In en, this message translates to:
-  /// **'Connection request sent successfully'**
-  String get connectionRequestSent;
-
-  /// No description provided for @connectionRequestFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to send connection request'**
-  String get connectionRequestFailed;
-
-  /// No description provided for @noPatientFound.
-  ///
-  /// In en, this message translates to:
-  /// **'No patient found with that contact'**
-  String get noPatientFound;
-
-  /// No description provided for @connectionAlreadyExists.
-  ///
-  /// In en, this message translates to:
-  /// **'Connection already exists with this patient'**
-  String get connectionAlreadyExists;
-
-  /// No description provided for @pendingConnectionRequest.
-  ///
-  /// In en, this message translates to:
-  /// **'Pending Connection Request'**
-  String get pendingConnectionRequest;
-
-  /// No description provided for @doctorWantsToConnect.
-  ///
-  /// In en, this message translates to:
-  /// **'{doctorName} wants to connect with you to manage your prescriptions.'**
-  String doctorWantsToConnect(String doctorName);
-
-  /// No description provided for @approveConnection.
-  ///
-  /// In en, this message translates to:
-  /// **'Approve'**
-  String get approveConnection;
-
-  /// No description provided for @rejectConnection.
-  ///
-  /// In en, this message translates to:
-  /// **'Reject'**
-  String get rejectConnection;
-
-  /// No description provided for @connectionApproved.
-  ///
-  /// In en, this message translates to:
-  /// **'Connection approved'**
-  String get connectionApproved;
-
-  /// No description provided for @connectionRejected.
-  ///
-  /// In en, this message translates to:
-  /// **'Connection rejected'**
-  String get connectionRejected;
-
-  /// No description provided for @removeNotification.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove Notification'**
-  String get removeNotification;
-
-  /// No description provided for @removeNotificationConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to remove this notification?'**
-  String get removeNotificationConfirm;
-
-  /// No description provided for @remove.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove'**
-  String get remove;
-
-  /// No description provided for @pendingPrescriptions.
-  ///
-  /// In en, this message translates to:
-  /// **'Pending Prescriptions'**
-  String get pendingPrescriptions;
-
-  /// No description provided for @prescriptionFromDoctor.
-  ///
-  /// In en, this message translates to:
-  /// **'From Dr. {doctorName}'**
-  String prescriptionFromDoctor(String doctorName);
-
-  /// No description provided for @rejectPrescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Reject'**
-  String get rejectPrescription;
-
-  /// No description provided for @confirmPrescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm'**
-  String get confirmPrescription;
-
-  /// No description provided for @prescriptionConfirmed.
-  ///
-  /// In en, this message translates to:
-  /// **'Prescription confirmed'**
-  String get prescriptionConfirmed;
-
-  /// No description provided for @prescriptionRejected.
-  ///
-  /// In en, this message translates to:
-  /// **'Prescription rejected'**
-  String get prescriptionRejected;
 }
 
 class _AppLocalizationsDelegate
