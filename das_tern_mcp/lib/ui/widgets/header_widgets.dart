@@ -26,6 +26,17 @@ class PatientHeader extends StatelessWidget {
   final int unreadCount;
   final String roleLabel;
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  String _greeting(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final hour = DateTime.now().hour;
+    if (hour < 12) return l10n.goodMorning;
+    if (hour < 17) return l10n.goodAfternoon;
+    return l10n.goodEvening;
+  }
+
+  // ── Build ─────────────────────────────────────────────────────────────────
   /// Returns a greeting based on current hour.
   String _greeting() {
     final hour = DateTime.now().hour;
@@ -39,33 +50,57 @@ class PatientHeader extends StatelessWidget {
     final user = context.watch<AuthProvider>().user;
     final firstName = user?['firstName'] as String? ?? '';
     final lastName = user?['lastName'] as String? ?? '';
-    final initials =
-        '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'
-            .toUpperCase();
+    final fullName = '$firstName $lastName'.trim();
 
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-        child: Stack(
-          children: [
-            // ── Background image ───────────────────────────────────────
-            Positioned.fill(
-              child: Image.asset(
-                'assets/backgroundHeader.png',
-                fit: BoxFit.cover,
-              ),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+      child: Stack(
+        children: [
+          // Background image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/backgroundHeader.png',
+              fit: BoxFit.cover,
             ),
+          ),
 
+          // Content
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.xl,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── Top row: avatar + doctor name + notification bell ──
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const _DoctorAvatar(),
+                      const SizedBox(width: AppSpacing.sm),
+                      const _DoctorName(),
+                      const Spacer(),
+                      _NotificationBell(
+                        unreadCount: unreadCount,
+                        onTap: onNotificationTap,
+                      ),
+                    ],
+                  ),
+
+                  // ── Divider ───────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.md,
+                    ),
+                    child: Divider(
+                      color: Colors.white.withValues(alpha: 0.35),
+                      thickness: 1,
             // ── Dark overlay for readability ───────────────────────────
             // Positioned.fill(
             //   child: Container(
@@ -170,6 +205,7 @@ class PatientHeader extends StatelessWidget {
                         ),
                       ],
                     ),
+                  ),
 
                     const SizedBox(height: AppSpacing.md),
 
@@ -238,11 +274,118 @@ class PatientHeader extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Sub-widgets ───────────────────────────────────────────────────────────────
+
+class _DoctorAvatar extends StatelessWidget {
+  const _DoctorAvatar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.25),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.6),
+          width: 1.5,
+        ),
+      ),
+      child: ClipOval(
+        child: Image.asset('assets/doctorLogo.png', fit: BoxFit.cover),
+      ),
+    );
+  }
+}
+
+class _DoctorName extends StatelessWidget {
+  const _DoctorName();
+
+  @override
+  Widget build(BuildContext context) {
+    // Replace with a dynamic value from your provider if needed
+    return const Text(
+      'Dastern',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.2,
+      ),
+    );
+  }
+}
+
+class _NotificationBell extends StatelessWidget {
+  const _NotificationBell({required this.unreadCount, this.onTap});
+
+  final int unreadCount;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.notifications_outlined,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+          if (unreadCount > 0) _UnreadBadge(count: unreadCount),
+        ],
+      ),
+    );
+  }
+}
+
+class _UnreadBadge extends StatelessWidget {
+  const _UnreadBadge({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: -2,
+      right: -2,
+      child: Container(
+        width: 17,
+        height: 17,
+        decoration: const BoxDecoration(
+          color: AppColors.alertRed,
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          count > 9 ? '9+' : '$count',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 9,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

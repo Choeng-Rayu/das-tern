@@ -216,6 +216,12 @@ class AppRouter {
       case doctorNotifications:
         return _buildRoute(const DoctorNotificationsScreen());
 
+      // Account routes
+      case patientEditProfile:
+        return _buildRoute(const EditProfileScreen());
+      case patientChangePassword:
+        return _buildRoute(const ChangePasswordScreen());
+
       default:
         return _buildRoute(
           const Scaffold(body: Center(child: Text('Page not found'))),
