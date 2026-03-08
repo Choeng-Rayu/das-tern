@@ -481,6 +481,7 @@ model Subscription {
   
   // Subscription Details
   expiresAt    DateTime?        @db.Timestamptz(3)
+  hasUsedTrial Boolean          @default(false)
   
   // Timestamps
   createdAt    DateTime         @default(now()) @db.Timestamptz(3)

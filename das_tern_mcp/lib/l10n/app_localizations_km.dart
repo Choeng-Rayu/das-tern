@@ -283,7 +283,8 @@ class AppLocalizationsKm extends AppLocalizations {
   String get subscription => 'ការជាវ';
 
   @override
-  String get unlockPremiumFeatures => 'ដោះសោលក្ខណៈពិសេស';
+  String get unlockPremiumFeatures =>
+      'ដោះសោមុខងារពិសេស និងទទួលបានច្រើនបំផុតពី DasTern';
 
   @override
   String get todaySchedule => 'កាលវិភាគថ្ងៃនេះ';
@@ -895,7 +896,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get allFeaturesUnlocked => 'មុខងារទាំងអស់ត្រូវបានបើក';
 
   @override
-  String get upgradeToUnlock => 'ដំឡើងដើម្បីបើកមុខងារទាំងអស់';
+  String get upgradeToUnlock => 'ដំឡើងដើម្បីដោះសោមុខងារ Premium';
 
   @override
   String get upgrade => 'ដំឡើង';
@@ -1126,6 +1127,140 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get familyPlanFeature => 'គម្រោងគ្រួសារ';
+
+  @override
+  String get premiumTrialActive => '🎉 ការសាកល្បង Premium សកម្ម';
+
+  @override
+  String get dayRemaining => 'ថ្ងៃនៅសល់';
+
+  @override
+  String get daysRemaining => 'ថ្ងៃនៅសល់';
+
+  @override
+  String get expiresToday => 'ផុតកំណត់ថ្ងៃនេះ';
+
+  @override
+  String get enjoyUnlimitedFeatures =>
+      'រីករាយជាមួយមុខងារ OCR និងគ្រួសារគ្មានដែនកំណត់';
+
+  @override
+  String get claimFreeTrial => 'ទាមទារការសាកល្បង ១ ខែឥតគិតថ្លៃ';
+
+  @override
+  String get trialAlreadyClaimed => 'បានទាមទារការសាកល្បងរួចហើយ';
+
+  @override
+  String get claimingTrial => 'កំពុងធ្វើឱ្យការសាកល្បងសកម្ម...';
+
+  @override
+  String get trialClaimedSuccess =>
+      'បានធ្វើឱ្យការសាកល្បងសកម្មជោគជ័យ! រីករាយជាមួយមុខងារ Premium រយៈពេល ១ ខែ។';
+
+  @override
+  String get trialClaimFailed =>
+      'បរាជ័យក្នុងការធ្វើឱ្យការសាកល្បងសកម្ម។ សូមព្យាយាមម្តងទៀត។';
+
+  @override
+  String get premiumTrial => 'ការសាកល្បង Premium';
+
+  @override
+  String get topFeatures => 'មុខងារសំខាន់ៗ';
+
+  @override
+  String get cancelAnytime => 'អាចបោះបង់នៅពេលណាក៏បាន';
+
+  @override
+  String get trialReminderNote =>
+      'យើងនឹងរំលឹកអ្នក ៣ ថ្ងៃមុនពេលការសាកល្បងផុតកំណត់';
+
+  @override
+  String get expandedOcrFeature => 'ស្កេនវេជ្ជបញ្ជា OCR គ្មានដែនកំណត់';
+
+  @override
+  String get familyConnectionsFeature => 'តភ្ជាប់សមាជិកគ្រួសាររហូតដល់ ៥ នាក់';
+
+  @override
+  String get expandedStorageFeature =>
+      'ទំហំផ្ទុក ២០ GB សម្រាប់កំណត់ត្រាវេជ្ជសាស្ត្រ';
+
+  @override
+  String get trialPeriod => 'រយៈពេលសាកល្បង';
+
+  @override
+  String get oneMonthFree => '១ ខែឥតគិតថ្លៃ';
+
+  @override
+  String get promotion => 'ការផ្តល់ជូន';
+
+  @override
+  String get hundredPercentOff => 'បញ្ចុះតម្លៃ 100% រយៈពេល ១ ខែ';
+
+  @override
+  String get afterTrial => 'បន្ទាប់ពីការសាកល្បង';
+
+  @override
+  String get dueToday => 'ទូទាត់ថ្ងៃនេះ';
+
+  @override
+  String get premiumFeature => 'មុខងារ Premium';
+
+  @override
+  String get ocrPremiumMessage =>
+      'ការស្កេន OCR គឺជាមុខងារ Premium។ ដំឡើងទៅ Premium ដើម្បីដោះសោ៖';
+
+  @override
+  String get unlimitedOcrScanning => 'ការស្កេន OCR គ្មានដែនកំណត់';
+
+  @override
+  String get connectFamilyMembers => 'តភ្ជាប់សមាជិកគ្រួសាររហូតដល់ ៥ នាក់';
+
+  @override
+  String get twentyGBStorage => 'ទំហំផ្ទុក ២០ GB';
+
+  @override
+  String get prioritySupport => 'ការគាំទ្រអាទិភាព';
+
+  @override
+  String get freeTrialOffer =>
+      'ការសាកល្បង ១ ខែឥតគិតថ្លៃសម្រាប់អ្នកប្រើប្រាស់ថ្មី!';
+
+  @override
+  String get yourTrialPeriod => 'រយៈពេលសាកល្បងរបស់អ្នក';
+
+  @override
+  String get trialExpiresOn => 'ការសាកល្បងផុតកំណត់នៅ';
+
+  @override
+  String get daysLeft => 'ថ្ងៃនៅសល់';
+
+  @override
+  String get dayLeft => 'ថ្ងៃនៅសល់';
+
+  @override
+  String get enjoyingPremium => 'អ្នកកំពុងរីករាយជាមួយមុខងារ Premium';
+
+  @override
+  String get afterTrialEnds => 'បន្ទាប់ពីការសាកល្បងបញ្ចប់';
+
+  @override
+  String get autoRevertToFree =>
+      'គម្រោងរបស់អ្នកនឹងត្រលប់ទៅជា Freemium (គម្រោងឥតគិតថ្លៃ) ដោយស្វ័យប្រវត្តិ';
+
+  @override
+  String get keepPremiumFeatures => 'ចង់រក្សាមុខងារ Premium?';
+
+  @override
+  String get upgradeToPremium => 'ដំឡើងទៅ Premium';
+
+  @override
+  String get onlyPerMonth => 'គ្រាន់តែ \$0.50/ខែ ឬ \$1 សម្រាប់ 3 ខែ';
+
+  @override
+  String get whatYouGet => 'អ្វីដែលអ្នកកំពុងរីករាយឥឡូវនេះ';
+
+  @override
+  String get continuePremium => 'បន្តជាមួយ Premium';
 
   @override
   String get addAtLeastOneMedicine => 'សូមបន្ថែមថ្នាំយ៉ាងហោចណាស់មួយមុខ';
@@ -2205,6 +2340,18 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get termsOfService => 'លក្ខខណ្ឌប្រើប្រាស់';
+
+  @override
+  String get manageSubscriptions => 'គ្រប់គ្រងការជាវ';
+
+  @override
+  String get restoreSubscription => 'ស្ដារការជាវ';
+
+  @override
+  String get rateApp => 'វាយតម្លៃកម្មវិធី';
+
+  @override
+  String get support => 'ជំនួយ';
 
   @override
   String get currentPassword => 'លេខសម្ងាត់បច្ចុប្បន្ន';

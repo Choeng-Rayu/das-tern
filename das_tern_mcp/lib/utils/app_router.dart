@@ -38,6 +38,8 @@ import '../ui/screens/patient/screens/record_vital_screen.dart';
 import '../ui/screens/patient/screens/vital_trend_screen.dart';
 import '../ui/screens/patient/screens/vital_thresholds_screen.dart';
 import '../ui/screens/patient/screens/emergency_screen.dart';
+import '../ui/screens/patient/screens/edit_profile_screen.dart';
+import '../ui/screens/patient/screens/change_password_screen.dart';
 import '../models/enums_model/medication_type.dart';
 
 /// Centralized route definitions.
@@ -91,6 +93,10 @@ class AppRouter {
   static const String patientVitalTrend = '/patient/vitals/trend';
   static const String patientVitalThresholds = '/patient/vitals/thresholds';
   static const String patientEmergency = '/patient/emergency';
+
+  // Account routes
+  static const String patientEditProfile = '/patient/edit-profile';
+  static const String patientChangePassword = '/patient/change-password';
 
   static String? patientNotifications;
 
@@ -210,6 +216,12 @@ class AppRouter {
         return _buildRoute(const VitalThresholdsScreen());
       case patientEmergency:
         return _buildRoute(const EmergencyScreen());
+
+      // Account routes
+      case patientEditProfile:
+        return _buildRoute(const EditProfileScreen());
+      case patientChangePassword:
+        return _buildRoute(const ChangePasswordScreen());
 
       default:
         return _buildRoute(
