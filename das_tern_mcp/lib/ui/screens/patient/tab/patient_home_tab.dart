@@ -275,6 +275,24 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                         ),
                       ),
 
+                    // ── Missed dose banner ──
+                    if (doseProvider.todaysDoses.any(
+                      (d) => d.status == 'MISSED',
+                    ))
+                      _MissedDoseBanner(
+                        missedCount: doseProvider.todaysDoses
+                            .where((d) => d.status == 'MISSED')
+                            .length,
+                        onMarkTaken: () {
+                          final missed = doseProvider.todaysDoses
+                              .where((d) => d.status == 'MISSED')
+                              .toList();
+                          if (missed.isNotEmpty) {
+                            doseProvider.markTaken(missed.first.id ?? '');
+                          }
+                        },
+                      ),
+
                     const SizedBox(height: AppSpacing.lg),
 
                     // ── Quick actions (មុខងារសំខាន់ៗ) ──
@@ -305,10 +323,16 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
-                          child: _QuickActionCard(
-                            icon: Icons.family_restroom,
-                            title: l10n.familyFeatures,
-                            color: const Color(0xFF29B6F6),
+                          child: GestureDetector(
+                            onTap: () => Navigator.pushNamed(
+                              context,
+                              AppRouter.familyAccessList,
+                            ),
+                            child: _QuickActionCard(
+                              icon: Icons.family_restroom,
+                              title: l10n.familyFeatures,
+                              color: const Color(0xFF29B6F6),
+                            ),
                           ),
                         ),
                       ],
@@ -836,6 +860,63 @@ class _QuickActionCard extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Missed Dose Banner ──────────────────────────────────────────────────────
+
+class _MissedDoseBanner extends StatelessWidget {
+  final int missedCount;
+  final VoidCallback onMarkTaken;
+
+  const _MissedDoseBanner({
+    required this.missedCount,
+    required this.onMarkTaken,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.alertRed.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.alertRed.withValues(alpha: 0.30)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.warning_amber_rounded,
+              color: AppColors.alertRed, size: 22),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              l10n.missedDoseBanner,
+              style: const TextStyle(
+                color: AppColors.alertRed,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: onMarkTaken,
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.alertRed,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: const Size(0, 32),
+            ),
+            child: Text(l10n.markAsTaken,
+                style: const TextStyle(fontSize: 12)),
           ),
         ],
       ),

@@ -2219,4 +2219,150 @@ class AppLocalizationsKm extends AppLocalizations {
   String adherencePercentage(String percentage) {
     return '$percentage%';
   }
+
+  @override
+  String get ocrPatientInfoSection => 'ព័ត៌មានអ្នកជំងឺ';
+
+  @override
+  String get ocrPatientId => 'លេខសម្គាល់អ្នកជំងឺ';
+
+  @override
+  String get ocrPatientName => 'ឈ្មោះអ្នកជំងឺ';
+
+  @override
+  String get ocrPatientKhmerName => 'ឈ្មោះអ្នកជំងឺ (ខ្មែរ)';
+
+  @override
+  String get ocrPatientAge => 'អាយុ';
+
+  @override
+  String get ocrPatientGender => 'ភេទ';
+
+  @override
+  String ocrYearsOld(int age) {
+    return '$age ឆ្នាំ';
+  }
+
+  @override
+  String get ocrPrescriberSection => 'ព័ត៌មានវេជ្ជបណ្ឌិត';
+
+  @override
+  String get ocrPrescriberName => 'វេជ្ជបណ្ឌិត';
+
+  @override
+  String get ocrFacilitySection => 'គ្រឹះស្ថានសុខាភិបាល';
+
+  @override
+  String get ocrFacilityName => 'ឈ្មោះគ្រឹះស្ថាន';
+
+  @override
+  String get ocrFacilityType => 'ប្រភេទគ្រឹះស្ថាន';
+
+  @override
+  String get ocrFacilityHospital => 'មន្ទីរពេទ្យ';
+
+  @override
+  String get ocrFacilityClinic => 'គ្លីនិក';
+
+  @override
+  String get ocrClinicalSection => 'ព័ត៌មានវេជ្ជសាស្ត្រ';
+
+  @override
+  String get ocrDiagnosis => 'រោគវិនិច្ឆ័យ';
+
+  @override
+  String get ocrMetadataSection => 'ព័ត៌មានការស្កេន';
+
+  @override
+  String get ocrConfidenceScore => 'ពិន្ទុទំនុកចិត្ត';
+
+  @override
+  String get ocrEngine => 'ម៉ាស៊ីន OCR';
+
+  @override
+  String get ocrProcessingTime => 'រយៈពេលដំណើរការ';
+
+  @override
+  String get ocrPrescriptionType => 'ប្រភេទវេជ្ជបញ្ជា';
+
+  @override
+  String get ocrLanguagesDetected => 'ភាសាដែលបានរកឃើញ';
+
+  @override
+  String get ocrValidationStatus => 'ស្ថានភាពផ្ទៀងផ្ទាត់';
+
+  @override
+  String get ocrNeedsReview => 'ត្រូវការពិនិត្យ';
+
+  @override
+  String get ocrNeedsReviewYes => 'បាទ/ចាស - សូមផ្ទៀងផ្ទាត់ទិន្នន័យ';
+
+  @override
+  String get ocrNeedsReviewNo => 'ទេ';
+
+  @override
+  String ocrMilliseconds(String ms) {
+    return '${ms}ms';
+  }
+
+  @override
+  String ocrConfidencePercent(String percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get ocrOutpatient => 'អ្នកជំងឺក្រៅ';
+
+  @override
+  String get ocrInpatient => 'អ្នកជំងឺក្នុង';
+
+  @override
+  String get ocrValidated => 'បានផ្ទៀងផ្ទាត់';
+
+  @override
+  String get ocrNotAvailable => 'គ្មានទិន្នន័យ';
+
+  @override
+  String get ocrScanInfoSection => 'ពីការស្កែន OCR';
+
+  @override
+  String get ocrScanInfoSectionKhmer => 'ពីការស្កែន OCR';
+
+  @override
+  String get approve => 'យល់ព្រម';
+
+  @override
+  String get deny => 'បដិសេធ';
+
+  @override
+  String get familyLinked => 'ភ្ជាប់គ្រួសារដោយជោគជ័យ';
+
+  @override
+  String get connectionDenied => 'ការតភ្ជាប់ត្រូវបានបដិសេធ';
+
+  @override
+  String get operationFailed => 'ប្រតិបត្តិការបានបរាជ័យ។ សូមព្យាយាមម្តងទៀត។';
+
+  @override
+  String get nudgeTitle => 'ទទួលបានការរំលឹក';
+
+  @override
+  String get nudgeMessage => 'អ្នកថែទាំរបស់អ្នកបានរំលឹកអ្នកឱ្យពិសាថ្នាំ។';
+
+  @override
+  String get missedDoseAlertTitle => 'ខ្លួនអ្នកបានខ្លាចថ្នាំ';
+
+  @override
+  String missedDoseBannerMessage(String medicationName) {
+    return 'អ្នកបានខ្លាចដូស $medicationName';
+  }
+
+  @override
+  String get needFamilySupport => 'ត្រូវការការគាំទ្រពីគ្រួសារ?';
+
+  @override
+  String get dismiss => 'ច្រាន';
+
+  @override
+  String get missedDoseBanner => 'អ្នកមានដូសដែលខ្លាចថ្ងៃនេះ';
 }

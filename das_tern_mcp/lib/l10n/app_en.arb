@@ -935,5 +935,77 @@
     "placeholders": {
       "percentage": {"type": "String"}
     }
-  }
+  },
+
+  "ocrPatientInfoSection": "Patient Information",
+  "ocrPatientId": "Patient ID",
+  "ocrPatientName": "Patient Name",
+  "ocrPatientKhmerName": "Patient Name (Khmer)",
+  "ocrPatientAge": "Age",
+  "ocrPatientGender": "Gender",
+  "ocrYearsOld": "{age} years old",
+  "@ocrYearsOld": {
+    "placeholders": {
+      "age": {"type": "int"}
+    }
+  },
+
+  "ocrPrescriberSection": "Prescriber Information",
+  "ocrPrescriberName": "Prescriber",
+
+  "ocrFacilitySection": "Healthcare Facility",
+  "ocrFacilityName": "Facility Name",
+  "ocrFacilityType": "Facility Type",
+  "ocrFacilityHospital": "Hospital",
+  "ocrFacilityClinic": "Clinic",
+
+  "ocrClinicalSection": "Clinical Information",
+  "ocrDiagnosis": "Diagnosis",
+
+  "ocrMetadataSection": "Scan Metadata",
+  "ocrConfidenceScore": "Confidence Score",
+  "ocrEngine": "OCR Engine",
+  "ocrProcessingTime": "Processing Time",
+  "ocrPrescriptionType": "Prescription Type",
+  "ocrLanguagesDetected": "Languages Detected",
+  "ocrValidationStatus": "Validation Status",
+  "ocrNeedsReview": "Needs Review",
+  "ocrNeedsReviewYes": "Yes - Please verify extracted data",
+  "ocrNeedsReviewNo": "No",
+  "ocrMilliseconds": "{ms}ms",
+  "@ocrMilliseconds": {
+    "placeholders": {
+      "ms": {"type": "String"}
+    }
+  },
+  "ocrConfidencePercent": "{percent}%",
+  "@ocrConfidencePercent": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+  "ocrOutpatient": "Outpatient",
+  "ocrInpatient": "Inpatient",
+  "ocrValidated": "Validated",
+  "ocrNotAvailable": "N/A",
+  "ocrScanInfoSection": "From OCR Scan",
+  "ocrScanInfoSectionKhmer": "ពីការស្កែន OCR",
+
+  "approve": "Approve",
+  "deny": "Deny",
+  "familyLinked": "Family linked successfully",
+  "connectionDenied": "Connection denied",
+  "operationFailed": "Operation failed. Please try again.",
+  "nudgeTitle": "Nudge Received",
+  "nudgeMessage": "Your caregiver reminded you to take your medication.",
+  "missedDoseAlertTitle": "Missed Dose",
+  "missedDoseBannerMessage": "You missed a dose of {medicationName}",
+  "@missedDoseBannerMessage": {
+    "placeholders": {
+      "medicationName": {"type": "String"}
+    }
+  },
+  "needFamilySupport": "Need family support?",
+  "dismiss": "Dismiss",
+  "missedDoseBanner": "You have missed doses today"
 }

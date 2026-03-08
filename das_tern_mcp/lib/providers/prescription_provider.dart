@@ -34,19 +34,19 @@ class PrescriptionProvider extends ChangeNotifier {
           status: status,
           patientId: patientId,
         );
-        _prescriptions =
-            result.map((p) => Prescription.fromJson(p)).toList();
+        _prescriptions = result.map((p) => Prescription.fromJson(p)).toList();
         // Cache for offline
         await _db.cachePrescriptions(
-            result.map((p) => Map<String, dynamic>.from(p)).toList());
+          result.map((p) => Map<String, dynamic>.from(p)).toList(),
+        );
       } else {
         // Offline fallback
         final cached = await _db.getCachedPrescriptions();
-        _prescriptions =
-            cached.map((p) => Prescription.fromJson(p)).toList();
+        _prescriptions = cached.map((p) => Prescription.fromJson(p)).toList();
         if (status != null) {
-          _prescriptions =
-              _prescriptions.where((p) => p.status == status).toList();
+          _prescriptions = _prescriptions
+              .where((p) => p.status == status)
+              .toList();
         }
       }
     } catch (e) {
@@ -55,8 +55,7 @@ class PrescriptionProvider extends ChangeNotifier {
       try {
         final cached = await _db.getCachedPrescriptions();
         if (cached.isNotEmpty) {
-          _prescriptions =
-              cached.map((p) => Prescription.fromJson(p)).toList();
+          _prescriptions = cached.map((p) => Prescription.fromJson(p)).toList();
           _error = null;
         }
       } catch (_) {}
@@ -102,8 +101,7 @@ class PrescriptionProvider extends ChangeNotifier {
   }
 
   /// Update an existing prescription (PATCH).
-  Future<bool> updatePrescription(
-      String id, Map<String, dynamic> data) async {
+  Future<bool> updatePrescription(String id, Map<String, dynamic> data) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -135,13 +133,17 @@ class PrescriptionProvider extends ChangeNotifier {
   }
 
   /// Create a patient prescription (self-administered).
-  Future<bool> createPatientPrescription(Map<String, dynamic> data) async {
+  Future<bool> createPatientPrescription(
+    Map<String, dynamic> data, {
+    Future<void> Function()? onAfterCreate,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
     try {
       await _api.createPatientPrescription(data);
       await fetchPrescriptions();
+      if (onAfterCreate != null) await onAfterCreate();
       return true;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
@@ -155,7 +157,9 @@ class PrescriptionProvider extends ChangeNotifier {
 
   /// Add medicine to an existing prescription.
   Future<bool> addMedicine(
-      String prescriptionId, Map<String, dynamic> data) async {
+    String prescriptionId,
+    Map<String, dynamic> data,
+  ) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -175,7 +179,9 @@ class PrescriptionProvider extends ChangeNotifier {
 
   /// Update a medicine.
   Future<bool> updateMedicine(
-      String medicineId, Map<String, dynamic> data) async {
+    String medicineId,
+    Map<String, dynamic> data,
+  ) async {
     _isLoading = true;
     _error = null;
     notifyListeners();

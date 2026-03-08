@@ -29,9 +29,7 @@ class DoseProvider extends ChangeNotifier {
 
   int get totalDoses => _todaysDoses.length;
   int get takenDoses => _todaysDoses
-      .where((d) =>
-          d.status == 'TAKEN_ON_TIME' ||
-          d.status == 'TAKEN_LATE')
+      .where((d) => d.status == 'TAKEN_ON_TIME' || d.status == 'TAKEN_LATE')
       .length;
   double get progress => totalDoses > 0 ? takenDoses / totalDoses : 0;
 
@@ -49,43 +47,62 @@ class DoseProvider extends ChangeNotifier {
       if (_sync.isOnline) {
         _log.debug('DoseProvider', 'Fetching from API (online)');
         // Online: fetch from API
-        final result =
-            await _api.getDoseSchedule(date: today, groupBy: 'timePeriod');
-        if (result['doses'] != null) {
-          final doseList = List<Map<String, dynamic>>.from(result['doses']);
+        final result = await _api.getDoseSchedule(
+          date: today,
+          groupBy: 'timePeriod',
+        );
+        // Backend returns { date, dailyProgress, groups: [{period, doses}] }
+        // when groupBy=timePeriod is used
+        if (result['groups'] != null) {
+          final groups = result['groups'] as List;
+          // Flatten all doses for caching and notifications
+          final allDoses = <Map<String, dynamic>>[];
+          final grouped = <String, List<DoseEvent>>{};
+          for (final group in groups) {
+            final period = group['period'] as String;
+            final doseMaps = List<Map<String, dynamic>>.from(
+              group['doses'] as List,
+            );
+            allDoses.addAll(doseMaps);
+            grouped[period] = doseMaps
+                .map((d) => DoseEvent.fromJson(d))
+                .toList();
+          }
+          await _db.cacheDoseEvents(allDoses);
+          await _notif.scheduleAllReminders(allDoses);
+          _todaysDoses = allDoses.map((d) => DoseEvent.fromJson(d)).toList();
+          _groupedDoses = grouped;
+          _log.success('DoseProvider', 'Schedule fetched from API (grouped)', {
+            'count': _todaysDoses.length,
+          });
+        } else if (result['doses'] != null) {
+          final doseList = List<Map<String, dynamic>>.from(
+            result['doses'] as List,
+          );
           // Cache in SQLite
           await _db.cacheDoseEvents(doseList);
           // Schedule local notifications
           await _notif.scheduleAllReminders(doseList);
-          _todaysDoses =
-              doseList.map((d) => DoseEvent.fromJson(d)).toList();
-          _log.success('DoseProvider', 'Schedule fetched from API', {'count': _todaysDoses.length});
-        }
-        if (result['grouped'] != null) {
-          _groupedDoses =
-              (result['grouped'] as Map<String, dynamic>).map(
-            (key, value) => MapEntry(
-              key,
-              (value as List).map((d) => DoseEvent.fromJson(d)).toList(),
-            ),
-          );
+          _todaysDoses = doseList.map((d) => DoseEvent.fromJson(d)).toList();
+          _log.success('DoseProvider', 'Schedule fetched from API', {
+            'count': _todaysDoses.length,
+          });
         }
       } else {
         _log.warning('DoseProvider', 'Device offline, loading from cache');
         // Offline: load from SQLite
         final cached = await _db.getCachedDosesByDate(today);
-        _todaysDoses =
-            cached.map((d) => DoseEvent.fromJson(d)).toList();
+        _todaysDoses = cached.map((d) => DoseEvent.fromJson(d)).toList();
         // Group by timePeriod
         _groupedDoses = {};
         for (final dose in _todaysDoses) {
-          _groupedDoses
-              .putIfAbsent(dose.timePeriod, () => [])
-              .add(dose);
+          _groupedDoses.putIfAbsent(dose.timePeriod, () => []).add(dose);
         }
         // Schedule notifications from cache
         await _notif.scheduleAllReminders(cached);
-        _log.info('DoseProvider', 'Schedule loaded from cache', {'count': _todaysDoses.length});
+        _log.info('DoseProvider', 'Schedule loaded from cache', {
+          'count': _todaysDoses.length,
+        });
       }
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
@@ -95,8 +112,7 @@ class DoseProvider extends ChangeNotifier {
         final today = DateTime.now().toIso8601String().split('T')[0];
         final cached = await _db.getCachedDosesByDate(today);
         if (cached.isNotEmpty) {
-          _todaysDoses =
-              cached.map((d) => DoseEvent.fromJson(d)).toList();
+          _todaysDoses = cached.map((d) => DoseEvent.fromJson(d)).toList();
           _error = null; // cleared – we have cached data
           _log.info('DoseProvider', 'Fallback to cache successful');
         }
@@ -128,7 +144,10 @@ class DoseProvider extends ChangeNotifier {
 
   /// Mark a dose as taken (works offline).
   Future<bool> markTaken(String doseId) async {
-    _log.info('DoseProvider', 'Marking dose taken', {'doseId': doseId, 'online': _sync.isOnline});
+    _log.info('DoseProvider', 'Marking dose taken', {
+      'doseId': doseId,
+      'online': _sync.isOnline,
+    });
     try {
       final now = DateTime.now();
 
@@ -144,7 +163,10 @@ class DoseProvider extends ChangeNotifier {
           method: 'PATCH',
           body: {'takenAt': now.toIso8601String(), 'offline': true},
         );
-        _log.info('DoseProvider', 'Dose marked taken (offline, queued for sync)');
+        _log.info(
+          'DoseProvider',
+          'Dose marked taken (offline, queued for sync)',
+        );
       }
 
       // Cancel the reminder for this dose

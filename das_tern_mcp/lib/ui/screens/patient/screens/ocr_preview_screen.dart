@@ -5,6 +5,7 @@ import '../../../../providers/prescription_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/medicine_form_widget.dart';
+import '../../../widgets/ocr_info_section_widget.dart';
 
 class OcrPreviewScreen extends StatefulWidget {
   final Map<String, dynamic> extractedData;
@@ -25,6 +26,29 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
   String? _doctorName;
   String? _diagnosis;
 
+  // ── Full OCR data fields ──
+  String? _patientId;
+  String? _patientFullName;
+  String? _patientKhmerName;
+  int? _patientAge;
+  String? _patientGender;
+
+  String? _prescriberName;
+
+  String? _facilityNameEnglish;
+  String? _facilityNameKhmer;
+  String? _facilityType;
+
+  String? _prescriptionType;
+  double? _confidenceScore;
+  String? _ocrEngine;
+  double? _processingTimeMs;
+  String? _primaryLanguage;
+  List<String> _secondaryLanguages = [];
+  String? _validationStatus;
+  bool _needsReview = false;
+  List<String> _enginesUsed = [];
+
   @override
   void initState() {
     super.initState();
@@ -32,13 +56,16 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
   }
 
   /// Parse the nested OCR service response into flat medicine maps
-  /// that MedicineFormWidget understands.
+  /// that MedicineFormWidget understands, and extract all prescription metadata.
   ///
   /// OCR response structure:
   /// {
   ///   "success": true,
   ///   "data": {
   ///     "prescription": {
+  ///       "metadata": { "extraction_info": {...}, "prescription_type": "...", ... },
+  ///       "healthcare_facility": { "name": {...}, "type": "..." },
+  ///       "patient": { "identification": {...}, "personal_info": {...} },
   ///       "clinical_information": { "diagnoses": [...] },
   ///       "prescriber": { "name": { "full_name": "..." } },
   ///       "medications": { "items": [...] },
@@ -54,7 +81,28 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     final data = raw['data'] as Map<String, dynamic>? ?? {};
     final prescription = data['prescription'] as Map<String, dynamic>? ?? {};
 
-    // Extract metadata for the prescription title
+    // ── Patient Information ──
+    final patient = prescription['patient'] as Map<String, dynamic>? ?? {};
+    final identification =
+        patient['identification'] as Map<String, dynamic>? ?? {};
+    final patientIdMap =
+        identification['patient_id'] as Map<String, dynamic>? ?? {};
+    _patientId = patientIdMap['value'] as String?;
+
+    final personalInfo =
+        patient['personal_info'] as Map<String, dynamic>? ?? {};
+    final nameInfo = personalInfo['name'] as Map<String, dynamic>? ?? {};
+    _patientFullName = nameInfo['full_name'] as String?;
+    _patientKhmerName = nameInfo['khmer_name'] as String?;
+
+    final ageInfo = personalInfo['age'] as Map<String, dynamic>? ?? {};
+    _patientAge = ageInfo['value'] as int?;
+
+    final genderInfo = personalInfo['gender'] as Map<String, dynamic>? ?? {};
+    _patientGender =
+        (genderInfo['value'] as String?) ?? (genderInfo['english'] as String?);
+
+    // ── Clinical Information (diagnoses) ──
     final clinicalInfo =
         prescription['clinical_information'] as Map<String, dynamic>? ?? {};
     final diagnosesList = clinicalInfo['diagnoses'] as List<dynamic>? ?? [];
@@ -74,12 +122,57 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
         diagnosisStrings.isNotEmpty ? diagnosisStrings.join(', ') : null;
     _title = _diagnosis ?? 'Scanned Prescription';
 
-    // Extract doctor name
+    // ── Prescriber ──
     final prescriber =
         prescription['prescriber'] as Map<String, dynamic>? ?? {};
-    final prescriberName =
+    final prescriberNameMap =
         prescriber['name'] as Map<String, dynamic>? ?? {};
-    _doctorName = prescriberName['full_name'] as String?;
+    _prescriberName = prescriberNameMap['full_name'] as String?;
+    _doctorName = _prescriberName;
+
+    // ── Healthcare Facility ──
+    final facility =
+        prescription['healthcare_facility'] as Map<String, dynamic>? ?? {};
+    final facilityName = facility['name'] as Map<String, dynamic>? ?? {};
+    _facilityNameEnglish = facilityName['english'] as String?;
+    _facilityNameKhmer = facilityName['khmer'] as String?;
+    _facilityType = facility['type'] as String?;
+
+    // ── Metadata ──
+    final metadata = prescription['metadata'] as Map<String, dynamic>? ?? {};
+    _prescriptionType = metadata['prescription_type'] as String?;
+    _validationStatus = metadata['validation_status'] as String?;
+
+    final extractionInfo =
+        metadata['extraction_info'] as Map<String, dynamic>? ?? {};
+    _ocrEngine = extractionInfo['ocr_engine'] as String?;
+    _confidenceScore = (extractionInfo['confidence_score'] is num)
+        ? (extractionInfo['confidence_score'] as num).toDouble()
+        : null;
+    _processingTimeMs = (extractionInfo['processing_time_ms'] is num)
+        ? (extractionInfo['processing_time_ms'] as num).toDouble()
+        : null;
+
+    final langInfo =
+        metadata['languages_detected'] as Map<String, dynamic>? ?? {};
+    _primaryLanguage = langInfo['primary'] as String?;
+    final secondaryList = langInfo['secondary'] as List<dynamic>? ?? [];
+    _secondaryLanguages =
+        secondaryList.map((l) => l.toString()).toList();
+
+    // ── Extraction Summary ──
+    final extractionSummary =
+        raw['extraction_summary'] as Map<String, dynamic>? ?? {};
+    _needsReview = extractionSummary['needs_review'] as bool? ?? false;
+    final enginesUsedList =
+        extractionSummary['engines_used'] as List<dynamic>? ?? [];
+    _enginesUsed =
+        enginesUsedList.map((e) => e.toString()).toList();
+
+    // If confidence not in extraction_info, try extraction_summary
+    _confidenceScore ??= (extractionSummary['confidence_score'] is num)
+        ? (extractionSummary['confidence_score'] as num).toDouble()
+        : null;
 
     // Extract medications from the nested items array
     final medications =
@@ -268,6 +361,32 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
       if (_diagnosis != null && _diagnosis!.isNotEmpty)
         'diagnosis': _diagnosis,
       'notes': 'OCR scanned prescription',
+      'ocrMetadata': <String, dynamic>{
+        if (_prescriberName != null) 'prescriberName': _prescriberName,
+        if (_patientId != null) 'patientOcrId': _patientId,
+        if (_patientKhmerName != null) 'patientKhmerName': _patientKhmerName,
+        if (_patientFullName != null) 'patientFullName': _patientFullName,
+        if (_patientAge != null) 'patientAge': _patientAge,
+        if (_patientGender != null) 'patientGender': _patientGender,
+        'healthcareFacility': <String, dynamic>{
+          if (_facilityNameEnglish != null) 'nameEnglish': _facilityNameEnglish,
+          if (_facilityNameKhmer != null) 'nameKhmer': _facilityNameKhmer,
+          if (_facilityType != null) 'type': _facilityType,
+        },
+        if (_prescriptionType != null) 'prescriptionType': _prescriptionType,
+        if (_confidenceScore != null) 'confidenceScore': _confidenceScore,
+        if (_ocrEngine != null) 'ocrEngine': _ocrEngine,
+        if (_processingTimeMs != null) 'processingTimeMs': _processingTimeMs,
+        if (_primaryLanguage != null || _secondaryLanguages.isNotEmpty)
+          'languagesDetected': <String, dynamic>{
+            if (_primaryLanguage != null) 'primary': _primaryLanguage,
+            if (_secondaryLanguages.isNotEmpty)
+              'secondary': _secondaryLanguages,
+          },
+        if (_validationStatus != null) 'validationStatus': _validationStatus,
+        'needsReview': _needsReview,
+        if (_enginesUsed.isNotEmpty) 'enginesUsed': _enginesUsed,
+      },
     };
 
     final success = await context
@@ -291,10 +410,42 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     }
   }
 
+  // ── Helper: build confidence color ──
+  Color _confidenceColor(double score) {
+    if (score >= 0.8) return AppColors.successGreen;
+    if (score >= 0.5) return AppColors.warningOrange;
+    return AppColors.alertRed;
+  }
+
+  // ── Helper: format prescription type ──
+  String _formatPrescriptionType(String type, AppLocalizations l10n) {
+    switch (type.toLowerCase()) {
+      case 'outpatient':
+        return l10n.ocrOutpatient;
+      case 'inpatient':
+        return l10n.ocrInpatient;
+      default:
+        return type;
+    }
+  }
+
+  // ── Helper: format facility type ──
+  String _formatFacilityType(String type, AppLocalizations l10n) {
+    switch (type.toLowerCase()) {
+      case 'hospital':
+        return l10n.ocrFacilityHospital;
+      case 'clinic':
+        return l10n.ocrFacilityClinic;
+      default:
+        return type;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<PrescriptionProvider>();
+    final na = l10n.ocrNotAvailable;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.ocrPreviewTitle)),
@@ -326,7 +477,206 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.md),
+
+            // ── Needs Review Warning ──
+            if (_needsReview)
+              Card(
+                color: AppColors.warningOrange.withValues(alpha: 0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  side: BorderSide(
+                    color: AppColors.warningOrange.withValues(alpha: 0.4),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          color: AppColors.warningOrange, size: 20),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          l10n.ocrNeedsReviewYes,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                color: AppColors.warningOrange,
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            if (_needsReview) const SizedBox(height: AppSpacing.sm),
+
+            // ── Patient Information Section ──
+            OcrInfoSectionWidget(
+              icon: Icons.person_outline,
+              title: l10n.ocrPatientInfoSection,
+              iconColor: AppColors.primaryBlue,
+              entries: [
+                OcrInfoEntry(
+                  label: l10n.ocrPatientId,
+                  value: _patientId ?? '',
+                ),
+                OcrInfoEntry(
+                  label: l10n.ocrPatientName,
+                  value: _patientFullName ?? '',
+                ),
+                OcrInfoEntry(
+                  label: l10n.ocrPatientKhmerName,
+                  value: _patientKhmerName ?? '',
+                ),
+                OcrInfoEntry(
+                  label: l10n.ocrPatientAge,
+                  value: _patientAge != null
+                      ? l10n.ocrYearsOld(_patientAge!)
+                      : '',
+                ),
+                OcrInfoEntry(
+                  label: l10n.ocrPatientGender,
+                  value: _patientGender ?? '',
+                ),
+              ],
+            ),
+
+            // ── Prescriber Section ──
+            OcrInfoSectionWidget(
+              icon: Icons.medical_services_outlined,
+              title: l10n.ocrPrescriberSection,
+              iconColor: AppColors.successGreen,
+              entries: [
+                OcrInfoEntry(
+                  label: l10n.ocrPrescriberName,
+                  value: _prescriberName ?? '',
+                ),
+              ],
+            ),
+
+            // ── Healthcare Facility Section ──
+            OcrInfoSectionWidget(
+              icon: Icons.local_hospital_outlined,
+              title: l10n.ocrFacilitySection,
+              iconColor: AppColors.warningOrange,
+              entries: [
+                OcrInfoEntry(
+                  label: l10n.ocrFacilityName,
+                  value: _facilityNameEnglish ??
+                      _facilityNameKhmer ??
+                      '',
+                ),
+                if (_facilityNameKhmer != null &&
+                    _facilityNameEnglish != null)
+                  OcrInfoEntry(
+                    label: l10n.ocrFacilityName,
+                    value: _facilityNameKhmer!,
+                  ),
+                OcrInfoEntry(
+                  label: l10n.ocrFacilityType,
+                  value: _facilityType != null
+                      ? _formatFacilityType(_facilityType!, l10n)
+                      : '',
+                ),
+              ],
+            ),
+
+            // ── Clinical Information Section ──
+            OcrInfoSectionWidget(
+              icon: Icons.assignment_outlined,
+              title: l10n.ocrClinicalSection,
+              iconColor: AppColors.alertRed,
+              entries: [
+                OcrInfoEntry(
+                  label: l10n.ocrDiagnosis,
+                  value: _diagnosis ?? '',
+                ),
+              ],
+            ),
+
+            // ── Scan Metadata Section (collapsed by default) ──
+            OcrInfoSectionWidget(
+              icon: Icons.analytics_outlined,
+              title: l10n.ocrMetadataSection,
+              iconColor: AppColors.textSecondary,
+              initiallyExpanded: false,
+              trailing: _confidenceScore != null
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _confidenceColor(_confidenceScore!)
+                            .withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                      ),
+                      child: Text(
+                        l10n.ocrConfidencePercent(
+                          (_confidenceScore! * 100).toStringAsFixed(1),
+                        ),
+                        style: TextStyle(
+                          color: _confidenceColor(_confidenceScore!),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  : null,
+              entries: [
+                OcrInfoEntry(
+                  label: l10n.ocrConfidenceScore,
+                  value: _confidenceScore != null
+                      ? l10n.ocrConfidencePercent(
+                          (_confidenceScore! * 100).toStringAsFixed(1),
+                        )
+                      : na,
+                  valueColor: _confidenceScore != null
+                      ? _confidenceColor(_confidenceScore!)
+                      : null,
+                ),
+                OcrInfoEntry(
+                  label: l10n.ocrEngine,
+                  value: _ocrEngine ??
+                      (_enginesUsed.isNotEmpty
+                          ? _enginesUsed.join(', ')
+                          : na),
+                ),
+                OcrInfoEntry(
+                  label: l10n.ocrProcessingTime,
+                  value: _processingTimeMs != null
+                      ? l10n.ocrMilliseconds(
+                          _processingTimeMs!.toStringAsFixed(0),
+                        )
+                      : na,
+                ),
+                OcrInfoEntry(
+                  label: l10n.ocrPrescriptionType,
+                  value: _prescriptionType != null
+                      ? _formatPrescriptionType(_prescriptionType!, l10n)
+                      : '',
+                ),
+                OcrInfoEntry(
+                  label: l10n.ocrLanguagesDetected,
+                  value: [
+                    ?_primaryLanguage,
+                    ..._secondaryLanguages,
+                  ].join(', '),
+                ),
+                OcrInfoEntry(
+                  label: l10n.ocrValidationStatus,
+                  value: _validationStatus == 'validated'
+                      ? l10n.ocrValidated
+                      : _validationStatus ?? '',
+                ),
+              ],
+            ),
+
+            const SizedBox(height: AppSpacing.md),
 
             // Extracted medications header
             Row(

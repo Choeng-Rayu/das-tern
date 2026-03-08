@@ -827,5 +827,77 @@
     "placeholders": {
       "percentage": {"type": "String"}
     }
-  }
+  },
+
+  "ocrPatientInfoSection": "ព័ត៌មានអ្នកជំងឺ",
+  "ocrPatientId": "លេខសម្គាល់អ្នកជំងឺ",
+  "ocrPatientName": "ឈ្មោះអ្នកជំងឺ",
+  "ocrPatientKhmerName": "ឈ្មោះអ្នកជំងឺ (ខ្មែរ)",
+  "ocrPatientAge": "អាយុ",
+  "ocrPatientGender": "ភេទ",
+  "ocrYearsOld": "{age} ឆ្នាំ",
+  "@ocrYearsOld": {
+    "placeholders": {
+      "age": {"type": "int"}
+    }
+  },
+
+  "ocrPrescriberSection": "ព័ត៌មានវេជ្ជបណ្ឌិត",
+  "ocrPrescriberName": "វេជ្ជបណ្ឌិត",
+
+  "ocrFacilitySection": "គ្រឹះស្ថានសុខាភិបាល",
+  "ocrFacilityName": "ឈ្មោះគ្រឹះស្ថាន",
+  "ocrFacilityType": "ប្រភេទគ្រឹះស្ថាន",
+  "ocrFacilityHospital": "មន្ទីរពេទ្យ",
+  "ocrFacilityClinic": "គ្លីនិក",
+
+  "ocrClinicalSection": "ព័ត៌មានវេជ្ជសាស្ត្រ",
+  "ocrDiagnosis": "រោគវិនិច្ឆ័យ",
+
+  "ocrMetadataSection": "ព័ត៌មានការស្កេន",
+  "ocrConfidenceScore": "ពិន្ទុទំនុកចិត្ត",
+  "ocrEngine": "ម៉ាស៊ីន OCR",
+  "ocrProcessingTime": "រយៈពេលដំណើរការ",
+  "ocrPrescriptionType": "ប្រភេទវេជ្ជបញ្ជា",
+  "ocrLanguagesDetected": "ភាសាដែលបានរកឃើញ",
+  "ocrValidationStatus": "ស្ថានភាពផ្ទៀងផ្ទាត់",
+  "ocrNeedsReview": "ត្រូវការពិនិត្យ",
+  "ocrNeedsReviewYes": "បាទ/ចាស - សូមផ្ទៀងផ្ទាត់ទិន្នន័យ",
+  "ocrNeedsReviewNo": "ទេ",
+  "ocrMilliseconds": "{ms}ms",
+  "@ocrMilliseconds": {
+    "placeholders": {
+      "ms": {"type": "String"}
+    }
+  },
+  "ocrConfidencePercent": "{percent}%",
+  "@ocrConfidencePercent": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+  "ocrOutpatient": "អ្នកជំងឺក្រៅ",
+  "ocrInpatient": "អ្នកជំងឺក្នុង",
+  "ocrValidated": "បានផ្ទៀងផ្ទាត់",
+  "ocrNotAvailable": "គ្មានទិន្នន័យ",
+  "ocrScanInfoSection": "ពីការស្កែន OCR",
+  "ocrScanInfoSectionKhmer": "ពីការស្កែន OCR",
+
+  "approve": "យល់ព្រម",
+  "deny": "បដិសេធ",
+  "familyLinked": "ភ្ជាប់គ្រួសារដោយជោគជ័យ",
+  "connectionDenied": "ការតភ្ជាប់ត្រូវបានបដិសេធ",
+  "operationFailed": "ប្រតិបត្តិការបានបរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
+  "nudgeTitle": "ទទួលបានការរំលឹក",
+  "nudgeMessage": "អ្នកថែទាំរបស់អ្នកបានរំលឹកអ្នកឱ្យពិសាថ្នាំ។",
+  "missedDoseAlertTitle": "ខ្លួនអ្នកបានខ្លាចថ្នាំ",
+  "missedDoseBannerMessage": "អ្នកបានខ្លាចដូស {medicationName}",
+  "@missedDoseBannerMessage": {
+    "placeholders": {
+      "medicationName": {"type": "String"}
+    }
+  },
+  "needFamilySupport": "ត្រូវការការគាំទ្រពីគ្រួសារ?",
+  "dismiss": "ច្រាន",
+  "missedDoseBanner": "អ្នកមានដូសដែលខ្លាចថ្ងៃនេះ"
 }

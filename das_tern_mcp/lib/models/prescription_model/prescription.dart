@@ -19,6 +19,7 @@ class Prescription {
   final DateTime? followUpDate;
   final DateTime? startDate;
   final DateTime? endDate;
+  final Map<String, dynamic>? ocrMetadata;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -43,6 +44,7 @@ class Prescription {
     this.followUpDate,
     this.startDate,
     this.endDate,
+    this.ocrMetadata,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -79,6 +81,9 @@ class Prescription {
       endDate: json['endDate'] != null
           ? DateTime.parse(json['endDate'] as String)
           : null,
+      ocrMetadata: json['ocrMetadata'] is Map
+          ? Map<String, dynamic>.from(json['ocrMetadata'])
+          : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -108,6 +113,7 @@ class Prescription {
         'followUpDate': followUpDate!.toIso8601String(),
       if (startDate != null) 'startDate': startDate!.toIso8601String(),
       if (endDate != null) 'endDate': endDate!.toIso8601String(),
+      if (ocrMetadata != null) 'ocrMetadata': ocrMetadata,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };

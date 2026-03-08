@@ -513,9 +513,14 @@ class ApiService {
     final uri = Uri.parse(
       '$baseUrl/doses/history',
     ).replace(queryParameters: params.isNotEmpty ? params : null);
-    return List<dynamic>.from(
-      await _authenticatedRequest((h) => http.get(uri, headers: h)),
+    final result = await _authenticatedRequest(
+      (h) => http.get(uri, headers: h),
     );
+    // Backend wraps response in { doses: [...], adherencePercentage, total }
+    if (result is Map && result['doses'] != null) {
+      return List<dynamic>.from(result['doses'] as List);
+    }
+    return List<dynamic>.from(result as List);
   }
 
   /// PATCH /doses/:id/taken
@@ -800,6 +805,20 @@ class ApiService {
           Uri.parse('$baseUrl/users/me/grace-period'),
           headers: h,
           body: jsonEncode({'gracePeriodMinutes': minutes}),
+        ),
+      ),
+    );
+  }
+
+  /// GET /doses/caregiver/:patientId – fetch patient doses as caregiver
+  Future<Map<String, dynamic>> getPatientDosesAsCaregiver(
+    String patientId,
+  ) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.get(
+          Uri.parse('$baseUrl/doses/caregiver/$patientId'),
+          headers: h,
         ),
       ),
     );
@@ -1405,7 +1424,7 @@ class ApiService {
     );
   }
 
-  /// POST /medicines/:prescriptionId – add medicine to prescription
+  /// POST /prescriptions/:prescriptionId/medicines – add medicine to prescription
   Future<Map<String, dynamic>> addMedicine(
     String prescriptionId,
     Map<String, dynamic> data,
@@ -1413,7 +1432,7 @@ class ApiService {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.post(
-          Uri.parse('$baseUrl/medicines/$prescriptionId'),
+          Uri.parse('$baseUrl/prescriptions/$prescriptionId/medicines'),
           headers: h,
           body: jsonEncode(data),
         ),

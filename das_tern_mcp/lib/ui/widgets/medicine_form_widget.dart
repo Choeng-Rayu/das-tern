@@ -79,17 +79,24 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
+    final unitStr = _unit.toJson().toLowerCase();
+    final scheduleTimes = <Map<String, String>>[
+      if (_morning) {'timePeriod': 'morning', 'time': '07:00'},
+      if (_daytime) {'timePeriod': 'daytime', 'time': '12:00'},
+      if (_night) {'timePeriod': 'evening', 'time': '20:00'},
+    ];
+
     final data = <String, dynamic>{
       'medicineName': _nameController.text.trim(),
       'medicineNameKhmer': _nameKhmerController.text.trim(),
       'medicineType': _medicineType.toJson(),
       'unit': _unit.toJson(),
+      'dosageUnit': unitStr,
+      'form': unitStr,
       'dosageAmount': double.tryParse(_dosageController.text) ?? 1,
       'frequency': _frequencyController.text.trim(),
       'durationDays': int.tryParse(_durationController.text) ?? 30,
-      'morning': _morning,
-      'daytime': _daytime,
-      'night': _night,
+      'scheduleTimes': scheduleTimes,
       'beforeMeal': _beforeMeal,
       'isPRN': _isPRN,
       if (_descriptionController.text.isNotEmpty)

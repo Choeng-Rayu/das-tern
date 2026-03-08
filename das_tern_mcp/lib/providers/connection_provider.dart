@@ -243,6 +243,19 @@ class ConnectionProvider extends ChangeNotifier {
     }
   }
 
+  /// Fetch today's dose data for a patient (caregiver view).
+  Future<Map<String, dynamic>?> getPatientDoses(String patientId) async {
+    _error = null;
+    try {
+      final result = await _api.getPatientDosesAsCaregiver(patientId);
+      return result;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return null;
+    }
+  }
+
   // ── Connection History ──
 
   /// Get connection history with optional filter.

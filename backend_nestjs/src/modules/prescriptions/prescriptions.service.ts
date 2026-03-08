@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CreatePrescriptionDto, UpdatePrescriptionDto, CreatePatientPrescriptionDto } from './dto';
@@ -345,6 +346,7 @@ export class PrescriptionsService {
         status: 'ACTIVE',
         currentVersion: 1,
         isUrgent: false,
+        ocrMetadata: dto.ocrMetadata || Prisma.JsonNull,
         medications: {
           create: dto.medicines.map((med, index) => {
             const dosageInfo = {

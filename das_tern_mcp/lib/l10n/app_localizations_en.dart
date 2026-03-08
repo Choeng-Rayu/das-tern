@@ -2225,4 +2225,151 @@ class AppLocalizationsEn extends AppLocalizations {
   String adherencePercentage(String percentage) {
     return '$percentage%';
   }
+
+  @override
+  String get ocrPatientInfoSection => 'Patient Information';
+
+  @override
+  String get ocrPatientId => 'Patient ID';
+
+  @override
+  String get ocrPatientName => 'Patient Name';
+
+  @override
+  String get ocrPatientKhmerName => 'Patient Name (Khmer)';
+
+  @override
+  String get ocrPatientAge => 'Age';
+
+  @override
+  String get ocrPatientGender => 'Gender';
+
+  @override
+  String ocrYearsOld(int age) {
+    return '$age years old';
+  }
+
+  @override
+  String get ocrPrescriberSection => 'Prescriber Information';
+
+  @override
+  String get ocrPrescriberName => 'Prescriber';
+
+  @override
+  String get ocrFacilitySection => 'Healthcare Facility';
+
+  @override
+  String get ocrFacilityName => 'Facility Name';
+
+  @override
+  String get ocrFacilityType => 'Facility Type';
+
+  @override
+  String get ocrFacilityHospital => 'Hospital';
+
+  @override
+  String get ocrFacilityClinic => 'Clinic';
+
+  @override
+  String get ocrClinicalSection => 'Clinical Information';
+
+  @override
+  String get ocrDiagnosis => 'Diagnosis';
+
+  @override
+  String get ocrMetadataSection => 'Scan Metadata';
+
+  @override
+  String get ocrConfidenceScore => 'Confidence Score';
+
+  @override
+  String get ocrEngine => 'OCR Engine';
+
+  @override
+  String get ocrProcessingTime => 'Processing Time';
+
+  @override
+  String get ocrPrescriptionType => 'Prescription Type';
+
+  @override
+  String get ocrLanguagesDetected => 'Languages Detected';
+
+  @override
+  String get ocrValidationStatus => 'Validation Status';
+
+  @override
+  String get ocrNeedsReview => 'Needs Review';
+
+  @override
+  String get ocrNeedsReviewYes => 'Yes - Please verify extracted data';
+
+  @override
+  String get ocrNeedsReviewNo => 'No';
+
+  @override
+  String ocrMilliseconds(String ms) {
+    return '${ms}ms';
+  }
+
+  @override
+  String ocrConfidencePercent(String percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get ocrOutpatient => 'Outpatient';
+
+  @override
+  String get ocrInpatient => 'Inpatient';
+
+  @override
+  String get ocrValidated => 'Validated';
+
+  @override
+  String get ocrNotAvailable => 'N/A';
+
+  @override
+  String get ocrScanInfoSection => 'From OCR Scan';
+
+  @override
+  String get ocrScanInfoSectionKhmer => 'ពីការស្កែន OCR';
+
+  @override
+  String get approve => 'Approve';
+
+  @override
+  String get deny => 'Deny';
+
+  @override
+  String get familyLinked => 'Family linked successfully';
+
+  @override
+  String get connectionDenied => 'Connection denied';
+
+  @override
+  String get operationFailed => 'Operation failed. Please try again.';
+
+  @override
+  String get nudgeTitle => 'Nudge Received';
+
+  @override
+  String get nudgeMessage =>
+      'Your caregiver reminded you to take your medication.';
+
+  @override
+  String get missedDoseAlertTitle => 'Missed Dose';
+
+  @override
+  String missedDoseBannerMessage(String medicationName) {
+    return 'You missed a dose of $medicationName';
+  }
+
+  @override
+  String get needFamilySupport => 'Need family support?';
+
+  @override
+  String get dismiss => 'Dismiss';
+
+  @override
+  String get missedDoseBanner => 'You have missed doses today';
 }
