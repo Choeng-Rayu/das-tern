@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/dose_provider.dart';
 import '../../../../providers/health_monitoring_provider.dart';
+import '../../../../providers/notification_provider.dart';
 import '../../../../models/enums_model/medication_type.dart';
 import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
@@ -29,6 +30,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
       context.read<DoseProvider>().fetchTodaySchedule();
       context.read<HealthMonitoringProvider>().fetchLatestVitals();
       context.read<HealthMonitoringProvider>().fetchAlerts();
+      context.read<NotificationProvider>().fetchNotifications();
     });
   }
 
@@ -58,67 +60,31 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
   Widget build(BuildContext context) {
     final doseProvider = context.watch<DoseProvider>();
     final healthProvider = context.watch<HealthMonitoringProvider>();
+    final notifProvider = context.watch<NotificationProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-      body: Stack(
-        children: [
-          // ─────────────────────────────────────────────────────────────
-          // SCROLLABLE CONTENT with Pull-to-Refresh
-          // ─────────────────────────────────────────────────────────────
-          RefreshIndicator(
-            onRefresh: _onRefresh,
-            color: const Color(0xFF1E88E5),
-            backgroundColor: Colors.white,
-            strokeWidth: 3,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Space for sticky header
-                  SizedBox(height: MediaQuery.of(context).padding.top + 180),
-
-                  // Content sections
-                  Padding(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _MedicationTrackerSection(doseProvider: doseProvider),
-                        const SizedBox(height: AppSpacing.lg),
-                        _ProgressSection(doseProvider: doseProvider),
-                        const SizedBox(height: AppSpacing.lg),
-                        _TodaysDosesSection(doseProvider: doseProvider),
-                        const SizedBox(height: AppSpacing.lg),
-                        _QuickActionsSection(),
-                        const SizedBox(height: AppSpacing.lg),
-                        _HealthVitalsSection(healthProvider: healthProvider),
-                        const SizedBox(height: AppSpacing.lg),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // ─────────────────────────────────────────────────────────────
-          // STICKY HEADER (Never scrolls away)
-          // ─────────────────────────────────────────────────────────────
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: IgnorePointer(
-              ignoring: false,
-              child: PatientHeader(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await doseProvider.fetchTodaySchedule();
+          await context.read<NotificationProvider>().fetchNotifications();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Patient header with background image ──
+              PatientHeader(
                 onNotificationTap: () {
-                  final route = AppRouter.patientNotifications;
-                  if (route != null) Navigator.pushNamed(context, route);
+                  Navigator.pushNamed(
+                    context,
+                    AppRouter.patientNotifications,
+                  ).then((_) {
+                    if (!mounted) return;
+                    context.read<NotificationProvider>().fetchNotifications();
+                  });
                 },
-                unreadCount: healthProvider.unresolvedAlertCount,
+                unreadCount: notifProvider.unreadCount,
               ),
             ),
           ),

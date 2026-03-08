@@ -4,21 +4,27 @@ import '../../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
-/// Reusable patient home header with background image and user greeting.
+/// Reusable home header with background image and user greeting.
+///
+/// Used by both patient and doctor home screens.
+/// Pass [roleLabel] to customize the role badge (defaults to 'Patient').
 ///
 /// Usage:
 /// ```dart
 /// PatientHeader(onNotificationTap: () { ... })
+/// PatientHeader(roleLabel: 'Doctor', onNotificationTap: () { ... })
 /// ```
 class PatientHeader extends StatelessWidget {
   const PatientHeader({
     super.key,
     this.onNotificationTap,
     this.unreadCount = 0,
+    this.roleLabel = 'Patient',
   });
 
   final VoidCallback? onNotificationTap;
   final int unreadCount;
+  final String roleLabel;
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -201,15 +207,72 @@ class PatientHeader extends StatelessWidget {
                     ),
                   ),
 
-                  // ── Bottom: large greeting + user name ────────────────
-                  Text(
-                    '${_greeting(context)} $fullName !',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.2,
-                      height: 1.2,
+                    const SizedBox(height: AppSpacing.md),
+
+                    // Bottom row: avatar + name
+                    Row(
+                      children: [
+                        // Avatar circle with initials
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              width: 2,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              initials.isEmpty ? '?' : initials,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: AppSpacing.md),
+
+                        // Name + role badge
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '$firstName $lastName'.trim(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                roleLabel,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],

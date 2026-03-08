@@ -63,6 +63,8 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
 
                       // Patient info
                       _InfoRow(l10n.patient, rx.patientName),
+                      if (rx.doctor != null && rx.doctor!['fullName'] != null)
+                        _InfoRow(l10n.prescribedBy, rx.doctor!['fullName'] as String),
                       _InfoRow(l10n.symptomsLabel, rx.symptoms),
                       if (rx.diagnosis != null)
                         _InfoRow(l10n.diagnosis, rx.diagnosis!),
@@ -112,14 +114,46 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                       const SizedBox(height: AppSpacing.lg),
 
                       // Action buttons
-                      if (!isDoctor && rx.status == 'PENDING_CONFIRMATION')
+                      if (!isDoctor && (rx.status == 'PENDING_CONFIRMATION' || rx.status == 'DRAFT'))
                         Row(
                           children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () async {
+                                  final ok = await provider
+                                      .rejectPrescription(rx.id!);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(ok
+                                            ? l10n.prescriptionRejected
+                                            : (provider.error ?? '')),
+                                        backgroundColor: ok
+                                            ? null
+                                            : AppColors.alertRed,
+                                      ),
+                                    );
+                                    if (ok) Navigator.pop(context);
+                                  }
+                                },
+                                child: Text(l10n.rejectPrescription),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () async {
                                   await provider
                                       .confirmPrescription(rx.id!);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(l10n.prescriptionConfirmed),
+                                        backgroundColor: AppColors.successGreen,
+                                      ),
+                                    );
+                                    Navigator.pop(context);
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.successGreen,
@@ -171,6 +205,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
       case 'ACTIVE':
         return AppColors.successGreen;
       case 'PENDING_CONFIRMATION':
+      case 'DRAFT':
         return AppColors.warningOrange;
       case 'PAUSED':
         return AppColors.neutralGray;

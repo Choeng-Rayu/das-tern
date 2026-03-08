@@ -4597,6 +4597,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{percentage}%'**
   String adherencePercentage(String percentage);
+
+  /// No description provided for @connectNewPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect New Patient'**
+  String get connectNewPatient;
+
+  /// No description provided for @searchPatientByContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by phone or email'**
+  String get searchPatientByContact;
+
+  /// No description provided for @enterPhoneOrEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter patient\'s phone number or email'**
+  String get enterPhoneOrEmail;
+
+  /// No description provided for @searchPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchPatient;
+
+  /// No description provided for @patientFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient found'**
+  String get patientFound;
+
+  /// No description provided for @sendConnectionRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Connection Request'**
+  String get sendConnectionRequest;
+
+  /// No description provided for @connectionRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection request sent successfully'**
+  String get connectionRequestSent;
+
+  /// No description provided for @connectionRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send connection request'**
+  String get connectionRequestFailed;
+
+  /// No description provided for @noPatientFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No patient found with that contact'**
+  String get noPatientFound;
+
+  /// No description provided for @connectionAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection already exists with this patient'**
+  String get connectionAlreadyExists;
+
+  /// No description provided for @pendingConnectionRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Connection Request'**
+  String get pendingConnectionRequest;
+
+  /// No description provided for @doctorWantsToConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'{doctorName} wants to connect with you to manage your prescriptions.'**
+  String doctorWantsToConnect(String doctorName);
+
+  /// No description provided for @approveConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approveConnection;
+
+  /// No description provided for @rejectConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rejectConnection;
+
+  /// No description provided for @connectionApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection approved'**
+  String get connectionApproved;
+
+  /// No description provided for @connectionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection rejected'**
+  String get connectionRejected;
+
+  /// No description provided for @removeNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Notification'**
+  String get removeNotification;
+
+  /// No description provided for @removeNotificationConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove this notification?'**
+  String get removeNotificationConfirm;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @pendingPrescriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Prescriptions'**
+  String get pendingPrescriptions;
+
+  /// No description provided for @prescriptionFromDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'From Dr. {doctorName}'**
+  String prescriptionFromDoctor(String doctorName);
+
+  /// No description provided for @rejectPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rejectPrescription;
+
+  /// No description provided for @confirmPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirmPrescription;
+
+  /// No description provided for @prescriptionConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription confirmed'**
+  String get prescriptionConfirmed;
+
+  /// No description provided for @prescriptionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription rejected'**
+  String get prescriptionRejected;
 }
 
 class _AppLocalizationsDelegate

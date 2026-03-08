@@ -985,5 +985,41 @@
     "placeholders": {
       "percentage": {"type": "String"}
     }
-  }
+  },
+
+  "connectNewPatient": "Connect New Patient",
+  "searchPatientByContact": "Search by phone or email",
+  "enterPhoneOrEmail": "Enter patient's phone number or email",
+  "searchPatient": "Search",
+  "patientFound": "Patient found",
+  "sendConnectionRequest": "Send Connection Request",
+  "connectionRequestSent": "Connection request sent successfully",
+  "connectionRequestFailed": "Failed to send connection request",
+  "noPatientFound": "No patient found with that contact",
+  "connectionAlreadyExists": "Connection already exists with this patient",
+  "pendingConnectionRequest": "Pending Connection Request",
+  "doctorWantsToConnect": "{doctorName} wants to connect with you to manage your prescriptions.",
+  "@doctorWantsToConnect": {
+    "placeholders": {
+      "doctorName": {"type": "String"}
+    }
+  },
+  "approveConnection": "Approve",
+  "rejectConnection": "Reject",
+  "connectionApproved": "Connection approved",
+  "connectionRejected": "Connection rejected",
+  "removeNotification": "Remove Notification",
+  "removeNotificationConfirm": "Are you sure you want to remove this notification?",
+  "remove": "Remove",
+  "pendingPrescriptions": "Pending Prescriptions",
+  "prescriptionFromDoctor": "From Dr. {doctorName}",
+  "@prescriptionFromDoctor": {
+    "placeholders": {
+      "doctorName": {"type": "String"}
+    }
+  },
+  "rejectPrescription": "Reject",
+  "confirmPrescription": "Confirm",
+  "prescriptionConfirmed": "Prescription confirmed",
+  "prescriptionRejected": "Prescription rejected"
 }
