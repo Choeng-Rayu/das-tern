@@ -51,6 +51,31 @@ class AppTypography {
     color: AppColors.textOnDark,
   );
 
+  // ── Figma Dashboard Styles ──
+  static const TextStyle greeting = TextStyle(
+    fontSize: 30,
+    fontWeight: FontWeight.w800,
+    color: AppColors.textOnDark,
+  );
+
+  static const TextStyle statLarge = TextStyle(
+    fontSize: 48,
+    fontWeight: FontWeight.w800,
+    color: AppColors.textPrimary,
+  );
+
+  static const TextStyle statLabel = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.w800,
+    color: AppColors.textPrimary,
+  );
+
+  static const TextStyle appNameLogo = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textOnDark,
+  );
+
   // ── On-Dark Variants ──
   static const TextStyle h1OnDark = TextStyle(
     fontSize: 24,

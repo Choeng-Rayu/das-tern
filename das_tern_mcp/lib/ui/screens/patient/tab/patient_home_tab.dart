@@ -19,11 +19,12 @@ class PatientHomeTab extends StatefulWidget {
 }
 
 class _PatientHomeTabState extends State<PatientHomeTab> {
-  // ── Lifecycle ─────────────────────────────────────────────────────────────
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DoseProvider>().fetchTodaySchedule();
       context.read<HealthMonitoringProvider>().fetchLatestVitals();
@@ -31,7 +32,27 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
     });
   }
 
-  // ── Build ─────────────────────────────────────────────────────────────────
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onRefresh() async {
+    try {
+      await Future.wait([
+        context.read<DoseProvider>().fetchTodaySchedule(),
+        context.read<HealthMonitoringProvider>().fetchLatestVitals(),
+        context.read<HealthMonitoringProvider>().fetchAlerts(),
+      ]);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error refreshing: $e')));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,44 +61,68 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
-      body: RefreshIndicator(
-        onRefresh: () => doseProvider.fetchTodaySchedule(),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Header ─────────────────────────────────────────────
-              PatientHeader(
+      body: Stack(
+        children: [
+          // ─────────────────────────────────────────────────────────────
+          // SCROLLABLE CONTENT with Pull-to-Refresh
+          // ─────────────────────────────────────────────────────────────
+          RefreshIndicator(
+            onRefresh: _onRefresh,
+            color: const Color(0xFF1E88E5),
+            backgroundColor: Colors.white,
+            strokeWidth: 3,
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Space for sticky header
+                  SizedBox(height: MediaQuery.of(context).padding.top + 180),
+
+                  // Content sections
+                  Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _MedicationTrackerSection(doseProvider: doseProvider),
+                        const SizedBox(height: AppSpacing.lg),
+                        _ProgressSection(doseProvider: doseProvider),
+                        const SizedBox(height: AppSpacing.lg),
+                        _TodaysDosesSection(doseProvider: doseProvider),
+                        const SizedBox(height: AppSpacing.lg),
+                        _QuickActionsSection(),
+                        const SizedBox(height: AppSpacing.lg),
+                        _HealthVitalsSection(healthProvider: healthProvider),
+                        const SizedBox(height: AppSpacing.lg),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ─────────────────────────────────────────────────────────────
+          // STICKY HEADER (Never scrolls away)
+          // ─────────────────────────────────────────────────────────────
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: IgnorePointer(
+              ignoring: false,
+              child: PatientHeader(
                 onNotificationTap: () {
                   final route = AppRouter.patientNotifications;
                   if (route != null) Navigator.pushNamed(context, route);
                 },
                 unreadCount: healthProvider.unresolvedAlertCount,
               ),
-
-              // ── Body sections ──────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _MedicationTrackerSection(doseProvider: doseProvider),
-                    const SizedBox(height: AppSpacing.lg),
-                    _ProgressSection(doseProvider: doseProvider),
-                    const SizedBox(height: AppSpacing.lg),
-                    _TodaysDosesSection(doseProvider: doseProvider),
-                    const SizedBox(height: AppSpacing.lg),
-                    _QuickActionsSection(),
-                    const SizedBox(height: AppSpacing.lg),
-                    _HealthVitalsSection(healthProvider: healthProvider),
-                    const SizedBox(height: AppSpacing.lg),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -100,27 +145,22 @@ class _MedicationTrackerSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section title
         Text(
           l10n.medicationTracker,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 2),
-        // Date subtitle
         Text(
           '${_dayName(now.weekday)} - ${now.day} ${_khmerMonth(now.month)}',
           style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
         const SizedBox(height: AppSpacing.md),
-
-        // Time-period cards row
         Row(
           children: [
             Expanded(
               child: _TimePeriodCard(
                 label: l10n.morning,
                 icon: Icons.wb_sunny_outlined,
-                color: AppColors.morningYellow,
                 doseCount: _getDoseCountByPeriod(doseProvider, 'MORNING'),
                 badgeText: l10n.beforeMeal,
                 backgroundImage: 'assets/morning.png',
@@ -131,7 +171,6 @@ class _MedicationTrackerSection extends StatelessWidget {
               child: _TimePeriodCard(
                 label: l10n.afternoon,
                 icon: Icons.wb_twilight,
-                color: AppColors.afternoonOrange,
                 doseCount: _getDoseCountByPeriod(doseProvider, 'AFTERNOON'),
                 badgeText: l10n.afternoon,
                 backgroundImage: 'assets/afternoon.png',
@@ -142,7 +181,6 @@ class _MedicationTrackerSection extends StatelessWidget {
               child: _TimePeriodCard(
                 label: l10n.night,
                 icon: Icons.nightlight_round,
-                color: AppColors.nightPurple,
                 doseCount: _getDoseCountByPeriod(doseProvider, 'NIGHT'),
                 badgeText: l10n.night,
                 backgroundImage: 'assets/night.png',
@@ -210,7 +248,6 @@ class _ProgressSection extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Circle progress
           SizedBox(
             width: 90,
             height: 90,
@@ -237,8 +274,6 @@ class _ProgressSection extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.md),
-
-          // Info text
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,7 +342,6 @@ class _TodaysDosesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header row with icon
         Row(
           children: [
             const Text('🔔', style: TextStyle(fontSize: 18)),
@@ -319,14 +353,11 @@ class _TodaysDosesSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 4),
-        // Subtitle
         Text(
           l10n.afternoon,
           style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
         const SizedBox(height: AppSpacing.sm),
-
-        // Content
         if (doseProvider.isLoading)
           const Center(
             child: Padding(
@@ -456,13 +487,10 @@ class _HealthVitalsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Alert banner
         if (healthProvider.unresolvedAlertCount > 0) ...[
           _AlertBanner(count: healthProvider.unresolvedAlertCount),
           const SizedBox(height: AppSpacing.sm),
         ],
-
-        // Section header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -482,8 +510,6 @@ class _HealthVitalsSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
-
-        // Vitals grid
         GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -507,8 +533,6 @@ class _HealthVitalsSection extends StatelessWidget {
           }).toList(),
         ),
         const SizedBox(height: AppSpacing.sm),
-
-        // Threshold & Emergency row
         Row(
           children: [
             Expanded(
@@ -738,7 +762,6 @@ class _TimePeriodCard extends StatelessWidget {
   const _TimePeriodCard({
     required this.label,
     required this.icon,
-    required this.color,
     required this.doseCount,
     required this.badgeText,
     this.backgroundImage,
@@ -746,7 +769,6 @@ class _TimePeriodCard extends StatelessWidget {
 
   final String label;
   final IconData icon;
-  final Color color;
   final int doseCount;
   final String badgeText;
   final String? backgroundImage;
@@ -758,7 +780,6 @@ class _TimePeriodCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
         image: backgroundImage != null
             ? DecorationImage(
                 image: AssetImage(backgroundImage!),
@@ -766,55 +787,38 @@ class _TimePeriodCard extends StatelessWidget {
               )
             : null,
       ),
-      child: Stack(
+      child: Column(
         children: [
-          // Dark overlay
-          if (backgroundImage != null)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  color: Colors.black.withValues(alpha: 0.3),
-                ),
+          Icon(icon, color: Colors.white, size: 24),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            l10n.medicineCountLabel(doseCount),
+            style: const TextStyle(color: Colors.white70, fontSize: 10),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.25),
+              borderRadius: BorderRadius.circular(AppRadius.full),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
+            ),
+            child: Text(
+              badgeText,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
               ),
             ),
-          // Content
-          Column(
-            children: [
-              Icon(icon, color: Colors.white, size: 24),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                l10n.medicineCountLabel(doseCount),
-                style: const TextStyle(color: Colors.white70, fontSize: 10),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.25),
-                  borderRadius: BorderRadius.circular(AppRadius.full),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.5),
-                  ),
-                ),
-                child: Text(
-                  badgeText,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -857,7 +861,6 @@ class _DoseCheckItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Colored dot
           Container(
             width: 10,
             height: 10,

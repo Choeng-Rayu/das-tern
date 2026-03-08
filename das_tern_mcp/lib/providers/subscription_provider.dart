@@ -42,23 +42,32 @@ class SubscriptionProvider extends ChangeNotifier {
   bool get isPolling => _isPolling;
 
   String get currentTier => _subscription?['tier'] ?? 'FREEMIUM';
-  bool get isPremium => currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM';
+  bool get isPremium =>
+      currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM';
 
   String? get qrCode => _currentPayment?['payment']?['qrCode'];
   String? get md5Hash => _currentPayment?['payment']?['md5Hash'];
   String? get deepLink => _currentPayment?['payment']?['deepLink'];
 
   /// Load subscription info and available plans.
+  /// Uses a 10-second timeout so the UI never hangs indefinitely.
+  /// On failure the screen falls back to the built-in static plan cards.
   Future<void> loadSubscription() async {
     try {
       _isLoading = true;
       _errorMessage = null;
       notifyListeners();
 
-      final results = await Future.wait([
-        _api.getBakongSubscription(),
-        _api.getBakongPlans(),
-      ]);
+      final results =
+          await Future.wait([
+            _api.getBakongSubscription(),
+            _api.getBakongPlans(),
+          ]).timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => throw Exception(
+              'Connection timed out. Please check your network.',
+            ),
+          );
 
       _subscription = results[0]['subscription'] as Map<String, dynamic>?;
       _limits = results[0]['limits'] as Map<String, dynamic>?;
@@ -70,7 +79,15 @@ class SubscriptionProvider extends ChangeNotifier {
       _log.info('Subscription', 'Loaded: tier=${_subscription?['tier']}');
     } catch (e) {
       _log.error('Subscription', 'Failed to load subscription', e);
-      _errorMessage = 'Failed to load subscription info';
+      final msg = e.toString();
+      if (msg.contains('timed out') ||
+          msg.contains('SocketException') ||
+          msg.contains('Connection refused') ||
+          msg.contains('Failed host lookup')) {
+        _errorMessage = 'Connection timed out. Please check your network.';
+      } else {
+        _errorMessage = 'Failed to load subscription info.';
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -97,7 +114,9 @@ class SubscriptionProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _log.error('Payment', 'Failed to create payment', e);
-      _errorMessage = e is ApiException ? e.message : 'Failed to create payment';
+      _errorMessage = e is ApiException
+          ? e.message
+          : 'Failed to create payment';
       _paymentStatus = 'FAILED';
       return false;
     } finally {
@@ -150,7 +169,9 @@ class SubscriptionProvider extends ChangeNotifier {
           _stopPolling();
           // Reload subscription to reflect upgrade
           await loadSubscription();
-        } else if (status == 'FAILED' || status == 'EXPIRED' || status == 'CANCELLED') {
+        } else if (status == 'FAILED' ||
+            status == 'EXPIRED' ||
+            status == 'CANCELLED') {
           _stopPolling();
         }
 

@@ -545,3 +545,176 @@ class AppBottomNavBar extends StatelessWidget {
     );
   }
 }
+
+/// Bottom navigation bar with a raised center FAB for the doctor shell.
+///
+/// Renders items 0,1 on the left and items 3,4 on the right with a
+/// raised center "Create Prescription" FAB at index 2. The center FAB
+/// fires [onCenterTap] instead of switching tabs.
+///
+/// Does NOT modify [AppBottomNavBar] — patient shell still uses that.
+class AppBottomNavBarWithFab extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  final VoidCallback onCenterTap;
+  final List<AppNavItem> items;
+  final Color? selectedColor;
+  final Color? unselectedColor;
+  final IconData centerIcon;
+  final String centerLabel;
+
+  const AppBottomNavBarWithFab({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+    required this.onCenterTap,
+    required this.items,
+    this.selectedColor,
+    this.unselectedColor,
+    this.centerIcon = Icons.add,
+    this.centerLabel = '',
+  }) : assert(items.length == 5, 'Exactly 5 items required');
+
+  @override
+  Widget build(BuildContext context) {
+    final active = selectedColor ?? AppColors.primaryBlue;
+    final inactive = unselectedColor ?? AppColors.neutral400;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 4,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 64,
+          child: Row(
+            children: [
+              // Left items (0, 1)
+              _navItem(0, active, inactive),
+              _navItem(1, active, inactive),
+
+              // Center FAB
+              Expanded(
+                child: GestureDetector(
+                  onTap: onCenterTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Transform.translate(
+                        offset: const Offset(0, -14),
+                        child: Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: active,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: active.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Icon(centerIcon, color: Colors.white, size: 28),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Right items (3, 4)
+              _navItem(3, active, inactive),
+              _navItem(4, active, inactive),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _navItem(int index, Color active, Color inactive) {
+    final isSelected = currentIndex == index;
+    final item = items[index];
+    final color = isSelected ? active : inactive;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onTap(index),
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isSelected ? item.activeIcon : item.icon,
+              color: color,
+              size: 22,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              item.label,
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Horizontal color-coded progress bar for adherence percentage.
+///
+/// Green (>=80%), orange (50-79%), red (<50%). Used on patient cards
+/// in the doctor patients tab.
+class AdherenceProgressBar extends StatelessWidget {
+  final double percentage;
+  final double height;
+  final double? width;
+
+  const AdherenceProgressBar({
+    super.key,
+    required this.percentage,
+    this.height = 6,
+    this.width,
+  });
+
+  Color get _barColor {
+    if (percentage >= 80) return AppColors.successGreen;
+    if (percentage >= 50) return AppColors.warningOrange;
+    return AppColors.alertRed;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final clamped = percentage.clamp(0.0, 100.0);
+    return SizedBox(
+      width: width,
+      height: height,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(height / 2),
+        child: LinearProgressIndicator(
+          value: clamped / 100,
+          backgroundColor: AppColors.neutral200,
+          valueColor: AlwaysStoppedAnimation<Color>(_barColor),
+          minHeight: height,
+        ),
+      ),
+    );
+  }
+}
