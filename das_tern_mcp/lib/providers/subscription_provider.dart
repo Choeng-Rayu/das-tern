@@ -63,8 +63,8 @@ class SubscriptionProvider extends ChangeNotifier {
     return trialExpiresAt!.difference(DateTime.now()).inDays;
   }
 
-  bool get hasUsedTrial => _subscription?['hasUsedTrial'] ?? _subscription?['tier'] == 'PREMIUM';
-  bool get canClaimTrial => !isPremium && currentTier == 'FREEMIUM';
+  bool get hasUsedTrial => _subscription?['hasUsedTrial'] == true;
+  bool get canClaimTrial => !isPremium && currentTier == 'FREEMIUM' && !hasUsedTrial;
 
   String? get qrCode => _currentPayment?['payment']?['qrCode'];
   String? get md5Hash => _currentPayment?['payment']?['md5Hash'];
@@ -208,7 +208,7 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   /// Claim the 1-month free Premium trial.
-  /// Uses /subscriptions/upgrade endpoint to set tier to PREMIUM.
+  /// Uses /subscriptions/claim-trial endpoint to set tier to PREMIUM.
   Future<bool> claimFreeTrial() async {
     try {
       _isLoading = true;
@@ -216,17 +216,24 @@ class SubscriptionProvider extends ChangeNotifier {
       notifyListeners();
 
       final result = await _api.claimFreeTrial();
+      // Immediately update local subscription so the UI reflects PREMIUM
       _subscription = result;
+      _isLoading = false;
+      _errorMessage = null;
+      notifyListeners();
 
       _log.info('Subscription', 'Free trial claimed successfully');
+
+      // Also reload full subscription in background to refresh limits
+      loadSubscription();
+
       return true;
     } catch (e) {
       _log.error('Subscription', 'Failed to claim free trial', e);
       _errorMessage = e is ApiException ? e.message : 'Failed to claim free trial. Please try again.';
-      return false;
-    } finally {
       _isLoading = false;
       notifyListeners();
+      return false;
     }
   }
 

@@ -271,6 +271,7 @@ export class AuthService {
         tier: 'PREMIUM', // Start with Premium trial
         storageQuota: 21474836480, // 20GB for Premium
         storageUsed: 0,
+        hasUsedTrial: true, // Mark trial as used
         expiresAt: trialEndDate, // Trial expires after 1 month
       },
     });
@@ -360,6 +361,7 @@ export class AuthService {
               tier: 'PREMIUM', // Start with Premium trial
               storageQuota: 21474836480, // 20GB for Premium
               storageUsed: 0,
+              hasUsedTrial: true, // Mark trial as used
               expiresAt: trialEndDate, // Trial expires after 1 month
             },
           });
