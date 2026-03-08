@@ -43,7 +43,11 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
           // Search bar
           Padding(
             padding: const EdgeInsets.fromLTRB(
-                AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
+              AppSpacing.md,
+              AppSpacing.sm,
+              AppSpacing.md,
+              0,
+            ),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -72,7 +76,9 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
           // Adherence filter chips
           Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -119,75 +125,77 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
               child: provider.patientListLoading
                   ? const Center(child: CircularProgressIndicator())
                   : provider.patients.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.people_outline,
-                                  size: 64, color: AppColors.neutral300),
-                              const SizedBox(height: AppSpacing.md),
-                              Text(l10n.noPatientsFound,
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium),
-                              const SizedBox(height: AppSpacing.sm),
-                              Text(
-                                (provider.searchQuery?.isNotEmpty ?? false)
-                                    ? l10n.tryDifferentSearch
-                                    : l10n.connectedPatientsAppearHere,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(color: AppColors.textSecondary),
-                              ),
-                            ],
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.people_outline,
+                            size: 64,
+                            color: AppColors.neutral300,
                           ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                          itemCount: provider.patients.length,
-                          itemBuilder: (context, index) {
-                            final patient = provider.patients[index];
+                          const SizedBox(height: AppSpacing.md),
+                          Text(
+                            l10n.noPatientsFound,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            (provider.searchQuery?.isNotEmpty ?? false)
+                                ? l10n.tryDifferentSearch
+                                : l10n.connectedPatientsAppearHere,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      itemCount: provider.patients.length,
+                      itemBuilder: (context, index) {
+                        final patient = provider.patients[index];
 
-                            return Card(
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor: AppColors.primaryBlue
-                                      .withValues(alpha: 0.1),
-                                  child: Text(
-                                    patient.initials,
-                                    style: const TextStyle(
-                                        color: AppColors.primaryBlue,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                title: Text(patient.displayName),
-                                subtitle: Row(
-                                  children: [
-                                    _AdherenceBadge(level: patient.adherenceLevel),
-                                    const SizedBox(width: AppSpacing.xs),
-                                    Text(
-                                      '${patient.adherencePercentage.toStringAsFixed(0)}%',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                              color:
-                                                  AppColors.textSecondary),
-                                    ),
-                                  ],
-                                ),
-                                trailing: const Icon(Icons.chevron_right),
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/doctor/patient-detail',
-                                    arguments: {'patientId': patient.id},
-                                  );
-                                },
+                        return Card(
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: AppColors.primaryBlue.withValues(
+                                alpha: 0.1,
                               ),
-                            );
-                          },
-                        ),
+                              child: Text(
+                                patient.initials,
+                                style: const TextStyle(
+                                  color: AppColors.primaryBlue,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            title: Text(patient.displayName),
+                            subtitle: Row(
+                              children: [
+                                _AdherenceBadge(level: patient.adherenceLevel),
+                                const SizedBox(width: AppSpacing.xs),
+                                Text(
+                                  '${patient.adherencePercentage.toStringAsFixed(0)}%',
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/doctor/patient-detail',
+                                arguments: {'patientId': patient.id},
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
             ),
           ),
         ],

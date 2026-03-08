@@ -63,7 +63,9 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 children: [
                   CircleAvatar(
                     radius: 28,
-                    backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.12),
+                    backgroundColor: AppColors.primaryBlue.withValues(
+                      alpha: 0.12,
+                    ),
                     child: const Icon(
                       Icons.medical_services_outlined,
                       color: AppColors.primaryBlue,
@@ -98,12 +100,18 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             _sectionLabel('APPEARANCE'),
             _buildGroupCard(isDark, [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
                     const Icon(Icons.brightness_6_outlined, size: 20),
                     const SizedBox(width: 12),
-                    Text(l10n.theme, style: Theme.of(context).textTheme.bodyLarge),
+                    Text(
+                      l10n.theme,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
                     const Spacer(),
                     SegmentedButton<ThemeMode>(
                       segments: const [
@@ -121,7 +129,8 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                         ),
                       ],
                       selected: {themeProvider.themeMode},
-                      onSelectionChanged: (v) => themeProvider.setThemeMode(v.first),
+                      onSelectionChanged: (v) =>
+                          themeProvider.setThemeMode(v.first),
                       style: ButtonStyle(
                         visualDensity: VisualDensity.compact,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -132,12 +141,18 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
               ),
               _divider(isDark),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 child: Row(
                   children: [
                     const Icon(Icons.language_outlined, size: 20),
                     const SizedBox(width: 12),
-                    Text(l10n.language, style: Theme.of(context).textTheme.bodyLarge),
+                    Text(
+                      l10n.language,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
                     const Spacer(),
                     DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
@@ -145,7 +160,10 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                         isDense: true,
                         items: const [
                           DropdownMenuItem(value: 'en', child: Text('English')),
-                          DropdownMenuItem(value: 'km', child: Text('\u1781\u17d2\u1798\u17c2\u179a')),
+                          DropdownMenuItem(
+                            value: 'km',
+                            child: Text('\u1781\u17d2\u1798\u17c2\u179a'),
+                          ),
                         ],
                         onChanged: (v) {
                           if (v != null) localeProvider.changeLocale(Locale(v));
@@ -161,7 +179,10 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             // NOTIFICATION PERMISSION
             _buildGroupCard(isDark, [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 child: Row(
                   children: [
                     Container(
@@ -183,20 +204,22 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                       children: [
                         Text(
                           'Notification Permission',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge
+                          style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 2),
                         Row(
                           children: [
-                            const Icon(Icons.check_circle,
-                                color: AppColors.statusSuccess, size: 13),
+                            const Icon(
+                              Icons.check_circle,
+                              color: AppColors.statusSuccess,
+                              size: 13,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               'Granted',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
                                     color: AppColors.statusSuccess,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -237,17 +260,24 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                   bottomRight: Radius.circular(14),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   child: Row(
                     children: [
-                      const Icon(Icons.logout, color: AppColors.statusError, size: 20),
+                      const Icon(
+                        Icons.logout,
+                        color: AppColors.statusError,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Text(
                         l10n.logout,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppColors.statusError,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          color: AppColors.statusError,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -275,7 +305,9 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Restoring subscription\u2026')),
+                    const SnackBar(
+                      content: Text('Restoring subscription\u2026'),
+                    ),
                   );
                 },
               ),
@@ -330,7 +362,9 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Opening Privacy Policy\u2026')),
+                    const SnackBar(
+                      content: Text('Opening Privacy Policy\u2026'),
+                    ),
                   );
                 },
               ),
@@ -342,7 +376,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
     );
   }
 
-  //  Helpers 
+  //  Helpers
 
   String _doctorName(Map<String, dynamic>? user) {
     if (user == null) return 'Doctor';
@@ -408,7 +442,11 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             Expanded(
               child: Text(label, style: Theme.of(context).textTheme.bodyLarge),
             ),
-            const Icon(Icons.chevron_right, size: 18, color: AppColors.textSecondary),
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
           ],
         ),
       ),
@@ -460,10 +498,9 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             const SizedBox(height: 20),
             Text(
               l10n.changePassword,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             TextField(
@@ -471,7 +508,9 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
               obscureText: true,
               decoration: InputDecoration(
                 labelText: l10n.oldPasswordHint,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 prefixIcon: const Icon(Icons.lock_outline),
               ),
             ),
@@ -481,7 +520,9 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
               obscureText: true,
               decoration: InputDecoration(
                 labelText: l10n.newPasswordHint,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 prefixIcon: const Icon(Icons.lock_reset),
               ),
             ),
@@ -528,7 +569,11 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             onPressed: () {
               Navigator.pop(ctx);
               auth.logout();
-              Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (_) => false,
+              );
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.statusError),
             child: Text(l10n.logout),
