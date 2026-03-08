@@ -257,12 +257,12 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             const SizedBox(height: AppSpacing.md),
 
             // SUBSCRIPTION
-            _sectionLabel('SUBSCRIPTION'),
+            _sectionLabel(l10n.subscription.toUpperCase()),
             _buildGroupCard(isDark, [
               _buildNavRow(
                 context,
                 icon: Icons.workspace_premium_outlined,
-                label: 'Manage Subscriptions',
+                label: l10n.manageSubscriptions,
                 onTap: () {
                   Navigator.pushNamed(context, '/subscription/upgrade');
                 },
@@ -271,7 +271,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
               _buildNavRow(
                 context,
                 icon: Icons.restore_rounded,
-                label: 'Restore Subscription',
+                label: l10n.restoreSubscription,
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -287,7 +287,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
               _buildNavRow(
                 context,
                 icon: Icons.star_outline_rounded,
-                label: 'Rate App',
+                label: l10n.rateApp,
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -299,12 +299,12 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             const SizedBox(height: AppSpacing.md),
 
             // SUPPORT
-            _sectionLabel('SUPPORT'),
+            _sectionLabel(l10n.support.toUpperCase()),
             _buildGroupCard(isDark, [
               _buildNavRow(
                 context,
                 icon: Icons.mail_outline_rounded,
-                label: 'Contact Us',
+                label: l10n.contactSupport,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Opening contact\u2026')),
@@ -315,7 +315,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
               _buildNavRow(
                 context,
                 icon: Icons.article_outlined,
-                label: 'Terms of Use',
+                label: l10n.termsOfService,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Opening Terms of Use\u2026')),
@@ -326,7 +326,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
               _buildNavRow(
                 context,
                 icon: Icons.privacy_tip_outlined,
-                label: 'Privacy Policy',
+                label: l10n.privacyPolicy,
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(

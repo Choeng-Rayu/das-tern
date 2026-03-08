@@ -367,6 +367,25 @@ class ApiService {
     );
   }
 
+  /// POST /auth/change-password
+  Future<Map<String, dynamic>> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.post(
+          Uri.parse('$baseUrl/auth/change-password'),
+          headers: h,
+          body: jsonEncode({
+            'currentPassword': currentPassword,
+            'newPassword': newPassword,
+          }),
+        ),
+      ),
+    );
+  }
+
   /// GET /users/:id
   Future<Map<String, dynamic>> getUserById(String id) async {
     return Map<String, dynamic>.from(
@@ -904,6 +923,19 @@ class ApiService {
       await _authenticatedRequest(
         (h) =>
             http.get(Uri.parse('$baseUrl/subscriptions/features'), headers: h),
+      ),
+    );
+  }
+
+  /// POST /subscriptions/upgrade — claim free trial by upgrading to PREMIUM
+  Future<Map<String, dynamic>> claimFreeTrial() async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.post(
+          Uri.parse('$baseUrl/subscriptions/upgrade'),
+          headers: h,
+          body: jsonEncode({'tier': 'PREMIUM'}),
+        ),
       ),
     );
   }

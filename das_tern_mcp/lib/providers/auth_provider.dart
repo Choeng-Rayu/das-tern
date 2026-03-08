@@ -359,6 +359,57 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Update user profile fields.
+  Future<bool> updateUserProfile(Map<String, dynamic> data) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      final result = await _api.updateProfile(data);
+      _user = result;
+      _log.success('AuthProvider', 'Profile updated');
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e is ApiException ? e.message : e.toString().replaceFirst('Exception: ', '');
+      _log.error('AuthProvider', 'Profile update failed', e);
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Change password for current user.
+  Future<bool> changePassword(String currentPassword, String newPassword) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _api.changePassword(currentPassword, newPassword);
+      _log.success('AuthProvider', 'Password changed');
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e is ApiException ? e.message : e.toString().replaceFirst('Exception: ', '');
+      _log.error('AuthProvider', 'Password change failed', e);
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Refresh current user profile from server.
+  Future<void> refreshProfile() async {
+    try {
+      if (_accessToken != null) {
+        _user = await _api.getProfile(_accessToken!);
+        notifyListeners();
+      }
+    } catch (e) {
+      _log.error('AuthProvider', 'Failed to refresh profile', e);
+    }
+  }
+
   // ── Private helpers ──
 
   void _setLoading(bool v) {

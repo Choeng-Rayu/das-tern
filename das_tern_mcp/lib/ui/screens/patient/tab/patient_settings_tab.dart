@@ -242,7 +242,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 icon: Icons.person_outline,
                 label: l10n.editProfile,
                 onTap: () {
-                  // TODO: Navigate to edit profile page
+                  Navigator.pushNamed(context, '/patient/edit-profile');
                 },
               ),
               _divider(isDark),
@@ -250,7 +250,9 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 context,
                 icon: Icons.lock_outline,
                 label: l10n.changePassword,
-                onTap: () => _showChangePasswordSheet(context, l10n),
+                onTap: () {
+                  Navigator.pushNamed(context, '/patient/change-password');
+                },
               ),
               _divider(isDark),
               InkWell(
@@ -285,12 +287,12 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             const SizedBox(height: AppSpacing.md),
 
             // SUBSCRIPTION
-            _sectionLabel('SUBSCRIPTION'),
+            _sectionLabel(l10n.subscription.toUpperCase()),
             _buildGroupCard(isDark, [
               _buildNavRow(
                 context,
                 icon: Icons.workspace_premium_outlined,
-                label: 'Manage Subscriptions',
+                label: l10n.manageSubscriptions,
                 onTap: () {
                   Navigator.pushNamed(context, '/subscription/upgrade');
                 },
@@ -299,7 +301,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
               _buildNavRow(
                 context,
                 icon: Icons.restore_rounded,
-                label: 'Restore Subscription',
+                label: l10n.restoreSubscription,
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -316,7 +318,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
               _buildNavRow(
                 context,
                 icon: Icons.star_outline_rounded,
-                label: 'Rate App',
+                label: l10n.rateApp,
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -329,12 +331,12 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             const SizedBox(height: AppSpacing.md),
 
             // SUPPORT
-            _sectionLabel('SUPPORT'),
+            _sectionLabel(l10n.support.toUpperCase()),
             _buildGroupCard(isDark, [
               _buildNavRow(
                 context,
                 icon: Icons.mail_outline_rounded,
-                label: 'Contact Us',
+                label: l10n.contactSupport,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Opening contact…')),
@@ -345,7 +347,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
               _buildNavRow(
                 context,
                 icon: Icons.article_outlined,
-                label: 'Terms of Use',
+                label: l10n.termsOfService,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -357,7 +359,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
               _buildNavRow(
                 context,
                 icon: Icons.privacy_tip_outlined,
-                label: 'Privacy Policy',
+                label: l10n.privacyPolicy,
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(

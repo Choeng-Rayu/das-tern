@@ -24,6 +24,12 @@ export class SubscriptionsController {
     return this.subscriptionsService.getFeatureComparison();
   }
 
+  @Get('ocr/check')
+  async checkOcrPermission(@CurrentUser() user: any) {
+    const hasPermission = await this.subscriptionsService.checkOcrPermission(user.id);
+    return { ocrEnabled: hasPermission, tier: (await this.subscriptionsService.findOne(user.id))?.tier };
+  }
+
   @Patch('tier')
   async updateTier(@CurrentUser() user: any, @Body('tier') tier: SubscriptionTier) {
     return this.subscriptionsService.updateTier(user.id, tier);
@@ -32,6 +38,11 @@ export class SubscriptionsController {
   @Post('upgrade')
   async upgradeSubscription(@CurrentUser() user: any, @Body('tier') tier: SubscriptionTier) {
     return this.subscriptionsService.updateTier(user.id, tier);
+  }
+
+  @Post('claim-trial')
+  async claimFreeTrial(@CurrentUser() user: any) {
+    return this.subscriptionsService.claimFreeTrial(user.id);
   }
 
   @Post('downgrade')
