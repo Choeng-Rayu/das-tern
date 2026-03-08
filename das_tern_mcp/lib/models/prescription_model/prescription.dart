@@ -13,6 +13,7 @@ class Prescription {
   final String? urgentReason;
   final String? notes;
   final Map<String, dynamic>? patient;
+  final Map<String, dynamic>? doctor;
   final String? diagnosis;
   final String? clinicalNote;
   final String? doctorLicenseNumber;
@@ -37,6 +38,7 @@ class Prescription {
     this.urgentReason,
     this.notes,
     this.patient,
+    this.doctor,
     this.diagnosis,
     this.clinicalNote,
     this.doctorLicenseNumber,
@@ -66,6 +68,9 @@ class Prescription {
       notes: json['notes'] as String?,
       patient: json['patient'] is Map
           ? Map<String, dynamic>.from(json['patient'])
+          : null,
+      doctor: json['doctor'] is Map
+          ? Map<String, dynamic>.from(json['doctor'])
           : null,
       diagnosis: json['diagnosis'] as String?,
       clinicalNote: json['clinicalNote'] as String?,
@@ -100,6 +105,7 @@ class Prescription {
       if (urgentReason != null) 'urgentReason': urgentReason,
       if (notes != null) 'notes': notes,
       if (patient != null) 'patient': patient,
+      if (doctor != null) 'doctor': doctor,
       if (diagnosis != null) 'diagnosis': diagnosis,
       if (clinicalNote != null) 'clinicalNote': clinicalNote,
       if (doctorLicenseNumber != null)

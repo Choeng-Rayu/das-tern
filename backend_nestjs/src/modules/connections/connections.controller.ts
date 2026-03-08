@@ -129,4 +129,9 @@ export class ConnectionsController {
   async getFamilyConnections(@CurrentUser() user: any) {
     return this.connectionsService.getFamilyConnections(user.id);
   }
+
+  @Get('search-patient')
+  async searchPatient(@Query('query') query: string) {
+    return this.connectionsService.searchPatients(query);
+  }
 }

@@ -21,16 +21,22 @@ class AppNotification {
   });
 
   factory AppNotification.fromJson(Map<String, dynamic> json) {
+    // Parse `data` (from backend) or `metadata` as optional Map
+    final rawData = json['data'] ?? json['metadata'];
+    Map<String, dynamic>? meta;
+    if (rawData is Map) {
+      meta = Map<String, dynamic>.from(rawData);
+    }
+
     return AppNotification(
-      id: json['id'],
-      userId: json['userId'] ?? '',
-      type: json['type'] ?? '',
-      title: json['title'] ?? '',
-      message: json['message'] ?? '',
-      isRead: json['isRead'] ?? false,
-      metadata: json['metadata'],
-      createdAt: DateTime.parse(
-          json['createdAt'] ?? DateTime.now().toIso8601String()),
+      id: json['id']?.toString() ?? '',
+      userId: json['recipientId']?.toString() ?? json['userId']?.toString() ?? '',
+      type: json['type']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      message: json['message']?.toString() ?? '',
+      isRead: json['isRead'] == true,
+      metadata: meta,
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
     );
   }
 }

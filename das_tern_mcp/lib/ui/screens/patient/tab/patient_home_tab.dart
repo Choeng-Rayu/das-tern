@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/dose_provider.dart';
 import '../../../../providers/health_monitoring_provider.dart';
+import '../../../../providers/notification_provider.dart';
 import '../../../../models/enums_model/medication_type.dart';
 import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
@@ -27,6 +28,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
       context.read<DoseProvider>().fetchTodaySchedule();
       context.read<HealthMonitoringProvider>().fetchLatestVitals();
       context.read<HealthMonitoringProvider>().fetchAlerts();
+      context.read<NotificationProvider>().fetchNotifications();
     });
   }
 
@@ -35,10 +37,14 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
     final l10n = AppLocalizations.of(context)!;
     final doseProvider = context.watch<DoseProvider>();
     final healthProvider = context.watch<HealthMonitoringProvider>();
+    final notifProvider = context.watch<NotificationProvider>();
 
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () => doseProvider.fetchTodaySchedule(),
+        onRefresh: () async {
+          await doseProvider.fetchTodaySchedule();
+          await context.read<NotificationProvider>().fetchNotifications();
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
@@ -47,12 +53,15 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
               // ── Patient header with background image ──
               PatientHeader(
                 onNotificationTap: () {
-                  final route = AppRouter.patientNotifications;
-                  if (route != null) {
-                    Navigator.pushNamed(context, route);
-                  }
+                  Navigator.pushNamed(
+                    context,
+                    AppRouter.patientNotifications,
+                  ).then((_) {
+                    if (!mounted) return;
+                    context.read<NotificationProvider>().fetchNotifications();
+                  });
                 },
-                unreadCount: healthProvider.unresolvedAlertCount,
+                unreadCount: notifProvider.unreadCount,
               ),
 
               // ── Time-period medicine section ──

@@ -56,9 +56,9 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
       _unit = d['unit'] != null
           ? MedicineUnit.fromJson(d['unit'])
           : MedicineUnit.tablet;
-      _morning = d['morning'] ?? true;
-      _daytime = d['daytime'] ?? false;
-      _night = d['night'] ?? false;
+      _morning = d['morningDosage'] != null ? true : (d['morning'] ?? true);
+      _daytime = d['daytimeDosage'] != null ? true : (d['daytime'] ?? false);
+      _night = d['nightDosage'] != null ? true : (d['night'] ?? false);
       _beforeMeal = d['beforeMeal'] ?? false;
       _isPRN = d['isPRN'] ?? false;
     }
@@ -87,9 +87,21 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
       'dosageAmount': double.tryParse(_dosageController.text) ?? 1,
       'frequency': _frequencyController.text.trim(),
       'durationDays': int.tryParse(_durationController.text) ?? 30,
-      'morning': _morning,
-      'daytime': _daytime,
-      'night': _night,
+      if (_morning)
+        'morningDosage': {
+          'amount': (_dosageController.text.trim().isEmpty ? '1' : _dosageController.text.trim()),
+          'beforeMeal': _beforeMeal,
+        },
+      if (_daytime)
+        'daytimeDosage': {
+          'amount': (_dosageController.text.trim().isEmpty ? '1' : _dosageController.text.trim()),
+          'beforeMeal': _beforeMeal,
+        },
+      if (_night)
+        'nightDosage': {
+          'amount': (_dosageController.text.trim().isEmpty ? '1' : _dosageController.text.trim()),
+          'beforeMeal': _beforeMeal,
+        },
       'beforeMeal': _beforeMeal,
       'isPRN': _isPRN,
       if (_descriptionController.text.isNotEmpty)

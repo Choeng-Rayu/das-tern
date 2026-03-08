@@ -45,6 +45,11 @@ class DoctorDashboardProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _doctorPrescriptions = [];
   int _totalPrescriptions = 0;
 
+  // ── Adherence Graph Data ──
+  bool _graphLoading = false;
+  List<Map<String, dynamic>> _graphData = [];
+  String _graphPeriod = 'week';
+
   // ── Error State ──
   String? _error;
 
@@ -76,6 +81,10 @@ class DoctorDashboardProvider extends ChangeNotifier {
   bool get prescriptionsLoading => _prescriptionsLoading;
   List<Map<String, dynamic>> get doctorPrescriptions => _doctorPrescriptions;
   int get totalPrescriptions => _totalPrescriptions;
+
+  bool get graphLoading => _graphLoading;
+  List<Map<String, dynamic>> get graphData => _graphData;
+  String get graphPeriod => _graphPeriod;
 
   String? get error => _error;
 
@@ -362,6 +371,32 @@ class DoctorDashboardProvider extends ChangeNotifier {
       _prescriptionsLoading = false;
       notifyListeners();
     }
+  }
+
+  // ────────────────────────────────────────────
+  // Adherence Graph Data
+  // ────────────────────────────────────────────
+
+  Future<void> fetchGraphData({String? period}) async {
+    if (period != null) _graphPeriod = period;
+    _graphLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final result = await _api.getDoctorDashboardGraph(period: _graphPeriod);
+      _graphData = List<Map<String, dynamic>>.from(result['data'] ?? []);
+      _log.success('DoctorDashboard', 'Graph data loaded: ${_graphData.length} points');
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      _log.error('DoctorDashboard', 'Failed to load graph data', e);
+    } finally {
+      _graphLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void setGraphPeriod(String period) {
+    fetchGraphData(period: period);
   }
 
   void clearError() {

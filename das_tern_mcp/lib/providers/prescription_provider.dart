@@ -245,4 +245,17 @@ class PrescriptionProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  /// Reject a prescription.
+  Future<bool> rejectPrescription(String id, {String? reason}) async {
+    try {
+      await _api.rejectPrescription(id, reason: reason);
+      await fetchPrescriptions();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
 }

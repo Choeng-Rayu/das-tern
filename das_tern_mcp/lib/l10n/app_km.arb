@@ -827,5 +827,41 @@
     "placeholders": {
       "percentage": {"type": "String"}
     }
-  }
+  },
+
+  "connectNewPatient": "ភ្ជាប់អ្នកជំងឺថ្មី",
+  "searchPatientByContact": "ស្វែងរកតាមលេខទូរស័ព្ទ ឬអ៊ីមែល",
+  "enterPhoneOrEmail": "បញ្ចូលលេខទូរស័ព្ទ ឬអ៊ីមែលរបស់អ្នកជំងឺ",
+  "searchPatient": "ស្វែងរក",
+  "patientFound": "រកឃើញអ្នកជំងឺ",
+  "sendConnectionRequest": "ផ្ញើសំណើភ្ជាប់",
+  "connectionRequestSent": "បានផ្ញើសំណើភ្ជាប់ដោយជោគជ័យ",
+  "connectionRequestFailed": "សំណើភ្ជាប់បរាជ័យ",
+  "noPatientFound": "រកមិនឃើញអ្នកជំងឺដោយទំនាក់ទំនងនោះ",
+  "connectionAlreadyExists": "មានការភ្ជាប់ជាមួយអ្នកជំងឺនេះរួចហើយ",
+  "pendingConnectionRequest": "សំណើភ្ជាប់រង់ចាំ",
+  "doctorWantsToConnect": "{doctorName} ចង់ភ្ជាប់ជាមួយអ្នកដើម្បីគ្រប់គ្រងវេជ្ជបញ្ជា។",
+  "@doctorWantsToConnect": {
+    "placeholders": {
+      "doctorName": {"type": "String"}
+    }
+  },
+  "approveConnection": "យល់ព្រម",
+  "rejectConnection": "បដិសេធ",
+  "connectionApproved": "បានយល់ព្រមការភ្ជាប់",
+  "connectionRejected": "បានបដិសេធការភ្ជាប់",
+  "removeNotification": "លុបការជូនដំណឹង",
+  "removeNotificationConfirm": "តើអ្នកប្រាកដថាចង់លុបការជូនដំណឹងនេះមែនទេ?",
+  "remove": "លុប",
+  "pendingPrescriptions": "វេជ្ជបញ្ជារង់ចាំ",
+  "prescriptionFromDoctor": "ពីវេជ្ជបណ្ឌិត {doctorName}",
+  "@prescriptionFromDoctor": {
+    "placeholders": {
+      "doctorName": {"type": "String"}
+    }
+  },
+  "rejectPrescription": "បដិសេធ",
+  "confirmPrescription": "បញ្ជាក់",
+  "prescriptionConfirmed": "វេជ្ជបញ្ជាត្រូវបានបញ្ជាក់",
+  "prescriptionRejected": "វេជ្ជបញ្ជាត្រូវបានបដិសេធ"
 }

@@ -4,21 +4,27 @@ import '../../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
-/// Reusable patient home header with background image and user greeting.
+/// Reusable home header with background image and user greeting.
+///
+/// Used by both patient and doctor home screens.
+/// Pass [roleLabel] to customize the role badge (defaults to 'Patient').
 ///
 /// Usage:
 /// ```dart
 /// PatientHeader(onNotificationTap: () { ... })
+/// PatientHeader(roleLabel: 'Doctor', onNotificationTap: () { ... })
 /// ```
 class PatientHeader extends StatelessWidget {
   const PatientHeader({
     super.key,
     this.onNotificationTap,
     this.unreadCount = 0,
+    this.roleLabel = 'Patient',
   });
 
   final VoidCallback? onNotificationTap;
   final int unreadCount;
+  final String roleLabel;
 
   /// Returns a greeting based on current hour.
   String _greeting() {
@@ -219,8 +225,8 @@ class PatientHeader extends StatelessWidget {
                                 color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: const Text(
-                                'Patient',
+                              child: Text(
+                                roleLabel,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,

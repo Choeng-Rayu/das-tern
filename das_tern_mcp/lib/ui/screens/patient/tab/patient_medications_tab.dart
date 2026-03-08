@@ -21,7 +21,7 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PrescriptionProvider>().fetchPrescriptions(status: 'ACTIVE');
+      context.read<PrescriptionProvider>().fetchPrescriptions();
       context.read<BatchProvider>().fetchBatches();
     });
   }
@@ -43,7 +43,7 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await provider.fetchPrescriptions(status: 'ACTIVE');
+          await provider.fetchPrescriptions();
           await batchProvider.fetchBatches();
         },
         child: provider.isLoading && batchProvider.isLoading
@@ -51,6 +51,9 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
             : ListView(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 children: [
+                  // Pending Prescriptions Section (DRAFT from doctor)
+                  ..._buildPendingSection(context, l10n, provider),
+
                   // Batch Groups Section
                   if (batchProvider.batches.isNotEmpty) ...[
                     Text(
@@ -133,8 +136,8 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                     const SizedBox(height: AppSpacing.md),
                   ],
 
-                  // Prescriptions Section
-                  if (provider.prescriptions.isNotEmpty) ...[
+                  // Prescriptions Section (ACTIVE only)
+                  if (provider.prescriptions.where((p) => p.status == 'ACTIVE').isNotEmpty) ...[
                     Text(
                       l10n.prescriptions,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -142,7 +145,7 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    ...provider.prescriptions.map(
+                    ...provider.prescriptions.where((p) => p.status == 'ACTIVE').map(
                       (rx) => Padding(
                         padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: AppCard(
@@ -237,7 +240,8 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                   ],
 
                   // Empty state
-                  if (provider.prescriptions.isEmpty &&
+                  if (provider.prescriptions.where((p) => p.status == 'ACTIVE').isEmpty &&
+                      provider.prescriptions.where((p) => p.status == 'DRAFT').isEmpty &&
                       batchProvider.batches.isEmpty)
                     Center(
                       child: Padding(
@@ -270,5 +274,165 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
               ),
       ),
     );
+  }
+
+  List<Widget> _buildPendingSection(
+    BuildContext context,
+    AppLocalizations l10n,
+    PrescriptionProvider provider,
+  ) {
+    final pending = provider.prescriptions
+        .where((p) => p.status == 'DRAFT')
+        .toList();
+    if (pending.isEmpty) return [];
+
+    return [
+      Text(
+        l10n.pendingPrescriptions,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+      ),
+      const SizedBox(height: AppSpacing.sm),
+      ...pending.map(
+        (rx) => Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+          child: AppCard(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                AppRouter.prescriptionDetail,
+                arguments: {'prescriptionId': rx.id},
+              );
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.warningOrange
+                            .withValues(alpha: 0.1),
+                        borderRadius:
+                            BorderRadius.circular(AppRadius.sm),
+                      ),
+                      child: Text(
+                        rx.status.toUpperCase(),
+                        style: const TextStyle(
+                          color: AppColors.warningOrange,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      'v${rx.currentVersion}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                // Doctor name
+                Text(
+                  l10n.prescriptionFromDoctor(
+                    rx.doctor?['fullName'] as String? ?? '',
+                  ),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.medicationCountLabel(rx.medications.length),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: rx.medications.map((m) {
+                    final name =
+                        m.medicationData?['name'] ?? m.medicineName;
+                    return Chip(
+                      label: Text(name,
+                          style: const TextStyle(fontSize: 12)),
+                      materialTapTargetSize:
+                          MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                // Confirm / Reject buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final ok = await provider
+                              .rejectPrescription(rx.id!);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(ok
+                                    ? l10n.prescriptionRejected
+                                    : (provider.error ?? '')),
+                                backgroundColor: ok
+                                    ? null
+                                    : AppColors.alertRed,
+                              ),
+                            );
+                          }
+                        },
+                        child: Text(l10n.rejectPrescription),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final ok = await provider
+                              .confirmPrescription(rx.id!);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(ok
+                                    ? l10n.prescriptionConfirmed
+                                    : (provider.error ?? '')),
+                                backgroundColor: ok
+                                    ? AppColors.successGreen
+                                    : AppColors.alertRed,
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.successGreen,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: Text(l10n.confirmPrescription),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: AppSpacing.md),
+    ];
   }
 }

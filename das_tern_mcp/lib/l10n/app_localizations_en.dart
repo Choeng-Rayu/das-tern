@@ -2225,4 +2225,85 @@ class AppLocalizationsEn extends AppLocalizations {
   String adherencePercentage(String percentage) {
     return '$percentage%';
   }
+
+  @override
+  String get connectNewPatient => 'Connect New Patient';
+
+  @override
+  String get searchPatientByContact => 'Search by phone or email';
+
+  @override
+  String get enterPhoneOrEmail => 'Enter patient\'s phone number or email';
+
+  @override
+  String get searchPatient => 'Search';
+
+  @override
+  String get patientFound => 'Patient found';
+
+  @override
+  String get sendConnectionRequest => 'Send Connection Request';
+
+  @override
+  String get connectionRequestSent => 'Connection request sent successfully';
+
+  @override
+  String get connectionRequestFailed => 'Failed to send connection request';
+
+  @override
+  String get noPatientFound => 'No patient found with that contact';
+
+  @override
+  String get connectionAlreadyExists =>
+      'Connection already exists with this patient';
+
+  @override
+  String get pendingConnectionRequest => 'Pending Connection Request';
+
+  @override
+  String doctorWantsToConnect(String doctorName) {
+    return '$doctorName wants to connect with you to manage your prescriptions.';
+  }
+
+  @override
+  String get approveConnection => 'Approve';
+
+  @override
+  String get rejectConnection => 'Reject';
+
+  @override
+  String get connectionApproved => 'Connection approved';
+
+  @override
+  String get connectionRejected => 'Connection rejected';
+
+  @override
+  String get removeNotification => 'Remove Notification';
+
+  @override
+  String get removeNotificationConfirm =>
+      'Are you sure you want to remove this notification?';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get pendingPrescriptions => 'Pending Prescriptions';
+
+  @override
+  String prescriptionFromDoctor(String doctorName) {
+    return 'From Dr. $doctorName';
+  }
+
+  @override
+  String get rejectPrescription => 'Reject';
+
+  @override
+  String get confirmPrescription => 'Confirm';
+
+  @override
+  String get prescriptionConfirmed => 'Prescription confirmed';
+
+  @override
+  String get prescriptionRejected => 'Prescription rejected';
 }

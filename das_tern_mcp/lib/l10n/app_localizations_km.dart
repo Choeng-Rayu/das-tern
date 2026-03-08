@@ -2219,4 +2219,84 @@ class AppLocalizationsKm extends AppLocalizations {
   String adherencePercentage(String percentage) {
     return '$percentage%';
   }
+
+  @override
+  String get connectNewPatient => 'ភ្ជាប់អ្នកជំងឺថ្មី';
+
+  @override
+  String get searchPatientByContact => 'ស្វែងរកតាមលេខទូរស័ព្ទ ឬអ៊ីមែល';
+
+  @override
+  String get enterPhoneOrEmail => 'បញ្ចូលលេខទូរស័ព្ទ ឬអ៊ីមែលរបស់អ្នកជំងឺ';
+
+  @override
+  String get searchPatient => 'ស្វែងរក';
+
+  @override
+  String get patientFound => 'រកឃើញអ្នកជំងឺ';
+
+  @override
+  String get sendConnectionRequest => 'ផ្ញើសំណើភ្ជាប់';
+
+  @override
+  String get connectionRequestSent => 'បានផ្ញើសំណើភ្ជាប់ដោយជោគជ័យ';
+
+  @override
+  String get connectionRequestFailed => 'សំណើភ្ជាប់បរាជ័យ';
+
+  @override
+  String get noPatientFound => 'រកមិនឃើញអ្នកជំងឺដោយទំនាក់ទំនងនោះ';
+
+  @override
+  String get connectionAlreadyExists => 'មានការភ្ជាប់ជាមួយអ្នកជំងឺនេះរួចហើយ';
+
+  @override
+  String get pendingConnectionRequest => 'សំណើភ្ជាប់រង់ចាំ';
+
+  @override
+  String doctorWantsToConnect(String doctorName) {
+    return '$doctorName ចង់ភ្ជាប់ជាមួយអ្នកដើម្បីគ្រប់គ្រងវេជ្ជបញ្ជា។';
+  }
+
+  @override
+  String get approveConnection => 'យល់ព្រម';
+
+  @override
+  String get rejectConnection => 'បដិសេធ';
+
+  @override
+  String get connectionApproved => 'បានយល់ព្រមការភ្ជាប់';
+
+  @override
+  String get connectionRejected => 'បានបដិសេធការភ្ជាប់';
+
+  @override
+  String get removeNotification => 'លុបការជូនដំណឹង';
+
+  @override
+  String get removeNotificationConfirm =>
+      'តើអ្នកប្រាកដថាចង់លុបការជូនដំណឹងនេះមែនទេ?';
+
+  @override
+  String get remove => 'លុប';
+
+  @override
+  String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
+
+  @override
+  String prescriptionFromDoctor(String doctorName) {
+    return 'ពីវេជ្ជបណ្ឌិត $doctorName';
+  }
+
+  @override
+  String get rejectPrescription => 'បដិសេធ';
+
+  @override
+  String get confirmPrescription => 'បញ្ជាក់';
+
+  @override
+  String get prescriptionConfirmed => 'វេជ្ជបញ្ជាត្រូវបានបញ្ជាក់';
+
+  @override
+  String get prescriptionRejected => 'វេជ្ជបញ្ជាត្រូវបានបដិសេធ';
 }
