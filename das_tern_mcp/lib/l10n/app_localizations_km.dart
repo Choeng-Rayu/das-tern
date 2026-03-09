@@ -853,6 +853,29 @@ class AppLocalizationsKm extends AppLocalizations {
   String get unknown => 'មិនស្គាល់';
 
   @override
+  String get familyFunctionTitle => 'មុខងារគ្រួសារ';
+
+  @override
+  String get familyIntroDescription =>
+      'អនុញ្ញាតសមាជិកគ្រួសារ ភ្ជាប់គណនីរបស់អ្នកដឹ អាច មើលស្ថានភាពទទួលថ្នាំប្រចាំថ្ងៃ ទទួល ការជូនដំណឹង (Notification) ពេល';
+
+  @override
+  String get familyBulletSender => 'អ្នកដឹង ទទួលថ្នាំ';
+
+  @override
+  String get familyBulletReceiver => 'អ្នកដឹង ខកខានទទួលថ្នាំ';
+
+  @override
+  String get familyIntroFooter =>
+      'ផ្ដួយគ្រួសារ ចូលមុខងារត្រេ និងតាមដានការព្យាបាល កាន់តែល្អ។';
+
+  @override
+  String get startUsing => 'ចូលប្រើប្រាស់';
+
+  @override
+  String get learnMore => 'យល់ដឹងបន្ថែម';
+
+  @override
   String get scanPrescriptionTitle => 'ស្កេនវេជ្ជបញ្ជា';
 
   @override
