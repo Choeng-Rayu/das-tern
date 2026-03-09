@@ -27,7 +27,7 @@ export class SubscriptionsService {
         // Trial expired, downgrade to FREEMIUM
         await this.updateTier(userId, 'FREEMIUM');
         // Re-fetch subscription with all relations
-        return this.prisma.subscription.findUnique({
+        const refreshed = await this.prisma.subscription.findUnique({
           where: { userId },
           include: {
             familyMembers: {
@@ -39,19 +39,20 @@ export class SubscriptionsService {
             },
           },
         });
+        return this.serializeSubscription(refreshed);
       }
     }
 
-    return subscription;
+    return this.serializeSubscription(subscription);
   }
 
   async updateTier(userId: string, tier: SubscriptionTier) {
     const storageQuota = tier === 'FREEMIUM' ? BigInt(5368709120) : BigInt(21474836480);
-    
-    return this.prisma.subscription.update({
+
+    const result = await this.prisma.subscription.update({
       where: { userId },
-      data: { 
-        tier, 
+      data: {
+        tier,
         storageQuota,
         expiresAt: null, // Clear expiration when manually upgrading
       },
@@ -65,6 +66,7 @@ export class SubscriptionsService {
         },
       },
     });
+    return this.serializeSubscription(result);
   }
 
   async claimFreeTrial(userId: string) {
@@ -91,7 +93,7 @@ export class SubscriptionsService {
     trialExpiresAt.setMonth(trialExpiresAt.getMonth() + 1);
 
     // Activate Premium trial
-    return this.prisma.subscription.update({
+    const result = await this.prisma.subscription.update({
       where: { userId },
       data: {
         tier: 'PREMIUM',
@@ -109,6 +111,7 @@ export class SubscriptionsService {
         },
       },
     });
+    return this.serializeSubscription(result);
   }
 
   async addFamilyMember(userId: string, memberId: string) {
@@ -242,6 +245,16 @@ export class SubscriptionsService {
       default:
         return { prescriptions: -1, medicines: -1, familyConnections: 0, storageGB: 5, ocrEnabled: false };
     }
+  }
+
+  // Convert BigInt fields to Number for safe JSON serialisation
+  private serializeSubscription(sub: any) {
+    if (!sub) return sub;
+    return {
+      ...sub,
+      storageQuota: sub.storageQuota != null ? Number(sub.storageQuota) : 0,
+      storageUsed: sub.storageUsed != null ? Number(sub.storageUsed) : 0,
+    };
   }
 
   async getFeatureComparison() {
