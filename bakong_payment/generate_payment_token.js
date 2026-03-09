@@ -4,12 +4,13 @@ const axios = require('axios');
 /**
  * BAKONG TERMINAL PAYMENT GENERATOR
  * This script requests a KHQR from the Bakong API and renders it in the terminal.
+ * Set BAKONG_API_TOKEN and BAKONG_MERCHANT_ID environment variables before running.
  */
 async function createAndShowBakongQR(amount, currency = "USD") {
-    // API Configuration
+    // API Configuration — read credentials from environment variables.
     const API_URL = "https://api-bakong.nbc.org.kh/v1/generate_bakong_checkout";
-    const API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiZDJmNmMzOGYzNDc2NGM3MSJ9LCJpYXQiOjE3Njk0MTc3MTYsImV4cCI6MTc3NzE5MzcxNn0.Z_w1fHx74NVcVey9VQ3mtaZxeduWC-zYWLj07y33ncI"; 
-    const MERCHANT_ID = "choeng_rayu@aclb";
+    const API_TOKEN = process.env.BAKONG_API_TOKEN || "";
+    const MERCHANT_ID = process.env.BAKONG_MERCHANT_ID || "";
 
     const payload = {
         merchantId: MERCHANT_ID,

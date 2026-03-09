@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Direct OCR test script - bypasses HTTP layer."""
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -12,10 +13,30 @@ from app.pipeline.orchestrator import PipelineOrchestrator
 from app.pipeline.formatter import build_dynamic_universal, build_extraction_summary
 from app.config import settings
 
+# Paths relative to this script's directory (ocr/)
+_SCRIPT_DIR = Path(__file__).parent
+_DEFAULT_IMAGE = _SCRIPT_DIR / "images_for_test" / "image2.png"
+_DEFAULT_OUTPUT = _SCRIPT_DIR / "result_test.json"
+
 def main():
-    image_path = Path("/home/rayu/das-tern/ocr/images_for_test/image2.png")
-    output_path = Path("/home/rayu/das-tern/ocr/result_test.json")
-    
+    parser = argparse.ArgumentParser(description="Run OCR extraction directly without the HTTP layer.")
+    parser.add_argument(
+        "--image",
+        type=Path,
+        default=_DEFAULT_IMAGE,
+        help="Path to the input image (default: ocr/images_for_test/image2.png)",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=_DEFAULT_OUTPUT,
+        help="Path for the output JSON file (default: ocr/result_test.json)",
+    )
+    args = parser.parse_args()
+
+    image_path: Path = args.image
+    output_path: Path = args.output
+
     if not image_path.exists():
         print(f"❌ Image not found: {image_path}")
         return 1

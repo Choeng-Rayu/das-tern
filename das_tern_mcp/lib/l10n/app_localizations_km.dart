@@ -867,6 +867,29 @@ class AppLocalizationsKm extends AppLocalizations {
   String get unknown => 'មិនស្គាល់';
 
   @override
+  String get familyFunctionTitle => 'មុខងារគ្រួសារ';
+
+  @override
+  String get familyIntroDescription =>
+      'អនុញ្ញាតសមាជិកគ្រួសារ ភ្ជាប់គណនីរបស់អ្នកដឹ អាច មើលស្ថានភាពទទួលថ្នាំប្រចាំថ្ងៃ ទទួល ការជូនដំណឹង (Notification) ពេល';
+
+  @override
+  String get familyBulletSender => 'អ្នកដឹង ទទួលថ្នាំ';
+
+  @override
+  String get familyBulletReceiver => 'អ្នកដឹង ខកខានទទួលថ្នាំ';
+
+  @override
+  String get familyIntroFooter =>
+      'ផ្ដួយគ្រួសារ ចូលមុខងារត្រេ និងតាមដានការព្យាបាល កាន់តែល្អ។';
+
+  @override
+  String get startUsing => 'ចូលប្រើប្រាស់';
+
+  @override
+  String get learnMore => 'យល់ដឹងបន្ថែម';
+
+  @override
   String get scanPrescriptionTitle => 'ស្កេនវេជ្ជបញ្ជា';
 
   @override
@@ -2442,7 +2465,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
 
   @override
-  String get missedDoseBanner => 'អ្នកបងាVerified្រ់ឈានទៅលើដូស';
+  String get missedDoseBanner => 'អ្នកបានខ្លាចដូស';
 
   @override
   String get ocrOutpatient => 'អ្នកជំងឺទូលទាត់';
@@ -2548,4 +2571,36 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get ocrScanInfoSection => 'ព័ត៌មានលម្អិតស្កេន';
+
+  @override
+  String get claimYourFreeTrial => 'ទាមទារការសាកល្បងឥតគិតថ្លៃ';
+
+  @override
+  String get getOneMonthFreePremiumAccess => 'ទទួលបានការប្រើប្រាស់ Premium ឥតគិតថ្លៃ ១ ខែ';
+
+  @override
+  String get claimTrial => 'ទាមទារការសាកល្បង';
+
+  @override
+  String trialDaysRemainingBanner(int days) {
+    return 'អ្នកនៅសល់ $days ថ្ងៃ';
+  }
+
+  @override
+  String get timeAgoJustNow => 'ឥឡូវ';
+
+  @override
+  String timeAgoMinutes(int count) {
+    return '${count}នាទី';
+  }
+
+  @override
+  String timeAgoHours(int count) {
+    return '${count}ម';
+  }
+
+  @override
+  String timeAgoDays(int count) {
+    return '${count}ថ';
+  }
 }

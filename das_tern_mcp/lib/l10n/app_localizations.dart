@@ -1766,6 +1766,48 @@ abstract class AppLocalizations {
   /// **'Unknown'**
   String get unknown;
 
+  /// No description provided for @familyFunctionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Family Features'**
+  String get familyFunctionTitle;
+
+  /// No description provided for @familyIntroDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow family members to track your daily medication intake and receive Notifications when:'**
+  String get familyIntroDescription;
+
+  /// No description provided for @familyBulletSender.
+  ///
+  /// In en, this message translates to:
+  /// **'You take medication'**
+  String get familyBulletSender;
+
+  /// No description provided for @familyBulletReceiver.
+  ///
+  /// In en, this message translates to:
+  /// **'You miss a dose'**
+  String get familyBulletReceiver;
+
+  /// No description provided for @familyIntroFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your family to receive updates and detailed monitoring information etc.'**
+  String get familyIntroFooter;
+
+  /// No description provided for @startUsing.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Using'**
+  String get startUsing;
+
+  /// No description provided for @learnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn More'**
+  String get learnMore;
+
   /// No description provided for @scanPrescriptionTitle.
   ///
   /// In en, this message translates to:
@@ -4939,6 +4981,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scan Information'**
   String get ocrScanInfoSection;
+
+  /// No description provided for @claimYourFreeTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Your Free Trial'**
+  String get claimYourFreeTrial;
+
+  /// No description provided for @getOneMonthFreePremiumAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Get 1 month free premium access'**
+  String get getOneMonthFreePremiumAccess;
+
+  /// No description provided for @claimTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Trial'**
+  String get claimTrial;
+
+  /// No description provided for @trialDaysRemainingBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {days} days remaining'**
+  String trialDaysRemainingBanner(int days);
+
+  /// No description provided for @timeAgoJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'now'**
+  String get timeAgoJustNow;
+
+  /// No description provided for @timeAgoMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m'**
+  String timeAgoMinutes(int count);
+
+  /// No description provided for @timeAgoHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h'**
+  String timeAgoHours(int count);
+
+  /// No description provided for @timeAgoDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d'**
+  String timeAgoDays(int count);
 }
 
 class _AppLocalizationsDelegate

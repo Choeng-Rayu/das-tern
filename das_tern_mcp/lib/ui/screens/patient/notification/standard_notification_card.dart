@@ -44,7 +44,7 @@ class StandardNotificationCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: Text(
-          timeAgo(notif.createdAt),
+          timeAgo(notif.createdAt, context),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: AppColors.textSecondary,
               ),
