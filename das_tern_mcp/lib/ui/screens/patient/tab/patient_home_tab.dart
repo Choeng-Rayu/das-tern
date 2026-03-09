@@ -111,15 +111,12 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
             top: 0,
             left: 0,
             right: 0,
-            child: IgnorePointer(
-              ignoring: false,
-              child: PatientHeader(
-                onNotificationTap: () {
-                  final route = AppRouter.patientNotifications;
-                  if (route != null) Navigator.pushNamed(context, route);
-                },
-                unreadCount: healthProvider.unresolvedAlertCount,
-              ),
+            child: PatientHeader(
+              onNotificationTap: () {
+                final route = AppRouter.patientNotifications;
+                if (route != null) Navigator.pushNamed(context, route);
+              },
+              unreadCount: healthProvider.unresolvedAlertCount,
             ),
           ),
         ],
