@@ -307,9 +307,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
             text: l10n.shareCodeButton,
             icon: Icons.share,
             onPressed: () {
-              SharePlus.instance.share(
-                ShareParams(text: l10n.shareCodeMessage(_token ?? '')),
-              );
+              Share.share(l10n.shareCodeMessage(_token ?? ''));
             },
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -410,10 +408,9 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
       await qrFile.writeAsBytes(pngBytes);
 
       // 5. Share both the image file and the token text via the native sheet.
-      await Share.shareXFiles(
-        [XFile(qrFile.path, mimeType: 'image/png')],
-        text: l10n.shareQrAndCodeMessage(_token!),
-      );
+      await Share.shareXFiles([
+        XFile(qrFile.path, mimeType: 'image/png'),
+      ], text: l10n.shareQrAndCodeMessage(_token!));
     } catch (e) {
       // If anything goes wrong (e.g., rendering not ready), fall back to
       // sharing the token text only.

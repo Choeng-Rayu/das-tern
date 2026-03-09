@@ -128,6 +128,9 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final l10n = AppLocalizations.of(context)!;
+    final size = MediaQuery.of(context).size;
+    final hPad = (size.width * 0.06).clamp(16.0, 40.0);
+    final titleFontSize = size.width < 360 ? 16.0 : 20.0;
 
     return AuthGradientScaffold(
       child: Column(
@@ -142,22 +145,22 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                 Navigator.of(context).pop();
               }
             },
-            trailing: const LanguageSwitcherButton(),
+            trailing: const LanguageSwitcherButton(lightBackground: true),
           ),
 
           // ── Title + step indicator ──
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
+            padding: EdgeInsets.symmetric(
+              horizontal: hPad,
               vertical: AppSpacing.sm,
             ),
             child: Column(
               children: [
                 Text(
                   l10n.createNewAccount,
-                  style: const TextStyle(
-                    color: Color(0xFF111111),
-                    fontSize: 20,
+                  style: TextStyle(
+                    color: const Color(0xFF111111),
+                    fontSize: titleFontSize,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
@@ -177,7 +180,11 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           // ── Form content ──
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                horizontal: hPad,
+                vertical: AppSpacing.md,
+              ),
               child: _currentStep == 0 ? _buildStep1() : _buildStep2(auth),
             ),
           ),

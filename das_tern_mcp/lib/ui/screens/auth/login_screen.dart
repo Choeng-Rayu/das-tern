@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
@@ -7,8 +8,68 @@ import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/auth_widgets.dart';
 import '../../widgets/language_switcher.dart';
 
-/// Login screen – blue gradient background, email/phone + password fields,
-/// Google Sign-In, register link.
+// ── Google logo widget ──────────────────────────────────────────────────────
+class _GoogleIcon extends StatelessWidget {
+  final double size;
+  const _GoogleIcon({this.size = 20});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: CustomPaint(painter: _GoogleIconPainter()),
+    );
+  }
+}
+
+class _GoogleIconPainter extends CustomPainter {
+  static const _blue = Color(0xFF4285F4);
+  static const _red = Color(0xFFEA4335);
+  static const _yellow = Color(0xFFFBBC05);
+  static const _green = Color(0xFF34A853);
+
+  static double _rad(double deg) => deg * math.pi / 180;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double r = size.width / 2;
+    final Offset c = Offset(r, r);
+    final double sw = r * 0.36; // ring stroke width
+    final double mr = r - sw / 2; // mid-radius for arc stroke center
+
+    Paint arc(Color color) => Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = sw
+      ..strokeCap = StrokeCap.butt;
+
+    final Rect rect = Rect.fromCircle(center: c, radius: mr);
+
+    // Arcs drawn clockwise where 0 rad = 3 o'clock.
+    // Gap at 3 o'clock: ±14° (for the horizontal bar).
+    canvas.drawArc(rect, _rad(14), _rad(91), false, arc(_yellow));  // 14°→105°
+    canvas.drawArc(rect, _rad(105), _rad(91), false, arc(_green));  // 105°→196°
+    canvas.drawArc(rect, _rad(196), _rad(150), false, arc(_blue));  // 196°→346°
+    canvas.drawArc(rect, _rad(346), _rad(28), false, arc(_red));    // 346°→374°
+
+    // Horizontal bar (blue): from center to outer-right edge.
+    canvas.drawRect(
+      Rect.fromLTRB(
+        c.dx - 1,
+        c.dy - sw / 2,
+        c.dx + r,
+        c.dy + sw / 2,
+      ),
+      Paint()..color = _blue..style = PaintingStyle.fill,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -69,40 +130,53 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final l10n = AppLocalizations.of(context)!;
+    final size = MediaQuery.of(context).size;
+    // Responsive horizontal padding: scales with screen width
+    final hPad = (size.width * 0.06).clamp(16.0, 40.0);
+    // Tighten vertical gaps on small/short screens
+    final isSmallScreen = size.height < 700;
+    final topGap = isSmallScreen ? AppSpacing.lg : AppSpacing.xxl;
+    final sectionGap = isSmallScreen ? AppSpacing.md : AppSpacing.xl;
+    final iconSize = isSmallScreen ? 56.0 : 72.0;
+    final iconInnerSize = isSmallScreen ? 28.0 : 36.0;
+    final titleFontSize = size.width < 360 ? 18.0 : 22.0;
 
     return AuthGradientScaffold(
       child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Header: logo + language switcher placeholder ──
-            const AuthHeader(trailing: LanguageSwitcherButton()),
-            const SizedBox(height: AppSpacing.xxl),
+            // ── Header: logo + language switcher ──
+            AuthHeader(
+              trailing: const LanguageSwitcherButton(lightBackground: true),
+            ),
+            SizedBox(height: topGap),
 
             // ── Welcome section ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              padding: EdgeInsets.symmetric(horizontal: hPad),
               child: Column(
                 children: [
                   Container(
-                    width: 72,
-                    height: 72,
+                    width: iconSize,
+                    height: iconSize,
                     decoration: const BoxDecoration(
                       color: Color(0xFFE3F2FD),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.medical_services_rounded,
-                      color: Color(0xFF1976D2),
-                      size: 36,
+                      color: const Color(0xFF1976D2),
+                      size: iconInnerSize,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
                     l10n.signIn,
-                    style: const TextStyle(
-                      color: Color(0xFF111111),
-                      fontSize: 22,
+                    style: TextStyle(
+                      color: const Color(0xFF111111),
+                      fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
@@ -119,11 +193,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: AppSpacing.xl),
+            SizedBox(height: sectionGap),
 
             // ── Form ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              padding: EdgeInsets.symmetric(horizontal: hPad),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -217,7 +291,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // ── OR divider ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              padding: EdgeInsets.symmetric(horizontal: hPad),
               child: Row(
                 children: [
                   const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
@@ -241,24 +315,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // ── Google Sign-In button ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              padding: EdgeInsets.symmetric(horizontal: hPad),
               child: SizedBox(
                 width: double.infinity,
                 height: 48,
                 child: OutlinedButton.icon(
                   onPressed: auth.isLoading ? null : _handleGoogleSignIn,
-                  icon: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Icon(
-                      Icons.g_mobiledata,
-                      color: Colors.red,
-                      size: 20,
-                    ),
-                  ),
+                  icon: const _GoogleIcon(size: 20),
                   label: Text(
                     l10n.signInWithGoogle,
                     style: const TextStyle(
@@ -281,7 +344,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.xxl),
+            SizedBox(height: topGap),
 
             // ── Register link ──
             AuthLinkRow(

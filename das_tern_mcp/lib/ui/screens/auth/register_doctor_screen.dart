@@ -158,6 +158,9 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final l10n = AppLocalizations.of(context)!;
+    final size = MediaQuery.of(context).size;
+    final hPad = (size.width * 0.06).clamp(16.0, 40.0);
+    final titleFontSize = size.width < 360 ? 16.0 : 20.0;
 
     return AuthGradientScaffold(
       child: Column(
@@ -171,21 +174,21 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                 Navigator.of(context).pop();
               }
             },
-            trailing: const LanguageSwitcherButton(),
+            trailing: const LanguageSwitcherButton(lightBackground: true),
           ),
 
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
+            padding: EdgeInsets.symmetric(
+              horizontal: hPad,
               vertical: AppSpacing.sm,
             ),
             child: Column(
               children: [
                 Text(
                   l10n.doctorRegistrationTitle,
-                  style: const TextStyle(
-                    color: Color(0xFF111111),
-                    fontSize: 20,
+                  style: TextStyle(
+                    color: const Color(0xFF111111),
+                    fontSize: titleFontSize,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
@@ -204,7 +207,11 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
 
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                horizontal: hPad,
+                vertical: AppSpacing.md,
+              ),
               child: _currentStep == 0 ? _buildStep1() : _buildStep2(auth),
             ),
           ),
@@ -220,43 +227,22 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AuthFieldLabel(l10n.fullName),
+          AuthFieldLabel(l10n.lastName),
           const SizedBox(height: AppSpacing.xs),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    AuthFieldLabel(l10n.lastName),
-                    const SizedBox(height: AppSpacing.xs),
-                    AuthTextField(
-                      controller: _lastNameController,
-                      hintText: l10n.fillLastNameHint,
-                      validator: (v) =>
-                          v?.isEmpty ?? true ? l10n.fillLastNameError : null,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    AuthFieldLabel(l10n.firstName),
-                    const SizedBox(height: AppSpacing.xs),
-                    AuthTextField(
-                      controller: _firstNameController,
-                      hintText: l10n.fillFirstNameHint,
-                      validator: (v) =>
-                          v?.isEmpty ?? true ? l10n.fillFirstNameError : null,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          AuthTextField(
+            controller: _lastNameController,
+            hintText: l10n.fillLastNameHint,
+            validator: (v) =>
+                v?.isEmpty ?? true ? l10n.fillLastNameError : null,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          AuthFieldLabel(l10n.firstName),
+          const SizedBox(height: AppSpacing.xs),
+          AuthTextField(
+            controller: _firstNameController,
+            hintText: l10n.fillFirstNameHint,
+            validator: (v) =>
+                v?.isEmpty ?? true ? l10n.fillFirstNameError : null,
           ),
           const SizedBox(height: AppSpacing.md),
 
