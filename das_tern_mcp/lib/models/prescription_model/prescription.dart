@@ -13,12 +13,14 @@ class Prescription {
   final String? urgentReason;
   final String? notes;
   final Map<String, dynamic>? patient;
+  final Map<String, dynamic>? doctor;
   final String? diagnosis;
   final String? clinicalNote;
   final String? doctorLicenseNumber;
   final DateTime? followUpDate;
   final DateTime? startDate;
   final DateTime? endDate;
+  final Map<String, dynamic>? ocrMetadata;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -37,12 +39,14 @@ class Prescription {
     this.urgentReason,
     this.notes,
     this.patient,
+    this.doctor,
     this.diagnosis,
     this.clinicalNote,
     this.doctorLicenseNumber,
     this.followUpDate,
     this.startDate,
     this.endDate,
+    this.ocrMetadata,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -67,6 +71,9 @@ class Prescription {
       patient: json['patient'] is Map
           ? Map<String, dynamic>.from(json['patient'])
           : null,
+      doctor: json['doctor'] is Map
+          ? Map<String, dynamic>.from(json['doctor'])
+          : null,
       diagnosis: json['diagnosis'] as String?,
       clinicalNote: json['clinicalNote'] as String?,
       doctorLicenseNumber: json['doctorLicenseNumber'] as String?,
@@ -78,6 +85,9 @@ class Prescription {
           : null,
       endDate: json['endDate'] != null
           ? DateTime.parse(json['endDate'] as String)
+          : null,
+      ocrMetadata: json['ocrMetadata'] is Map
+          ? Map<String, dynamic>.from(json['ocrMetadata'])
           : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
@@ -100,6 +110,7 @@ class Prescription {
       if (urgentReason != null) 'urgentReason': urgentReason,
       if (notes != null) 'notes': notes,
       if (patient != null) 'patient': patient,
+      if (doctor != null) 'doctor': doctor,
       if (diagnosis != null) 'diagnosis': diagnosis,
       if (clinicalNote != null) 'clinicalNote': clinicalNote,
       if (doctorLicenseNumber != null)
@@ -108,6 +119,7 @@ class Prescription {
         'followUpDate': followUpDate!.toIso8601String(),
       if (startDate != null) 'startDate': startDate!.toIso8601String(),
       if (endDate != null) 'endDate': endDate!.toIso8601String(),
+      if (ocrMetadata != null) 'ocrMetadata': ocrMetadata,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };

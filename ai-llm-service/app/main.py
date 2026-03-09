@@ -202,57 +202,49 @@ async def startup_event():
 @app.get("/")
 async def root():
     """Root endpoint"""
+    model_info = get_model_info()
     return {
         "service": "AI LLM Service",
         "status": "running",
-        "model": "ollama with Llama3.2:3b",
+        "provider": model_info.get("provider", "unknown"),
+        "model": model_info.get("model_name", "unknown"),
         "capabilities": ["ocr_correction", "chatbot"]
-    }
-
-@app.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "service": "AI LLM Service",
-        "model": "ollama with Llama3.2:3b"
     }
 
 @app.post("/api/v1/correct", response_model=OCRCorrectionResponse)
 async def correct_ocr(request: OCRCorrectionRequest):
     """
-    Correct OCR text using Ollama
-    
+    Correct OCR text using the configured LLM provider.
+
     Args:
         request: OCR correction request with raw text
-        
+
     Returns:
         Corrected text with confidence score
     """
     try:
-        from .core.ollama_client import OllamaClient
-        
+        from .core.generation import generate as _generate
+        from .core.model_loader import get_model_info
+
         logger.info(f"Received OCR correction request for language: {request.language}")
-        
-        ollama_client = OllamaClient()
-        
-        prompt = f"""Fix OCR errors in this {request.language} text. Return only the corrected text without explanations.
 
-Original text:
-{request.raw_text}
+        prompt = (
+            f"Fix OCR errors in this {request.language} text. "
+            f"Return only the corrected text without explanations.\n\n"
+            f"Original text:\n{request.raw_text}\n\nCorrected text:"
+        )
 
-Corrected text:"""
-        
-        corrected_text = await ollama_client.generate(prompt)
-        
+        corrected_text = _generate(prompt=prompt, temperature=0.2) or request.raw_text
+        info = get_model_info()
+
         return OCRCorrectionResponse(
             corrected_text=corrected_text.strip(),
             confidence=0.85,
             language=request.language,
             changes_made=[],
-            metadata={"model": "llama3.2:3b", "service": "ai-llm-service"}
+            metadata={"provider": info.get("provider"), "model": info.get("model_name"), "service": "ai-llm-service"},
         )
-        
+
     except Exception as e:
         logger.error(f"Error in OCR correction: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -496,12 +488,13 @@ async def health_check():
     model_info = get_model_info()
     return {
         "status": "healthy" if model_info["is_loaded"] else "degraded",
+        "provider": model_info.get("provider", "unknown"),
         "model": model_info,
         "components": {
             "enhancer": "ready",
             "validator": "ready",
-            "safety": "ready"
-        }
+            "safety": "ready",
+        },
     }
 
 

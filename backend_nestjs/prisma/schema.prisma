@@ -284,6 +284,9 @@ model Prescription {
   startDate         DateTime?       @db.Date
   endDate           DateTime?       @db.Date
 
+  // OCR Metadata (stores prescriber, facility, patient OCR data, scan metadata)
+  ocrMetadata    Json?              @db.JsonB
+
   // Prescription Details
   status         PrescriptionStatus @default(DRAFT)
   currentVersion Int                @default(1)
@@ -481,6 +484,7 @@ model Subscription {
   
   // Subscription Details
   expiresAt    DateTime?        @db.Timestamptz(3)
+  hasUsedTrial Boolean          @default(false)
   
   // Timestamps
   createdAt    DateTime         @default(now()) @db.Timestamptz(3)

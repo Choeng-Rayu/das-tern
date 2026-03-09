@@ -119,7 +119,6 @@ RULES: Extract ONLY visible text. Use empty strings for missing data. NO EXPLANA
     def _call_ai(self, user_prompt: str) -> str:
         """Call AI model for processing"""
         payload = {
-            "model": "llama3.1:8b",
             "system": self.SYSTEM_PROMPT,
             "prompt": user_prompt,
             "stream": False,

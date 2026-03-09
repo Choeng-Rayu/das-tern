@@ -243,6 +243,19 @@ class ConnectionProvider extends ChangeNotifier {
     }
   }
 
+  /// Fetch today's dose data for a patient (caregiver view).
+  Future<Map<String, dynamic>?> getPatientDoses(String patientId) async {
+    _error = null;
+    try {
+      final result = await _api.getPatientDosesAsCaregiver(patientId);
+      return result;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return null;
+    }
+  }
+
   // ── Connection History ──
 
   /// Get connection history with optional filter.
@@ -256,6 +269,46 @@ class ConnectionProvider extends ChangeNotifier {
       _error = e.toString().replaceFirst('Exception: ', '');
       notifyListeners();
       return [];
+    }
+  }
+
+  // ── Patient Search (for Doctors) ──
+
+  /// Search for a patient by phone number or email.
+  Future<Map<String, dynamic>?> searchPatientByContact(String query) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final result = await _api.searchPatientByContact(query);
+      return result;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      return null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Doctor requests connection with a patient (by patient id).
+  Future<bool> requestPatientConnection(String patientId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await _api.createConnection({
+        'targetUserId': patientId,
+        'targetRole': 'PATIENT',
+      });
+      await fetchConnections();
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }

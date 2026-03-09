@@ -7,8 +7,54 @@ export class SubscriptionsService {
   constructor(private prisma: PrismaService) {}
 
   async findOne(userId: string) {
-    return this.prisma.subscription.findUnique({
+    const subscription = await this.prisma.subscription.findUnique({
       where: { userId },
+      include: {
+        familyMembers: {
+          include: {
+            member: {
+              select: { id: true, firstName: true, lastName: true, fullName: true, phoneNumber: true },
+            },
+          },
+        },
+      },
+    });
+
+    // Check if trial has expired
+    if (subscription && subscription.expiresAt) {
+      const now = new Date();
+      if (now > subscription.expiresAt && subscription.tier === 'PREMIUM') {
+        // Trial expired, downgrade to FREEMIUM
+        await this.updateTier(userId, 'FREEMIUM');
+        // Re-fetch subscription with all relations
+        return this.prisma.subscription.findUnique({
+          where: { userId },
+          include: {
+            familyMembers: {
+              include: {
+                member: {
+                  select: { id: true, firstName: true, lastName: true, fullName: true, phoneNumber: true },
+                },
+              },
+            },
+          },
+        });
+      }
+    }
+
+    return subscription;
+  }
+
+  async updateTier(userId: string, tier: SubscriptionTier) {
+    const storageQuota = tier === 'FREEMIUM' ? BigInt(5368709120) : BigInt(21474836480);
+    
+    return this.prisma.subscription.update({
+      where: { userId },
+      data: { 
+        tier, 
+        storageQuota,
+        expiresAt: null, // Clear expiration when manually upgrading
+      },
       include: {
         familyMembers: {
           include: {
@@ -21,12 +67,47 @@ export class SubscriptionsService {
     });
   }
 
-  async updateTier(userId: string, tier: SubscriptionTier) {
-    const storageQuota = tier === 'FREEMIUM' ? BigInt(5368709120) : BigInt(21474836480);
-    
+  async claimFreeTrial(userId: string) {
+    const subscription = await this.prisma.subscription.findUnique({
+      where: { userId },
+    });
+
+    if (!subscription) {
+      throw new BadRequestException('No subscription found');
+    }
+
+    // Check if user has already used their trial
+    if (subscription.hasUsedTrial) {
+      throw new ForbiddenException('You have already claimed your free trial');
+    }
+
+    // Check if user is currently Premium (can't claim trial if already premium)
+    if (subscription.tier === 'PREMIUM' || subscription.tier === 'FAMILY_PREMIUM') {
+      throw new ForbiddenException('You are already on a premium plan');
+    }
+
+    // Calculate trial expiration (1 month from now)
+    const trialExpiresAt = new Date();
+    trialExpiresAt.setMonth(trialExpiresAt.getMonth() + 1);
+
+    // Activate Premium trial
     return this.prisma.subscription.update({
       where: { userId },
-      data: { tier, storageQuota },
+      data: {
+        tier: 'PREMIUM',
+        hasUsedTrial: true,
+        expiresAt: trialExpiresAt,
+        storageQuota: BigInt(21474836480), // 20 GB for Premium
+      },
+      include: {
+        familyMembers: {
+          include: {
+            member: {
+              select: { id: true, firstName: true, lastName: true, fullName: true, phoneNumber: true },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -37,12 +118,13 @@ export class SubscriptionsService {
       throw new BadRequestException('No subscription found');
     }
 
-    if (subscription.tier !== 'FAMILY_PREMIUM') {
-      throw new ForbiddenException('Family plan required');
+    if (subscription.tier === 'FREEMIUM') {
+      throw new ForbiddenException('Premium plan required to add family members');
     }
 
-    if (subscription.familyMembers.length >= 2) {
-      throw new BadRequestException('Maximum 3 members (including owner)');
+    // Premium allows up to 5 family connections
+    if (subscription.tier === 'PREMIUM' && subscription.familyMembers.length >= 5) {
+      throw new BadRequestException('Maximum 5 family members for Premium plan');
     }
 
     return this.prisma.familyMember.create({
@@ -122,7 +204,13 @@ export class SubscriptionsService {
       familyConnectionCount,
       storageQuota: Number(subscription?.storageQuota || 5368709120),
       storageUsed: Number(subscription?.storageUsed || 0),
+      ocrEnabled: limits.ocrEnabled,
     };
+  }
+
+  async checkOcrPermission(patientId: string): Promise<boolean> {
+    const limits = await this.getSubscriptionLimits(patientId);
+    return limits.ocrEnabled || false;
   }
 
   async checkPrescriptionLimit(patientId: string): Promise<boolean> {
@@ -146,13 +234,13 @@ export class SubscriptionsService {
   private getTierLimits(tier: string) {
     switch (tier) {
       case 'FREEMIUM':
-        return { prescriptions: 1, medicines: 3, familyConnections: 1, storageGB: 5 };
+        // Manual input only, reminders, no OCR, no family plan
+        return { prescriptions: -1, medicines: -1, familyConnections: 0, storageGB: 5, ocrEnabled: false };
       case 'PREMIUM':
-        return { prescriptions: -1, medicines: -1, familyConnections: 5, storageGB: 20 };
-      case 'FAMILY_PREMIUM':
-        return { prescriptions: -1, medicines: -1, familyConnections: 10, storageGB: 20 };
+        // Unlimited OCR, up to 5 family members
+        return { prescriptions: -1, medicines: -1, familyConnections: 5, storageGB: 20, ocrEnabled: true };
       default:
-        return { prescriptions: 1, medicines: 3, familyConnections: 1, storageGB: 5 };
+        return { prescriptions: -1, medicines: -1, familyConnections: 0, storageGB: 5, ocrEnabled: false };
     }
   }
 
@@ -161,39 +249,38 @@ export class SubscriptionsService {
       tiers: [
         {
           name: 'FREEMIUM',
-          prescriptions: '1',
-          medicines: '3',
-          familyConnections: '1',
+          displayName: 'Freemium',
+          price: 'Free',
+          prescriptions: 'Unlimited',
+          medicines: 'Unlimited',
+          manualInput: true,
+          ocrScanning: false,
+          familyConnections: '0',
           storage: '5 GB',
           reminders: true,
           adherenceTracking: true,
           offlineMode: true,
-          doctorConnection: true,
           prioritySupport: false,
         },
         {
           name: 'PREMIUM',
+          displayName: 'Premium',
+          price: '$0.5/month',
+          pricingOptions: [
+            { period: 'month', price: 0.5, display: '$0.5/month' },
+            { period: '3months', price: 1.0, display: '$1/3 months' },
+          ],
           prescriptions: 'Unlimited',
           medicines: 'Unlimited',
+          manualInput: true,
+          ocrScanning: true,
           familyConnections: '5',
           storage: '20 GB',
           reminders: true,
           adherenceTracking: true,
           offlineMode: true,
-          doctorConnection: true,
           prioritySupport: true,
-        },
-        {
-          name: 'FAMILY_PREMIUM',
-          prescriptions: 'Unlimited',
-          medicines: 'Unlimited',
-          familyConnections: '10',
-          storage: '20 GB',
-          reminders: true,
-          adherenceTracking: true,
-          offlineMode: true,
-          doctorConnection: true,
-          prioritySupport: true,
+          freeTrial: '1 month free for new users',
         },
       ],
     };

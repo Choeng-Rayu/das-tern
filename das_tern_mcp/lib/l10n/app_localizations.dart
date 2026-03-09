@@ -659,7 +659,7 @@ abstract class AppLocalizations {
   /// No description provided for @unlockPremiumFeatures.
   ///
   /// In en, this message translates to:
-  /// **'Unlock premium features'**
+  /// **'Unlock premium features and get the most out of DasTern'**
   String get unlockPremiumFeatures;
 
   /// No description provided for @todaySchedule.
@@ -1847,7 +1847,7 @@ abstract class AppLocalizations {
   /// No description provided for @upgradeToUnlock.
   ///
   /// In en, this message translates to:
-  /// **'Upgrade to unlock all features'**
+  /// **'Upgrade to unlock Premium features'**
   String get upgradeToUnlock;
 
   /// No description provided for @upgrade.
@@ -2132,6 +2132,12 @@ abstract class AppLocalizations {
   /// **'Open in Banking App'**
   String get openInBankingApp;
 
+  /// No description provided for @bankAmountPreFilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Bakong: payment pre-loaded · Others: open app and scan the QR above'**
+  String get bankAmountPreFilled;
+
   /// No description provided for @orOpenDirectly.
   ///
   /// In en, this message translates to:
@@ -2281,6 +2287,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Family Plan'**
   String get familyPlanFeature;
+
+  /// No description provided for @premiumTrialActive.
+  ///
+  /// In en, this message translates to:
+  /// **'🎉 Premium Trial Active'**
+  String get premiumTrialActive;
+
+  /// No description provided for @dayRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'day remaining'**
+  String get dayRemaining;
+
+  /// No description provided for @daysRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'days remaining'**
+  String get daysRemaining;
+
+  /// No description provided for @expiresToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires today'**
+  String get expiresToday;
+
+  /// No description provided for @enjoyUnlimitedFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy unlimited OCR & family features'**
+  String get enjoyUnlimitedFeatures;
+
+  /// No description provided for @claimFreeTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim 1-Month Free Trial'**
+  String get claimFreeTrial;
+
+  /// No description provided for @trialAlreadyClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial already claimed'**
+  String get trialAlreadyClaimed;
+
+  /// No description provided for @claimingTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Activating trial...'**
+  String get claimingTrial;
+
+  /// No description provided for @trialClaimedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Free trial activated! Enjoy Premium features for 1 month.'**
+  String get trialClaimedSuccess;
+
+  /// No description provided for @trialClaimFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to activate trial. Please try again.'**
+  String get trialClaimFailed;
+
+  /// No description provided for @premiumTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Trial'**
+  String get premiumTrial;
+
+  /// No description provided for @topFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Features'**
+  String get topFeatures;
+
+  /// No description provided for @cancelAnytime.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel anytime'**
+  String get cancelAnytime;
+
+  /// No description provided for @trialReminderNote.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll remind you 3 days before your trial ends'**
+  String get trialReminderNote;
+
+  /// No description provided for @expandedOcrFeature.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited OCR prescription scanning'**
+  String get expandedOcrFeature;
+
+  /// No description provided for @familyConnectionsFeature.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect up to 5 family members'**
+  String get familyConnectionsFeature;
+
+  /// No description provided for @expandedStorageFeature.
+  ///
+  /// In en, this message translates to:
+  /// **'20 GB cloud storage for medical records'**
+  String get expandedStorageFeature;
+
+  /// No description provided for @trialPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial Period'**
+  String get trialPeriod;
+
+  /// No description provided for @oneMonthFree.
+  ///
+  /// In en, this message translates to:
+  /// **'1 month free'**
+  String get oneMonthFree;
+
+  /// No description provided for @promotion.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotion'**
+  String get promotion;
+
+  /// No description provided for @hundredPercentOff.
+  ///
+  /// In en, this message translates to:
+  /// **'100% off for 1 month'**
+  String get hundredPercentOff;
+
+  /// No description provided for @afterTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'After Trial'**
+  String get afterTrial;
+
+  /// No description provided for @dueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get dueToday;
+
+  /// No description provided for @premiumFeature.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Feature'**
+  String get premiumFeature;
+
+  /// No description provided for @ocrPremiumMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'OCR scanning is a Premium feature. Upgrade to Premium to unlock:'**
+  String get ocrPremiumMessage;
+
+  /// No description provided for @unlimitedOcrScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited OCR scanning'**
+  String get unlimitedOcrScanning;
+
+  /// No description provided for @connectFamilyMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect up to 5 family members'**
+  String get connectFamilyMembers;
+
+  /// No description provided for @twentyGBStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'20 GB storage'**
+  String get twentyGBStorage;
+
+  /// No description provided for @prioritySupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority support'**
+  String get prioritySupport;
+
+  /// No description provided for @freeTrialOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'1-month free trial for new users!'**
+  String get freeTrialOffer;
+
+  /// No description provided for @yourTrialPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Trial Period'**
+  String get yourTrialPeriod;
+
+  /// No description provided for @trialExpiresOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial expires on'**
+  String get trialExpiresOn;
+
+  /// No description provided for @daysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'days left'**
+  String get daysLeft;
+
+  /// No description provided for @dayLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'day left'**
+  String get dayLeft;
+
+  /// No description provided for @enjoyingPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'You are enjoying Premium features'**
+  String get enjoyingPremium;
+
+  /// No description provided for @afterTrialEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'After trial ends'**
+  String get afterTrialEnds;
+
+  /// No description provided for @autoRevertToFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan will automatically revert to Freemium (Free plan)'**
+  String get autoRevertToFree;
+
+  /// No description provided for @keepPremiumFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Want to keep Premium features?'**
+  String get keepPremiumFeatures;
+
+  /// No description provided for @upgradeToPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Premium'**
+  String get upgradeToPremium;
+
+  /// No description provided for @onlyPerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Only \$0.50/month or \$1 for 3 months'**
+  String get onlyPerMonth;
+
+  /// No description provided for @whatYouGet.
+  ///
+  /// In en, this message translates to:
+  /// **'What you\'re enjoying now'**
+  String get whatYouGet;
+
+  /// No description provided for @continuePremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Premium'**
+  String get continuePremium;
 
   /// No description provided for @addAtLeastOneMedicine.
   ///
@@ -3271,6 +3529,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'DasTern connection code: {token}'**
   String shareCodeMessage(String token);
+
+  /// No description provided for @shareQrAndCodeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Here is my DasTern connection code: {token}\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.'**
+  String shareQrAndCodeMessage(String token);
 
   /// No description provided for @generateNewCode.
   ///
@@ -4310,6 +4574,30 @@ abstract class AppLocalizations {
   /// **'Terms of Service'**
   String get termsOfService;
 
+  /// No description provided for @manageSubscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Subscriptions'**
+  String get manageSubscriptions;
+
+  /// No description provided for @restoreSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Subscription'**
+  String get restoreSubscription;
+
+  /// No description provided for @rateApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate App'**
+  String get rateApp;
+
+  /// No description provided for @support.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get support;
+
   /// No description provided for @currentPassword.
   ///
   /// In en, this message translates to:
@@ -4333,6 +4621,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{percentage}%'**
   String adherencePercentage(String percentage);
+
+  /// No description provided for @connectNewPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect New Patient'**
+  String get connectNewPatient;
+
+  /// No description provided for @enterPhoneOrEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone number or email'**
+  String get enterPhoneOrEmail;
+
+  /// No description provided for @noPatientFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No patient found'**
+  String get noPatientFound;
+
+  /// No description provided for @connectionRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection request sent'**
+  String get connectionRequestSent;
+
+  /// No description provided for @connectionRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection request failed'**
+  String get connectionRequestFailed;
+
+  /// No description provided for @sendConnectionRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Connection Request'**
+  String get sendConnectionRequest;
+
+  /// No description provided for @connectionApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection approved'**
+  String get connectionApproved;
+
+  /// No description provided for @connectionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection rejected'**
+  String get connectionRejected;
+
+  /// No description provided for @approveConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Connection'**
+  String get approveConnection;
+
+  /// No description provided for @rejectConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Connection'**
+  String get rejectConnection;
+
+  /// No description provided for @removeNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Notification'**
+  String get removeNotification;
+
+  /// No description provided for @removeNotificationConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove notification?'**
+  String get removeNotificationConfirm;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @prescriptionConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription confirmed'**
+  String get prescriptionConfirmed;
+
+  /// No description provided for @prescriptionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription rejected'**
+  String get prescriptionRejected;
+
+  /// No description provided for @rejectPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Prescription'**
+  String get rejectPrescription;
+
+  /// No description provided for @confirmPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Prescription'**
+  String get confirmPrescription;
+
+  /// No description provided for @prescriptionFromDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription from {doctor}'**
+  String prescriptionFromDoctor(String doctor);
+
+  /// No description provided for @pendingPrescriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Prescriptions'**
+  String get pendingPrescriptions;
+
+  /// No description provided for @missedDoseBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You missed a dose'**
+  String get missedDoseBanner;
+
+  /// No description provided for @ocrOutpatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Outpatient'**
+  String get ocrOutpatient;
+
+  /// No description provided for @ocrInpatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Inpatient'**
+  String get ocrInpatient;
+
+  /// No description provided for @ocrFacilityHospital.
+  ///
+  /// In en, this message translates to:
+  /// **'Hospital'**
+  String get ocrFacilityHospital;
+
+  /// No description provided for @ocrFacilityClinic.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinic'**
+  String get ocrFacilityClinic;
+
+  /// No description provided for @ocrNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get ocrNotAvailable;
+
+  /// No description provided for @ocrNeedsReviewYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, needs review'**
+  String get ocrNeedsReviewYes;
+
+  /// No description provided for @ocrPatientInfoSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient Information'**
+  String get ocrPatientInfoSection;
+
+  /// No description provided for @ocrPatientId.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient ID'**
+  String get ocrPatientId;
+
+  /// No description provided for @ocrPatientName.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient Name'**
+  String get ocrPatientName;
+
+  /// No description provided for @ocrPatientKhmerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient Name (Khmer)'**
+  String get ocrPatientKhmerName;
+
+  /// No description provided for @ocrPatientAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get ocrPatientAge;
+
+  /// No description provided for @ocrYearsOld.
+  ///
+  /// In en, this message translates to:
+  /// **'{age} years old'**
+  String ocrYearsOld(String age);
+
+  /// No description provided for @ocrPatientGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get ocrPatientGender;
+
+  /// No description provided for @ocrPrescriberSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescriber Information'**
+  String get ocrPrescriberSection;
+
+  /// No description provided for @ocrPrescriberName.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescriber Name'**
+  String get ocrPrescriberName;
+
+  /// No description provided for @ocrFacilitySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Facility Information'**
+  String get ocrFacilitySection;
+
+  /// No description provided for @ocrFacilityName.
+  ///
+  /// In en, this message translates to:
+  /// **'Facility Name'**
+  String get ocrFacilityName;
+
+  /// No description provided for @ocrFacilityType.
+  ///
+  /// In en, this message translates to:
+  /// **'Facility Type'**
+  String get ocrFacilityType;
+
+  /// No description provided for @ocrClinicalSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinical Information'**
+  String get ocrClinicalSection;
+
+  /// No description provided for @ocrDiagnosis.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnosis'**
+  String get ocrDiagnosis;
+
+  /// No description provided for @ocrMetadataSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Metadata'**
+  String get ocrMetadataSection;
+
+  /// No description provided for @ocrConfidenceScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Confidence Score'**
+  String get ocrConfidenceScore;
+
+  /// No description provided for @ocrConfidencePercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{confidence}%'**
+  String ocrConfidencePercent(String confidence);
+
+  /// No description provided for @ocrEngine.
+  ///
+  /// In en, this message translates to:
+  /// **'OCR Engine'**
+  String get ocrEngine;
+
+  /// No description provided for @ocrProcessingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing Time'**
+  String get ocrProcessingTime;
+
+  /// No description provided for @ocrMilliseconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms}ms'**
+  String ocrMilliseconds(String ms);
+
+  /// No description provided for @ocrPrescriptionType.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription Type'**
+  String get ocrPrescriptionType;
+
+  /// No description provided for @ocrLanguagesDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages Detected'**
+  String get ocrLanguagesDetected;
+
+  /// No description provided for @ocrValidationStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Validation Status'**
+  String get ocrValidationStatus;
+
+  /// No description provided for @ocrValidated.
+  ///
+  /// In en, this message translates to:
+  /// **'Validated'**
+  String get ocrValidated;
+
+  /// No description provided for @ocrScanInfoSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Information'**
+  String get ocrScanInfoSection;
 }
 
 class _AppLocalizationsDelegate

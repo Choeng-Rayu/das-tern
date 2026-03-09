@@ -14,10 +14,25 @@ class UpgradePlanScreen extends StatefulWidget {
   State<UpgradePlanScreen> createState() => _UpgradePlanScreenState();
 }
 
-class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
+class _UpgradePlanScreenState extends State<UpgradePlanScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  bool _trialClaimed = false;
+
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.forward();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<SubscriptionProvider>().loadSubscription();
@@ -26,27 +41,37 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final sub = context.watch<SubscriptionProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // Use backend plans if loaded, else fall back to static plans
     final hasPlans = sub.plans != null && sub.plans!.isNotEmpty;
 
     return Scaffold(
+      backgroundColor: isDark
+          ? const Color(0xFF121212)
+          : const Color(0xFFF8F9FD),
       appBar: AppBar(
-        title: Text(l10n.upgradePlan),
+        title: Text(
+          l10n.upgradePlan,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
         centerTitle: true,
+        elevation: 0,
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       ),
       body: Column(
         children: [
           // ── Error banner (non-blocking) ─────────────────────────────────
           if (sub.errorMessage != null && !sub.isLoading)
             Material(
-              color: isDark
-                  ? const Color(0xFF2A1F1F)
-                  : const Color(0xFFFFF3F3),
+              color: isDark ? const Color(0xFF2A1F1F) : const Color(0xFFFFF3F3),
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -58,25 +83,28 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                     Expanded(
                       child: Text(
                         sub.errorMessage!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFFE53935),
+                          color: AppColors.alertRed,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
                     TextButton.icon(
-                      onPressed: () =>
-                          context.read<SubscriptionProvider>().loadSubscription(),
+                      onPressed: () => context
+                          .read<SubscriptionProvider>()
+                          .loadSubscription(),
                       icon: sub.isLoading
                           ? const SizedBox(
                               width: 14,
                               height: 14,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.refresh, size: 16),
-                      label: Text(l10n.retry,
-                          style: const TextStyle(fontSize: 13)),
+                      label: Text(
+                        l10n.retry,
+                        style: const TextStyle(fontSize: 13),
+                      ),
                       style: TextButton.styleFrom(
                           foregroundColor: const Color(0xFFE53935)),
                     ),
@@ -86,19 +114,52 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
             ),
 
           // ── Loading indicator (thin bar, non-blocking) ──────────────────
-          if (sub.isLoading)
-            const LinearProgressIndicator(minHeight: 2),
+          if (sub.isLoading) const LinearProgressIndicator(minHeight: 2),
 
-          // ── Main scrollable content – always shown ──────────────────────
+          // ── Main scrollable content ─────────────────────────────────────
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Current plan card
-                  _CurrentPlanCard(tier: sub.currentTier, isDark: isDark),
-                  const SizedBox(height: AppSpacing.xl),
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.lg,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Current plan card
+                    _CurrentPlanCard(
+                      tier: _trialClaimed ? 'PREMIUM' : sub.currentTier,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+
+                    // Claim Free Trial button (only for Freemium users who haven't claimed)
+                    if (!_trialClaimed)
+                      _ClaimTrialButton(
+                        isDark: isDark,
+                        onClaimed: () {
+                          setState(() => _trialClaimed = true);
+                        },
+                      ),
+
+                    // Trial status banner (after claim or actual trial)
+                    if (_trialClaimed || sub.isOnTrial) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      _TrialBanner(
+                        daysRemaining: _trialClaimed
+                            ? 30
+                            : sub.trialDaysRemaining,
+                        expiresAt: _trialClaimed
+                            ? DateTime.now().add(const Duration(days: 30))
+                            : sub.trialExpiresAt!,
+                        isDark: isDark,
+                      ),
+                    ],
+
+                    const SizedBox(height: AppSpacing.xl),
 
                   // Section title
                   Text(
@@ -116,6 +177,8 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                       (plan) => _PlanCard(
                         plan: plan,
                         isCurrentPlan: sub.currentTier == plan['id'],
+                        isRecommended: plan['isRecommended'] ?? false,
+                        isDark: isDark,
                         onUpgrade: () {
                           Navigator.pushNamed(
                             context,
@@ -129,13 +192,19 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                       ),
                     )
                   else
-                    ..._defaultPlanCards(sub.currentTier),
+                    ..._defaultPlanCards(sub.currentTier, isDark),
 
-                  const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.xl),
 
-                  // Feature comparison
-                  _FeatureComparisonTable(currentTier: sub.currentTier),
-                ],
+                    // Feature comparison
+                    _FeatureComparisonSection(
+                      currentTier: sub.currentTier,
+                      isDark: isDark,
+                    ),
+
+                    const SizedBox(height: AppSpacing.xxl),
+                  ],
+                ),
               ),
             ),
           ),
@@ -144,7 +213,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
     );
   }
 
-  List<Widget> _defaultPlanCards(String currentTier) {
+  List<Widget> _defaultPlanCards(String currentTier, bool isDark) {
     return [
       _PlanCard(
         plan: const {
@@ -153,15 +222,22 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
           'price': 0.5,
           'currency': 'USD',
           'period': 'month',
+          'priceOptions': [
+            {'price': 0.5, 'period': 'month', 'display': '\$0.5/month'},
+            {'price': 1.0, 'period': '3months', 'display': '\$1/3 months'},
+          ],
           'features': [
-            'Unlimited prescriptions',
-            'Unlimited medicines',
-            'Up to 5 family connections',
+            'Unlimited manual prescriptions',
+            'Unlimited OCR scanning',
+            'Connect up to 5 family members',
             '20 GB storage',
             'Priority support',
+            '1-month free trial',
           ],
         },
         isCurrentPlan: currentTier == 'PREMIUM',
+        isRecommended: true,
+        isDark: isDark,
         onUpgrade: () {
           Navigator.pushNamed(
             context,
@@ -174,40 +250,14 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                 'price': 0.5,
                 'currency': 'USD',
                 'period': 'month',
-              },
-            },
-          );
-        },
-      ),
-      const SizedBox(height: AppSpacing.md),
-      _PlanCard(
-        plan: const {
-          'id': 'FAMILY_PREMIUM',
-          'name': 'Family Premium',
-          'price': 1.0,
-          'currency': 'USD',
-          'period': 'month',
-          'features': [
-            'All Premium features',
-            'Up to 10 family connections',
-            'Family plan (up to 3 members)',
-            '20 GB storage per member',
-            'Priority family support',
-          ],
-        },
-        isCurrentPlan: currentTier == 'FAMILY_PREMIUM',
-        onUpgrade: () {
-          Navigator.pushNamed(
-            context,
-            '/subscription/payment-method',
-            arguments: {
-              'planType': 'FAMILY_PREMIUM',
-              'plan': {
-                'id': 'FAMILY_PREMIUM',
-                'name': 'Family Premium',
-                'price': 1.0,
-                'currency': 'USD',
-                'period': 'month',
+                'priceOptions': [
+                  {'price': 0.5, 'period': 'month', 'display': '\$0.5/month'},
+                  {
+                    'price': 1.0,
+                    'period': '3months',
+                    'display': '\$1/3 months',
+                  },
+                ],
               },
             },
           );
@@ -217,7 +267,9 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
   }
 }
 
-// ─── Current Plan Card ───
+// ═══════════════════════════════════════════════════════════════════
+// ─── Current Plan Card ──────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
 class _CurrentPlanCard extends StatelessWidget {
   final String tier;
   final bool isDark;
@@ -228,9 +280,9 @@ class _CurrentPlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isPremium = tier == 'PREMIUM' || tier == 'FAMILY_PREMIUM';
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isPremium
@@ -239,12 +291,14 @@ class _CurrentPlanCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryBlue.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: (isPremium ? const Color(0xFF667EEA) : AppColors.primaryBlue)
+                .withOpacity(0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+            spreadRadius: 0,
           ),
         ],
       ),
@@ -290,15 +344,21 @@ class _CurrentPlanCard extends StatelessWidget {
   }
 }
 
-// ─── Plan Card ───
+// ═══════════════════════════════════════════════════════════════════
+// ─── Plan Card ──────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
 class _PlanCard extends StatelessWidget {
   final Map<String, dynamic> plan;
   final bool isCurrentPlan;
+  final bool isRecommended;
+  final bool isDark;
   final VoidCallback onUpgrade;
 
   const _PlanCard({
     required this.plan,
     required this.isCurrentPlan,
+    required this.isRecommended,
+    required this.isDark,
     required this.onUpgrade,
   });
 
@@ -406,15 +466,22 @@ class _PlanCard extends StatelessWidget {
   }
 }
 
-// ─── Feature Comparison Table ───
-class _FeatureComparisonTable extends StatelessWidget {
+// ═══════════════════════════════════════════════════════════════════
+// ─── Feature Comparison Section ────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+class _FeatureComparisonSection extends StatelessWidget {
   final String currentTier;
+  final bool isDark;
 
-  const _FeatureComparisonTable({required this.currentTier});
+  const _FeatureComparisonSection({
+    required this.currentTier,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -447,6 +514,49 @@ class _FeatureComparisonTable extends StatelessWidget {
     );
   }
 
+  Widget _tierHeaderBadge(BuildContext context, String text, bool isActive) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: isActive
+              ? AppColors.primaryBlue.withOpacity(0.15)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: isActive
+              ? Border.all(color: AppColors.primaryBlue, width: 1.5)
+              : null,
+        ),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
+            letterSpacing: 0.8,
+            color: isActive ? AppColors.primaryBlue : AppColors.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _divider() {
+    return Container(
+      height: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.black.withOpacity(0),
+            Colors.black.withOpacity(0.08),
+            Colors.black.withOpacity(0),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _comparisonRow(
     BuildContext context,
     String feature,
@@ -455,35 +565,31 @@ class _FeatureComparisonTable extends StatelessWidget {
     String family,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
           Expanded(
             flex: 3,
-            child: Text(feature, style: Theme.of(context).textTheme.bodySmall),
-          ),
-          Expanded(
-            flex: 2,
             child: Text(
-              free,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: currentTier == 'FREEMIUM' ? FontWeight.bold : FontWeight.normal,
-                color: currentTier == 'FREEMIUM' ? AppColors.primaryBlue : null,
+              feature,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
+              free,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          Expanded(
+            child: Text(
               premium,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: currentTier == 'PREMIUM' ? FontWeight.bold : FontWeight.normal,
-                color: currentTier == 'PREMIUM' ? AppColors.primaryBlue : null,
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
           Expanded(
@@ -491,12 +597,110 @@ class _FeatureComparisonTable extends StatelessWidget {
             child: Text(
               family,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: currentTier == 'FAMILY_PREMIUM' ? FontWeight.bold : FontWeight.normal,
-                color: currentTier == 'FAMILY_PREMIUM' ? AppColors.primaryBlue : null,
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Widget for claiming free trial offer
+class _ClaimTrialButton extends StatelessWidget {
+  final bool isDark;
+  final VoidCallback? onClaimed;
+
+  const _ClaimTrialButton({
+    required this.isDark,
+    this.onClaimed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primaryBlue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Claim Your Free Trial',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Get 1 month free premium access',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: onClaimed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue,
+              ),
+              child: const Text('Claim Trial'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Widget for displaying trial banner
+class _TrialBanner extends StatelessWidget {
+  final int daysRemaining;
+  final DateTime expiresAt;
+  final bool isDark;
+
+  const _TrialBanner({
+    required this.daysRemaining,
+    required this.expiresAt,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primaryBlue.withOpacity(0.2),
+            AppColors.primaryBlue.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.celebration, color: AppColors.primaryBlue),
+              const SizedBox(width: 8),
+              Text(
+                'Premium Trial Active',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryBlue,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'You have $daysRemaining days remaining',
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
       ),

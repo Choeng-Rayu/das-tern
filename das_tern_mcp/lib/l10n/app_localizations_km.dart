@@ -297,7 +297,8 @@ class AppLocalizationsKm extends AppLocalizations {
   String get subscription => 'ការជាវ';
 
   @override
-  String get unlockPremiumFeatures => 'ដោះសោលក្ខណៈពិសេស';
+  String get unlockPremiumFeatures =>
+      'ដោះសោមុខងារពិសេស និងទទួលបានច្រើនបំផុតពី DasTern';
 
   @override
   String get todaySchedule => 'កាលវិភាគថ្ងៃនេះ';
@@ -909,7 +910,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get allFeaturesUnlocked => 'មុខងារទាំងអស់ត្រូវបានបើក';
 
   @override
-  String get upgradeToUnlock => 'ដំឡើងដើម្បីបើកមុខងារទាំងអស់';
+  String get upgradeToUnlock => 'ដំឡើងដើម្បីដោះសោមុខងារ Premium';
 
   @override
   String get upgrade => 'ដំឡើង';
@@ -1061,6 +1062,10 @@ class AppLocalizationsKm extends AppLocalizations {
   String get openInBankingApp => 'បើកកម្មវិធីធនាគារ';
 
   @override
+  String get bankAmountPreFilled =>
+      'បាកុង: ទូទាត់ត្រូវបានដំឡើងរួច · ធ.ផ្សេង: បើក និងស្កែន QR ខាងលើ';
+
+  @override
   String get orOpenDirectly => 'ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:';
 
   @override
@@ -1136,6 +1141,140 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get familyPlanFeature => 'គម្រោងគ្រួសារ';
+
+  @override
+  String get premiumTrialActive => '🎉 ការសាកល្បង Premium សកម្ម';
+
+  @override
+  String get dayRemaining => 'ថ្ងៃនៅសល់';
+
+  @override
+  String get daysRemaining => 'ថ្ងៃនៅសល់';
+
+  @override
+  String get expiresToday => 'ផុតកំណត់ថ្ងៃនេះ';
+
+  @override
+  String get enjoyUnlimitedFeatures =>
+      'រីករាយជាមួយមុខងារ OCR និងគ្រួសារគ្មានដែនកំណត់';
+
+  @override
+  String get claimFreeTrial => 'ទាមទារការសាកល្បង ១ ខែឥតគិតថ្លៃ';
+
+  @override
+  String get trialAlreadyClaimed => 'បានទាមទារការសាកល្បងរួចហើយ';
+
+  @override
+  String get claimingTrial => 'កំពុងធ្វើឱ្យការសាកល្បងសកម្ម...';
+
+  @override
+  String get trialClaimedSuccess =>
+      'បានធ្វើឱ្យការសាកល្បងសកម្មជោគជ័យ! រីករាយជាមួយមុខងារ Premium រយៈពេល ១ ខែ។';
+
+  @override
+  String get trialClaimFailed =>
+      'បរាជ័យក្នុងការធ្វើឱ្យការសាកល្បងសកម្ម។ សូមព្យាយាមម្តងទៀត។';
+
+  @override
+  String get premiumTrial => 'ការសាកល្បង Premium';
+
+  @override
+  String get topFeatures => 'មុខងារសំខាន់ៗ';
+
+  @override
+  String get cancelAnytime => 'អាចបោះបង់នៅពេលណាក៏បាន';
+
+  @override
+  String get trialReminderNote =>
+      'យើងនឹងរំលឹកអ្នក ៣ ថ្ងៃមុនពេលការសាកល្បងផុតកំណត់';
+
+  @override
+  String get expandedOcrFeature => 'ស្កេនវេជ្ជបញ្ជា OCR គ្មានដែនកំណត់';
+
+  @override
+  String get familyConnectionsFeature => 'តភ្ជាប់សមាជិកគ្រួសាររហូតដល់ ៥ នាក់';
+
+  @override
+  String get expandedStorageFeature =>
+      'ទំហំផ្ទុក ២០ GB សម្រាប់កំណត់ត្រាវេជ្ជសាស្ត្រ';
+
+  @override
+  String get trialPeriod => 'រយៈពេលសាកល្បង';
+
+  @override
+  String get oneMonthFree => '១ ខែឥតគិតថ្លៃ';
+
+  @override
+  String get promotion => 'ការផ្តល់ជូន';
+
+  @override
+  String get hundredPercentOff => 'បញ្ចុះតម្លៃ 100% រយៈពេល ១ ខែ';
+
+  @override
+  String get afterTrial => 'បន្ទាប់ពីការសាកល្បង';
+
+  @override
+  String get dueToday => 'ទូទាត់ថ្ងៃនេះ';
+
+  @override
+  String get premiumFeature => 'មុខងារ Premium';
+
+  @override
+  String get ocrPremiumMessage =>
+      'ការស្កេន OCR គឺជាមុខងារ Premium។ ដំឡើងទៅ Premium ដើម្បីដោះសោ៖';
+
+  @override
+  String get unlimitedOcrScanning => 'ការស្កេន OCR គ្មានដែនកំណត់';
+
+  @override
+  String get connectFamilyMembers => 'តភ្ជាប់សមាជិកគ្រួសាររហូតដល់ ៥ នាក់';
+
+  @override
+  String get twentyGBStorage => 'ទំហំផ្ទុក ២០ GB';
+
+  @override
+  String get prioritySupport => 'ការគាំទ្រអាទិភាព';
+
+  @override
+  String get freeTrialOffer =>
+      'ការសាកល្បង ១ ខែឥតគិតថ្លៃសម្រាប់អ្នកប្រើប្រាស់ថ្មី!';
+
+  @override
+  String get yourTrialPeriod => 'រយៈពេលសាកល្បងរបស់អ្នក';
+
+  @override
+  String get trialExpiresOn => 'ការសាកល្បងផុតកំណត់នៅ';
+
+  @override
+  String get daysLeft => 'ថ្ងៃនៅសល់';
+
+  @override
+  String get dayLeft => 'ថ្ងៃនៅសល់';
+
+  @override
+  String get enjoyingPremium => 'អ្នកកំពុងរីករាយជាមួយមុខងារ Premium';
+
+  @override
+  String get afterTrialEnds => 'បន្ទាប់ពីការសាកល្បងបញ្ចប់';
+
+  @override
+  String get autoRevertToFree =>
+      'គម្រោងរបស់អ្នកនឹងត្រលប់ទៅជា Freemium (គម្រោងឥតគិតថ្លៃ) ដោយស្វ័យប្រវត្តិ';
+
+  @override
+  String get keepPremiumFeatures => 'ចង់រក្សាមុខងារ Premium?';
+
+  @override
+  String get upgradeToPremium => 'ដំឡើងទៅ Premium';
+
+  @override
+  String get onlyPerMonth => 'គ្រាន់តែ \$0.50/ខែ ឬ \$1 សម្រាប់ 3 ខែ';
+
+  @override
+  String get whatYouGet => 'អ្វីដែលអ្នកកំពុងរីករាយឥឡូវនេះ';
+
+  @override
+  String get continuePremium => 'បន្តជាមួយ Premium';
 
   @override
   String get addAtLeastOneMedicine => 'សូមបន្ថែមថ្នាំយ៉ាងហោចណាស់មួយមុខ';
@@ -1662,6 +1801,11 @@ class AppLocalizationsKm extends AppLocalizations {
   @override
   String shareCodeMessage(String token) {
     return 'កូដតភ្ជាប់ DasTern: $token';
+  }
+
+  @override
+  String shareQrAndCodeMessage(String token) {
+    return 'នេះជាកូដតភ្ជាប់ DasTern របស់ខ្ញុំ: $token\n\nស្កេនរូបភាព QR ឬបញ្ចូលកូដដោយដៃនៅក្នុងកម្មវិធី DasTern ដើម្បីភ្ជាប់ជាមួយខ្ញុំ។';
   }
 
   @override
@@ -2212,6 +2356,18 @@ class AppLocalizationsKm extends AppLocalizations {
   String get termsOfService => 'លក្ខខណ្ឌប្រើប្រាស់';
 
   @override
+  String get manageSubscriptions => 'គ្រប់គ្រងការជាវ';
+
+  @override
+  String get restoreSubscription => 'ស្ដារការជាវ';
+
+  @override
+  String get rateApp => 'វាយតម្លៃកម្មវិធី';
+
+  @override
+  String get support => 'ជំនួយ';
+
+  @override
   String get currentPassword => 'លេខសម្ងាត់បច្ចុប្បន្ន';
 
   @override
@@ -2224,4 +2380,166 @@ class AppLocalizationsKm extends AppLocalizations {
   String adherencePercentage(String percentage) {
     return '$percentage%';
   }
+
+  @override
+  String get connectNewPatient => 'ភ្ជាប់ផ្នែកថ្មីនៃអ្នកជំងឺ';
+
+  @override
+  String get enterPhoneOrEmail => 'បញ្ចូលលេខទូរស័ព្ទឬសារឡើងលេខ';
+
+  @override
+  String get noPatientFound => 'រកមិនឃើញអ្នកជំងឺដោយទំនាក់ទំនងនោះ';
+
+  @override
+  String get connectionRequestSent => 'បានផ្ញើសំណើភ្ជាប់ដោយជោគជ័យ';
+
+  @override
+  String get connectionRequestFailed => 'សំណើភ្ជាប់បរាជ័យ';
+
+  @override
+  String get sendConnectionRequest => 'ផ្ញើសំណើភ្ជាប់';
+
+  @override
+  String get connectionApproved => 'បានយល់ព្រមការភ្ជាប់';
+
+  @override
+  String get connectionRejected => 'បានបដិសេធការភ្ជាប់';
+
+  @override
+  String get approveConnection => 'យល់ព្រម';
+
+  @override
+  String get rejectConnection => 'បដិសេធ';
+
+  @override
+  String get removeNotification => 'លុបការជូនដំណឹង';
+
+  @override
+  String get removeNotificationConfirm =>
+      'តើអ្នកប្រាកដថាចង់លុបការជូនដំណឹងនេះមែនទេ?';
+
+  @override
+  String get remove => 'លុប';
+
+  @override
+  String get prescriptionConfirmed => 'វេជ្ជបញ្ជាត្រូវបានបញ្ជាក់';
+
+  @override
+  String get prescriptionRejected => 'វេជ្ជបញ្ជាត្រូវបានបដិសេធ';
+
+  @override
+  String get rejectPrescription => 'បដិសេធ';
+
+  @override
+  String get confirmPrescription => 'បញ្ជាក់';
+
+  @override
+  String prescriptionFromDoctor(String doctor) {
+    return 'ពីវេជ្ជបណ្ឌិត $doctor';
+  }
+
+  @override
+  String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
+
+  @override
+  String get missedDoseBanner => 'អ្នកបងាVerified្រ់ឈានទៅលើដូស';
+
+  @override
+  String get ocrOutpatient => 'អ្នកជំងឺទូលទាត់';
+
+  @override
+  String get ocrInpatient => 'អ្នកជំងឺស្នាក់នៅ';
+
+  @override
+  String get ocrFacilityHospital => 'មន្ទីរពេទ្យ';
+
+  @override
+  String get ocrFacilityClinic => 'ឯកសារ';
+
+  @override
+  String get ocrNotAvailable => 'មិនមាន';
+
+  @override
+  String get ocrNeedsReviewYes => 'ដាច់ដោយឡែក សូមពិនិត្យ';
+
+  @override
+  String get ocrPatientInfoSection => 'ព័ត៌មានអ្នកជំងឺ';
+
+  @override
+  String get ocrPatientId => 'លេខសម្គាល់អ្នកជំងឺ';
+
+  @override
+  String get ocrPatientName => 'ឈ្មោះអ្នកជំងឺ';
+
+  @override
+  String get ocrPatientKhmerName => 'ឈ្មោះអ្នកជំងឺ (ខ្មែរ)';
+
+  @override
+  String get ocrPatientAge => 'ក្ដីឈរឈរលេង';
+
+  @override
+  String ocrYearsOld(String age) {
+    return '$age ឆ្នាំចាស់';
+  }
+
+  @override
+  String get ocrPatientGender => 'ភេទ';
+
+  @override
+  String get ocrPrescriberSection => 'ព័ត៌មានលម្អិត';
+
+  @override
+  String get ocrPrescriberName => 'ឈ្មោះបែបលម្អិត';
+
+  @override
+  String get ocrFacilitySection => 'ព័ត៌មានលម្អិតមន្ទីរ';
+
+  @override
+  String get ocrFacilityName => 'ឈ្មោះមន្ទីរ';
+
+  @override
+  String get ocrFacilityType => 'ប្រភេទមន្ទីរ';
+
+  @override
+  String get ocrClinicalSection => 'ព័ត៌មានលម្អិតឆ្នាំ';
+
+  @override
+  String get ocrDiagnosis => 'ការបង្ហាញលក្ខណៈរោគ';
+
+  @override
+  String get ocrMetadataSection => 'ទិន្នន័យលម្អិត';
+
+  @override
+  String get ocrConfidenceScore => 'ពិន្ទុសុវត្ថិភាព';
+
+  @override
+  String ocrConfidencePercent(String confidence) {
+    return '$confidence%';
+  }
+
+  @override
+  String get ocrEngine => 'ម៉ាស៊ីនស្កេន';
+
+  @override
+  String get ocrProcessingTime => 'ពេលវេលាដែលប្រើប្រាស់';
+
+  @override
+  String ocrMilliseconds(String ms) {
+    return '${ms}ms';
+  }
+
+  @override
+  String get ocrPrescriptionType => 'ប្រភេទវេជ្ជបញ្ជា';
+
+  @override
+  String get ocrLanguagesDetected => 'ភាសាដែលរកឃើញ';
+
+  @override
+  String get ocrValidationStatus => 'ស្ថានភាពផ្ទៀងផ្ទាត់';
+
+  @override
+  String get ocrValidated => 'ផ្ទៀងផ្ទាត់រួច';
+
+  @override
+  String get ocrScanInfoSection => 'ព័ត៌មានលម្អិតស្កេន';
 }
