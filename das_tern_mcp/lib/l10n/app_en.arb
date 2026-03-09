@@ -16,6 +16,10 @@
   "register": "Register",
 
   "welcomeMessage": "Your medication reminder companion",
+  "welcomeScreenSubtitle": "Your health, our priority. Manage your medical records with ease.",
+  "emergencyAccess": "Emergency Access",
+  "doctorStep1PersonalInfo": "Step 1 of 2 - Personal Information",
+  "doctorStep2ProfessionalInfo": "Step 2 of 2 - Professional & Security",
 
   "selectRoleTitle": "I am...",
   "selectRoleSubtitle": "Select your role to get started",

@@ -48,6 +48,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeMessage => 'Your medication reminder companion';
 
   @override
+  String get welcomeScreenSubtitle =>
+      'Your health, our priority. Manage your medical records with ease.';
+
+  @override
+  String get emergencyAccess => 'Emergency Access';
+
+  @override
+  String get doctorStep1PersonalInfo => 'Step 1 of 2 - Personal Information';
+
+  @override
+  String get doctorStep2ProfessionalInfo =>
+      'Step 2 of 2 - Professional & Security';
+
+  @override
   String get selectRoleTitle => 'I am...';
 
   @override

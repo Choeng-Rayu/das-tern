@@ -32,13 +32,13 @@ class RegisterRoleScreen extends StatelessWidget {
                   Container(
                     width: 72,
                     height: 72,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE3F2FD),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.people_alt_rounded,
-                      color: Colors.white,
+                      color: Color(0xFF1976D2),
                       size: 36,
                     ),
                   ),
@@ -46,8 +46,8 @@ class RegisterRoleScreen extends StatelessWidget {
                   Text(
                     l10n.selectRoleTitle,
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
+                      color: Color(0xFF111111),
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
@@ -55,9 +55,9 @@ class RegisterRoleScreen extends StatelessWidget {
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     l10n.selectRoleSubtitle,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 14,
+                    style: const TextStyle(
+                      color: Color(0xFF888888),
+                      fontSize: 13,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -124,22 +124,25 @@ class _RoleCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(AppRadius.xxl),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+          color: const Color(0xFF1B7EDB),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: const Color(0xFF1565C0),
+            width: 1.5,
+          ),
         ),
         child: Row(
           children: [
             Container(
-              width: 60,
-              height: 60,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(AppRadius.xl),
+                color: const Color(0xFF1565C0),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: Colors.white, size: 30),
+              child: Icon(icon, color: Colors.white, size: 22),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
@@ -150,22 +153,26 @@ class _RoleCard extends StatelessWidget {
                     title,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 17,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     description,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 13,
+                    style: const TextStyle(
+                      color: Color(0xFFBDD8F5),
+                      fontSize: 11,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.white54, size: 28),
+            const Icon(
+              Icons.chevron_right,
+              color: Color(0xFFBDD8F5),
+              size: 22,
+            ),
           ],
         ),
       ),

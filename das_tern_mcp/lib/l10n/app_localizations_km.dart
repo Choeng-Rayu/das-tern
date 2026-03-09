@@ -48,6 +48,20 @@ class AppLocalizationsKm extends AppLocalizations {
   String get welcomeMessage => 'ដៃគូរំលឹកការប្រើប្រាស់ថ្នាំរបស់អ្នក';
 
   @override
+  String get welcomeScreenSubtitle =>
+      'សុខភាពរបស់អ្នក គឺជាអាទិភាពរបស់យើង។ គ្រប់គ្រងកំណត់ត្រាវេជ្ជសាស្ត្ររបស់អ្នកដោយភាពងាយស្រួល។';
+
+  @override
+  String get emergencyAccess => 'ការចូលប្រើប្រព័ន្ធបន្ទាន់';
+
+  @override
+  String get doctorStep1PersonalInfo => 'ជំហានទី ១ នៃ ២ - ព័ត៌មានផ្ទាល់ខ្លួន';
+
+  @override
+  String get doctorStep2ProfessionalInfo =>
+      'ជំហានទី ២ នៃ ២ - ព័ត៌មានវិជ្ជាជីវៈ និងសន្តិសុខ';
+
+  @override
   String get selectRoleTitle => 'ខ្ញុំជា...';
 
   @override

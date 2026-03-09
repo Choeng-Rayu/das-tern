@@ -89,13 +89,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     width: 72,
                     height: 72,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE3F2FD),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.medical_services_rounded,
-                      color: Colors.white,
+                      color: Color(0xFF1976D2),
                       size: 36,
                     ),
                   ),
@@ -103,8 +103,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     l10n.signIn,
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
+                      color: Color(0xFF111111),
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
@@ -112,9 +112,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     l10n.welcomeMessage,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 14,
+                    style: const TextStyle(
+                      color: Color(0xFF888888),
+                      fontSize: 13,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -123,23 +123,14 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: AppSpacing.xl),
 
-            // ── Form card ──
+            // ── Form ──
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: Container(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(AppRadius.xxl),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.1),
-                  ),
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                       // Email or Phone number
                       AuthFieldLabel(l10n.emailOrPhone),
                       const SizedBox(height: AppSpacing.xs),
@@ -199,8 +190,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text(
                             l10n.forgotPassword,
                             style: const TextStyle(
-                              color: Colors.white60,
-                              fontSize: 13,
+                              color: Color(0xFF2196F3),
+                              fontSize: 12,
                             ),
                           ),
                         ),
@@ -223,7 +214,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-            ),
             const SizedBox(height: AppSpacing.lg),
 
             // ── OR divider ──
@@ -231,19 +221,19 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               child: Row(
                 children: [
-                  const Expanded(child: Divider(color: Colors.white30)),
+                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                     child: Text(
                       l10n.orDivider,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 14,
+                      style: const TextStyle(
+                        color: Color(0xFFAAAAAA),
+                        fontSize: 12,
                       ),
                     ),
                   ),
-                  const Expanded(child: Divider(color: Colors.white30)),
+                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
                 ],
               ),
             ),
@@ -254,7 +244,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               child: SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 48,
                 child: OutlinedButton.icon(
                   onPressed: auth.isLoading ? null : _handleGoogleSignIn,
                   icon: Container(
@@ -269,15 +259,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   label: Text(
                     l10n.signInWithGoogle,
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
+                      color: Color(0xFF333333),
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.white54, width: 1.5),
+                    foregroundColor: const Color(0xFF333333),
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.xl),
+                      borderRadius: BorderRadius.circular(28),
                     ),
                   ),
                 ),

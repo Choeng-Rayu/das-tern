@@ -21,7 +21,7 @@ class MedicationGridRow {
     this.beforeMeal = true,
   });
 
-  /// Convert from the Map<String, dynamic> format used by [PrescriptionMedication].
+  /// Convert from the `Map<String, dynamic>` format used by [PrescriptionMedication].
   factory MedicationGridRow.fromMedicationMap(Map<String, dynamic> map) {
     return MedicationGridRow(
       medicineName: map['medicineName'] as String? ?? '',
@@ -33,7 +33,7 @@ class MedicationGridRow {
     );
   }
 
-  /// Convert back to a Map<String, dynamic> for submission.
+  /// Convert back to a `Map<String, dynamic>` for submission.
   Map<String, dynamic> toMap() {
     return {
       'medicineName': medicineName,
