@@ -8,6 +8,7 @@ import logger from '../utils/logger';
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import axios from 'axios';
 
 @Injectable()
 export class PaymentService {
@@ -394,6 +395,73 @@ export class PaymentService {
                 },
             },
         });
+
+        // Notify main backend when payment is confirmed PAID
+        if (newStatus === PaymentStatus.PAID && transaction) {
+            await this.notifyMainBackend(transaction);
+        }
+    }
+
+    /**
+     * Notifies the main backend (NestJS) of a confirmed payment via HMAC-signed webhook.
+     * This is the critical path that upgrades the user's subscription in the main DB.
+     */
+    private async notifyMainBackend(transaction: any): Promise<void> {
+        const webhookUrl = process.env.MAIN_BACKEND_WEBHOOK_URL;
+        const apiKey = process.env.MAIN_BACKEND_API_KEY;
+        const webhookSecret = process.env.WEBHOOK_SECRET;
+
+        if (!webhookUrl || !apiKey || !webhookSecret) {
+            logger.warn('Main backend webhook not configured — subscription upgrade skipped', {
+                transactionId: transaction.id,
+                hasUrl: !!webhookUrl,
+                hasApiKey: !!apiKey,
+                hasSecret: !!webhookSecret,
+            });
+            return;
+        }
+
+        const payload = {
+            transactionId: transaction.id,
+            userId: transaction.userId,
+            md5Hash: transaction.md5Hash,
+            planType: transaction.planType,
+            amount: parseFloat(transaction.amount?.toString() || '0'),
+            currency: transaction.currency,
+            paidAt: transaction.paidAt?.toISOString() || new Date().toISOString(),
+            billNumber: transaction.billNumber,
+        };
+
+        const bodyStr = JSON.stringify(payload);
+        const timestamp = Date.now().toString();
+        const signature = crypto
+            .createHmac('sha256', webhookSecret)
+            .update(`${timestamp}.${bodyStr}`)
+            .digest('hex');
+
+        try {
+            await axios.post(webhookUrl, payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'X-Timestamp': timestamp,
+                    'X-Signature': signature,
+                },
+                timeout: 10000,
+            });
+            logger.info('Main backend notified of successful payment', {
+                transactionId: transaction.id,
+                userId: transaction.userId,
+            });
+        } catch (error) {
+            // Log but do not throw — the payment itself succeeded.
+            // A background retry or the frontend poll will recover.
+            logger.error('Failed to notify main backend of payment', {
+                transactionId: transaction.id,
+                error: (error as Error).message,
+                webhookUrl,
+            });
+        }
     }
 
     /**

@@ -87,10 +87,19 @@ export interface OcrExtractionResponse {
       metadata: {
         extraction_info: {
           confidence_score: number;
+          ocr_engine?: string;
           processing_time_ms?: number;
         };
         prescription_type: string | null;
         validation_status: string | null;
+        languages_detected?: {
+          primary: string | null;
+          secondary: string[];
+        };
+      };
+      healthcare_facility?: {
+        name: { english: string | null; khmer: string | null };
+        type: string | null;
       };
       patient: {
         identification: {

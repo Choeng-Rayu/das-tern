@@ -21,7 +21,7 @@ class MedicationGridRow {
     this.beforeMeal = true,
   });
 
-  /// Convert from the Map<String, dynamic> format used by [PrescriptionMedication].
+  /// Convert from the `Map<String, dynamic>` format used by [PrescriptionMedication].
   factory MedicationGridRow.fromMedicationMap(Map<String, dynamic> map) {
     return MedicationGridRow(
       medicineName: map['medicineName'] as String? ?? '',
@@ -33,7 +33,7 @@ class MedicationGridRow {
     );
   }
 
-  /// Convert back to a Map<String, dynamic> for submission.
+  /// Convert back to a `Map<String, dynamic>` for submission.
   Map<String, dynamic> toMap() {
     return {
       'medicineName': medicineName,
@@ -60,8 +60,10 @@ class MedicationGridRow {
 
   String _buildTiming() {
     final parts = <String>[];
-    if (morningDosage != null && morningDosage!.isNotEmpty) parts.add('morning');
-    if (daytimeDosage != null && daytimeDosage!.isNotEmpty) parts.add('daytime');
+    if (morningDosage != null && morningDosage!.isNotEmpty)
+      parts.add('morning');
+    if (daytimeDosage != null && daytimeDosage!.isNotEmpty)
+      parts.add('daytime');
     if (nightDosage != null && nightDosage!.isNotEmpty) parts.add('night');
     return parts.join(', ');
   }
@@ -130,9 +132,9 @@ class MedicationGridTable extends StatelessWidget {
 
   Widget _buildHeaderRow(BuildContext context, AppLocalizations l10n) {
     final headerStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-          fontWeight: FontWeight.w600,
-          color: AppColors.textSecondary,
-        );
+      fontWeight: FontWeight.w600,
+      color: AppColors.textSecondary,
+    );
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -155,15 +157,27 @@ class MedicationGridTable extends StatelessWidget {
           ),
           Expanded(
             flex: 1,
-            child: Text(l10n.morning, style: headerStyle, textAlign: TextAlign.center),
+            child: Text(
+              l10n.morning,
+              style: headerStyle,
+              textAlign: TextAlign.center,
+            ),
           ),
           Expanded(
             flex: 1,
-            child: Text(l10n.daytime, style: headerStyle, textAlign: TextAlign.center),
+            child: Text(
+              l10n.daytime,
+              style: headerStyle,
+              textAlign: TextAlign.center,
+            ),
           ),
           Expanded(
             flex: 1,
-            child: Text(l10n.night, style: headerStyle, textAlign: TextAlign.center),
+            child: Text(
+              l10n.night,
+              style: headerStyle,
+              textAlign: TextAlign.center,
+            ),
           ),
           if (editable) const SizedBox(width: 36),
         ],
@@ -194,9 +208,9 @@ class MedicationGridTable extends StatelessWidget {
             width: 32,
             child: Text(
               '${index + 1}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
               textAlign: TextAlign.center,
             ),
           ),
@@ -225,7 +239,9 @@ class MedicationGridTable extends StatelessWidget {
                             onRowsChanged?.call(List.from(rows));
                           },
                           child: Text(
-                            row.beforeMeal ? l10n.beforeMeal : '${l10n.beforeMeal} ✗',
+                            row.beforeMeal
+                                ? l10n.beforeMeal
+                                : '${l10n.beforeMeal} ✗',
                             style: TextStyle(
                               fontSize: 10,
                               color: row.beforeMeal
@@ -244,9 +260,7 @@ class MedicationGridTable extends StatelessWidget {
                       children: [
                         Text(
                           row.medicineName,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
+                          style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(fontWeight: FontWeight.w500),
                         ),
                         if (row.medicineNameKhmer.isNotEmpty)
@@ -255,7 +269,9 @@ class MedicationGridTable extends StatelessWidget {
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         Text(
-                          row.beforeMeal ? l10n.beforeMeal : '${l10n.beforeMeal} ✗',
+                          row.beforeMeal
+                              ? l10n.beforeMeal
+                              : '${l10n.beforeMeal} ✗',
                           style: TextStyle(
                             fontSize: 10,
                             color: row.beforeMeal
@@ -324,11 +340,16 @@ class MedicationGridTable extends StatelessWidget {
             SizedBox(
               width: 36,
               child: IconButton(
-                icon: const Icon(Icons.close, size: 16, color: AppColors.alertRed),
+                icon: const Icon(
+                  Icons.close,
+                  size: 16,
+                  color: AppColors.alertRed,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 onPressed: () {
-                  final updated = List<MedicationGridRow>.from(rows)..removeAt(index);
+                  final updated = List<MedicationGridRow>.from(rows)
+                    ..removeAt(index);
                   onRowsChanged?.call(updated);
                 },
               ),
@@ -352,9 +373,9 @@ class _DosageCell extends StatelessWidget {
       hasValue ? value! : '-',
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: hasValue ? FontWeight.w500 : FontWeight.normal,
-            color: hasValue ? AppColors.textPrimary : AppColors.neutral400,
-          ),
+        fontWeight: hasValue ? FontWeight.w500 : FontWeight.normal,
+        color: hasValue ? AppColors.textPrimary : AppColors.neutral400,
+      ),
     );
   }
 }

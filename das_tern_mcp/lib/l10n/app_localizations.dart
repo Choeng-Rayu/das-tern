@@ -176,6 +176,30 @@ abstract class AppLocalizations {
   /// **'Your medication reminder companion'**
   String get welcomeMessage;
 
+  /// No description provided for @welcomeScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your health, our priority. Manage your medical records with ease.'**
+  String get welcomeScreenSubtitle;
+
+  /// No description provided for @emergencyAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Access'**
+  String get emergencyAccess;
+
+  /// No description provided for @doctorStep1PersonalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1 of 2 - Personal Information'**
+  String get doctorStep1PersonalInfo;
+
+  /// No description provided for @doctorStep2ProfessionalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2 of 2 - Professional & Security'**
+  String get doctorStep2ProfessionalInfo;
+
   /// No description provided for @selectRoleTitle.
   ///
   /// In en, this message translates to:
@@ -2108,6 +2132,12 @@ abstract class AppLocalizations {
   /// **'Open in Banking App'**
   String get openInBankingApp;
 
+  /// No description provided for @bankAmountPreFilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Bakong: payment pre-loaded · Others: open app and scan the QR above'**
+  String get bankAmountPreFilled;
+
   /// No description provided for @orOpenDirectly.
   ///
   /// In en, this message translates to:
@@ -3500,6 +3530,12 @@ abstract class AppLocalizations {
   /// **'DasTern connection code: {token}'**
   String shareCodeMessage(String token);
 
+  /// No description provided for @shareQrAndCodeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Here is my DasTern connection code: {token}\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.'**
+  String shareQrAndCodeMessage(String token);
+
   /// No description provided for @generateNewCode.
   ///
   /// In en, this message translates to:
@@ -4585,6 +4621,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{percentage}%'**
   String adherencePercentage(String percentage);
+
+  /// No description provided for @connectNewPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect New Patient'**
+  String get connectNewPatient;
+
+  /// No description provided for @enterPhoneOrEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone number or email'**
+  String get enterPhoneOrEmail;
+
+  /// No description provided for @noPatientFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No patient found'**
+  String get noPatientFound;
+
+  /// No description provided for @connectionRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection request sent'**
+  String get connectionRequestSent;
+
+  /// No description provided for @connectionRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection request failed'**
+  String get connectionRequestFailed;
+
+  /// No description provided for @sendConnectionRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Connection Request'**
+  String get sendConnectionRequest;
+
+  /// No description provided for @connectionApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection approved'**
+  String get connectionApproved;
+
+  /// No description provided for @connectionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection rejected'**
+  String get connectionRejected;
+
+  /// No description provided for @approveConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Connection'**
+  String get approveConnection;
+
+  /// No description provided for @rejectConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Connection'**
+  String get rejectConnection;
+
+  /// No description provided for @removeNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Notification'**
+  String get removeNotification;
+
+  /// No description provided for @removeNotificationConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove notification?'**
+  String get removeNotificationConfirm;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @prescriptionConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription confirmed'**
+  String get prescriptionConfirmed;
+
+  /// No description provided for @prescriptionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription rejected'**
+  String get prescriptionRejected;
+
+  /// No description provided for @rejectPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Prescription'**
+  String get rejectPrescription;
+
+  /// No description provided for @confirmPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Prescription'**
+  String get confirmPrescription;
+
+  /// No description provided for @prescriptionFromDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription from {doctor}'**
+  String prescriptionFromDoctor(String doctor);
+
+  /// No description provided for @pendingPrescriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Prescriptions'**
+  String get pendingPrescriptions;
+
+  /// No description provided for @missedDoseBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You missed a dose'**
+  String get missedDoseBanner;
+
+  /// No description provided for @ocrOutpatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Outpatient'**
+  String get ocrOutpatient;
+
+  /// No description provided for @ocrInpatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Inpatient'**
+  String get ocrInpatient;
+
+  /// No description provided for @ocrFacilityHospital.
+  ///
+  /// In en, this message translates to:
+  /// **'Hospital'**
+  String get ocrFacilityHospital;
+
+  /// No description provided for @ocrFacilityClinic.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinic'**
+  String get ocrFacilityClinic;
+
+  /// No description provided for @ocrNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get ocrNotAvailable;
+
+  /// No description provided for @ocrNeedsReviewYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, needs review'**
+  String get ocrNeedsReviewYes;
+
+  /// No description provided for @ocrAiEnhanced.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Enhanced'**
+  String get ocrAiEnhanced;
+
+  /// No description provided for @ocrAiUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'OCR Only'**
+  String get ocrAiUnavailable;
+
+  /// No description provided for @ocrPatientInfoSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient Information'**
+  String get ocrPatientInfoSection;
+
+  /// No description provided for @ocrPatientId.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient ID'**
+  String get ocrPatientId;
+
+  /// No description provided for @ocrPatientName.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient Name'**
+  String get ocrPatientName;
+
+  /// No description provided for @ocrPatientKhmerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient Name (Khmer)'**
+  String get ocrPatientKhmerName;
+
+  /// No description provided for @ocrPatientAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get ocrPatientAge;
+
+  /// No description provided for @ocrYearsOld.
+  ///
+  /// In en, this message translates to:
+  /// **'{age} years old'**
+  String ocrYearsOld(String age);
+
+  /// No description provided for @ocrPatientGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get ocrPatientGender;
+
+  /// No description provided for @ocrPrescriberSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescriber Information'**
+  String get ocrPrescriberSection;
+
+  /// No description provided for @ocrPrescriberName.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescriber Name'**
+  String get ocrPrescriberName;
+
+  /// No description provided for @ocrFacilitySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Facility Information'**
+  String get ocrFacilitySection;
+
+  /// No description provided for @ocrFacilityName.
+  ///
+  /// In en, this message translates to:
+  /// **'Facility Name'**
+  String get ocrFacilityName;
+
+  /// No description provided for @ocrFacilityType.
+  ///
+  /// In en, this message translates to:
+  /// **'Facility Type'**
+  String get ocrFacilityType;
+
+  /// No description provided for @ocrClinicalSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinical Information'**
+  String get ocrClinicalSection;
+
+  /// No description provided for @ocrDiagnosis.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnosis'**
+  String get ocrDiagnosis;
+
+  /// No description provided for @ocrMetadataSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Metadata'**
+  String get ocrMetadataSection;
+
+  /// No description provided for @ocrConfidenceScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Confidence Score'**
+  String get ocrConfidenceScore;
+
+  /// No description provided for @ocrConfidencePercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{confidence}%'**
+  String ocrConfidencePercent(String confidence);
+
+  /// No description provided for @ocrEngine.
+  ///
+  /// In en, this message translates to:
+  /// **'OCR Engine'**
+  String get ocrEngine;
+
+  /// No description provided for @ocrProcessingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing Time'**
+  String get ocrProcessingTime;
+
+  /// No description provided for @ocrMilliseconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms}ms'**
+  String ocrMilliseconds(String ms);
+
+  /// No description provided for @ocrPrescriptionType.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription Type'**
+  String get ocrPrescriptionType;
+
+  /// No description provided for @ocrLanguagesDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages Detected'**
+  String get ocrLanguagesDetected;
+
+  /// No description provided for @ocrValidationStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Validation Status'**
+  String get ocrValidationStatus;
+
+  /// No description provided for @ocrValidated.
+  ///
+  /// In en, this message translates to:
+  /// **'Validated'**
+  String get ocrValidated;
+
+  /// No description provided for @ocrScanInfoSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Information'**
+  String get ocrScanInfoSection;
 }
 
 class _AppLocalizationsDelegate

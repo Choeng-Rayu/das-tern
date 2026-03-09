@@ -144,39 +144,38 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
 
                     const SizedBox(height: AppSpacing.xl),
 
-                    // Section title
-                    Text(
-                      l10n.choosePlan,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    // Plan cards – from backend or static fallback
-                    if (hasPlans)
-                      ...sub.plans!
-                          .where((plan) => plan['id'] != 'FAMILY_PREMIUM')
-                          .map(
-                            (plan) => _PlanCard(
-                              plan: plan,
-                              isCurrentPlan: sub.currentTier == plan['id'],
-                              isRecommended: plan['id'] == 'PREMIUM',
-                              isDark: isDark,
-                              onUpgrade: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/subscription/payment-method',
-                                  arguments: {
-                                    'planType': plan['id'],
-                                    'plan': plan,
-                                  },
-                                );
-                              },
+                  // Section title
+                  Text(
+                    l10n.choosePlan,
+                    style:
+                        Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
                             ),
-                          )
-                    else
-                      ..._defaultPlanCards(sub.currentTier, isDark),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Plan cards – from backend or static fallback
+                  if (hasPlans)
+                    ...sub.plans!.map(
+                      (plan) => _PlanCard(
+                        plan: plan,
+                        isCurrentPlan: sub.currentTier == plan['id'],
+                        isRecommended: plan['isRecommended'] ?? false,
+                        isDark: isDark,
+                        onUpgrade: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/subscription/payment-method',
+                            arguments: {
+                              'planType': plan['id'],
+                              'plan': plan,
+                            },
+                          );
+                        },
+                      ),
+                    )
+                  else
+                    ..._defaultPlanCards(sub.currentTier, isDark),
 
                     const SizedBox(height: AppSpacing.xl),
 
@@ -1048,12 +1047,55 @@ class _FeatureComparisonSection extends StatelessWidget {
     );
   }
 
+  Widget _tierHeaderBadge(BuildContext context, String text, bool isActive) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: isActive
+              ? AppColors.primaryBlue.withOpacity(0.15)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: isActive
+              ? Border.all(color: AppColors.primaryBlue, width: 1.5)
+              : null,
+        ),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
+            letterSpacing: 0.8,
+            color: isActive ? AppColors.primaryBlue : AppColors.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _divider() {
+    return Container(
+      height: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.black.withOpacity(0),
+            Colors.black.withOpacity(0.08),
+            Colors.black.withOpacity(0),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _comparisonRow(
     BuildContext context,
-    IconData icon,
     String feature,
-    dynamic free,
-    dynamic premium,
+    String free,
+    String premium,
+    String family,
   ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -1061,23 +1103,11 @@ class _FeatureComparisonSection extends StatelessWidget {
         children: [
           Expanded(
             flex: 3,
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  size: 18,
-                  color: AppColors.primaryBlue.withOpacity(0.7),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    feature,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
+            child: Text(
+              feature,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           Expanded(
@@ -1085,13 +1115,14 @@ class _FeatureComparisonSection extends StatelessWidget {
             child: Text(
               free,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: currentTier == 'FREEMIUM'
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-                color: currentTier == 'FREEMIUM' ? AppColors.primaryBlue : null,
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              premium,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
           Expanded(
@@ -1099,14 +1130,110 @@ class _FeatureComparisonSection extends StatelessWidget {
             child: Text(
               premium,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: currentTier == 'PREMIUM'
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-                color: currentTier == 'PREMIUM' ? AppColors.primaryBlue : null,
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Widget for claiming free trial offer
+class _ClaimTrialButton extends StatelessWidget {
+  final bool isDark;
+  final VoidCallback? onClaimed;
+
+  const _ClaimTrialButton({
+    required this.isDark,
+    this.onClaimed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primaryBlue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Claim Your Free Trial',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Get 1 month free premium access',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: onClaimed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue,
+              ),
+              child: const Text('Claim Trial'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Widget for displaying trial banner
+class _TrialBanner extends StatelessWidget {
+  final int daysRemaining;
+  final DateTime expiresAt;
+  final bool isDark;
+
+  const _TrialBanner({
+    required this.daysRemaining,
+    required this.expiresAt,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primaryBlue.withOpacity(0.2),
+            AppColors.primaryBlue.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.celebration, color: AppColors.primaryBlue),
+              const SizedBox(width: 8),
+              Text(
+                'Premium Trial Active',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryBlue,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'You have $daysRemaining days remaining',
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
       ),
