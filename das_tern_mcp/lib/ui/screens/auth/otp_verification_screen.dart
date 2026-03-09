@@ -18,8 +18,10 @@ class OtpVerificationScreen extends StatefulWidget {
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final List<TextEditingController> _controllers =
-      List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    4,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
 
   int _resendSeconds = 60;
@@ -61,9 +63,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final l10n = AppLocalizations.of(context)!;
     final otp = _otpCode;
     if (otp.length < 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.otpFillError)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.otpFillError)));
       return;
     }
 
@@ -117,7 +119,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
+                        color: const Color(0xFFE3F2FD),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -125,7 +127,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             ? Icons.email_rounded
                             : Icons.phone_android_rounded,
                         size: 40,
-                        color: Colors.white,
+                        color: const Color(0xFF1976D2),
                       ),
                     ),
                   ),
@@ -135,8 +137,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   Text(
                     l10n.verifyCodeTitle,
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
+                      color: Color(0xFF111111),
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
@@ -144,9 +146,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     l10n.otpSentMessage,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 14,
+                    style: const TextStyle(
+                      color: Color(0xFF888888),
+                      fontSize: 13,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -154,8 +156,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   Text(
                     widget.identifier,
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+                      color: Color(0xFF333333),
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
                     textAlign: TextAlign.center,
@@ -166,10 +168,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(4, (i) {
+                      final isFilled = _controllers[i].text.isNotEmpty;
                       return Container(
-                        width: 64,
-                        height: 64,
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        width: 62,
+                        height: 62,
+                        margin: const EdgeInsets.symmetric(horizontal: 6),
                         child: TextField(
                           controller: _controllers[i],
                           focusNode: _focusNodes[i],
@@ -179,15 +182,36 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
+                            color: Color(0xFF111111),
                           ),
                           decoration: InputDecoration(
                             counterText: '',
                             filled: true,
-                            fillColor: Colors.white,
+                            fillColor: isFilled
+                                ? const Color(0xFFE8F4FF)
+                                : Colors.white,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(
+                                color: isFilled
+                                    ? const Color(0xFF2196F3)
+                                    : const Color(0xFFE0E0E0),
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF2196F3),
+                                width: 2,
+                              ),
+                            ),
                             border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.lg),
-                              borderSide: BorderSide.none,
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE0E0E0),
+                                width: 2,
+                              ),
                             ),
                           ),
                           onChanged: (v) {
@@ -196,6 +220,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             } else if (v.isEmpty && i > 0) {
                               _focusNodes[i - 1].requestFocus();
                             }
+                            setState(() {});
                             if (_otpCode.length == 4) _handleVerify();
                           },
                         ),
@@ -228,9 +253,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             : l10n.resendCode,
                         style: TextStyle(
                           color: _resendSeconds > 0
-                              ? Colors.white54
-                              : Colors.white,
-                          fontSize: 14,
+                              ? const Color(0xFFAAAAAA)
+                              : const Color(0xFF2196F3),
+                          fontSize: 13,
                         ),
                       ),
                     ),

@@ -176,6 +176,30 @@ abstract class AppLocalizations {
   /// **'Your medication reminder companion'**
   String get welcomeMessage;
 
+  /// No description provided for @welcomeScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your health, our priority. Manage your medical records with ease.'**
+  String get welcomeScreenSubtitle;
+
+  /// No description provided for @emergencyAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Access'**
+  String get emergencyAccess;
+
+  /// No description provided for @doctorStep1PersonalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1 of 2 - Personal Information'**
+  String get doctorStep1PersonalInfo;
+
+  /// No description provided for @doctorStep2ProfessionalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2 of 2 - Professional & Security'**
+  String get doctorStep2ProfessionalInfo;
+
   /// No description provided for @selectRoleTitle.
   ///
   /// In en, this message translates to:
