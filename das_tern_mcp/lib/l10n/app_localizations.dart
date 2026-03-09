@@ -1766,6 +1766,48 @@ abstract class AppLocalizations {
   /// **'Unknown'**
   String get unknown;
 
+  /// No description provided for @familyFunctionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Family Features'**
+  String get familyFunctionTitle;
+
+  /// No description provided for @familyIntroDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow family members to track your daily medication intake and receive Notifications when:'**
+  String get familyIntroDescription;
+
+  /// No description provided for @familyBulletSender.
+  ///
+  /// In en, this message translates to:
+  /// **'You take medication'**
+  String get familyBulletSender;
+
+  /// No description provided for @familyBulletReceiver.
+  ///
+  /// In en, this message translates to:
+  /// **'You miss a dose'**
+  String get familyBulletReceiver;
+
+  /// No description provided for @familyIntroFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your family to receive updates and detailed monitoring information etc.'**
+  String get familyIntroFooter;
+
+  /// No description provided for @startUsing.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Using'**
+  String get startUsing;
+
+  /// No description provided for @learnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn More'**
+  String get learnMore;
+
   /// No description provided for @scanPrescriptionTitle.
   ///
   /// In en, this message translates to:
