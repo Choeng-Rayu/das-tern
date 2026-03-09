@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../ui/screens/auth/login_screen.dart';
+import '../ui/screens/auth/welcome_screen.dart';
 import '../ui/screens/auth/register_role_screen.dart';
 import '../ui/screens/auth/register_patient_screen.dart';
 import '../ui/screens/auth/register_doctor_screen.dart';
@@ -47,6 +48,7 @@ import '../models/enums_model/medication_type.dart';
 /// Centralized route definitions.
 class AppRouter {
   static const String splash = '/';
+  static const String welcome = '/welcome';
   static const String login = '/login';
   static const String registerRole = '/register-role';
   static const String registerPatient = '/register/patient';
@@ -105,6 +107,8 @@ class AppRouter {
     switch (settings.name) {
       case splash:
         return _buildRoute(const SplashScreen());
+      case welcome:
+        return _buildRoute(const WelcomeScreen());
       case login:
         return _buildRoute(const LoginScreen());
       case registerRole:
