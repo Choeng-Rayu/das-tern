@@ -13,7 +13,8 @@ import {
   VerifyOtpDto,
   GoogleLoginDto,
   ForgotPasswordDto,
-  ResetPasswordDto
+  ResetPasswordDto,
+  ChangePasswordDto
 } from './dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
@@ -119,6 +120,20 @@ export class AuthController {
       body.identifier,
       body.otp,
       body.newPassword,
+    );
+  }
+
+  @Post('change-password')
+  @UseGuards(AuthGuard('jwt'))
+  @Throttle({ default: { limit: 5, ttl: 300000 } })
+  async changePassword(
+    @CurrentUser() user: any,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(
+      user.id,
+      dto.currentPassword,
+      dto.newPassword,
     );
   }
 }

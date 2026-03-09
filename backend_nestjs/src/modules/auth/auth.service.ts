@@ -173,7 +173,7 @@ export class AuthService {
     try {
       await this.emailService.sendOTP(dto.email, otp);
       this.logger.log(`OTP email sent to ${dto.email}`);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Failed to send OTP email to ${dto.email}: ${error.message}`, error.stack);
       // Log but don't fail registration
     }
@@ -234,7 +234,7 @@ export class AuthService {
     try {
       await this.emailService.sendOTP(dto.email, otp);
       this.logger.log(`OTP email sent to ${dto.email}`);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Failed to send OTP email to ${dto.email}: ${error.message}`, error.stack);
       // Log but don't fail registration
     }
@@ -261,13 +261,18 @@ export class AuthService {
           data: { accountStatus: 'ACTIVE' },
         });
 
-    // Create default subscription
+    // Create default subscription with 1-month Premium free trial for new users
+    const trialEndDate = new Date();
+    trialEndDate.setMonth(trialEndDate.getMonth() + 1);
+
     await this.prisma.subscription.create({
       data: {
         userId: user.id,
-        tier: 'FREEMIUM',
-        storageQuota: 5368709120, // 5GB
+        tier: 'PREMIUM', // Start with Premium trial
+        storageQuota: 21474836480, // 20GB for Premium
         storageUsed: 0,
+        hasUsedTrial: true, // Mark trial as used
+        expiresAt: trialEndDate, // Trial expires after 1 month
       },
     });
 
@@ -345,14 +350,19 @@ export class AuthService {
           },
         });
 
-        // Create default subscription for patients
+        // Create default subscription with 1-month Premium free trial for new patients
         if (role === 'PATIENT') {
+          const trialEndDate = new Date();
+          trialEndDate.setMonth(trialEndDate.getMonth() + 1);
+
           await this.prisma.subscription.create({
             data: {
               userId: user.id,
-              tier: 'FREEMIUM',
-              storageQuota: 5368709120, // 5GB
+              tier: 'PREMIUM', // Start with Premium trial
+              storageQuota: 21474836480, // 20GB for Premium
               storageUsed: 0,
+              hasUsedTrial: true, // Mark trial as used
+              expiresAt: trialEndDate, // Trial expires after 1 month
             },
           });
         }
@@ -382,7 +392,7 @@ export class AuthService {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new UnauthorizedException('Invalid Google token: ' + error.message);
+      throw new UnauthorizedException('Invalid Google token: ' + (error as Error).message);
     }
   }
 
@@ -467,7 +477,7 @@ export class AuthService {
       try {
         await this.emailService.sendPasswordResetEmail(user.email, resetLink, otp);
         this.logger.log(`Password reset email sent to ${user.email}`);
-      } catch (error) {
+      } catch (error: any) {
         this.logger.error(`Failed to send password reset email to ${user.email}: ${error.message}`, error.stack);
         // Log but don't fail - user can still use OTP
       }
@@ -562,6 +572,36 @@ export class AuthService {
 
     return {
       message: 'Password has been reset successfully. You can now log in with your new password.',
+    };
+  }
+
+  /**
+   * Change password for authenticated user.
+   * Requires current password verification.
+   */
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found.');
+    }
+
+    const isCurrentValid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isCurrentValid) {
+      throw new BadRequestException('Current password is incorrect.');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, this.BCRYPT_ROUNDS);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    return {
+      message: 'Password changed successfully.',
     };
   }
 }

@@ -42,46 +42,79 @@ class SubscriptionProvider extends ChangeNotifier {
   bool get isPolling => _isPolling;
 
   String get currentTier => _subscription?['tier'] ?? 'FREEMIUM';
-  bool get isPremium => currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM';
+  bool get isPremium =>
+      currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM';
+  bool get hasOcrAccess =>
+      currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM';
+
+  // Trial status
+  bool get isOnTrial {
+    if (_subscription?['expiresAt'] == null) return false;
+    final expiresAt = DateTime.tryParse(_subscription!['expiresAt']);
+    if (expiresAt == null) return false;
+    return DateTime.now().isBefore(expiresAt) && currentTier == 'PREMIUM';
+  }
+
+  DateTime? get trialExpiresAt {
+    if (_subscription?['expiresAt'] == null) return null;
+    return DateTime.tryParse(_subscription!['expiresAt']);
+  }
+
+  int get trialDaysRemaining {
+    if (!isOnTrial || trialExpiresAt == null) return 0;
+    return trialExpiresAt!.difference(DateTime.now()).inDays;
+  }
+
+  bool get hasUsedTrial => _subscription?['hasUsedTrial'] == true;
+  bool get canClaimTrial =>
+      !isPremium && currentTier == 'FREEMIUM' && !hasUsedTrial;
 
   String? get qrCode => _currentPayment?['payment']?['qrCode'];
   String? get md5Hash => _currentPayment?['payment']?['md5Hash'];
   String? get deepLink => _currentPayment?['payment']?['deepLink'];
 
   /// Load subscription info and available plans.
-  /// Uses a 10-second timeout so the UI never hangs indefinitely.
-  /// On failure the screen falls back to the built-in static plan cards.
+  /// Tries bakong-payment endpoint first, falls back to /subscriptions/me.
   Future<void> loadSubscription() async {
     try {
       _isLoading = true;
       _errorMessage = null;
       notifyListeners();
 
-      final results = await Future.wait([
-        _api.getBakongSubscription(),
-        _api.getBakongPlans(),
-      ]).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () => throw Exception('Connection timed out. Please check your network.'),
-      );
+      // Try to load subscription - fallback chain
+      try {
+        final results = await Future.wait([
+          _api.getBakongSubscription(),
+          _api.getBakongPlans(),
+        ]).timeout(const Duration(seconds: 10));
 
-      _subscription = results[0]['subscription'] as Map<String, dynamic>?;
-      _limits = results[0]['limits'] as Map<String, dynamic>?;
+        _subscription = results[0]['subscription'] as Map<String, dynamic>?;
+        _limits = results[0]['limits'] as Map<String, dynamic>?;
 
-      final plansData = results[1];
-      _plans = plansData['plans'] as List<dynamic>?;
-      _paymentMethods = plansData['paymentMethods'] as List<dynamic>?;
+        final plansData = results[1];
+        _plans = plansData['plans'] as List<dynamic>?;
+        _paymentMethods = plansData['paymentMethods'] as List<dynamic>?;
+      } catch (_) {
+        // Fallback: load from /subscriptions/me directly
+        _log.warning(
+          'Subscription',
+          'Bakong endpoint failed, falling back to /subscriptions/me',
+        );
+        try {
+          final sub = await _api.getSubscription().timeout(
+            const Duration(seconds: 10),
+          );
+          _subscription = sub;
+        } catch (e2) {
+          _log.error('Subscription', 'Fallback also failed', e2);
+          rethrow;
+        }
+      }
 
       _log.info('Subscription', 'Loaded: tier=${_subscription?['tier']}');
     } catch (e) {
       _log.error('Subscription', 'Failed to load subscription', e);
-      final msg = e.toString();
-      if (msg.contains('timed out') || msg.contains('SocketException') ||
-          msg.contains('Connection refused') || msg.contains('Failed host lookup')) {
-        _errorMessage = 'Connection timed out. Please check your network.';
-      } else {
-        _errorMessage = 'Failed to load subscription info.';
-      }
+      _errorMessage = 'Failed to load subscription info.';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -108,7 +141,9 @@ class SubscriptionProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _log.error('Payment', 'Failed to create payment', e);
-      _errorMessage = e is ApiException ? e.message : 'Failed to create payment';
+      _errorMessage = e is ApiException
+          ? e.message
+          : 'Failed to create payment';
       _paymentStatus = 'FAILED';
       return false;
     } finally {
@@ -161,7 +196,9 @@ class SubscriptionProvider extends ChangeNotifier {
           _stopPolling();
           // Reload subscription to reflect upgrade
           await loadSubscription();
-        } else if (status == 'FAILED' || status == 'EXPIRED' || status == 'CANCELLED') {
+        } else if (status == 'FAILED' ||
+            status == 'EXPIRED' ||
+            status == 'CANCELLED') {
           _stopPolling();
         }
 
@@ -180,6 +217,38 @@ class SubscriptionProvider extends ChangeNotifier {
     _paymentStatus = '';
     _errorMessage = null;
     notifyListeners();
+  }
+
+  /// Claim the 1-month free Premium trial.
+  /// Uses /subscriptions/claim-trial endpoint to set tier to PREMIUM.
+  Future<bool> claimFreeTrial() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _api.claimFreeTrial();
+      // Immediately update local subscription so the UI reflects PREMIUM
+      _subscription = result;
+      _isLoading = false;
+      _errorMessage = null;
+      notifyListeners();
+
+      _log.info('Subscription', 'Free trial claimed successfully');
+
+      // Also reload full subscription in background to refresh limits
+      loadSubscription();
+
+      return true;
+    } catch (e) {
+      _log.error('Subscription', 'Failed to claim free trial', e);
+      _errorMessage = e is ApiException
+          ? e.message
+          : 'Failed to claim free trial. Please try again.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 
   @override
