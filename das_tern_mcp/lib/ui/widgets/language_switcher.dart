@@ -6,13 +6,29 @@ import '../theme/app_spacing.dart';
 /// Compact pill-shaped language toggle for auth screens.
 /// Displays a globe icon + current language code (EN/KM).
 /// Taps toggle between English and Khmer locales.
+///
+/// Set [lightBackground] to `true` when placed on a light/white background
+/// (e.g., the login and register screens). Leave `false` for dark/image
+/// backgrounds like the welcome screen.
 class LanguageSwitcherButton extends StatelessWidget {
-  const LanguageSwitcherButton({super.key});
+  final bool lightBackground;
+
+  const LanguageSwitcherButton({super.key, this.lightBackground = false});
 
   @override
   Widget build(BuildContext context) {
     final localeProvider = context.watch<LocaleProvider>();
     final isKhmer = localeProvider.locale.languageCode == 'km';
+
+    final Color fgColor = lightBackground
+        ? const Color(0xFF1976D2)
+        : Colors.white;
+    final Color bgColor = lightBackground
+        ? const Color(0xFFE3F2FD)
+        : Colors.white.withValues(alpha: 0.15);
+    final Color borderColor = lightBackground
+        ? const Color(0xFFBBDEFB)
+        : Colors.white.withValues(alpha: 0.2);
 
     return GestureDetector(
       onTap: () {
@@ -25,25 +41,19 @@ class LanguageSwitcherButton extends StatelessWidget {
           vertical: AppSpacing.xs + 2,
         ),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
+          color: bgColor,
           borderRadius: BorderRadius.circular(AppRadius.xl),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.2),
-          ),
+          border: Border.all(color: borderColor),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.language,
-              color: Colors.white,
-              size: 16,
-            ),
+            Icon(Icons.language, color: fgColor, size: 16),
             const SizedBox(width: 4),
             Text(
               isKhmer ? 'KM' : 'EN',
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: fgColor,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
