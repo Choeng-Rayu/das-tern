@@ -87,7 +87,7 @@ class ConnectionRequestCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          timeAgo(notif.createdAt),
+                          timeAgo(notif.createdAt, context),
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,

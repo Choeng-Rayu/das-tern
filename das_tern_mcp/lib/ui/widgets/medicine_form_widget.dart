@@ -95,9 +95,9 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
 
     final unitStr = _unit.toJson().toLowerCase();
     final scheduleTimes = <Map<String, String>>[
-      if (_morning) {'timePeriod': 'morning', 'time': '07:00'},
-      if (_daytime) {'timePeriod': 'daytime', 'time': '12:00'},
-      if (_night) {'timePeriod': 'evening', 'time': '20:00'},
+      if (_morning) {'timePeriod': 'MORNING', 'time': '07:00'},
+      if (_daytime) {'timePeriod': 'DAYTIME', 'time': '12:00'},
+      if (_night) {'timePeriod': 'NIGHT', 'time': '20:00'},
     ];
 
     widget.onSave({

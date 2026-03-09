@@ -2465,7 +2465,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
 
   @override
-  String get missedDoseBanner => 'អ្នកបងាVerified្រ់ឈានទៅលើដូស';
+  String get missedDoseBanner => 'អ្នកបានខ្លាចដូស';
 
   @override
   String get ocrOutpatient => 'អ្នកជំងឺទូលទាត់';
@@ -2571,4 +2571,36 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get ocrScanInfoSection => 'ព័ត៌មានលម្អិតស្កេន';
+
+  @override
+  String get claimYourFreeTrial => 'ទាមទារការសាកល្បងឥតគិតថ្លៃ';
+
+  @override
+  String get getOneMonthFreePremiumAccess => 'ទទួលបានការប្រើប្រាស់ Premium ឥតគិតថ្លៃ ១ ខែ';
+
+  @override
+  String get claimTrial => 'ទាមទារការសាកល្បង';
+
+  @override
+  String trialDaysRemainingBanner(int days) {
+    return 'អ្នកនៅសល់ $days ថ្ងៃ';
+  }
+
+  @override
+  String get timeAgoJustNow => 'ឥឡូវ';
+
+  @override
+  String timeAgoMinutes(int count) {
+    return '${count}នាទី';
+  }
+
+  @override
+  String timeAgoHours(int count) {
+    return '${count}ម';
+  }
+
+  @override
+  String timeAgoDays(int count) {
+    return '${count}ថ';
+  }
 }

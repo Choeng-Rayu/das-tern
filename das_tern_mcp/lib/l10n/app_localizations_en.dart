@@ -2573,4 +2573,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ocrScanInfoSection => 'Scan Information';
+
+  @override
+  String get claimYourFreeTrial => 'Claim Your Free Trial';
+
+  @override
+  String get getOneMonthFreePremiumAccess => 'Get 1 month free premium access';
+
+  @override
+  String get claimTrial => 'Claim Trial';
+
+  @override
+  String trialDaysRemainingBanner(int days) {
+    return 'You have $days days remaining';
+  }
+
+  @override
+  String get timeAgoJustNow => 'now';
+
+  @override
+  String timeAgoMinutes(int count) {
+    return '${count}m';
+  }
+
+  @override
+  String timeAgoHours(int count) {
+    return '${count}h';
+  }
+
+  @override
+  String timeAgoDays(int count) {
+    return '${count}d';
+  }
 }

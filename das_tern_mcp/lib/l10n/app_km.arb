@@ -455,6 +455,15 @@
   "twentyGBStorage": "ទំហំផ្ទុក ២០ GB",
   "prioritySupport": "ការគាំទ្រអាទិភាព",
   "freeTrialOffer": "ការសាកល្បង ១ ខែឥតគិតថ្លៃសម្រាប់អ្នកប្រើប្រាស់ថ្មី!",
+  "claimYourFreeTrial": "ទាមទារការសាកល្បងឥតគិតថ្លៃ",
+  "getOneMonthFreePremiumAccess": "ទទួលបានការប្រើប្រាស់ Premium ឥតគិតថ្លៃ ១ ខែ",
+  "claimTrial": "ទាមទារការសាកល្បង",
+  "trialDaysRemainingBanner": "អ្នកនៅសល់ {days} ថ្ងៃ",
+  "@trialDaysRemainingBanner": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
   "yourTrialPeriod": "រយៈពេលសាកល្បងរបស់អ្នក",
   "trialExpiresOn": "ការសាកល្បងផុតកំណត់នៅ",
   "daysLeft": "ថ្ងៃនៅសល់",
@@ -997,7 +1006,6 @@
   "confirmPrescription": "បញ្ជាក់",
   "prescriptionConfirmed": "វេជ្ជបញ្ជាត្រូវបានបញ្ជាក់",
   "prescriptionRejected": "វេជ្ជបញ្ជាត្រូវបានបដិសេធ",
-  "missedDoseBanner": "អ្នកបងាVerified្រ់ឈានទៅលើដូស",
   "connectNewPatient": "ភ្ជាប់ផ្នែកថ្មីនៃអ្នកជំងឺ",
   "enterPhoneOrEmail": "បញ្ចូលលេខទូរស័ព្ទឬសារឡើងលេខ",
   "sendConnectionRequest": "ផ្ញើសំណើភ្ជាប់",
@@ -1049,5 +1057,24 @@
   "ocrLanguagesDetected": "ភាសាដែលរកឃើញ",
   "ocrValidationStatus": "ស្ថានភាពផ្ទៀងផ្ទាត់",
   "ocrValidated": "ផ្ទៀងផ្ទាត់រួច",
-  "ocrScanInfoSection": "ព័ត៌មានលម្អិតស្កេន"
+  "ocrScanInfoSection": "ព័ត៌មានលម្អិតស្កេន",
+  "timeAgoJustNow": "ឥឡូវ",
+  "timeAgoMinutes": "{count}នាទី",
+  "@timeAgoMinutes": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "timeAgoHours": "{count}ម",
+  "@timeAgoHours": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "timeAgoDays": "{count}ថ",
+  "@timeAgoDays": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
 }
