@@ -312,6 +312,13 @@
   "waitingStatus": "រង់ចាំ",
   "gracePeriodSettings": "ការកំណត់ពេលវេលា",
   "unknown": "មិនស្គាល់",
+  "familyFunctionTitle": "មុខងារគ្រួសារ",
+  "familyIntroDescription": "អនុញ្ញាតសមាជិកគ្រួសារ ភ្ជាប់គណនីរបស់អ្នកដឹ អាច មើលស្ថានភាពទទួលថ្នាំប្រចាំថ្ងៃ ទទួល ការជូនដំណឹង (Notification) ពេល",
+  "familyBulletSender": "អ្នកដឹង ទទួលថ្នាំ",
+  "familyBulletReceiver": "អ្នកដឹង ខកខានទទួលថ្នាំ",
+  "familyIntroFooter": "ផ្ដួយគ្រួសារ ចូលមុខងារត្រេ និងតាមដានការព្យាបាល កាន់តែល្អ។",
+  "startUsing": "ចូលប្រើប្រាស់",
+  "learnMore": "យល់ដឹងបន្ថែម",
 
   "scanPrescriptionTitle": "ស្កេនវេជ្ជបញ្ជា",
   "scanPrescriptionDescription": "ប្រើកាមេរ៉ារបស់អ្នកដើម្បីស្កេនវេជ្ជបញ្ជា\nពីវេជ្ជបណ្ឌិតរបស់អ្នក។",

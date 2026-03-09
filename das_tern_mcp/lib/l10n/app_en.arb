@@ -342,6 +342,13 @@
   "waitingStatus": "Waiting",
   "gracePeriodSettings": "Grace Period Settings",
   "unknown": "Unknown",
+  "familyFunctionTitle": "Family Features",
+  "familyIntroDescription": "Allow family members to track your daily medication intake and receive Notifications when:",
+  "familyBulletSender": "You take medication",
+  "familyBulletReceiver": "You miss a dose",
+  "familyIntroFooter": "Manage your family to receive updates and detailed monitoring information etc.",
+  "startUsing": "Start Using",
+  "learnMore": "Learn More",
 
   "scanPrescriptionTitle": "Scan Prescription",
   "scanPrescriptionDescription": "Use your camera to scan a prescription\nfrom your doctor.",

@@ -853,6 +853,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknown => 'Unknown';
 
   @override
+  String get familyFunctionTitle => 'Family Features';
+
+  @override
+  String get familyIntroDescription =>
+      'Allow family members to track your daily medication intake and receive Notifications when:';
+
+  @override
+  String get familyBulletSender => 'You take medication';
+
+  @override
+  String get familyBulletReceiver => 'You miss a dose';
+
+  @override
+  String get familyIntroFooter =>
+      'Manage your family to receive updates and detailed monitoring information etc.';
+
+  @override
+  String get startUsing => 'Start Using';
+
+  @override
+  String get learnMore => 'Learn More';
+
+  @override
   String get scanPrescriptionTitle => 'Scan Prescription';
 
   @override
