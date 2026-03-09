@@ -56,9 +56,9 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
     if (_currentStep == 0 && _formKey1.currentState!.validate()) {
       if (_dateOfBirth == null) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.pleaseSelectDateOfBirth)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.pleaseSelectDateOfBirth)));
         return;
       }
       setState(() => _currentStep = 1);
@@ -91,10 +91,9 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
 
     if (!mounted) return;
     if (result != null) {
-      Navigator.of(context).pushNamed(
-        '/otp-verification',
-        arguments: {'identifier': email},
-      );
+      Navigator.of(
+        context,
+      ).pushNamed('/otp-verification', arguments: {'identifier': email});
     }
   }
 
@@ -179,9 +178,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.lg),
-              child: _currentStep == 0
-                  ? _buildStep1()
-                  : _buildStep2(auth),
+              child: _currentStep == 0 ? _buildStep1() : _buildStep2(auth),
             ),
           ),
         ],
@@ -256,10 +253,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFE8EAF0),
-                  width: 1.5,
-                ),
+                border: Border.all(color: const Color(0xFFE8EAF0), width: 1.5),
               ),
               child: Row(
                 children: [
@@ -297,10 +291,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           const SizedBox(height: AppSpacing.xl),
 
           // Continue button
-          AuthPrimaryButton(
-            onPressed: _nextStep,
-            label: l10n.continueButton,
-          ),
+          AuthPrimaryButton(onPressed: _nextStep, label: l10n.continueButton),
           const SizedBox(height: AppSpacing.md),
 
           // ── OR divider ──
@@ -334,8 +325,11 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Icon(Icons.g_mobiledata,
-                    color: Colors.red, size: 20),
+                child: const Icon(
+                  Icons.g_mobiledata,
+                  color: Colors.red,
+                  size: 20,
+                ),
               ),
               label: Text(
                 l10n.registerWithGoogle,
@@ -361,10 +355,9 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           AuthLinkRow(
             message: l10n.alreadyHaveAccount,
             actionText: l10n.signIn,
-            onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
-              '/login',
-              (_) => false,
-            ),
+            onTap: () => Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/login', (_) => false),
           ),
         ],
       ),
@@ -455,10 +448,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           const SizedBox(height: AppSpacing.md),
           Text(
             l10n.termsNotice,
-            style: const TextStyle(
-              color: Color(0xFF888888),
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Color(0xFF888888), fontSize: 12),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -469,8 +459,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                 height: 24,
                 child: Checkbox(
                   value: _agreedToTerms,
-                  onChanged: (v) =>
-                      setState(() => _agreedToTerms = v ?? false),
+                  onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
                   fillColor: WidgetStateProperty.resolveWith((states) {
                     if (states.contains(WidgetState.selected)) {
                       return const Color(0xFF2196F3);
@@ -538,8 +527,11 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Icon(Icons.g_mobiledata,
-                    color: Colors.red, size: 20),
+                child: const Icon(
+                  Icons.g_mobiledata,
+                  color: Colors.red,
+                  size: 20,
+                ),
               ),
               label: Text(
                 l10n.registerWithGoogle,
@@ -565,10 +557,9 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           AuthLinkRow(
             message: l10n.alreadyHaveAccount,
             actionText: l10n.signIn,
-            onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
-              '/login',
-              (_) => false,
-            ),
+            onTap: () => Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/login', (_) => false),
           ),
         ],
       ),
@@ -613,8 +604,7 @@ class _GenderChip extends StatelessWidget {
                     ? const Color(0xFF2196F3)
                     : const Color(0xFF555555),
                 fontSize: 13,
-                fontWeight:
-                    selected ? FontWeight.w600 : FontWeight.normal,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
           ),

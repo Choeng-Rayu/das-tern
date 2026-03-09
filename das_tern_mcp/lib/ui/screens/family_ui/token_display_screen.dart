@@ -84,18 +84,15 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.connectionCodeTitle),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.connectionCodeTitle), centerTitle: true),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: _isGenerating
               ? const Center(child: CircularProgressIndicator())
               : _error != null
-                  ? _buildErrorState(context)
-                  : _buildTokenDisplay(context),
+              ? _buildErrorState(context)
+              : _buildTokenDisplay(context),
         ),
       ),
     );
@@ -118,15 +115,12 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
           Text(
             _error!,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.lg),
-          PrimaryButton(
-            text: l10n.retry,
-            onPressed: _generateToken,
-          ),
+          PrimaryButton(text: l10n.retry, onPressed: _generateToken),
         ],
       ),
     );
@@ -176,13 +170,14 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
                   children: [
                     Expanded(child: Divider(color: AppColors.neutral300)),
                     Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                      ),
                       child: Text(
                         l10n.orUseCode,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                     Expanded(child: Divider(color: AppColors.neutral300)),
@@ -210,9 +205,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
                       children: [
                         Text(
                           _token ?? '',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
+                          style: Theme.of(context).textTheme.headlineMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 4,
@@ -220,8 +213,11 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
                               ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
-                        Icon(Icons.copy,
-                            size: 20, color: AppColors.primaryBlue),
+                        Icon(
+                          Icons.copy,
+                          size: 20,
+                          color: AppColors.primaryBlue,
+                        ),
                       ],
                     ),
                   ),
@@ -235,14 +231,17 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.timer_outlined,
-                  size: 16, color: AppColors.textSecondary),
+              Icon(
+                Icons.timer_outlined,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
               const SizedBox(width: AppSpacing.xs),
               Text(
                 _getTimeRemaining(l10n),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -255,9 +254,9 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
               children: [
                 Text(
                   l10n.instructions,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 _buildStep(context, '1', l10n.instructionStep1Family),
@@ -273,7 +272,9 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
             text: l10n.shareCodeButton,
             icon: Icons.share,
             onPressed: () {
-              SharePlus.instance.share(ShareParams(text: l10n.shareCodeMessage(_token ?? '')));
+              SharePlus.instance.share(
+                ShareParams(text: l10n.shareCodeMessage(_token ?? '')),
+              );
             },
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -317,9 +318,9 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
           Expanded(
             child: Text(
               text,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
           ),
         ],
@@ -331,9 +332,9 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
     if (_token != null) {
       final l10n = AppLocalizations.of(context)!;
       Clipboard.setData(ClipboardData(text: _token!));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.codeCopied)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.codeCopied)));
     }
   }
 }

@@ -39,9 +39,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
     if (success) {
       final role = auth.userRole;
-      Navigator.of(context).pushReplacementNamed(
-        role == 'DOCTOR' ? '/doctor' : '/patient',
-      );
+      Navigator.of(
+        context,
+      ).pushReplacementNamed(role == 'DOCTOR' ? '/doctor' : '/patient');
     }
   }
 
@@ -52,9 +52,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
     if (success) {
       final role = auth.userRole;
-      Navigator.of(context).pushReplacementNamed(
-        role == 'DOCTOR' ? '/doctor' : '/patient',
-      );
+      Navigator.of(
+        context,
+      ).pushReplacementNamed(role == 'DOCTOR' ? '/doctor' : '/patient');
     } else if (auth.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -76,9 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ── Header: logo + language switcher placeholder ──
-            const AuthHeader(
-              trailing: LanguageSwitcherButton(),
-            ),
+            const AuthHeader(trailing: LanguageSwitcherButton()),
             const SizedBox(height: AppSpacing.xxl),
 
             // ── Welcome section ──
@@ -131,89 +129,90 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                      // Email or Phone number
-                      AuthFieldLabel(l10n.emailOrPhone),
-                      const SizedBox(height: AppSpacing.xs),
-                      AuthTextField(
-                        controller: _identifierController,
-                        hintText: l10n.emailOrPhoneHint,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) {
-                            return l10n.emailOrPhoneEmpty;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: AppSpacing.md),
+                    // Email or Phone number
+                    AuthFieldLabel(l10n.emailOrPhone),
+                    const SizedBox(height: AppSpacing.xs),
+                    AuthTextField(
+                      controller: _identifierController,
+                      hintText: l10n.emailOrPhoneHint,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return l10n.emailOrPhoneEmpty;
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.md),
 
-                      // Password
-                      AuthFieldLabel(l10n.password),
-                      const SizedBox(height: AppSpacing.xs),
-                      AuthTextField(
-                        controller: _passwordController,
-                        hintText: l10n.passwordHint,
-                        obscureText: _obscurePassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: AppColors.textSecondary,
-                          ),
-                          onPressed: () => setState(
-                              () => _obscurePassword = !_obscurePassword),
+                    // Password
+                    AuthFieldLabel(l10n.password),
+                    const SizedBox(height: AppSpacing.xs),
+                    AuthTextField(
+                      controller: _passwordController,
+                      hintText: l10n.passwordHint,
+                      obscureText: _obscurePassword,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: AppColors.textSecondary,
                         ),
-                        validator: (v) {
-                          if (v == null || v.isEmpty) {
-                            return l10n.passwordEmpty;
-                          }
-                          if (v.length < 6) {
-                            return l10n.passwordTooShort;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      // Forgot password
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pushNamed('/forgot-password');
-                          },
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.only(top: AppSpacing.xs),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: Text(
-                            l10n.forgotPassword,
-                            style: const TextStyle(
-                              color: Color(0xFF2196F3),
-                              fontSize: 12,
-                            ),
-                          ),
+                        onPressed: () => setState(
+                          () => _obscurePassword = !_obscurePassword,
                         ),
                       ),
+                      validator: (v) {
+                        if (v == null || v.isEmpty) {
+                          return l10n.passwordEmpty;
+                        }
+                        if (v.length < 6) {
+                          return l10n.passwordTooShort;
+                        }
+                        return null;
+                      },
+                    ),
 
-                      // Error message
-                      if (auth.error != null) ...[
-                        const SizedBox(height: AppSpacing.sm),
-                        AuthErrorBanner(message: auth.error!),
-                      ],
-                      const SizedBox(height: AppSpacing.lg),
-
-                      // Login button
-                      AuthPrimaryButton(
-                        onPressed: _handleLogin,
-                        isLoading: auth.isLoading,
-                        label: l10n.signIn,
+                    // Forgot password
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('/forgot-password');
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.only(top: AppSpacing.xs),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          l10n.forgotPassword,
+                          style: const TextStyle(
+                            color: Color(0xFF2196F3),
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
+                    ),
+
+                    // Error message
+                    if (auth.error != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      AuthErrorBanner(message: auth.error!),
                     ],
-                  ),
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // Login button
+                    AuthPrimaryButton(
+                      onPressed: _handleLogin,
+                      isLoading: auth.isLoading,
+                      label: l10n.signIn,
+                    ),
+                  ],
                 ),
               ),
+            ),
             const SizedBox(height: AppSpacing.lg),
 
             // ── OR divider ──
@@ -223,8 +222,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
                   Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                    ),
                     child: Text(
                       l10n.orDivider,
                       style: const TextStyle(
@@ -253,8 +253,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Icon(Icons.g_mobiledata,
-                        color: Colors.red, size: 20),
+                    child: const Icon(
+                      Icons.g_mobiledata,
+                      color: Colors.red,
+                      size: 20,
+                    ),
                   ),
                   label: Text(
                     l10n.signInWithGoogle,
@@ -267,7 +270,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF333333),
                     backgroundColor: Colors.white,
-                    side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                    side: const BorderSide(
+                      color: Color(0xFFE0E0E0),
+                      width: 1.5,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
                     ),

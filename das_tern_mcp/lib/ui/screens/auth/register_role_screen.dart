@@ -128,10 +128,7 @@ class _RoleCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF1B7EDB),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: const Color(0xFF1565C0),
-            width: 1.5,
-          ),
+          border: Border.all(color: const Color(0xFF1565C0), width: 1.5),
         ),
         child: Row(
           children: [
@@ -168,11 +165,7 @@ class _RoleCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: Color(0xFFBDD8F5),
-              size: 22,
-            ),
+            const Icon(Icons.chevron_right, color: Color(0xFFBDD8F5), size: 22),
           ],
         ),
       ),
