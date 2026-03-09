@@ -14,6 +14,14 @@ from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+# Load .env file BEFORE any application module imports, because those modules
+# read env vars (LLM_PROVIDER, OPENROUTER_API_KEY, etc.) at import time.
+try:
+    from dotenv import load_dotenv as _load_dotenv
+    _load_dotenv()
+except ImportError:
+    pass  # python-dotenv not installed — rely on shell environment
+
 # Safety and validation imports
 try:
     from .safety.language import detect_language
@@ -38,8 +46,18 @@ except ImportError:
         def get_model_info(): return {"is_loaded": False, "model": "unknown"}
         def load_model(): return False
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure structured logging (uses LOG_LEVEL + optional LOG_FILE env vars)
+try:
+    from .core.logging_config import setup_logging, set_request_id, generate_request_id
+except ImportError:
+    from app.core.logging_config import setup_logging, set_request_id, generate_request_id
+
+_log_file = os.getenv("LOG_FILE")  # e.g. /tmp/ai-llm-service.log
+setup_logging(
+    log_level=os.getenv("LOG_LEVEL", "INFO"),
+    log_file=_log_file,
+    service_name="ai-llm-service",
+)
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
@@ -191,10 +209,18 @@ class ParsePrescriptionResponse(BaseModel):
 @app.on_event("startup")
 async def startup_event():
     """Initialize model on startup."""
+    logger.info("=" * 60)
     logger.info("Initializing AI LLM Service...")
+    logger.info(f"  LLM_PROVIDER  : {os.getenv('LLM_PROVIDER', 'ollama')}")
+    logger.info(f"  OPENROUTER_MODEL: {os.getenv('OPENROUTER_MODEL', 'google/gemma-3-4b-it:free')}")
+    logger.info(f"  OPENROUTER_KEY  : {'SET (' + os.getenv('OPENROUTER_API_KEY', '')[:12] + '...)' if os.getenv('OPENROUTER_API_KEY') else 'NOT SET'}")
+    logger.info(f"  LOG_LEVEL     : {os.getenv('LOG_LEVEL', 'INFO')}")
+    logger.info(f"  LOG_FILE      : {os.getenv('LOG_FILE', 'stdout only')}")
+    logger.info("=" * 60)
     try:
         load_model()
-        logger.info("Model initialization complete")
+        info = get_model_info()
+        logger.info(f"Model initialisation complete: provider={info.get('provider')}, model={info.get('model_name')}, ready={info.get('is_loaded')}")
     except Exception as e:
         logger.warning(f"Model not available at startup: {e}")
 
@@ -202,57 +228,49 @@ async def startup_event():
 @app.get("/")
 async def root():
     """Root endpoint"""
+    model_info = get_model_info()
     return {
         "service": "AI LLM Service",
         "status": "running",
-        "model": "ollama with Llama3.2:3b",
+        "provider": model_info.get("provider", "unknown"),
+        "model": model_info.get("model_name", "unknown"),
         "capabilities": ["ocr_correction", "chatbot"]
-    }
-
-@app.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "service": "AI LLM Service",
-        "model": "ollama with Llama3.2:3b"
     }
 
 @app.post("/api/v1/correct", response_model=OCRCorrectionResponse)
 async def correct_ocr(request: OCRCorrectionRequest):
     """
-    Correct OCR text using Ollama
-    
+    Correct OCR text using the configured LLM provider.
+
     Args:
         request: OCR correction request with raw text
-        
+
     Returns:
         Corrected text with confidence score
     """
     try:
-        from .core.ollama_client import OllamaClient
-        
+        from .core.generation import generate as _generate
+        from .core.model_loader import get_model_info
+
         logger.info(f"Received OCR correction request for language: {request.language}")
-        
-        ollama_client = OllamaClient()
-        
-        prompt = f"""Fix OCR errors in this {request.language} text. Return only the corrected text without explanations.
 
-Original text:
-{request.raw_text}
+        prompt = (
+            f"Fix OCR errors in this {request.language} text. "
+            f"Return only the corrected text without explanations.\n\n"
+            f"Original text:\n{request.raw_text}\n\nCorrected text:"
+        )
 
-Corrected text:"""
-        
-        corrected_text = await ollama_client.generate(prompt)
-        
+        corrected_text = _generate(prompt=prompt, temperature=0.2) or request.raw_text
+        info = get_model_info()
+
         return OCRCorrectionResponse(
             corrected_text=corrected_text.strip(),
             confidence=0.85,
             language=request.language,
             changes_made=[],
-            metadata={"model": "llama3.2:3b", "service": "ai-llm-service"}
+            metadata={"provider": info.get("provider"), "model": info.get("model_name"), "service": "ai-llm-service"},
         )
-        
+
     except Exception as e:
         logger.error(f"Error in OCR correction: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -490,18 +508,282 @@ async def enhance_and_generate_reminders(request: dict):
         }
 
 
-@app.get("/health")
-async def health_check():
-    """Detailed health check."""
-    model_info = get_model_info()
-    return {
-        "status": "healthy" if model_info["is_loaded"] else "degraded",
-        "model": model_info,
-        "components": {
-            "enhancer": "ready",
-            "validator": "ready",
-            "safety": "ready"
+@app.post("/api/v1/enhance")
+async def enhance_v1(request: dict):
+    """
+    POST /api/v1/enhance
+    =====================
+    Called by the NestJS backend (ocr.service.ts) after OCR extraction.
+    Accepts the full OCR result and returns AI-corrected medication names,
+    patient info, diagnoses, prescriber name, and prescription date.
+
+    Request body:
+        { "ocr_result": <OcrExtractionResponse JSON> }
+
+    Response body:
+        {
+            "success": true,
+            "ai_enhanced": true,          # true = LLM ran, false = raw OCR fallback
+            "enhanced": {
+                "medications": [...],
+                "patient": {...},
+                "prescriber_name": "...",
+                "diagnoses": [...],
+                "prescription_date": "2024-01-01"
+            }
         }
+    """
+    req_id = set_request_id()
+    logger.info(f"[ENHANCE:{req_id}] ── /api/v1/enhance request received ──────────────────────")
+
+    try:
+        ocr_result = request.get("ocr_result", {})
+        if not ocr_result:
+            logger.warning(f"[ENHANCE:{req_id}] No ocr_result in request body")
+            return {"success": False, "ai_enhanced": False, "enhanced": None, "error": "No ocr_result provided"}
+
+        # ── Log raw OCR input structure ──────────────────────────────────────
+        top_level_keys = list(ocr_result.keys())
+        data_section = ocr_result.get("data", {})
+        prescription = data_section.get("prescription", {})
+        medications_data = prescription.get("medications", {})
+        items = medications_data.get("items", [])
+        extraction_summary = ocr_result.get("extraction_summary", {})
+
+        logger.info(
+            f"[ENHANCE:{req_id}] Raw OCR input — "
+            f"top_keys={top_level_keys}, "
+            f"medications={len(items)}, "
+            f"confidence={extraction_summary.get('confidence_score', 'N/A')}, "
+            f"needs_review={extraction_summary.get('needs_review', 'N/A')}"
+        )
+        logger.debug(
+            f"[ENHANCE:{req_id}] OCR input (first 600 chars): "
+            f"{str(ocr_result)[:600]}"
+        )
+
+        # ── Extract raw text for LLM processing ─────────────────────────────
+        text_parts = []
+
+        logger.info(f"[ENHANCE:{req_id}] Found {len(items)} medication items — extracting text fields")
+        for item in items:
+            med = item.get("medication", {})
+            name_info = med.get("name", {})
+            brand = name_info.get("brand_name") or name_info.get("full_text", "")
+            generic = name_info.get("generic_name", "")
+            strength = med.get("strength", {})
+            strength_text = f"{strength.get('numeric', '')} {strength.get('unit', '')}".strip()
+            text_parts.append(f"Medication: {brand} / {generic} {strength_text}")
+            logger.debug(f"[ENHANCE:{req_id}]   item → brand='{brand}' generic='{generic}' strength='{strength_text}'")
+
+        patient = prescription.get("patient", {})
+        personal = patient.get("personal_info", {})
+        name_info = personal.get("name", {})
+        patient_name = name_info.get("full_name") or name_info.get("khmer_name", "")
+        if patient_name:
+            text_parts.append(f"Patient: {patient_name}")
+
+        prescriber = prescription.get("prescriber", {})
+        prescriber_name_info = prescriber.get("name", {})
+        prescriber_name = prescriber_name_info.get("full_name", "")
+        if prescriber_name:
+            text_parts.append(f"Prescriber: {prescriber_name}")
+
+        clinical = prescription.get("clinical_information", {})
+        diagnoses_list = clinical.get("diagnoses", [])
+        for d in diagnoses_list:
+            if isinstance(d, dict):
+                diag = d.get("diagnosis", {})
+                diag_text = diag.get("english") or diag.get("khmer", "")
+                if diag_text:
+                    text_parts.append(f"Diagnosis: {diag_text}")
+
+        prescription_details = prescription.get("prescription_details", {})
+        dates = prescription_details.get("dates", {})
+        issue_date = dates.get("issue_date", {}).get("value")
+        if issue_date:
+            text_parts.append(f"Date: {issue_date}")
+
+        combined_text = "\n".join(text_parts)
+        logger.info(
+            f"[ENHANCE:{req_id}] Text extracted for LLM: {len(combined_text)} chars, "
+            f"{len(text_parts)} lines"
+        )
+        logger.debug(f"[ENHANCE:{req_id}] Full combined_text:\n{combined_text}")
+
+        if not combined_text.strip():
+            logger.warning(f"[ENHANCE:{req_id}] No extractable text from OCR — returning raw OCR fallback")
+            return {
+                "success": True,
+                "ai_enhanced": False,
+                "enhanced": _build_enhanced_from_ocr(prescription, items),
+                "error": None,
+            }
+
+        # ── Call LLM for medication name correction ──────────────────────────
+        try:
+            from .core.generation import generate_json
+        except ImportError:
+            from app.core.generation import generate_json
+
+        enhancement_prompt = f"""You are a medical prescription AI assistant.
+Review the following extracted prescription data and correct any OCR errors in medication names,
+patient info, and other fields.
+
+EXTRACTED DATA:
+{combined_text}
+
+Return a JSON object with this EXACT structure:
+{{
+    "medications": [
+        {{
+            "item_number": 1,
+            "corrected_brand_name": "corrected name or null if no correction needed",
+            "corrected_generic_name": "generic name or null",
+            "strength": "dosage like 500mg or null",
+            "was_corrected": true or false
+        }}
+    ],
+    "patient": {{
+        "name": "corrected name or null",
+        "age": number or null,
+        "gender": "M or F or null",
+        "patient_id": "ID or null"
+    }},
+    "prescriber_name": "corrected prescriber name or null",
+    "diagnoses": ["diagnosis 1", "diagnosis 2"],
+    "prescription_date": "YYYY-MM-DD or null"
+}}
+
+RULES:
+- Correct obvious OCR spelling errors in medication names (e.g., "Amxicillin" -> "Amoxicillin")
+- Set was_corrected=true only if you actually changed the name
+- If no correction is needed, set was_corrected=false and corrected_brand_name=null
+- item_number should match the order of medications (1-based)
+- Return valid JSON only"""
+
+        logger.info(
+            f"[ENHANCE:{req_id}] Sending to LLM — "
+            f"provider={os.getenv('LLM_PROVIDER', 'ollama')}, "
+            f"model={os.getenv('OPENROUTER_MODEL') or os.getenv('OLLAMA_MODEL', 'llama3.2:3b')}, "
+            f"prompt_chars={len(enhancement_prompt)}"
+        )
+
+        ai_result = generate_json(
+            prompt=enhancement_prompt,
+            system_prompt="You are a medical prescription correction AI. Output valid JSON only.",
+            temperature=0.1,
+            timeout=60,
+        )
+
+        if ai_result:
+            logger.info(
+                f"[ENHANCE:{req_id}] LLM returned valid JSON — "
+                f"medications={len(ai_result.get('medications', []))}, "
+                f"patient={ai_result.get('patient') is not None}, "
+                f"prescriber='{ai_result.get('prescriber_name')}'"
+            )
+            enhanced = _merge_enhancement(ai_result, prescription, items)
+            return {"success": True, "ai_enhanced": True, "enhanced": enhanced, "error": None}
+        else:
+            logger.warning(f"[ENHANCE:{req_id}] LLM returned no result — falling back to raw OCR data")
+            return {
+                "success": True,
+                "ai_enhanced": False,
+                "enhanced": _build_enhanced_from_ocr(prescription, items),
+                "error": None,
+            }
+
+    except Exception as e:
+        logger.error(f"[ENHANCE:{req_id}] Enhancement exception: {str(e)}", exc_info=True)
+        try:
+            ocr_result = request.get("ocr_result", {})
+            prescription_r = ocr_result.get("data", {}).get("prescription", {})
+            items_r = prescription_r.get("medications", {}).get("items", [])
+            return {
+                "success": True,
+                "ai_enhanced": False,
+                "enhanced": _build_enhanced_from_ocr(prescription_r, items_r),
+                "error": str(e),
+            }
+        except Exception:
+            return {"success": False, "ai_enhanced": False, "enhanced": None, "error": str(e)}
+
+
+def _build_enhanced_from_ocr(prescription: dict, items: list) -> dict:
+    """Build an 'enhanced' object directly from OCR data (no AI correction)."""
+    # Patient
+    patient = prescription.get("patient", {})
+    personal = patient.get("personal_info", {})
+    name_info = personal.get("name", {})
+    identification = patient.get("identification", {})
+    patient_id_info = identification.get("patient_id", {})
+    age_info = personal.get("age", {})
+    gender_info = personal.get("gender", {})
+
+    # Prescriber
+    prescriber = prescription.get("prescriber", {})
+    prescriber_name_info = prescriber.get("name", {})
+
+    # Diagnoses
+    clinical = prescription.get("clinical_information", {})
+    diagnoses_list = clinical.get("diagnoses", [])
+    diagnoses = []
+    for d in diagnoses_list:
+        if isinstance(d, dict):
+            diag = d.get("diagnosis", {})
+            diag_text = diag.get("english") or diag.get("khmer")
+            if diag_text:
+                diagnoses.append(diag_text)
+
+    # Prescription date
+    prescription_details = prescription.get("prescription_details", {})
+    issue_date = prescription_details.get("dates", {}).get("issue_date", {}).get("value")
+
+    # Medications (no corrections — was_corrected=False)
+    medications = []
+    for i, item in enumerate(items, 1):
+        med = item.get("medication", {})
+        name_data = med.get("name", {})
+        strength_data = med.get("strength", {})
+        strength_str = None
+        if strength_data.get("numeric") is not None:
+            strength_str = f"{strength_data['numeric']} {strength_data.get('unit', '')}".strip()
+        medications.append({
+            "item_number": i,
+            "corrected_brand_name": None,
+            "corrected_generic_name": None,
+            "strength": strength_str,
+            "was_corrected": False,
+            # Include original names so NestJS can still read them
+            "_ocr_brand_name": name_data.get("brand_name"),
+            "_ocr_generic_name": name_data.get("generic_name"),
+        })
+
+    return {
+        "medications": medications,
+        "patient": {
+            "name": name_info.get("full_name") or name_info.get("khmer_name"),
+            "age": age_info.get("value"),
+            "gender": gender_info.get("value") or gender_info.get("english"),
+            "patient_id": patient_id_info.get("value"),
+        },
+        "prescriber_name": prescriber_name_info.get("full_name"),
+        "diagnoses": diagnoses,
+        "prescription_date": issue_date,
+    }
+
+
+def _merge_enhancement(ai_result: dict, prescription: dict, items: list) -> dict:
+    """Merge LLM result with OCR fallback for missing fields."""
+    ocr_base = _build_enhanced_from_ocr(prescription, items)
+
+    return {
+        "medications": ai_result.get("medications") or ocr_base["medications"],
+        "patient": ai_result.get("patient") or ocr_base["patient"],
+        "prescriber_name": ai_result.get("prescriber_name") or ocr_base["prescriber_name"],
+        "diagnoses": ai_result.get("diagnoses") or ocr_base["diagnoses"],
+        "prescription_date": ai_result.get("prescription_date") or ocr_base["prescription_date"],
     }
 
 

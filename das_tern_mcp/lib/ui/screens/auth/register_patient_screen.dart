@@ -56,9 +56,9 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
     if (_currentStep == 0 && _formKey1.currentState!.validate()) {
       if (_dateOfBirth == null) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.pleaseSelectDateOfBirth)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.pleaseSelectDateOfBirth)));
         return;
       }
       setState(() => _currentStep = 1);
@@ -91,10 +91,9 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
 
     if (!mounted) return;
     if (result != null) {
-      Navigator.of(context).pushNamed(
-        '/otp-verification',
-        arguments: {'identifier': email},
-      );
+      Navigator.of(
+        context,
+      ).pushNamed('/otp-verification', arguments: {'identifier': email});
     }
   }
 
@@ -129,6 +128,9 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final l10n = AppLocalizations.of(context)!;
+    final size = MediaQuery.of(context).size;
+    final hPad = (size.width * 0.06).clamp(16.0, 40.0);
+    final titleFontSize = size.width < 360 ? 16.0 : 20.0;
 
     return AuthGradientScaffold(
       child: Column(
@@ -143,22 +145,22 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                 Navigator.of(context).pop();
               }
             },
-            trailing: const LanguageSwitcherButton(),
+            trailing: const LanguageSwitcherButton(lightBackground: true),
           ),
 
           // ── Title + step indicator ──
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
+            padding: EdgeInsets.symmetric(
+              horizontal: hPad,
               vertical: AppSpacing.sm,
             ),
             child: Column(
               children: [
                 Text(
                   l10n.createNewAccount,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
+                  style: TextStyle(
+                    color: const Color(0xFF111111),
+                    fontSize: titleFontSize,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
@@ -178,10 +180,12 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           // ── Form content ──
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: _currentStep == 0
-                  ? _buildStep1()
-                  : _buildStep2(auth),
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                horizontal: hPad,
+                vertical: AppSpacing.md,
+              ),
+              child: _currentStep == 0 ? _buildStep1() : _buildStep2(auth),
             ),
           ),
         ],
@@ -222,24 +226,26 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           // Gender
           AuthFieldLabel(l10n.gender),
           const SizedBox(height: AppSpacing.xs),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppRadius.md),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: _gender,
-                isExpanded: true,
-                items: [
-                  DropdownMenuItem(value: 'MALE', child: Text(l10n.genderMale)),
-                  DropdownMenuItem(value: 'FEMALE', child: Text(l10n.genderFemale)),
-                  DropdownMenuItem(value: 'OTHER', child: Text(l10n.genderOther)),
-                ],
-                onChanged: (v) => setState(() => _gender = v ?? 'MALE'),
+          Row(
+            children: [
+              _GenderChip(
+                label: l10n.genderMale,
+                selected: _gender == 'MALE',
+                onTap: () => setState(() => _gender = 'MALE'),
               ),
-            ),
+              const SizedBox(width: 8),
+              _GenderChip(
+                label: l10n.genderFemale,
+                selected: _gender == 'FEMALE',
+                onTap: () => setState(() => _gender = 'FEMALE'),
+              ),
+              const SizedBox(width: 8),
+              _GenderChip(
+                label: l10n.genderOther,
+                selected: _gender == 'OTHER',
+                onTap: () => setState(() => _gender = 'OTHER'),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -249,11 +255,12 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           GestureDetector(
             onTap: _selectDate,
             child: Container(
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              height: 46,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(AppRadius.md),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE8EAF0), width: 1.5),
               ),
               child: Row(
                 children: [
@@ -264,16 +271,16 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                           : l10n.dateFormatPlaceholder,
                       style: TextStyle(
                         color: _dateOfBirth != null
-                            ? AppColors.textPrimary
-                            : AppColors.textSecondary.withValues(alpha: 0.6),
-                        fontSize: 15,
+                            ? const Color(0xFF333333)
+                            : const Color(0xFFBBBBBB),
+                        fontSize: 13,
                       ),
                     ),
                   ),
-                  Icon(
+                  const Icon(
                     Icons.calendar_today,
-                    color: AppColors.textSecondary.withValues(alpha: 0.6),
-                    size: 20,
+                    color: Color(0xFFAAAAAA),
+                    size: 18,
                   ),
                 ],
               ),
@@ -291,27 +298,24 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           const SizedBox(height: AppSpacing.xl),
 
           // Continue button
-          AuthPrimaryButton(
-            onPressed: _nextStep,
-            label: l10n.continueButton,
-          ),
+          AuthPrimaryButton(onPressed: _nextStep, label: l10n.continueButton),
           const SizedBox(height: AppSpacing.md),
 
           // ── OR divider ──
           Row(
             children: [
-              const Expanded(child: Divider(color: Colors.white30)),
+              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 child: Text(
                   l10n.orRegisterWith,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 14,
+                  style: const TextStyle(
+                    color: Color(0xFFAAAAAA),
+                    fontSize: 12,
                   ),
                 ),
               ),
-              const Expanded(child: Divider(color: Colors.white30)),
+              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -319,7 +323,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           // ── Google Register button ──
           SizedBox(
             width: double.infinity,
-            height: 50,
+            height: 48,
             child: OutlinedButton.icon(
               onPressed: _handleGoogleRegister,
               icon: Container(
@@ -328,21 +332,26 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Icon(Icons.g_mobiledata,
-                    color: Colors.red, size: 20),
+                child: const Icon(
+                  Icons.g_mobiledata,
+                  color: Colors.red,
+                  size: 20,
+                ),
               ),
               label: Text(
                 l10n.registerWithGoogle,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
+                  color: Color(0xFF333333),
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: const BorderSide(color: Colors.white54, width: 1.5),
+                foregroundColor: const Color(0xFF333333),
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                  borderRadius: BorderRadius.circular(28),
                 ),
               ),
             ),
@@ -353,10 +362,9 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           AuthLinkRow(
             message: l10n.alreadyHaveAccount,
             actionText: l10n.signIn,
-            onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
-              '/login',
-              (_) => false,
-            ),
+            onTap: () => Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/login', (_) => false),
           ),
         ],
       ),
@@ -447,10 +455,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           const SizedBox(height: AppSpacing.md),
           Text(
             l10n.termsNotice,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Color(0xFF888888), fontSize: 12),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -461,17 +466,24 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                 height: 24,
                 child: Checkbox(
                   value: _agreedToTerms,
-                  onChanged: (v) =>
-                      setState(() => _agreedToTerms = v ?? false),
-                  fillColor: WidgetStateProperty.all(Colors.white),
-                  checkColor: AppColors.primaryBlue,
-                  side: const BorderSide(color: Colors.white54),
+                  onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
+                  fillColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return const Color(0xFF2196F3);
+                    }
+                    return Colors.white;
+                  }),
+                  checkColor: Colors.white,
+                  side: const BorderSide(color: Color(0xFF2196F3)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
               Text(
                 l10n.termsRead,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(color: Color(0xFF666666), fontSize: 13),
               ),
             ],
           ),
@@ -494,18 +506,18 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           // ── OR divider ──
           Row(
             children: [
-              const Expanded(child: Divider(color: Colors.white30)),
+              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 child: Text(
                   l10n.orRegisterWith,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 14,
+                  style: const TextStyle(
+                    color: Color(0xFFAAAAAA),
+                    fontSize: 12,
                   ),
                 ),
               ),
-              const Expanded(child: Divider(color: Colors.white30)),
+              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -513,7 +525,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           // ── Google Register button ──
           SizedBox(
             width: double.infinity,
-            height: 50,
+            height: 48,
             child: OutlinedButton.icon(
               onPressed: auth.isLoading ? null : _handleGoogleRegister,
               icon: Container(
@@ -522,21 +534,26 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Icon(Icons.g_mobiledata,
-                    color: Colors.red, size: 20),
+                child: const Icon(
+                  Icons.g_mobiledata,
+                  color: Colors.red,
+                  size: 20,
+                ),
               ),
               label: Text(
                 l10n.registerWithGoogle,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
+                  color: Color(0xFF333333),
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: const BorderSide(color: Colors.white54, width: 1.5),
+                foregroundColor: const Color(0xFF333333),
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                  borderRadius: BorderRadius.circular(28),
                 ),
               ),
             ),
@@ -547,12 +564,58 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           AuthLinkRow(
             message: l10n.alreadyHaveAccount,
             actionText: l10n.signIn,
-            onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
-              '/login',
-              (_) => false,
-            ),
+            onTap: () => Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/login', (_) => false),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Gender toggle chip ──
+class _GenderChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _GenderChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 38,
+          decoration: BoxDecoration(
+            color: selected ? const Color(0xFFE8F4FF) : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: selected
+                  ? const Color(0xFF2196F3)
+                  : const Color(0xFFE0E0E0),
+              width: 1.5,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: selected
+                    ? const Color(0xFF2196F3)
+                    : const Color(0xFF555555),
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

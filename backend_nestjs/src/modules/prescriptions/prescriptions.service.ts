@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CreatePrescriptionDto, UpdatePrescriptionDto, CreatePatientPrescriptionDto } from './dto';
@@ -96,6 +97,19 @@ export class PrescriptionsService {
         medicationsSnapshot: (prescription as any).medications,
       },
     });
+
+    // Notify patient about new prescription
+    const doctorUser = await this.prisma.user.findUnique({
+      where: { id: doctorId },
+      select: { fullName: true },
+    });
+    await this.notifications.send(
+      dto.patientId,
+      'PRESCRIPTION_UPDATE',
+      'New Prescription',
+      `Dr. ${doctorUser?.fullName || 'Your doctor'} has created a new prescription for you.`,
+      { prescriptionId: prescription.id },
+    );
 
     return prescription;
   }
@@ -345,6 +359,7 @@ export class PrescriptionsService {
         status: 'ACTIVE',
         currentVersion: 1,
         isUrgent: false,
+        ocrMetadata: dto.ocrMetadata || Prisma.JsonNull,
         medications: {
           create: dto.medicines.map((med, index) => {
             const dosageInfo = {

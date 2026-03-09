@@ -48,6 +48,20 @@ class AppLocalizationsKm extends AppLocalizations {
   String get welcomeMessage => 'ដៃគូរំលឹកការប្រើប្រាស់ថ្នាំរបស់អ្នក';
 
   @override
+  String get welcomeScreenSubtitle =>
+      'សុខភាពរបស់អ្នក គឺជាអាទិភាពរបស់យើង។ គ្រប់គ្រងកំណត់ត្រាវេជ្ជសាស្ត្ររបស់អ្នកដោយភាពងាយស្រួល។';
+
+  @override
+  String get emergencyAccess => 'ការចូលប្រើប្រព័ន្ធបន្ទាន់';
+
+  @override
+  String get doctorStep1PersonalInfo => 'ជំហានទី ១ នៃ ២ - ព័ត៌មានផ្ទាល់ខ្លួន';
+
+  @override
+  String get doctorStep2ProfessionalInfo =>
+      'ជំហានទី ២ នៃ ២ - ព័ត៌មានវិជ្ជាជីវៈ និងសន្តិសុខ';
+
+  @override
   String get selectRoleTitle => 'ខ្ញុំជា...';
 
   @override
@@ -1071,6 +1085,10 @@ class AppLocalizationsKm extends AppLocalizations {
   String get openInBankingApp => 'បើកកម្មវិធីធនាគារ';
 
   @override
+  String get bankAmountPreFilled =>
+      'បាកុង: ទូទាត់ត្រូវបានដំឡើងរួច · ធ.ផ្សេង: បើក និងស្កែន QR ខាងលើ';
+
+  @override
   String get orOpenDirectly => 'ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:';
 
   @override
@@ -1809,6 +1827,11 @@ class AppLocalizationsKm extends AppLocalizations {
   }
 
   @override
+  String shareQrAndCodeMessage(String token) {
+    return 'នេះជាកូដតភ្ជាប់ DasTern របស់ខ្ញុំ: $token\n\nស្កេនរូបភាព QR ឬបញ្ចូលកូដដោយដៃនៅក្នុងកម្មវិធី DasTern ដើម្បីភ្ជាប់ជាមួយខ្ញុំ។';
+  }
+
+  @override
   String get generateNewCode => 'បង្កើតកូដថ្មី';
 
   @override
@@ -2368,6 +2391,30 @@ class AppLocalizationsKm extends AppLocalizations {
   String get support => 'ជំនួយ';
 
   @override
+  String get appearance => 'រូបរាង';
+
+  @override
+  String get notificationPermission => 'ការអនុញ្ញាតការជូនដំណឹង';
+
+  @override
+  String get permissionGranted => 'បានអនុញ្ញាត';
+
+  @override
+  String get rateAppSubtitle => 'ជួយយើងកែលម្អកម្មវិធី DasTern';
+
+  @override
+  String get contactSupportSubtitle => 'ទទួលជំនួយពីក្រុមរបស់យើង';
+
+  @override
+  String get termsOfServiceSubtitle => 'អានលក្ខខណ្ឌនៃការប្រើប្រាស់';
+
+  @override
+  String get privacyPolicySubtitle => 'របៀបដែលយើងការពារទិន្នន័យរបស់អ្នក';
+
+  @override
+  String get restoringSubscription => 'កំពុងស្ដារការជាវ…';
+
+  @override
   String get currentPassword => 'លេខសម្ងាត់បច្ចុប្បន្ន';
 
   @override
@@ -2380,4 +2427,172 @@ class AppLocalizationsKm extends AppLocalizations {
   String adherencePercentage(String percentage) {
     return '$percentage%';
   }
+
+  @override
+  String get connectNewPatient => 'ភ្ជាប់ផ្នែកថ្មីនៃអ្នកជំងឺ';
+
+  @override
+  String get enterPhoneOrEmail => 'បញ្ចូលលេខទូរស័ព្ទឬសារឡើងលេខ';
+
+  @override
+  String get noPatientFound => 'រកមិនឃើញអ្នកជំងឺដោយទំនាក់ទំនងនោះ';
+
+  @override
+  String get connectionRequestSent => 'បានផ្ញើសំណើភ្ជាប់ដោយជោគជ័យ';
+
+  @override
+  String get connectionRequestFailed => 'សំណើភ្ជាប់បរាជ័យ';
+
+  @override
+  String get sendConnectionRequest => 'ផ្ញើសំណើភ្ជាប់';
+
+  @override
+  String get connectionApproved => 'បានយល់ព្រមការភ្ជាប់';
+
+  @override
+  String get connectionRejected => 'បានបដិសេធការភ្ជាប់';
+
+  @override
+  String get approveConnection => 'យល់ព្រម';
+
+  @override
+  String get rejectConnection => 'បដិសេធ';
+
+  @override
+  String get removeNotification => 'លុបការជូនដំណឹង';
+
+  @override
+  String get removeNotificationConfirm =>
+      'តើអ្នកប្រាកដថាចង់លុបការជូនដំណឹងនេះមែនទេ?';
+
+  @override
+  String get remove => 'លុប';
+
+  @override
+  String get prescriptionConfirmed => 'វេជ្ជបញ្ជាត្រូវបានបញ្ជាក់';
+
+  @override
+  String get prescriptionRejected => 'វេជ្ជបញ្ជាត្រូវបានបដិសេធ';
+
+  @override
+  String get rejectPrescription => 'បដិសេធ';
+
+  @override
+  String get confirmPrescription => 'បញ្ជាក់';
+
+  @override
+  String prescriptionFromDoctor(String doctor) {
+    return 'ពីវេជ្ជបណ្ឌិត $doctor';
+  }
+
+  @override
+  String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
+
+  @override
+  String get missedDoseBanner => 'អ្នកបងាVerified្រ់ឈានទៅលើដូស';
+
+  @override
+  String get ocrOutpatient => 'អ្នកជំងឺទូលទាត់';
+
+  @override
+  String get ocrInpatient => 'អ្នកជំងឺស្នាក់នៅ';
+
+  @override
+  String get ocrFacilityHospital => 'មន្ទីរពេទ្យ';
+
+  @override
+  String get ocrFacilityClinic => 'ឯកសារ';
+
+  @override
+  String get ocrNotAvailable => 'មិនមាន';
+
+  @override
+  String get ocrNeedsReviewYes => 'ដាច់ដោយឡែក សូមពិនិត្យ';
+
+  @override
+  String get ocrAiEnhanced => 'AI បានកែលម្អ';
+
+  @override
+  String get ocrAiUnavailable => 'OCR ប៉ុណ្ណោះ';
+
+  @override
+  String get ocrPatientInfoSection => 'ព័ត៌មានអ្នកជំងឺ';
+
+  @override
+  String get ocrPatientId => 'លេខសម្គាល់អ្នកជំងឺ';
+
+  @override
+  String get ocrPatientName => 'ឈ្មោះអ្នកជំងឺ';
+
+  @override
+  String get ocrPatientKhmerName => 'ឈ្មោះអ្នកជំងឺ (ខ្មែរ)';
+
+  @override
+  String get ocrPatientAge => 'ក្ដីឈរឈរលេង';
+
+  @override
+  String ocrYearsOld(String age) {
+    return '$age ឆ្នាំចាស់';
+  }
+
+  @override
+  String get ocrPatientGender => 'ភេទ';
+
+  @override
+  String get ocrPrescriberSection => 'ព័ត៌មានលម្អិត';
+
+  @override
+  String get ocrPrescriberName => 'ឈ្មោះបែបលម្អិត';
+
+  @override
+  String get ocrFacilitySection => 'ព័ត៌មានលម្អិតមន្ទីរ';
+
+  @override
+  String get ocrFacilityName => 'ឈ្មោះមន្ទីរ';
+
+  @override
+  String get ocrFacilityType => 'ប្រភេទមន្ទីរ';
+
+  @override
+  String get ocrClinicalSection => 'ព័ត៌មានលម្អិតឆ្នាំ';
+
+  @override
+  String get ocrDiagnosis => 'ការបង្ហាញលក្ខណៈរោគ';
+
+  @override
+  String get ocrMetadataSection => 'ទិន្នន័យលម្អិត';
+
+  @override
+  String get ocrConfidenceScore => 'ពិន្ទុសុវត្ថិភាព';
+
+  @override
+  String ocrConfidencePercent(String confidence) {
+    return '$confidence%';
+  }
+
+  @override
+  String get ocrEngine => 'ម៉ាស៊ីនស្កេន';
+
+  @override
+  String get ocrProcessingTime => 'ពេលវេលាដែលប្រើប្រាស់';
+
+  @override
+  String ocrMilliseconds(String ms) {
+    return '${ms}ms';
+  }
+
+  @override
+  String get ocrPrescriptionType => 'ប្រភេទវេជ្ជបញ្ជា';
+
+  @override
+  String get ocrLanguagesDetected => 'ភាសាដែលរកឃើញ';
+
+  @override
+  String get ocrValidationStatus => 'ស្ថានភាពផ្ទៀងផ្ទាត់';
+
+  @override
+  String get ocrValidated => 'ផ្ទៀងផ្ទាត់រួច';
+
+  @override
+  String get ocrScanInfoSection => 'ព័ត៌មានលម្អិតស្កេន';
 }

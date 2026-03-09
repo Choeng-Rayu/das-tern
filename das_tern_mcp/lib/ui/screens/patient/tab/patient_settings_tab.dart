@@ -11,6 +11,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/theme_provider.dart';
 import '../../../widgets/common_widgets.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// Settings tab for patient – clean professional UI matching design standard.
 /// Sections: Appearance, Notification Permission, Account (with Security),
@@ -42,7 +43,10 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppHeader(title: l10n.settings),
+      appBar: AppHeader(
+        title: l10n.settings,
+        actions: const [LanguageSwitcherButton(), SizedBox(width: 12)],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
@@ -103,7 +107,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             const SizedBox(height: AppSpacing.md),
 
             // APPEARANCE
-            _sectionLabel('APPEARANCE'),
+            _sectionLabel(l10n.appearance.toUpperCase()),
             _buildGroupCard(isDark, [
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -128,7 +132,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                       children: [
                         _ThemeOptionCard(
                           icon: Icons.phone_android_rounded,
-                          label: 'System',
+                          label: l10n.systemTheme,
                           isSelected: themeProvider.themeMode == ThemeMode.system,
                           isDark: isDark,
                           onTap: () => themeProvider.setThemeMode(ThemeMode.system),
@@ -136,7 +140,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                         const SizedBox(width: 10),
                         _ThemeOptionCard(
                           icon: Icons.light_mode_rounded,
-                          label: 'Light',
+                          label: l10n.lightTheme,
                           isSelected: themeProvider.themeMode == ThemeMode.light,
                           isDark: isDark,
                           onTap: () => themeProvider.setThemeMode(ThemeMode.light),
@@ -144,7 +148,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                         const SizedBox(width: 10),
                         _ThemeOptionCard(
                           icon: Icons.dark_mode_rounded,
-                          label: 'Dark',
+                          label: l10n.darkTheme,
                           isSelected: themeProvider.themeMode == ThemeMode.dark,
                           isDark: isDark,
                           onTap: () => themeProvider.setThemeMode(ThemeMode.dark),
@@ -158,7 +162,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 4,
+                  vertical: 14,
                 ),
                 child: Row(
                   children: [
@@ -169,19 +173,46 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const Spacer(),
-                    DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: localeProvider.locale.languageCode,
-                        isDense: true,
-                        items: const [
-                          DropdownMenuItem(value: 'en', child: Text('English')),
-                          DropdownMenuItem(value: 'km', child: Text('ខ្មែរ')),
-                        ],
-                        onChanged: (v) {
-                          if (v != null) {
-                            localeProvider.changeLocale(Locale(v));
-                          }
-                        },
+                    GestureDetector(
+                      onTap: () {
+                        final isKhmer = localeProvider.locale.languageCode == 'km';
+                        localeProvider.changeLocale(
+                          isKhmer ? const Locale('en') : const Locale('km'),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(AppRadius.xl),
+                          border: Border.all(
+                            color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.language,
+                              color: AppColors.primaryBlue,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              localeProvider.locale.languageCode == 'km'
+                                  ? 'ខ្មែរ'
+                                  : 'English',
+                              style: const TextStyle(
+                                color: AppColors.primaryBlue,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -217,7 +248,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Notification Permission',
+                          l10n.notificationPermission,
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
@@ -231,7 +262,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Granted',
+                              l10n.permissionGranted,
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     color: AppColors.statusSuccess,
@@ -249,7 +280,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             const SizedBox(height: AppSpacing.md),
 
             // ACCOUNT (Edit Profile + Security/Change Password + Logout)
-            _sectionLabel('ACCOUNT'),
+            _sectionLabel(l10n.account.toUpperCase()),
             _buildGroupCard(isDark, [
               _buildNavRow(
                 context,
@@ -321,7 +352,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 isLast: true,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Restoring subscription…')),
+                    SnackBar(content: Text(l10n.restoringSubscription)),
                   );
                 },
               ),
@@ -337,7 +368,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 icon: Icons.star_rounded,
                 iconBg: const Color(0xFFFF9500),
                 label: l10n.rateApp,
-                subtitle: 'Help us improve DasTern',
+                subtitle: l10n.rateAppSubtitle,
                 onTap: () async {
                   // TODO: Replace with actual app store URL
                   final uri = Uri.parse('https://play.google.com/store');
@@ -353,7 +384,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 icon: Icons.headset_mic_rounded,
                 iconBg: const Color(0xFF007AFF),
                 label: l10n.contactSupport,
-                subtitle: 'Get help from our team',
+                subtitle: l10n.contactSupportSubtitle,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -370,7 +401,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 icon: Icons.article_rounded,
                 iconBg: const Color(0xFF34C759),
                 label: l10n.termsOfService,
-                subtitle: 'Read our terms & conditions',
+                subtitle: l10n.termsOfServiceSubtitle,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -387,7 +418,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 icon: Icons.shield_rounded,
                 iconBg: const Color(0xFFAF52DE),
                 label: l10n.privacyPolicy,
-                subtitle: 'How we protect your data',
+                subtitle: l10n.privacyPolicySubtitle,
                 isLast: true,
                 onTap: () {
                   Navigator.push(

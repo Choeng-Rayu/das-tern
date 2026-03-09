@@ -1,13 +1,17 @@
-import { Controller, Get, Patch, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Body, Param, Query, UseGuards, ForbiddenException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { DosesService } from './doses.service';
+import { PrismaService } from '../../database/prisma.service';
 import { MarkDoseTakenDto, SkipDoseDto, SyncDosesDto } from './dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('doses')
 @UseGuards(AuthGuard('jwt'))
 export class DosesController {
-  constructor(private dosesService: DosesService) {}
+  constructor(
+    private dosesService: DosesService,
+    private prisma: PrismaService,
+  ) {}
 
   @Get('schedule')
   async getSchedule(
@@ -60,5 +64,33 @@ export class DosesController {
   @Post('sync')
   async syncOfflineDoses(@CurrentUser() user: any, @Body() dto: SyncDosesDto) {
     return this.dosesService.syncOfflineDoses(user.id, dto.events);
+  }
+
+  /**
+   * GET /doses/caregiver/:patientId
+   * Allows a connected caregiver to view a patient's today's dose schedule.
+   * Validates that an ACCEPTED connection exists between requester and patient.
+   */
+  @Get('caregiver/:patientId')
+  async getPatientDosesForCaregiver(
+    @Param('patientId') patientId: string,
+    @CurrentUser() user: any,
+  ) {
+    // Verify accepted connection exists between caregiver and patient
+    const connection = await this.prisma.connection.findFirst({
+      where: {
+        OR: [
+          { initiatorId: user.id, recipientId: patientId },
+          { initiatorId: patientId, recipientId: user.id },
+        ],
+        status: 'ACCEPTED',
+      },
+    });
+
+    if (!connection) {
+      throw new ForbiddenException('No accepted connection with this patient');
+    }
+
+    return this.dosesService.getTodaysDoses(patientId);
   }
 }

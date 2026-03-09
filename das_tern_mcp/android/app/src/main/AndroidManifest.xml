@@ -51,7 +51,13 @@
             <data android:scheme="https"/>
         </intent>
         <!-- Cambodian banking apps for KHQR payment deep-links -->
-        <package android:name="com.ababank.abaapp"/>
+        <!-- ABA Mobile verified package name (per PayWay developer docs) -->
+        <package android:name="com.paygo24.ibank"/>
+        <!-- Allow canLaunchUrl for ABA's custom URL scheme abamobilebank:// -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="abamobilebank"/>
+        </intent>
         <package android:name="com.aceleda.mobilebanking"/>
         <package android:name="com.wingmoney.wingapp"/>
         <package android:name="kh.gov.nbc.bakong"/>

@@ -113,6 +113,14 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
           ),
         );
         Navigator.pop(context);
+      } else {
+        final errorMsg = context.read<PrescriptionProvider>().error;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMsg ?? 'Failed to create prescription'),
+            backgroundColor: AppColors.alertRed,
+          ),
+        );
       }
     }
   }
@@ -207,42 +215,232 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (patients.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Text(
-            l10n.noConnectedPatients,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: AppColors.textSecondary),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (patients.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Text(
+                l10n.noConnectedPatients,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+          )
+        else
+          DropdownButtonFormField<int>(
+            value: _selectedPatientIndex >= 0 ? _selectedPatientIndex : null,
+            decoration: InputDecoration(
+              labelText: l10n.selectPatient,
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.person),
+            ),
+            items: patients.asMap().entries.map((entry) {
+              final conn = entry.value;
+              final patientData = conn.recipient ?? conn.initiator;
+              final name = patientData != null
+                  ? '${patientData['firstName'] ?? ''} ${patientData['lastName'] ?? ''}'
+                      .trim()
+                  : l10n.unknown;
+              return DropdownMenuItem(
+                value: entry.key,
+                child: Text(name),
+              );
+            }).toList(),
+            onChanged: (val) {
+              if (val != null) setState(() => _selectedPatientIndex = val);
+            },
+          ),
+        const SizedBox(height: AppSpacing.sm),
+        OutlinedButton.icon(
+          onPressed: () => _showConnectPatientDialog(context),
+          icon: const Icon(Icons.person_add),
+          label: Text(l10n.connectNewPatient),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primaryBlue,
+            side: BorderSide(color: AppColors.primaryBlue),
+            padding: const EdgeInsets.symmetric(
+              vertical: 12,
+              horizontal: 16,
+            ),
           ),
         ),
-      );
-    }
+      ],
+    );
+  }
 
-    return DropdownButtonFormField<int>(
-      initialValue: _selectedPatientIndex >= 0 ? _selectedPatientIndex : null,
-      decoration: InputDecoration(
-        labelText: l10n.selectPatient,
-        border: const OutlineInputBorder(),
-        prefixIcon: const Icon(Icons.person),
-      ),
-      items: patients.asMap().entries.map((entry) {
-        final conn = entry.value;
-        final patientData = conn.recipient ?? conn.initiator;
-        final name = patientData != null
-            ? '${patientData['firstName'] ?? ''} ${patientData['lastName'] ?? ''}'
-                .trim()
-            : l10n.unknown;
-        return DropdownMenuItem(
-          value: entry.key,
-          child: Text(name),
+  void _showConnectPatientDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final searchCtrl = TextEditingController();
+    Map<String, dynamic>? foundPatient;
+    bool searching = false;
+    bool sending = false;
+    String? dialogError;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return AlertDialog(
+              title: Text(l10n.connectNewPatient),
+              content: SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: searchCtrl,
+                      decoration: InputDecoration(
+                        labelText: l10n.enterPhoneOrEmail,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: searching
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: Padding(
+                                  padding: EdgeInsets.all(12),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: () async {
+                                  if (searchCtrl.text.trim().isEmpty) return;
+                                  setDialogState(() {
+                                    searching = true;
+                                    dialogError = null;
+                                    foundPatient = null;
+                                  });
+                                  final result = await context
+                                      .read<ConnectionProvider>()
+                                      .searchPatientByContact(
+                                        searchCtrl.text.trim(),
+                                      );
+                                  setDialogState(() {
+                                    searching = false;
+                                    foundPatient = result;
+                                    if (result == null) {
+                                      dialogError = l10n.noPatientFound;
+                                    }
+                                  });
+                                },
+                              ),
+                      ),
+                      onSubmitted: (_) async {
+                        if (searchCtrl.text.trim().isEmpty) return;
+                        setDialogState(() {
+                          searching = true;
+                          dialogError = null;
+                          foundPatient = null;
+                        });
+                        final result = await context
+                            .read<ConnectionProvider>()
+                            .searchPatientByContact(
+                              searchCtrl.text.trim(),
+                            );
+                        setDialogState(() {
+                          searching = false;
+                          foundPatient = result;
+                          if (result == null) {
+                            dialogError = l10n.noPatientFound;
+                          }
+                        });
+                      },
+                    ),
+                    if (dialogError != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        dialogError!,
+                        style: const TextStyle(color: AppColors.alertRed),
+                      ),
+                    ],
+                    if (foundPatient != null) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      Card(
+                        color: AppColors.successGreen.withValues(alpha: 0.08),
+                        child: ListTile(
+                          leading: const CircleAvatar(
+                            child: Icon(Icons.person),
+                          ),
+                          title: Text(
+                            '${foundPatient!['firstName'] ?? ''} ${foundPatient!['lastName'] ?? ''}'
+                                .trim(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            foundPatient!['phoneNumber'] ??
+                                foundPatient!['email'] ??
+                                '',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(l10n.cancel),
+                ),
+                if (foundPatient != null)
+                  ElevatedButton(
+                    onPressed: sending
+                        ? null
+                        : () async {
+                            setDialogState(() => sending = true);
+                            final success = await context
+                                .read<ConnectionProvider>()
+                                .requestPatientConnection(
+                                  foundPatient!['id'],
+                                );
+                            setDialogState(() => sending = false);
+                            if (success && ctx.mounted) {
+                              Navigator.pop(ctx);
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text(l10n.connectionRequestSent),
+                                    backgroundColor:
+                                        AppColors.successGreen,
+                                  ),
+                                );
+                              }
+                            } else {
+                              setDialogState(() {
+                                dialogError = context
+                                        .read<ConnectionProvider>()
+                                        .error ??
+                                    l10n.connectionRequestFailed;
+                              });
+                            }
+                          },
+                    child: sending
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(l10n.sendConnectionRequest),
+                  ),
+              ],
+            );
+          },
         );
-      }).toList(),
-      onChanged: (val) {
-        if (val != null) setState(() => _selectedPatientIndex = val);
       },
     );
   }

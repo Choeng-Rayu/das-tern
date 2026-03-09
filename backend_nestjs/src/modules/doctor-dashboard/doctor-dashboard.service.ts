@@ -601,4 +601,122 @@ export class DoctorDashboardService {
 
     return prescription;
   }
+
+  /**
+   * Get aggregated adherence graph data across all connected patients.
+   * Groups dose events by day or month for the chart on the dashboard.
+   */
+  async getAdherenceGraphData(
+    doctorId: string,
+    period: 'week' | 'month' = 'week',
+  ) {
+    // Get accepted patient connections
+    const connections = await this.prisma.connection.findMany({
+      where: {
+        OR: [
+          { initiatorId: doctorId, recipient: { role: 'PATIENT' } },
+          { recipientId: doctorId, initiator: { role: 'PATIENT' } },
+        ],
+        status: 'ACCEPTED',
+      },
+      include: {
+        initiator: { select: { id: true, role: true } },
+        recipient: { select: { id: true, role: true } },
+      },
+    });
+
+    const patientIds = connections.map((c) =>
+      c.initiator.role === 'PATIENT' ? c.initiatorId : c.recipientId,
+    );
+
+    if (patientIds.length === 0) {
+      return { period, data: [] };
+    }
+
+    const now = new Date();
+    let startDate: Date;
+    let labels: string[];
+
+    if (period === 'week') {
+      // Last 7 days
+      startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 6);
+      startDate.setHours(0, 0, 0, 0);
+
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      labels = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(startDate);
+        d.setDate(d.getDate() + i);
+        labels.push(dayNames[d.getDay()]);
+      }
+    } else {
+      // Last 8 months
+      startDate = new Date(now.getFullYear(), now.getMonth() - 7, 1);
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      labels = [];
+      for (let i = 0; i < 8; i++) {
+        const d = new Date(startDate);
+        d.setMonth(d.getMonth() + i);
+        labels.push(monthNames[d.getMonth()]);
+      }
+    }
+
+    // Fetch all dose events for these patients in the date range
+    const doseEvents = await this.prisma.doseEvent.findMany({
+      where: {
+        patientId: { in: patientIds },
+        scheduledTime: { gte: startDate, lte: now },
+        status: { not: 'DUE' },
+      },
+      select: {
+        scheduledTime: true,
+        status: true,
+      },
+    });
+
+    // Build buckets
+    const data: { label: string; taken: number; missed: number }[] = [];
+
+    if (period === 'week') {
+      for (let i = 0; i < 7; i++) {
+        const dayStart = new Date(startDate);
+        dayStart.setDate(dayStart.getDate() + i);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(dayStart);
+        dayEnd.setHours(23, 59, 59, 999);
+
+        const dayDoses = doseEvents.filter(
+          (d) => d.scheduledTime >= dayStart && d.scheduledTime <= dayEnd,
+        );
+
+        data.push({
+          label: labels[i],
+          taken: dayDoses.filter((d) => d.status === 'TAKEN_ON_TIME' || d.status === 'TAKEN_LATE').length,
+          missed: dayDoses.filter((d) => d.status === 'MISSED').length,
+        });
+      }
+    } else {
+      for (let i = 0; i < 8; i++) {
+        const monthStart = new Date(startDate);
+        monthStart.setMonth(monthStart.getMonth() + i, 1);
+        monthStart.setHours(0, 0, 0, 0);
+        const monthEnd = new Date(monthStart);
+        monthEnd.setMonth(monthEnd.getMonth() + 1, 0);
+        monthEnd.setHours(23, 59, 59, 999);
+
+        const monthDoses = doseEvents.filter(
+          (d) => d.scheduledTime >= monthStart && d.scheduledTime <= monthEnd,
+        );
+
+        data.push({
+          label: labels[i],
+          taken: monthDoses.filter((d) => d.status === 'TAKEN_ON_TIME' || d.status === 'TAKEN_LATE').length,
+          missed: monthDoses.filter((d) => d.status === 'MISSED').length,
+        });
+      }
+    }
+
+    return { period, data };
+  }
 }

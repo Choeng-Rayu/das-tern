@@ -43,9 +43,9 @@ class Connection {
 
   factory Connection.fromJson(Map<String, dynamic> json) {
     return Connection(
-      id: json['id'],
-      initiatorId: json['initiatorId'] ?? json['doctorId'] ?? '',
-      recipientId: json['recipientId'] ?? json['patientId'] ?? '',
+      id: json['id']?.toString() ?? '',
+      initiatorId: json['initiatorId']?.toString() ?? json['doctorId']?.toString() ?? '',
+      recipientId: json['recipientId']?.toString() ?? json['patientId']?.toString() ?? '',
       status: connectionStatusFromString(json['status'] ?? 'PENDING'),
       permissionLevel:
           _permissionFromString(json['permissionLevel'] ?? 'NOT_ALLOWED'),
@@ -56,8 +56,8 @@ class Connection {
       revokedAt: json['revokedAt'] != null
           ? DateTime.parse(json['revokedAt'])
           : null,
-      createdAt: DateTime.parse(
-          json['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
       initiator: json['initiator'] ?? json['doctor'],
       recipient: json['recipient'] ?? json['patient'],
     );

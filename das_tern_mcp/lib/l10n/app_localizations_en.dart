@@ -48,6 +48,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeMessage => 'Your medication reminder companion';
 
   @override
+  String get welcomeScreenSubtitle =>
+      'Your health, our priority. Manage your medical records with ease.';
+
+  @override
+  String get emergencyAccess => 'Emergency Access';
+
+  @override
+  String get doctorStep1PersonalInfo => 'Step 1 of 2 - Personal Information';
+
+  @override
+  String get doctorStep2ProfessionalInfo =>
+      'Step 2 of 2 - Professional & Security';
+
+  @override
   String get selectRoleTitle => 'I am...';
 
   @override
@@ -1069,6 +1083,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openInBankingApp => 'Open in Banking App';
 
   @override
+  String get bankAmountPreFilled =>
+      'Bakong: payment pre-loaded · Others: open app and scan the QR above';
+
+  @override
   String get orOpenDirectly => 'Or tap to open your banking app directly:';
 
   @override
@@ -1808,6 +1826,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String shareQrAndCodeMessage(String token) {
+    return 'Here is my DasTern connection code: $token\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.';
+  }
+
+  @override
   String get generateNewCode => 'Generate New Code';
 
   @override
@@ -2371,6 +2394,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get support => 'Support';
 
   @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get notificationPermission => 'Notification Permission';
+
+  @override
+  String get permissionGranted => 'Granted';
+
+  @override
+  String get rateAppSubtitle => 'Help us improve DasTern';
+
+  @override
+  String get contactSupportSubtitle => 'Get help from our team';
+
+  @override
+  String get termsOfServiceSubtitle => 'Read our terms & conditions';
+
+  @override
+  String get privacyPolicySubtitle => 'How we protect your data';
+
+  @override
+  String get restoringSubscription => 'Restoring subscription…';
+
+  @override
   String get currentPassword => 'Current Password';
 
   @override
@@ -2383,4 +2430,171 @@ class AppLocalizationsEn extends AppLocalizations {
   String adherencePercentage(String percentage) {
     return '$percentage%';
   }
+
+  @override
+  String get connectNewPatient => 'Connect New Patient';
+
+  @override
+  String get enterPhoneOrEmail => 'Enter phone number or email';
+
+  @override
+  String get noPatientFound => 'No patient found';
+
+  @override
+  String get connectionRequestSent => 'Connection request sent';
+
+  @override
+  String get connectionRequestFailed => 'Connection request failed';
+
+  @override
+  String get sendConnectionRequest => 'Send Connection Request';
+
+  @override
+  String get connectionApproved => 'Connection approved';
+
+  @override
+  String get connectionRejected => 'Connection rejected';
+
+  @override
+  String get approveConnection => 'Approve Connection';
+
+  @override
+  String get rejectConnection => 'Reject Connection';
+
+  @override
+  String get removeNotification => 'Remove Notification';
+
+  @override
+  String get removeNotificationConfirm => 'Remove notification?';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get prescriptionConfirmed => 'Prescription confirmed';
+
+  @override
+  String get prescriptionRejected => 'Prescription rejected';
+
+  @override
+  String get rejectPrescription => 'Reject Prescription';
+
+  @override
+  String get confirmPrescription => 'Confirm Prescription';
+
+  @override
+  String prescriptionFromDoctor(String doctor) {
+    return 'Prescription from $doctor';
+  }
+
+  @override
+  String get pendingPrescriptions => 'Pending Prescriptions';
+
+  @override
+  String get missedDoseBanner => 'You missed a dose';
+
+  @override
+  String get ocrOutpatient => 'Outpatient';
+
+  @override
+  String get ocrInpatient => 'Inpatient';
+
+  @override
+  String get ocrFacilityHospital => 'Hospital';
+
+  @override
+  String get ocrFacilityClinic => 'Clinic';
+
+  @override
+  String get ocrNotAvailable => 'Not available';
+
+  @override
+  String get ocrNeedsReviewYes => 'Yes, needs review';
+
+  @override
+  String get ocrAiEnhanced => 'AI Enhanced';
+
+  @override
+  String get ocrAiUnavailable => 'OCR Only';
+
+  @override
+  String get ocrPatientInfoSection => 'Patient Information';
+
+  @override
+  String get ocrPatientId => 'Patient ID';
+
+  @override
+  String get ocrPatientName => 'Patient Name';
+
+  @override
+  String get ocrPatientKhmerName => 'Patient Name (Khmer)';
+
+  @override
+  String get ocrPatientAge => 'Age';
+
+  @override
+  String ocrYearsOld(String age) {
+    return '$age years old';
+  }
+
+  @override
+  String get ocrPatientGender => 'Gender';
+
+  @override
+  String get ocrPrescriberSection => 'Prescriber Information';
+
+  @override
+  String get ocrPrescriberName => 'Prescriber Name';
+
+  @override
+  String get ocrFacilitySection => 'Facility Information';
+
+  @override
+  String get ocrFacilityName => 'Facility Name';
+
+  @override
+  String get ocrFacilityType => 'Facility Type';
+
+  @override
+  String get ocrClinicalSection => 'Clinical Information';
+
+  @override
+  String get ocrDiagnosis => 'Diagnosis';
+
+  @override
+  String get ocrMetadataSection => 'Metadata';
+
+  @override
+  String get ocrConfidenceScore => 'Confidence Score';
+
+  @override
+  String ocrConfidencePercent(String confidence) {
+    return '$confidence%';
+  }
+
+  @override
+  String get ocrEngine => 'OCR Engine';
+
+  @override
+  String get ocrProcessingTime => 'Processing Time';
+
+  @override
+  String ocrMilliseconds(String ms) {
+    return '${ms}ms';
+  }
+
+  @override
+  String get ocrPrescriptionType => 'Prescription Type';
+
+  @override
+  String get ocrLanguagesDetected => 'Languages Detected';
+
+  @override
+  String get ocrValidationStatus => 'Validation Status';
+
+  @override
+  String get ocrValidated => 'Validated';
+
+  @override
+  String get ocrScanInfoSection => 'Scan Information';
 }

@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { PermissionLevel } from '@prisma/client';
 import * as crypto from 'crypto';
@@ -111,6 +111,27 @@ export class ConnectionTokenService {
 
     if (existingConnection) {
       throw new BadRequestException('Connection already exists');
+    }
+
+    // Validate subscription limits before creating the connection
+    const subscription = await this.prisma.subscription.findUnique({
+      where: { userId: tokenRecord.patientId },
+    });
+    const tier = subscription?.tier || 'FREEMIUM';
+    const caregiverLimit = tier === 'FAMILY_PREMIUM' ? 10 : tier === 'PREMIUM' ? 5 : 2;
+    const currentCount = await this.prisma.connection.count({
+      where: {
+        OR: [
+          { initiatorId: tokenRecord.patientId },
+          { recipientId: tokenRecord.patientId },
+        ],
+        status: { in: ['PENDING', 'ACCEPTED'] },
+      },
+    });
+    if (currentCount >= caregiverLimit) {
+      throw new ForbiddenException(
+        `Family connection limit reached. Your plan allows ${caregiverLimit} connections.`,
+      );
     }
 
     // Transaction: mark token as used + create connection
