@@ -13,18 +13,16 @@ import '../theme/app_spacing.dart';
 class LanguageSwitcherButton extends StatelessWidget {
   final bool lightBackground;
 
-  const LanguageSwitcherButton({
-    super.key,
-    this.lightBackground = false,
-  });
+  const LanguageSwitcherButton({super.key, this.lightBackground = false});
 
   @override
   Widget build(BuildContext context) {
     final localeProvider = context.watch<LocaleProvider>();
     final isKhmer = localeProvider.locale.languageCode == 'km';
 
-    final Color fgColor =
-        lightBackground ? const Color(0xFF1976D2) : Colors.white;
+    final Color fgColor = lightBackground
+        ? const Color(0xFF1976D2)
+        : Colors.white;
     final Color bgColor = lightBackground
         ? const Color(0xFFE3F2FD)
         : Colors.white.withValues(alpha: 0.15);

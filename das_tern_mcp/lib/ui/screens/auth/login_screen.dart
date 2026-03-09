@@ -47,20 +47,17 @@ class _GoogleIconPainter extends CustomPainter {
 
     // Arcs drawn clockwise where 0 rad = 3 o'clock.
     // Gap at 3 o'clock: ±14° (for the horizontal bar).
-    canvas.drawArc(rect, _rad(14), _rad(91), false, arc(_yellow));  // 14°→105°
-    canvas.drawArc(rect, _rad(105), _rad(91), false, arc(_green));  // 105°→196°
-    canvas.drawArc(rect, _rad(196), _rad(150), false, arc(_blue));  // 196°→346°
-    canvas.drawArc(rect, _rad(346), _rad(28), false, arc(_red));    // 346°→374°
+    canvas.drawArc(rect, _rad(14), _rad(91), false, arc(_yellow)); // 14°→105°
+    canvas.drawArc(rect, _rad(105), _rad(91), false, arc(_green)); // 105°→196°
+    canvas.drawArc(rect, _rad(196), _rad(150), false, arc(_blue)); // 196°→346°
+    canvas.drawArc(rect, _rad(346), _rad(28), false, arc(_red)); // 346°→374°
 
     // Horizontal bar (blue): from center to outer-right edge.
     canvas.drawRect(
-      Rect.fromLTRB(
-        c.dx - 1,
-        c.dy - sw / 2,
-        c.dx + r,
-        c.dy + sw / 2,
-      ),
-      Paint()..color = _blue..style = PaintingStyle.fill,
+      Rect.fromLTRB(c.dx - 1, c.dy - sw / 2, c.dx + r, c.dy + sw / 2),
+      Paint()
+        ..color = _blue
+        ..style = PaintingStyle.fill,
     );
   }
 
