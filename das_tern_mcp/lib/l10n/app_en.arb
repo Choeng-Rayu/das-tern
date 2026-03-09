@@ -488,6 +488,15 @@
   "twentyGBStorage": "20 GB storage",
   "prioritySupport": "Priority support",
   "freeTrialOffer": "1-month free trial for new users!",
+  "claimYourFreeTrial": "Claim Your Free Trial",
+  "getOneMonthFreePremiumAccess": "Get 1 month free premium access",
+  "claimTrial": "Claim Trial",
+  "trialDaysRemainingBanner": "You have {days} days remaining",
+  "@trialDaysRemainingBanner": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
   "yourTrialPeriod": "Your Trial Period",
   "trialExpiresOn": "Trial expires on",
   "daysLeft": "days left",
@@ -1064,5 +1073,24 @@
   "ocrLanguagesDetected": "Languages Detected",
   "ocrValidationStatus": "Validation Status",
   "ocrValidated": "Validated",
-  "ocrScanInfoSection": "Scan Information"
+  "ocrScanInfoSection": "Scan Information",
+  "timeAgoJustNow": "now",
+  "timeAgoMinutes": "{count}m",
+  "@timeAgoMinutes": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "timeAgoHours": "{count}h",
+  "@timeAgoHours": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "timeAgoDays": "{count}d",
+  "@timeAgoDays": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
 }

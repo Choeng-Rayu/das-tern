@@ -64,9 +64,9 @@ class _OcrInfoSectionWidgetState extends State<OcrInfoSectionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // Filter out entries with empty values
+    // Filter out entries with empty values unless a custom valueWidget is provided
     final visibleEntries =
-        widget.entries.where((e) => e.value.isNotEmpty).toList();
+        widget.entries.where((e) => e.valueWidget != null || e.value.isNotEmpty).toList();
 
     if (visibleEntries.isEmpty) return const SizedBox.shrink();
 

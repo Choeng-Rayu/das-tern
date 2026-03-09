@@ -618,25 +618,29 @@ class _ClaimTrialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primaryBlue.withOpacity(0.1),
+        color: AppColors.primaryBlue.withOpacity(isDark ? 0.2 : 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
       ),
       child: Column(
         children: [
           Text(
-            'Claim Your Free Trial',
+            l10n.claimYourFreeTrial,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : null,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Get 1 month free premium access',
-            style: Theme.of(context).textTheme.bodySmall,
+            l10n.getOneMonthFreePremiumAccess,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: isDark ? Colors.white70 : null,
+            ),
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -646,7 +650,7 @@ class _ClaimTrialButton extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryBlue,
               ),
-              child: const Text('Claim Trial'),
+              child: Text(l10n.claimTrial),
             ),
           ),
         ],
@@ -669,13 +673,14 @@ class _TrialBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.primaryBlue.withOpacity(0.2),
-            AppColors.primaryBlue.withOpacity(0.05),
+            AppColors.primaryBlue.withOpacity(isDark ? 0.35 : 0.2),
+            AppColors.primaryBlue.withOpacity(isDark ? 0.15 : 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
@@ -689,18 +694,20 @@ class _TrialBanner extends StatelessWidget {
               const Icon(Icons.celebration, color: AppColors.primaryBlue),
               const SizedBox(width: 8),
               Text(
-                'Premium Trial Active',
+                l10n.premiumTrialActive,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primaryBlue,
+                  color: isDark ? Colors.white : AppColors.primaryBlue,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'You have $daysRemaining days remaining',
-            style: Theme.of(context).textTheme.bodySmall,
+            l10n.trialDaysRemainingBanner(daysRemaining),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: isDark ? Colors.white70 : null,
+            ),
           ),
         ],
       ),

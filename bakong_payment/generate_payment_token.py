@@ -1,3 +1,4 @@
+import os
 import requests
 import time
 import sys
@@ -6,10 +7,11 @@ def create_and_show_bakong_qr(amount, currency="USD", use_mock=False):
     """
     Generate a Bakong payment token and display only the token in terminal.
     """
-    # API Configuration
+    # API Configuration — read credentials from environment variables.
+    # Set BAKONG_API_TOKEN and BAKONG_MERCHANT_ID before running this script.
     API_URL = "https://api-bakong.nbc.org.kh/v1/generate_bakong_checkout"
-    API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiZDJmNmMzOGYzNDc2NGM3MSJ9LCJpYXQiOjE3Njk0MTc3MTYsImV4cCI6MTc3NzE5MzcxNn0.Z_w1fHx74NVcVey9VQ3mtaZxeduWC-zYWLj07y33ncI"
-    MERCHANT_ID = "choeng_rayu@aclb"
+    API_TOKEN = os.environ.get("BAKONG_API_TOKEN", "")
+    MERCHANT_ID = os.environ.get("BAKONG_MERCHANT_ID", "")
     
     # Generate unique transaction ID
     payload = {
