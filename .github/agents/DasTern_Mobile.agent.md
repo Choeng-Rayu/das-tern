@@ -13,7 +13,7 @@ tools: [vscode, execute, read, agent, edit, search, web, 'figma/*', 'dart-sdk-mc
 
 ---
 
-## Project Structure
+## Project Structure (this project is focus only android/ios mobile app not web or desktop)
 
 | Service | Path | Stack |
 |---|---|---|

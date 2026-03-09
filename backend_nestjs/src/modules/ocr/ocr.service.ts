@@ -108,30 +108,62 @@ export class OcrService {
    */
   private async callAiEnhance(ocrResult: OcrExtractionResponse): Promise<AiCallResult> {
     const url = `${this.aiBaseUrl}/api/v1/enhance`;
-    this.logger.log(`Sending OCR result to AI service: ${url}`);
+    this.logger.log(`[AI] Calling AI enhance endpoint: POST ${url}`);
+    this.logger.log(`[AI] AI service base URL: ${this.aiBaseUrl}`);
+    this.logger.debug(`[AI] OCR result being sent: medications=${ocrResult.data?.prescription?.medications?.items?.length ?? 0}, confidence=${ocrResult.extraction_summary?.confidence_score}`);
+
+    const startTime = Date.now();
 
     try {
       const { data } = await firstValueFrom(
-        this.httpService.post<{ success: boolean; enhanced: AiEnhancement; error?: string }>(
+        this.httpService.post<{ success: boolean; ai_enhanced: boolean; enhanced: AiEnhancement; error?: string }>(
           url,
           { ocr_result: ocrResult },
           { timeout: 90000 },
         ),
       );
 
-      if (data.success && data.enhanced) {
+      const elapsed = Date.now() - startTime;
+      this.logger.log(`[AI] AI service responded in ${elapsed}ms`);
+      this.logger.debug(`[AI] Response: success=${data.success}, ai_enhanced=${data.ai_enhanced}, has_enhanced=${!!data.enhanced}, error=${data.error ?? 'none'}`);
+
+      // Python sets ai_enhanced=false when LLM failed and it fell back to raw OCR data.
+      // In that case, treat the same as "not_responded" so downstream logic knows AI did not run.
+      if (data.success && data.enhanced && data.ai_enhanced !== false) {
         this.logger.log(
-          `AI enhancement complete: ${data.enhanced.medications?.length ?? 0} medications processed`,
+          `[AI] Enhancement successful: ${data.enhanced.medications?.length ?? 0} medications corrected, ` +
+          `prescriber=${data.enhanced.prescriber_name ?? 'N/A'}, ` +
+          `diagnoses=${data.enhanced.diagnoses?.length ?? 0}`,
         );
         return { enhanced: data.enhanced, status: 'ok', message: 'AI enhancement applied' };
       }
 
-      const reason = data.error || 'AI service returned no data';
-      this.logger.warn(`AI service did not respond usefully: ${reason}`);
-      return { enhanced: null, status: 'not_responded', message: 'AI did not respond' };
+      if (data.success && data.enhanced && data.ai_enhanced === false) {
+        // Python returned OCR-based fallback without running LLM — treat as raw OCR
+        const reason = data.error ?? 'LLM returned no result';
+        this.logger.warn(`[AI] Python returned OCR fallback (ai_enhanced=false): ${reason}`);
+        return { enhanced: null, status: 'not_responded', message: `AI did not enhance: ${reason}` };
+      }
+
+      const reason = data.error || 'AI service returned success=false or empty enhanced object';
+      this.logger.warn(`[AI] AI service returned unusable result: ${reason}`);
+      this.logger.warn(`[AI] Full response for debugging: ${JSON.stringify(data)}`);
+      return { enhanced: null, status: 'not_responded', message: `AI did not enhance: ${reason}` };
     } catch (error) {
-      this.logger.warn(`AI enhancement failed (non-blocking): ${error.message}`);
-      return { enhanced: null, status: 'not_responded', message: 'AI did not respond' };
+      const elapsed = Date.now() - startTime;
+      this.logger.error(`[AI] AI enhancement failed after ${elapsed}ms (non-blocking — OCR result will still be used)`);
+
+      if (error.code === 'ECONNREFUSED') {
+        this.logger.error(`[AI] Connection refused — AI service is NOT running at ${this.aiBaseUrl}. Start it with: cd ai-llm-service && uvicorn app.main:app --host 0.0.0.0 --port 8001`);
+      } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+        this.logger.error(`[AI] Request timed out — AI service took longer than 90 seconds to respond`);
+      } else if (error.response) {
+        this.logger.error(`[AI] HTTP ${error.response.status} from AI service: ${JSON.stringify(error.response.data)}`);
+      } else {
+        this.logger.error(`[AI] Unexpected error: ${error.message}`, error.stack);
+      }
+
+      return { enhanced: null, status: 'not_responded', message: `AI unavailable: ${error.message}` };
     }
   }
 
@@ -140,14 +172,32 @@ export class OcrService {
    * Returns OCR result merged with AI corrections plus an ai_status field
    * so the client always knows whether AI ran successfully.
    * Used by the /extract (preview) endpoint.
+   *
+   * PHASE 2: When AI is unavailable, the raw OCR result is still returned in full.
+   * The frontend can detect ai_status='not_responded' and show the OCR-only result.
    */
   async extractAndEnhancePrescription(
     fileBuffer: Buffer,
     filename: string,
     mimetype: string,
   ) {
+    this.logger.log(`[OCR] Starting extract+enhance pipeline for: ${filename}`);
+
     const ocrResult = await this.extractPrescription(fileBuffer, filename, mimetype);
+    this.logger.log(`[OCR] OCR extraction done. Starting AI enhancement (non-blocking)...`);
+
     const aiResult = await this.callAiEnhance(ocrResult);
+
+    if (aiResult.status === 'ok') {
+      this.logger.log(`[OCR] Pipeline complete: OCR + AI enhancement applied`);
+    } else {
+      this.logger.warn(
+        `[OCR] Pipeline complete: AI enhancement skipped — using raw OCR result only. ` +
+        `Reason: ${aiResult.message}. ` +
+        `The frontend will receive ai_status='not_responded' and display OCR data directly.`,
+      );
+    }
+
     return {
       ...ocrResult,
       ai_status: aiResult.status,

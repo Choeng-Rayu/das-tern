@@ -47,6 +47,10 @@ class LLMClient:
     at construction time from the LLM_PROVIDER env var.
     """
 
+    # Model families that do NOT support the "system" role via OpenRouter.
+    # For these, the system prompt is merged into the first user message.
+    _NO_SYSTEM_ROLE_PREFIXES = ("google/gemma", "google/gemma2")
+
     def __init__(self) -> None:
         self.provider = LLM_PROVIDER
 
@@ -56,6 +60,7 @@ class LLMClient:
             self.fast_model = OLLAMA_FAST_MODEL
             self.timeout    = OLLAMA_TIMEOUT
             self.api_key    = None
+            self._system_in_user = False   # Ollama supports system role natively
         elif self.provider == "openrouter":
             self.base_url   = OPENROUTER_BASE_URL
             self.model      = OPENROUTER_MODEL
@@ -64,6 +69,16 @@ class LLMClient:
             self.api_key    = OPENROUTER_API_KEY
             if not self.api_key:
                 logger.warning("LLM_PROVIDER=openrouter but OPENROUTER_API_KEY is not set")
+            # Detect models that reject the system role (e.g. Gemma via Google AI Studio)
+            self._system_in_user = any(
+                self.model.lower().startswith(prefix)
+                for prefix in self._NO_SYSTEM_ROLE_PREFIXES
+            )
+            if self._system_in_user:
+                logger.info(
+                    f"[LLMClient] model={self.model} does not support the system role — "
+                    "system prompts will be merged into the first user message"
+                )
         else:
             raise ValueError(
                 f"Unknown LLM_PROVIDER='{self.provider}'. "
@@ -126,6 +141,10 @@ class LLMClient:
         """
         effective_model   = model or self.model
         effective_timeout = timeout or self.timeout
+
+        # For models that reject the system role, merge system content into the first user message.
+        if self._system_in_user:
+            messages = self._merge_system_into_user(messages)
 
         if self.provider == "ollama":
             return self._ollama_chat(
@@ -190,6 +209,34 @@ class LLMClient:
 
     # ── Private helpers ───────────────────────────────────────────────────────
 
+    @staticmethod
+    def _merge_system_into_user(messages: List[Dict]) -> List[Dict]:
+        """
+        Rewrite messages so there is no "system" role entry.
+        The system content is prepended to the first user message.
+        Used for models (e.g. Gemma via Google AI Studio) that reject system roles.
+        """
+        system_parts = [m["content"] for m in messages if m["role"] == "system"]
+        non_system   = [m for m in messages if m["role"] != "system"]
+
+        if not system_parts:
+            return messages   # nothing to do
+
+        system_text = "\n\n".join(system_parts)
+        result = []
+        first_user_merged = False
+        for msg in non_system:
+            if msg["role"] == "user" and not first_user_merged:
+                result.append({
+                    "role": "user",
+                    "content": f"[System instructions: {system_text}]\n\n{msg['content']}",
+                })
+                first_user_merged = True
+            else:
+                result.append(msg)
+
+        return result
+
     def _ollama_chat(
         self,
         messages: List[Dict],
@@ -242,39 +289,92 @@ class LLMClient:
         timeout: int,
     ) -> Optional[str]:
         start = time.time()
+
+        # Mask the API key for logging: show prefix + last 4 chars only
+        key = self.api_key or ""
+        masked_key = (key[:16] + "..." + key[-4:]) if len(key) > 20 else ("SET" if key else "NOT_SET")
+
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type":  "application/json",
+            "HTTP-Referer":  "https://das-tern.app",
+            "X-Title":       "DasTern AI Service",
+        }
+        payload = {
+            "model":       model,
+            "messages":    messages,
+            "temperature": temperature,
+            "max_tokens":  max_tokens,
+        }
+
+        # Log request metadata (never log the raw API key)
+        logger.info(
+            f"[OPENROUTER] POST {self.base_url}/chat/completions — "
+            f"model={model}, temperature={temperature}, max_tokens={max_tokens}, "
+            f"timeout={timeout}s, key={masked_key}, messages={len(messages)}"
+        )
+        logger.debug(
+            f"[OPENROUTER] Request payload (truncated): "
+            f"model={model}, first_msg_role={messages[0]['role'] if messages else 'N/A'}, "
+            f"last_msg_chars={len(messages[-1]['content']) if messages else 0}"
+        )
+
         try:
             resp = requests.post(
                 f"{self.base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type":  "application/json",
-                    "HTTP-Referer":  "https://das-tern.app",
-                    "X-Title":       "DasTern AI Service",
-                },
-                json={
-                    "model":       model,
-                    "messages":    messages,
-                    "temperature": temperature,
-                    "max_tokens":  max_tokens,
-                },
+                headers=headers,
+                json=payload,
                 timeout=timeout,
             )
             elapsed = time.time() - start
 
             if resp.status_code == 200:
-                content = resp.json()["choices"][0]["message"]["content"].strip()
-                logger.info(f"[OPENROUTER] {elapsed:.1f}s — {len(content)} chars")
-                logger.debug(f"[OPENROUTER] {truncate_for_log(content)}")
-                return content
+                try:
+                    body = resp.json()
+                    content = body["choices"][0]["message"]["content"].strip()
+                    usage = body.get("usage", {})
+                    logger.info(
+                        f"[OPENROUTER] HTTP 200 in {elapsed:.1f}s — "
+                        f"{len(content)} chars returned, "
+                        f"prompt_tokens={usage.get('prompt_tokens', '?')}, "
+                        f"completion_tokens={usage.get('completion_tokens', '?')}"
+                    )
+                    logger.debug(f"[OPENROUTER] Response (first 300 chars): {content[:300]}")
+                    return content
+                except (KeyError, IndexError) as parse_err:
+                    logger.error(
+                        f"[OPENROUTER] HTTP 200 but unexpected response structure: {parse_err}. "
+                        f"Body: {resp.text[:400]}"
+                    )
+                    return None
             else:
-                logger.error(f"[OPENROUTER] HTTP {resp.status_code}: {resp.text[:200]}")
+                # Log exact HTTP status and full error body for diagnosis
+                logger.error(
+                    f"[OPENROUTER] HTTP {resp.status_code} in {elapsed:.1f}s — "
+                    f"error body: {resp.text[:500]}"
+                )
+                # Extra hints for common error codes
+                if resp.status_code == 401:
+                    logger.error("[OPENROUTER] 401 Unauthorized — check OPENROUTER_API_KEY is valid and not expired")
+                elif resp.status_code == 402:
+                    logger.error("[OPENROUTER] 402 Payment Required — free tier quota may be exhausted")
+                elif resp.status_code == 429:
+                    logger.error("[OPENROUTER] 429 Too Many Requests — rate limit hit, back off and retry")
+                elif resp.status_code == 404:
+                    logger.error(f"[OPENROUTER] 404 Not Found — model '{model}' may not exist or be accessible on this key")
                 return None
 
         except requests.Timeout:
-            logger.error(f"[OPENROUTER] timeout after {timeout}s")
+            elapsed = time.time() - start
+            logger.error(f"[OPENROUTER] Request timed out after {timeout}s ({elapsed:.1f}s elapsed)")
+            return None
+        except requests.ConnectionError as exc:
+            elapsed = time.time() - start
+            logger.error(f"[OPENROUTER] Connection error after {elapsed:.1f}s: {exc}")
             return None
         except Exception as exc:
-            logger.error(f"[OPENROUTER] failed: {exc}")
+            elapsed = time.time() - start
+            logger.error(f"[OPENROUTER] Unexpected error after {elapsed:.1f}s: {exc}", exc_info=True)
             return None
 
 

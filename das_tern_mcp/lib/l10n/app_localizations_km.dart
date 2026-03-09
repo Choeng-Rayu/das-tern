@@ -2463,6 +2463,12 @@ class AppLocalizationsKm extends AppLocalizations {
   String get ocrNeedsReviewYes => 'ដាច់ដោយឡែក សូមពិនិត្យ';
 
   @override
+  String get ocrAiEnhanced => 'AI បានកែលម្អ';
+
+  @override
+  String get ocrAiUnavailable => 'OCR ប៉ុណ្ណោះ';
+
+  @override
   String get ocrPatientInfoSection => 'ព័ត៌មានអ្នកជំងឺ';
 
   @override

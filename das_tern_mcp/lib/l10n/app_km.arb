@@ -1001,6 +1001,8 @@
   "ocrFacilityClinic": "ឯកសារ",
   "ocrNotAvailable": "មិនមាន",
   "ocrNeedsReviewYes": "ដាច់ដោយឡែក សូមពិនិត្យ",
+  "ocrAiEnhanced": "AI បានកែលម្អ",
+  "ocrAiUnavailable": "OCR ប៉ុណ្ណោះ",
   "ocrPatientInfoSection": "ព័ត៌មានអ្នកជំងឺ",
   "ocrPatientId": "លេខសម្គាល់អ្នកជំងឺ",
   "ocrPatientName": "ឈ្មោះអ្នកជំងឺ",

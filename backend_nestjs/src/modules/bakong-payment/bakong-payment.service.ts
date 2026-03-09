@@ -315,69 +315,204 @@ export class BakongPaymentService implements OnModuleInit {
     }
 
     /**
-     * Handle successful payment: upgrade subscription in main database.
-     * Determines planType from the payment amount since the Bakong service
-     * doesn't include subscription metadata in status responses.
+     * Handle incoming webhook from the bakong_payment microservice.
+     * Called when Bakong confirms a payment — upgrades subscription in the main DB.
+     *
+     * Security: validate Bearer API key + HMAC-SHA256 signature.
+     * Idempotency: skip if subscription already reflects the paid tier.
+     */
+    async handlePaymentWebhook(
+        body: {
+            transactionId: string;
+            userId: string;
+            md5Hash: string;
+            planType: string;
+            amount: number;
+            currency: string;
+            paidAt: string;
+            billNumber: string;
+        },
+        authHeader: string,
+        timestamp: string,
+        signature: string,
+    ) {
+        // 1. Validate API key
+        const expectedToken = this.bakongApiKey;
+        const providedToken = authHeader?.startsWith('Bearer ')
+            ? authHeader.slice(7)
+            : '';
+        if (!expectedToken || providedToken !== expectedToken) {
+            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+        }
+
+        // 2. Validate HMAC signature
+        if (!timestamp || !signature) {
+            throw new HttpException('Missing signature headers', HttpStatus.BAD_REQUEST);
+        }
+        const bodyStr = JSON.stringify(body);
+        const expectedSig = crypto
+            .createHmac('sha256', this.webhookSecret)
+            .update(`${timestamp}.${bodyStr}`)
+            .digest('hex');
+        let sigBuf: Buffer;
+        try {
+            sigBuf = Buffer.from(signature, 'hex');
+        } catch {
+            throw new HttpException('Invalid signature format', HttpStatus.UNAUTHORIZED);
+        }
+        const expectedBuf = Buffer.from(expectedSig, 'hex');
+        if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(expectedBuf, sigBuf)) {
+            throw new HttpException('Invalid signature', HttpStatus.UNAUTHORIZED);
+        }
+
+        // 3. Validate required fields
+        const { transactionId, userId, planType, paidAt } = body;
+        if (!transactionId || !userId || !planType) {
+            throw new HttpException('Missing required webhook fields', HttpStatus.BAD_REQUEST);
+        }
+
+        // 4. Resolve tier
+        const tier = planType === 'FAMILY_PREMIUM' ? 'FAMILY_PREMIUM' : 'PREMIUM';
+
+        this.logger.log(
+            `[webhook] Payment confirmed for user=${userId} txn=${transactionId} tier=${tier}`,
+        );
+
+        // 5. Idempotent subscription upgrade inside a transaction
+        await this.prisma.$transaction(async (tx) => {
+            const currentSub = await tx.subscription.findUnique({ where: { userId } });
+
+            if (!currentSub) {
+                // Create subscription if none exists
+                await tx.subscription.create({
+                    data: {
+                        userId,
+                        tier: tier as any,
+                        storageQuota: BigInt(21474836480), // 20 GB
+                        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                    },
+                });
+                this.logger.log(`[webhook] Subscription created: ${userId} → ${tier}`);
+            } else if (currentSub.tier !== tier) {
+                // Upgrade existing subscription
+                await tx.subscription.update({
+                    where: { userId },
+                    data: {
+                        tier: tier as any,
+                        storageQuota: BigInt(21474836480), // 20 GB
+                        expiresAt: null, // Clear trial expiry; full paid plan
+                    },
+                });
+                this.logger.log(
+                    `[webhook] Subscription upgraded: ${userId} ${currentSub.tier} → ${tier}`,
+                );
+            } else {
+                this.logger.log(
+                    `[webhook] Subscription already at ${tier} for ${userId} — idempotent skip`,
+                );
+                return; // Already correct tier, nothing to do
+            }
+
+            // Audit log
+            const user = await tx.user.findUnique({ where: { id: userId } });
+            await tx.auditLog.create({
+                data: {
+                    actorId: userId,
+                    actorRole: user?.role,
+                    actionType: 'SUBSCRIPTION_CHANGE',
+                    resourceType: 'SUBSCRIPTION',
+                    resourceId: currentSub?.id ?? null,
+                    details: {
+                        action: 'SUBSCRIPTION_UPGRADED_VIA_WEBHOOK',
+                        oldTier: currentSub?.tier ?? null,
+                        newTier: tier,
+                        transactionId,
+                        paidAt,
+                    },
+                },
+            });
+        });
+
+        return { success: true };
+    }
+
+    /**
+     * Handle successful payment confirmation from polling.
+     * Uses planType from the response directly; falls back to amount-based detection.
+     * Wrapped in a Prisma transaction with idempotency guard.
      */
     private async handlePaymentSuccess(userId: string, response: BakongStatusResponse) {
         try {
-            // Determine plan type from amount since Bakong status doesn't include it
+            // Prefer explicit planType from response; fall back to amount heuristic
+            const responsePlanType = (response.payment as any)?.planType as string | undefined;
             const amount = Number(response.payment?.amount) || 0;
+
             let tier: string;
-            if (amount >= 1.0) {
+            if (responsePlanType === 'FAMILY_PREMIUM') {
+                tier = 'FAMILY_PREMIUM';
+            } else if (responsePlanType === 'PREMIUM') {
+                tier = 'PREMIUM';
+            } else if (amount >= 1.0) {
                 tier = 'FAMILY_PREMIUM';
             } else if (amount >= 0.5) {
                 tier = 'PREMIUM';
             } else {
-                this.logger.warn(`Unknown payment amount ${amount} for user ${userId}`);
+                this.logger.warn(`Cannot determine tier for user ${userId} (amount=${amount}, planType=${responsePlanType})`);
                 return;
             }
 
-            // Update local subscription
-            const currentSub = await this.subscriptionsService.findOne(userId);
+            // Idempotent upgrade inside a Prisma transaction
+            await this.prisma.$transaction(async (tx) => {
+                const currentSub = await tx.subscription.findUnique({ where: { userId } });
 
-            if (currentSub && currentSub.tier !== tier) {
-                await this.subscriptionsService.updateTier(userId, tier as any);
-
-                this.logger.log(
-                    `✅ Subscription upgraded: ${userId} → ${tier}`,
-                );
-
-                // Audit log the upgrade
-                const user = await this.prisma.user.findUnique({ where: { id: userId } });
-                await this.prisma.auditLog.create({
-                    data: {
-                        actorId: userId,
-                        actorRole: user?.role,
-                        actionType: 'SUBSCRIPTION_CHANGE',
-                        resourceType: 'SUBSCRIPTION',
-                        resourceId: currentSub.id,
-                        details: {
-                            action: 'SUBSCRIPTION_UPGRADED',
-                            oldTier: currentSub.tier,
-                            newTier: tier,
-                            paymentTransactionId: response.payment?.transactionId,
-                            paidAt: response.payment?.paidAt,
+                if (!currentSub) {
+                    await tx.subscription.create({
+                        data: {
+                            userId,
+                            tier: tier as any,
+                            storageQuota: BigInt(21474836480), // 20 GB
+                            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
                         },
-                    },
-                });
-            } else if (!currentSub) {
-                // Create subscription if none exists (edge case)
-                await this.prisma.subscription.create({
-                    data: {
-                        userId,
-                        tier: tier as any,
-                        storageQuota: BigInt(21474836480), // 20GB
-                        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-                    },
-                });
-                this.logger.log(`✅ Subscription created: ${userId} → ${tier}`);
-            }
+                    });
+                    this.logger.log(`✅ Subscription created via poll: ${userId} → ${tier}`);
+                } else if (currentSub.tier !== tier) {
+                    await tx.subscription.update({
+                        where: { userId },
+                        data: {
+                            tier: tier as any,
+                            storageQuota: BigInt(21474836480),
+                            expiresAt: null,
+                        },
+                    });
+                    this.logger.log(`✅ Subscription upgraded via poll: ${userId} ${currentSub.tier} → ${tier}`);
+
+                    const user = await tx.user.findUnique({ where: { id: userId } });
+                    await tx.auditLog.create({
+                        data: {
+                            actorId: userId,
+                            actorRole: user?.role,
+                            actionType: 'SUBSCRIPTION_CHANGE',
+                            resourceType: 'SUBSCRIPTION',
+                            resourceId: currentSub.id,
+                            details: {
+                                action: 'SUBSCRIPTION_UPGRADED_VIA_POLL',
+                                oldTier: currentSub.tier,
+                                newTier: tier,
+                                paymentTransactionId: response.payment?.transactionId,
+                                paidAt: response.payment?.paidAt,
+                            },
+                        },
+                    });
+                } else {
+                    // Already at correct tier — idempotent skip
+                    this.logger.log(`✅ Subscription already at ${tier} for ${userId} — skip`);
+                }
+            });
         } catch (error) {
             this.logger.error(
-                `Failed to upgrade subscription for ${userId}: ${error.message}`,
+                `Failed to upgrade subscription for ${userId}: ${(error as Error).message}`,
             );
-            // Don't throw — payment was successful, subscription update can be retried
+            // Don't rethrow — payment was successful; subscription can be recovered via webhook
         }
     }
 

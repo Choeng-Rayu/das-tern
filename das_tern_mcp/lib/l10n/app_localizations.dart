@@ -4778,6 +4778,18 @@ abstract class AppLocalizations {
   /// **'Yes, needs review'**
   String get ocrNeedsReviewYes;
 
+  /// No description provided for @ocrAiEnhanced.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Enhanced'**
+  String get ocrAiEnhanced;
+
+  /// No description provided for @ocrAiUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'OCR Only'**
+  String get ocrAiUnavailable;
+
   /// No description provided for @ocrPatientInfoSection.
   ///
   /// In en, this message translates to:

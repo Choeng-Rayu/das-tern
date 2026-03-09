@@ -2465,6 +2465,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrNeedsReviewYes => 'Yes, needs review';
 
   @override
+  String get ocrAiEnhanced => 'AI Enhanced';
+
+  @override
+  String get ocrAiUnavailable => 'OCR Only';
+
+  @override
   String get ocrPatientInfoSection => 'Patient Information';
 
   @override

@@ -5,7 +5,6 @@ import '../../../../providers/prescription_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/medicine_form_widget.dart';
-import '../../../widgets/ocr_info_section_widget.dart';
 
 class OcrPreviewScreen extends StatefulWidget {
   final Map<String, dynamic> extractedData;
@@ -54,6 +53,10 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     super.initState();
     _parseOcrResponse();
   }
+
+  // ── AI enhancement status ──
+  String _aiStatus = 'not_responded'; // 'ok' | 'not_responded'
+  String? _aiMessage;
 
   /// Parse the nested OCR service response into flat medicine maps
   /// that MedicineFormWidget understands, and extract all prescription metadata.
@@ -118,15 +121,15 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
         })
         .where((s) => s.isNotEmpty)
         .toList();
-    _diagnosis =
-        diagnosisStrings.isNotEmpty ? diagnosisStrings.join(', ') : null;
+    _diagnosis = diagnosisStrings.isNotEmpty
+        ? diagnosisStrings.join(', ')
+        : null;
     _title = _diagnosis ?? 'Scanned Prescription';
 
     // ── Prescriber ──
     final prescriber =
         prescription['prescriber'] as Map<String, dynamic>? ?? {};
-    final prescriberNameMap =
-        prescriber['name'] as Map<String, dynamic>? ?? {};
+    final prescriberNameMap = prescriber['name'] as Map<String, dynamic>? ?? {};
     _prescriberName = prescriberNameMap['full_name'] as String?;
     _doctorName = _prescriberName;
 
@@ -157,8 +160,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
         metadata['languages_detected'] as Map<String, dynamic>? ?? {};
     _primaryLanguage = langInfo['primary'] as String?;
     final secondaryList = langInfo['secondary'] as List<dynamic>? ?? [];
-    _secondaryLanguages =
-        secondaryList.map((l) => l.toString()).toList();
+    _secondaryLanguages = secondaryList.map((l) => l.toString()).toList();
 
     // ── Extraction Summary ──
     final extractionSummary =
@@ -166,8 +168,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     _needsReview = extractionSummary['needs_review'] as bool? ?? false;
     final enginesUsedList =
         extractionSummary['engines_used'] as List<dynamic>? ?? [];
-    _enginesUsed =
-        enginesUsedList.map((e) => e.toString()).toList();
+    _enginesUsed = enginesUsedList.map((e) => e.toString()).toList();
 
     // If confidence not in extraction_info, try extraction_summary
     _confidenceScore ??= (extractionSummary['confidence_score'] is num)
@@ -180,6 +181,10 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     final items = medications['items'] as List<dynamic>? ?? [];
 
     _medicines = items.map((item) => _mapOcrItemToFormData(item)).toList();
+
+    // ── AI Enhancement Status ──
+    _aiStatus = (raw['ai_status'] as String?) ?? 'not_responded';
+    _aiMessage = raw['ai_message'] as String?;
   }
 
   /// Transform a single OCR medication item into the flat Map format
@@ -192,7 +197,8 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
 
     // Medicine name
     final nameInfo = med['name'] as Map<String, dynamic>? ?? {};
-    final medicineName = (nameInfo['brand_name'] as String?) ??
+    final medicineName =
+        (nameInfo['brand_name'] as String?) ??
         (nameInfo['full_text'] as String?) ??
         '';
     final medicineNameKhmer = nameInfo['local_name'] as String? ?? '';
@@ -276,8 +282,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     final isPRN = prnInstructions['as_needed'] as bool? ?? false;
 
     // Description
-    final clinicalNotes =
-        item['clinical_notes'] as Map<String, dynamic>? ?? {};
+    final clinicalNotes = item['clinical_notes'] as Map<String, dynamic>? ?? {};
     final description = clinicalNotes['therapeutic_class'] as String?;
 
     return {
@@ -295,7 +300,8 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
       'night': night,
       'beforeMeal': beforeMeal,
       'isPRN': isPRN,
-      if (description != null) 'description': description, // ignore: use_null_aware_elements
+      if (description != null)
+        'description': description, // ignore: use_null_aware_elements
     };
   }
 
@@ -304,9 +310,9 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     if (_medicines.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.addAtLeastOneMedicine)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.addAtLeastOneMedicine)));
       return;
     }
 
@@ -334,9 +340,11 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
           'medicineNameKhmer': med['medicineNameKhmer'],
         if (med['medicineType'] != null) 'medicineType': med['medicineType'],
         if (med['unit'] != null) 'unit': med['unit'],
-        'dosageAmount':
-            (med['dosageAmount'] is num) ? med['dosageAmount'] : 1.0,
-        'dosageUnit': (med['dosageUnit'] as String?) ??
+        'dosageAmount': (med['dosageAmount'] is num)
+            ? med['dosageAmount']
+            : 1.0,
+        'dosageUnit':
+            (med['dosageUnit'] as String?) ??
             (med['unit'] as String? ?? 'tablet').toLowerCase(),
         'form': (med['form'] as String?) ?? 'tablet',
         'frequency': med['frequency'] ?? '1 time daily',
@@ -358,8 +366,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
       'medicines': medicines,
       if (_doctorName != null && _doctorName!.isNotEmpty)
         'doctorName': _doctorName,
-      if (_diagnosis != null && _diagnosis!.isNotEmpty)
-        'diagnosis': _diagnosis,
+      if (_diagnosis != null && _diagnosis!.isNotEmpty) 'diagnosis': _diagnosis,
       'notes': 'OCR scanned prescription',
       'ocrMetadata': <String, dynamic>{
         if (_prescriberName != null) 'prescriberName': _prescriberName,
@@ -445,421 +452,651 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<PrescriptionProvider>();
-    final na = l10n.ocrNotAvailable;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.ocrPreviewTitle)),
+      backgroundColor: const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        title: Text(l10n.ocrPreviewTitle),
+        backgroundColor: AppColors.primaryBlue,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.sm,
+            AppSpacing.md,
+            AppSpacing.md,
+          ),
+          child: Row(
+            children: [
+              OutlinedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _medicines.add({
+                      'medicineName': '',
+                      'frequency': '',
+                      'durationDays': 30,
+                    });
+                    _expandedIndex = _medicines.length - 1;
+                  });
+                },
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(l10n.addRow),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: 14,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: (_isSubmitting || provider.isLoading)
+                      ? null
+                      : _submit,
+                  icon: _isSubmitting || provider.isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.check_circle_outline, size: 18),
+                  label: Text(l10n.confirmAndSave),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.successGreen,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Description
-            Card(
-              color: AppColors.primaryBlue.withValues(alpha: 0.05),
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline,
-                        color: AppColors.primaryBlue),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Text(
-                        l10n.ocrPreviewDescription,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: AppColors.textSecondary),
+            _buildSummaryHeader(context, l10n),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: _buildMedicationsSection(context, l10n),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Prescription summary banner ──────────────────────────────────────────
+
+  Widget _buildSummaryHeader(BuildContext context, AppLocalizations l10n) {
+    final facilityName = _facilityNameEnglish ?? _facilityNameKhmer ?? '';
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primaryBlue, Color(0xFF1A3BA8)],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.lg,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top row: needs-review badge + AI status badge + confidence score
+            Row(
+              children: [
+                if (_needsReview)
+                  _buildBadge(
+                    l10n.ocrNeedsReviewYes,
+                    Icons.warning_amber_rounded,
+                    AppColors.warningOrange,
+                  ),
+                if (_needsReview) const SizedBox(width: 6),
+                // AI enhancement status badge
+                if (_aiStatus == 'ok')
+                  _buildBadge(
+                    l10n.ocrAiEnhanced,
+                    Icons.auto_awesome,
+                    const Color(0xFF6C3FC8),
+                  )
+                else
+                  _buildBadge(
+                    l10n.ocrAiUnavailable,
+                    Icons.auto_awesome_outlined,
+                    AppColors.textSecondary,
+                  ),
+                const Spacer(),
+                if (_confidenceScore != null)
+                  _buildBadge(
+                    l10n.ocrConfidencePercent(
+                      (_confidenceScore! * 100).toStringAsFixed(0),
+                    ),
+                    Icons.verified_outlined,
+                    _confidenceColor(_confidenceScore!),
+                  ),
+              ],
+            ),
+            if (_needsReview || _confidenceScore != null || true)
+              const SizedBox(height: AppSpacing.sm),
+
+            // Facility
+            if (facilityName.isNotEmpty) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.local_hospital_outlined,
+                    color: Colors.white70,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      facilityName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            // ── Needs Review Warning ──
-            if (_needsReview)
-              Card(
-                color: AppColors.warningOrange.withValues(alpha: 0.1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                  side: BorderSide(
-                    color: AppColors.warningOrange.withValues(alpha: 0.4),
                   ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.warning_amber_rounded,
-                          color: AppColors.warningOrange, size: 20),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          l10n.ocrNeedsReviewYes,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color: AppColors.warningOrange,
-                                fontWeight: FontWeight.w500,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            if (_needsReview) const SizedBox(height: AppSpacing.sm),
-
-            // ── Patient Information Section ──
-            OcrInfoSectionWidget(
-              icon: Icons.person_outline,
-              title: l10n.ocrPatientInfoSection,
-              iconColor: AppColors.primaryBlue,
-              entries: [
-                OcrInfoEntry(
-                  label: l10n.ocrPatientId,
-                  value: _patientId ?? '',
-                ),
-                OcrInfoEntry(
-                  label: l10n.ocrPatientName,
-                  value: _patientFullName ?? '',
-                ),
-                OcrInfoEntry(
-                  label: l10n.ocrPatientKhmerName,
-                  value: _patientKhmerName ?? '',
-                ),
-                OcrInfoEntry(
-                  label: l10n.ocrPatientAge,
-                  value: _patientAge != null
-                      ? l10n.ocrYearsOld(_patientAge!.toString())
-                      : '',
-                ),
-                OcrInfoEntry(
-                  label: l10n.ocrPatientGender,
-                  value: _patientGender ?? '',
-                ),
-              ],
-            ),
-
-            // ── Prescriber Section ──
-            OcrInfoSectionWidget(
-              icon: Icons.medical_services_outlined,
-              title: l10n.ocrPrescriberSection,
-              iconColor: AppColors.successGreen,
-              entries: [
-                OcrInfoEntry(
-                  label: l10n.ocrPrescriberName,
-                  value: _prescriberName ?? '',
-                ),
-              ],
-            ),
-
-            // ── Healthcare Facility Section ──
-            OcrInfoSectionWidget(
-              icon: Icons.local_hospital_outlined,
-              title: l10n.ocrFacilitySection,
-              iconColor: AppColors.warningOrange,
-              entries: [
-                OcrInfoEntry(
-                  label: l10n.ocrFacilityName,
-                  value: _facilityNameEnglish ??
-                      _facilityNameKhmer ??
-                      '',
-                ),
-                if (_facilityNameKhmer != null &&
-                    _facilityNameEnglish != null)
-                  OcrInfoEntry(
-                    label: l10n.ocrFacilityName,
-                    value: _facilityNameKhmer!,
-                  ),
-                OcrInfoEntry(
-                  label: l10n.ocrFacilityType,
-                  value: _facilityType != null
-                      ? _formatFacilityType(_facilityType!, l10n)
-                      : '',
-                ),
-              ],
-            ),
-
-            // ── Clinical Information Section ──
-            OcrInfoSectionWidget(
-              icon: Icons.assignment_outlined,
-              title: l10n.ocrClinicalSection,
-              iconColor: AppColors.alertRed,
-              entries: [
-                OcrInfoEntry(
-                  label: l10n.ocrDiagnosis,
-                  value: _diagnosis ?? '',
-                ),
-              ],
-            ),
-
-            // ── Scan Metadata Section (collapsed by default) ──
-            OcrInfoSectionWidget(
-              icon: Icons.analytics_outlined,
-              title: l10n.ocrMetadataSection,
-              iconColor: AppColors.textSecondary,
-              initiallyExpanded: false,
-              trailing: _confidenceScore != null
-                  ? Container(
+                  if (_facilityType != null) ...[
+                    const SizedBox(width: 6),
+                    Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
+                        horizontal: 8,
+                        vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: _confidenceColor(_confidenceScore!)
-                            .withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        l10n.ocrConfidencePercent(
-                          (_confidenceScore! * 100).toStringAsFixed(1),
-                        ),
-                        style: TextStyle(
-                          color: _confidenceColor(_confidenceScore!),
+                        _formatFacilityType(_facilityType!, l10n),
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                    )
-                  : null,
-              entries: [
-                OcrInfoEntry(
-                  label: l10n.ocrConfidenceScore,
-                  value: _confidenceScore != null
-                      ? l10n.ocrConfidencePercent(
-                          (_confidenceScore! * 100).toStringAsFixed(1),
-                        )
-                      : na,
-                  valueColor: _confidenceScore != null
-                      ? _confidenceColor(_confidenceScore!)
-                      : null,
-                ),
-                OcrInfoEntry(
-                  label: l10n.ocrEngine,
-                  value: _ocrEngine ??
-                      (_enginesUsed.isNotEmpty
-                          ? _enginesUsed.join(', ')
-                          : na),
-                ),
-                OcrInfoEntry(
-                  label: l10n.ocrProcessingTime,
-                  value: _processingTimeMs != null
-                      ? l10n.ocrMilliseconds(
-                          _processingTimeMs!.toStringAsFixed(0),
-                        )
-                      : na,
-                ),
-                OcrInfoEntry(
-                  label: l10n.ocrPrescriptionType,
-                  value: _prescriptionType != null
-                      ? _formatPrescriptionType(_prescriptionType!, l10n)
-                      : '',
-                ),
-                OcrInfoEntry(
-                  label: l10n.ocrLanguagesDetected,
-                  value: [
-                    ?_primaryLanguage,
-                    ..._secondaryLanguages,
-                  ].join(', '),
-                ),
-                OcrInfoEntry(
-                  label: l10n.ocrValidationStatus,
-                  value: _validationStatus == 'validated'
-                      ? l10n.ocrValidated
-                      : _validationStatus ?? '',
-                ),
-              ],
-            ),
-
-            const SizedBox(height: AppSpacing.md),
-
-            // Extracted medications header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.extractedMedications,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  '${_medicines.length}',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.primaryBlue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-
-            if (_medicines.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Column(
-                  children: [
-                    const Icon(Icons.warning_amber,
-                        size: 48, color: AppColors.warningOrange),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      l10n.noMedicationsExtracted,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: AppColors.textSecondary),
                     ),
                   ],
-                ),
-              )
-            else
-              ..._medicines.asMap().entries.map((entry) {
-                final idx = entry.key;
-                final med = entry.value;
-                final isExpanded = _expandedIndex == idx;
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
 
-                return Card(
-                  margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(
-                      color: isExpanded
-                          ? AppColors.primaryBlue
-                          : AppColors.neutral300,
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        dense: true,
-                        leading: CircleAvatar(
-                          radius: 14,
-                          backgroundColor: AppColors.primaryBlue,
-                          child: Text(
-                            '${idx + 1}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        title: Text(
-                          med['medicineName'] ?? '',
-                          style:
-                              const TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        subtitle: Text(
-                          [
-                            if (med['frequency'] != null) med['frequency'],
-                            if (med['durationDays'] != null)
-                              '${med['durationDays']}d',
-                          ].join(' - '),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                isExpanded
-                                    ? Icons.expand_less
-                                    : Icons.edit_outlined,
-                                size: 20,
-                              ),
-                              onPressed: () => setState(() {
-                                _expandedIndex = isExpanded ? null : idx;
-                              }),
-                            ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.delete_outline,
-                                size: 20,
-                                color: AppColors.alertRed,
-                              ),
-                              onPressed: () => setState(() {
-                                _medicines.removeAt(idx);
-                                if (_expandedIndex == idx) {
-                                  _expandedIndex = null;
-                                }
-                              }),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (isExpanded)
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(
-                            AppSpacing.md,
-                            0,
-                            AppSpacing.md,
-                            AppSpacing.md,
-                          ),
-                          child: MedicineFormWidget(
-                            initialData: med,
-                            showSaveButton: true,
-                            onSave: (updatedData) {
-                              setState(() {
-                                _medicines[idx] = updatedData;
-                                _expandedIndex = null;
-                              });
-                            },
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              }),
+            // Doctor
+            if (_prescriberName != null && _prescriberName!.isNotEmpty)
+              _buildHeaderRow(
+                Icons.medical_services_outlined,
+                _prescriberName!,
+                secondSuffix: _prescriptionType != null
+                    ? _formatPrescriptionType(_prescriptionType!, l10n)
+                    : null,
+              ),
 
-            const SizedBox(height: AppSpacing.sm),
+            // Patient
+            if (_patientFullName != null ||
+                _patientAge != null ||
+                _patientGender != null)
+              _buildHeaderRow(
+                Icons.person_outline,
+                [
+                  ?_patientFullName,
+                  if (_patientKhmerName != null &&
+                      _patientKhmerName!.isNotEmpty)
+                    _patientKhmerName!,
+                  if (_patientAge != null) '${_patientAge}y',
+                  ?_patientGender,
+                ].join(' · '),
+              ),
 
-            // Add new medicine button
-            OutlinedButton.icon(
-              onPressed: () {
-                setState(() {
-                  _medicines.add({
-                    'medicineName': '',
-                    'frequency': '',
-                    'durationDays': 30,
-                  });
-                  _expandedIndex = _medicines.length - 1;
-                });
-              },
-              icon: const Icon(Icons.add),
-              label: Text(l10n.addRow),
+            // Diagnosis
+            if (_diagnosis != null && _diagnosis!.isNotEmpty)
+              _buildHeaderRow(Icons.assignment_outlined, _diagnosis!),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBadge(String text, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.45)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 12),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
             ),
-            const SizedBox(height: AppSpacing.lg),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Confirm button
-            SizedBox(
-              height: 48,
-              child: ElevatedButton.icon(
-                onPressed:
-                    (_isSubmitting || provider.isLoading) ? null : _submit,
-                icon: _isSubmitting || provider.isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
+  Widget _buildHeaderRow(IconData icon, String text, {String? secondSuffix}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.white60, size: 15),
+          const SizedBox(width: 7),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                text: text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  height: 1.3,
+                ),
+                children: secondSuffix != null
+                    ? [
+                        const TextSpan(
+                          text: '  ·  ',
+                          style: TextStyle(color: Colors.white38),
                         ),
-                      )
-                    : const Icon(Icons.check),
-                label: Text(l10n.confirmAndSave),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.successGreen,
-                  foregroundColor: Colors.white,
+                        TextSpan(
+                          text: secondSuffix,
+                          style: const TextStyle(color: Colors.white60),
+                        ),
+                      ]
+                    : null,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Medications section ──────────────────────────────────────────────────
+
+  Widget _buildMedicationsSection(BuildContext context, AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Section header
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+              ),
+              child: const Icon(
+                Icons.medication_outlined,
+                color: AppColors.primaryBlue,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                l10n.extractedMedications,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${_medicines.length}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.xl),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+
+        if (_medicines.isEmpty)
+          _buildEmptyMedications(context, l10n)
+        else
+          ..._medicines.asMap().entries.map(
+            (e) => _buildMedicineCard(context, e.key, e.value, l10n),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyMedications(BuildContext context, AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.neutral300),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.warning_amber_outlined,
+            size: 48,
+            color: AppColors.warningOrange,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            l10n.noMedicationsExtracted,
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMedicineCard(
+    BuildContext context,
+    int idx,
+    Map<String, dynamic> med,
+    AppLocalizations l10n,
+  ) {
+    final isExpanded = _expandedIndex == idx;
+    final name = (med['medicineName'] as String? ?? '').trim();
+    final nameKhmer = (med['medicineNameKhmer'] as String? ?? '').trim();
+    final frequency = med['frequency'] as String? ?? '';
+    final durationDays = med['durationDays'] as int?;
+    final dosageAmount = med['dosageAmount'];
+    final dosageUnit = (med['dosageUnit'] as String? ?? '').trim();
+    final morning = med['morning'] == true;
+    final daytime = med['daytime'] == true;
+    final night = med['night'] == true;
+    final beforeMeal = med['beforeMeal'] == true;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(
+          color: isExpanded ? AppColors.primaryBlue : AppColors.neutral300,
+          width: isExpanded ? 1.5 : 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.md,
+              AppSpacing.xs,
+              AppSpacing.md,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Number badge
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${idx + 1}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+
+                // Name + chips + schedule
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name.isEmpty ? l10n.medicineName : name,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: name.isEmpty
+                              ? AppColors.textSecondary
+                              : AppColors.textPrimary,
+                        ),
+                      ),
+                      if (nameKhmer.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          nameKhmer,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 8),
+
+                      // Info chips
+                      Wrap(
+                        spacing: 5,
+                        runSpacing: 4,
+                        children: [
+                          if (dosageAmount != null)
+                            _infoChip(
+                              '$dosageAmount${dosageUnit.isNotEmpty ? ' $dosageUnit' : ''}',
+                              AppColors.primaryBlue,
+                            ),
+                          if (frequency.isNotEmpty)
+                            _infoChip(frequency, AppColors.successGreen),
+                          if (durationDays != null)
+                            _infoChip(
+                              '$durationDays ${l10n.daysUnit}',
+                              AppColors.warningOrange,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Time-of-day schedule
+                      Row(
+                        children: [
+                          if (morning)
+                            _scheduleChip(
+                              Icons.wb_sunny_outlined,
+                              const Color(0xFFFFB300),
+                              l10n.morning,
+                            ),
+                          if (daytime)
+                            _scheduleChip(
+                              Icons.wb_twilight,
+                              AppColors.afternoonOrange,
+                              l10n.afternoon,
+                            ),
+                          if (night)
+                            _scheduleChip(
+                              Icons.nightlight_round,
+                              AppColors.primaryBlue,
+                              l10n.night,
+                            ),
+                          if (!morning && !daytime && !night)
+                            Text(
+                              l10n.ocrNotAvailable,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.neutral400,
+                              ),
+                            ),
+                          if (beforeMeal) ...[
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF3E0),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                l10n.beforeMeal,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: Color(0xFFE65100),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Edit + Delete actions
+                Column(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        isExpanded ? Icons.expand_less : Icons.edit_outlined,
+                        size: 20,
+                        color: isExpanded
+                            ? AppColors.primaryBlue
+                            : AppColors.textSecondary,
+                      ),
+                      onPressed: () => setState(
+                        () => _expandedIndex = isExpanded ? null : idx,
+                      ),
+                      tooltip: isExpanded ? 'Collapse' : 'Edit',
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        size: 20,
+                        color: AppColors.alertRed,
+                      ),
+                      onPressed: () => setState(() {
+                        _medicines.removeAt(idx);
+                        if (_expandedIndex == idx) _expandedIndex = null;
+                        if (_expandedIndex != null && _expandedIndex! > idx) {
+                          _expandedIndex = _expandedIndex! - 1;
+                        }
+                      }),
+                      tooltip: 'Delete',
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Inline edit form (expanded)
+          if (isExpanded) ...[
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: MedicineFormWidget(
+                initialData: med,
+                showSaveButton: true,
+                onSave: (updated) => setState(() {
+                  _medicines[idx] = updated;
+                  _expandedIndex = null;
+                }),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _infoChip(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _scheduleChip(IconData icon, Color color, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 11),
+            const SizedBox(width: 3),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
