@@ -11,43 +11,51 @@ class RegisterRoleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final size = MediaQuery.of(context).size;
+    final hPad = (size.width * 0.06).clamp(16.0, 40.0);
+    final isSmallScreen = size.height < 700;
+    final topGap = isSmallScreen ? AppSpacing.lg : AppSpacing.xxl;
+    final iconSize = isSmallScreen ? 56.0 : 72.0;
+    final iconInnerSize = isSmallScreen ? 28.0 : 36.0;
+    final titleFontSize = size.width < 360 ? 18.0 : 22.0;
 
     return AuthGradientScaffold(
       child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AuthHeader(
               showBackButton: true,
               onBack: () => Navigator.of(context).pop(),
-              trailing: const LanguageSwitcherButton(),
+              trailing: const LanguageSwitcherButton(lightBackground: true),
             ),
-            const SizedBox(height: AppSpacing.xxl),
+            SizedBox(height: topGap),
 
             // ── Title ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              padding: EdgeInsets.symmetric(horizontal: hPad),
               child: Column(
                 children: [
                   Container(
-                    width: 72,
-                    height: 72,
+                    width: iconSize,
+                    height: iconSize,
                     decoration: const BoxDecoration(
                       color: Color(0xFFE3F2FD),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.people_alt_rounded,
-                      color: Color(0xFF1976D2),
-                      size: 36,
+                      color: const Color(0xFF1976D2),
+                      size: iconInnerSize,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
                     l10n.selectRoleTitle,
-                    style: const TextStyle(
-                      color: Color(0xFF111111),
-                      fontSize: 22,
+                    style: TextStyle(
+                      color: const Color(0xFF111111),
+                      fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
@@ -64,11 +72,11 @@ class RegisterRoleScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: AppSpacing.xl),
+            SizedBox(height: isSmallScreen ? AppSpacing.md : AppSpacing.xl),
 
             // ── Patient card ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              padding: EdgeInsets.symmetric(horizontal: hPad),
               child: _RoleCard(
                 icon: Icons.person_outline,
                 title: l10n.patientRole,
@@ -81,7 +89,7 @@ class RegisterRoleScreen extends StatelessWidget {
 
             // ── Doctor card ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              padding: EdgeInsets.symmetric(horizontal: hPad),
               child: _RoleCard(
                 icon: Icons.medical_services_outlined,
                 title: l10n.doctorRole,
@@ -90,7 +98,7 @@ class RegisterRoleScreen extends StatelessWidget {
                     Navigator.of(context).pushNamed('/register/doctor'),
               ),
             ),
-            const SizedBox(height: AppSpacing.xxl * 2),
+            SizedBox(height: topGap),
 
             // ── Back to login link ──
             AuthLinkRow(
