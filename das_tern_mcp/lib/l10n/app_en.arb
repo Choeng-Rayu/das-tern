@@ -1023,6 +1023,8 @@
   "ocrFacilityClinic": "Clinic",
   "ocrNotAvailable": "Not available",
   "ocrNeedsReviewYes": "Yes, needs review",
+  "ocrAiEnhanced": "AI Enhanced",
+  "ocrAiUnavailable": "OCR Only",
   "ocrPatientInfoSection": "Patient Information",
   "ocrPatientId": "Patient ID",
   "ocrPatientName": "Patient Name",

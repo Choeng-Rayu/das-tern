@@ -307,9 +307,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
             text: l10n.shareCodeButton,
             icon: Icons.share,
             onPressed: () {
-              SharePlus.instance.share(
-                ShareParams(text: l10n.shareCodeMessage(_token ?? '')),
-              );
+              Share.share(l10n.shareCodeMessage(_token ?? ''));
             },
           ),
           const SizedBox(height: AppSpacing.sm),

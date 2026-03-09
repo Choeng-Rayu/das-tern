@@ -54,6 +54,10 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     _parseOcrResponse();
   }
 
+  // ── AI enhancement status ──
+  String _aiStatus = 'not_responded'; // 'ok' | 'not_responded'
+  String? _aiMessage;
+
   /// Parse the nested OCR service response into flat medicine maps
   /// that MedicineFormWidget understands, and extract all prescription metadata.
   ///
@@ -177,6 +181,10 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     final items = medications['items'] as List<dynamic>? ?? [];
 
     _medicines = items.map((item) => _mapOcrItemToFormData(item)).toList();
+
+    // ── AI Enhancement Status ──
+    _aiStatus = (raw['ai_status'] as String?) ?? 'not_responded';
+    _aiMessage = raw['ai_message'] as String?;
   }
 
   /// Transform a single OCR medication item into the flat Map format
@@ -548,7 +556,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top row: needs-review badge + confidence score
+            // Top row: needs-review badge + AI status badge + confidence score
             Row(
               children: [
                 if (_needsReview)
@@ -556,6 +564,20 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
                     l10n.ocrNeedsReviewYes,
                     Icons.warning_amber_rounded,
                     AppColors.warningOrange,
+                  ),
+                if (_needsReview) const SizedBox(width: 6),
+                // AI enhancement status badge
+                if (_aiStatus == 'ok')
+                  _buildBadge(
+                    l10n.ocrAiEnhanced,
+                    Icons.auto_awesome,
+                    const Color(0xFF6C3FC8),
+                  )
+                else
+                  _buildBadge(
+                    l10n.ocrAiUnavailable,
+                    Icons.auto_awesome_outlined,
+                    AppColors.textSecondary,
                   ),
                 const Spacer(),
                 if (_confidenceScore != null)
@@ -568,7 +590,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
                   ),
               ],
             ),
-            if (_needsReview || _confidenceScore != null)
+            if (_needsReview || _confidenceScore != null || true)
               const SizedBox(height: AppSpacing.sm),
 
             // Facility
