@@ -102,19 +102,32 @@ class _PatientScanTabState extends State<PatientScanTab> {
 
       if (!mounted) return;
 
+      // Log OCR result metadata for debugging
+      debugPrint('[Scan] OCR result keys: ${result.keys.toList()}');
+      debugPrint('[Scan] ai_status: ${result['ai_status']}');
+      final data = result['data'] as Map<String, dynamic>? ?? {};
+      final prescription = data['prescription'] as Map<String, dynamic>? ?? {};
+      final medications = prescription['medications'] as Map<String, dynamic>? ?? {};
+      final items = medications['items'] as List<dynamic>? ?? [];
+      debugPrint('[Scan] Medications found: ${items.length}');
+
       setState(() => _isProcessing = false);
 
       // Navigate to editable preview screen with extracted data
       Navigator.pushNamed(context, AppRouter.ocrPreview, arguments: result);
     } catch (e) {
       if (!mounted) return;
+      final isTimeout = e.toString().toLowerCase().contains('timed out') ||
+          e.toString().contains('504');
       setState(() {
         _isProcessing = false;
-        _errorMessage = e.toString();
+        _errorMessage = isTimeout
+            ? 'Scan timed out — the server took too long. Please check your connection and try again.'
+            : e.toString();
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.scanFailed),
+          content: Text(isTimeout ? 'Scan timed out. Please try again.' : l10n.scanFailed),
           backgroundColor: AppColors.alertRed,
         ),
       );
@@ -164,7 +177,7 @@ class _PatientScanTabState extends State<PatientScanTab> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.primaryBlue.withOpacity(0.1),
+                color: AppColors.primaryBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -202,7 +215,7 @@ class _PatientScanTabState extends State<PatientScanTab> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primaryBlue.withOpacity(0.1),
+                color: AppColors.primaryBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -264,7 +277,7 @@ class _PatientScanTabState extends State<PatientScanTab> {
   Widget _buildFeatureItem(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: AppColors.primaryBlue.withOpacity(0.7)),
+        Icon(icon, size: 18, color: AppColors.primaryBlue.withValues(alpha: 0.7)),
         const SizedBox(width: 8),
         Expanded(
           child: Text(

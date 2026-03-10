@@ -60,10 +60,12 @@ class MedicationGridRow {
 
   String _buildTiming() {
     final parts = <String>[];
-    if (morningDosage != null && morningDosage!.isNotEmpty)
+    if (morningDosage != null && morningDosage!.isNotEmpty) {
       parts.add('morning');
-    if (daytimeDosage != null && daytimeDosage!.isNotEmpty)
+    }
+    if (daytimeDosage != null && daytimeDosage!.isNotEmpty) {
       parts.add('daytime');
+    }
     if (nightDosage != null && nightDosage!.isNotEmpty) parts.add('night');
     return parts.join(', ');
   }

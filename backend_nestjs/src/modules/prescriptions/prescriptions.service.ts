@@ -622,7 +622,7 @@ export class PrescriptionsService {
             medicationId: medication.id,
             patientId: prescription.patientId,
             scheduledTime,
-            timePeriod: 'DAYTIME' as const,
+            timePeriod: 'MORNING' as const,
             status: 'DUE' as const,
             reminderTime: `${String(morningHour).padStart(2, '0')}:${String(morningMin).padStart(2, '0')}`,
           });

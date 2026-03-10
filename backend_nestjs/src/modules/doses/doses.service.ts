@@ -32,6 +32,11 @@ export class DosesService {
         dailyProgress,
         groups: [
           {
+            period: 'MORNING',
+            color: '#FFA726',
+            doses: doses.filter(d => d.timePeriod === 'MORNING').map(d => this.formatDose(d)),
+          },
+          {
             period: 'DAYTIME',
             color: '#2D5BFF',
             doses: doses.filter(d => d.timePeriod === 'DAYTIME').map(d => this.formatDose(d)),
@@ -281,10 +286,13 @@ export class DosesService {
   }
 
   private getDosageForTimePeriod(medication: any, period: string): any {
+    if (period === 'MORNING') {
+      return medication.morningDosage;
+    }
     if (period === 'NIGHT') {
       return medication.nightDosage;
     }
-    return medication.morningDosage || medication.daytimeDosage;
+    return medication.daytimeDosage || medication.morningDosage;
   }
 
   private async calculateDailyProgress(patientId: string, date: Date): Promise<number> {

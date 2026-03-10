@@ -1465,7 +1465,13 @@ class ApiService {
       ),
     );
 
-    final streamed = await request.send();
+    // 60-second timeout: OCR (~30s) + AI enhancement (~20s) + margin
+    final streamed = await request
+        .send()
+        .timeout(const Duration(seconds: 60), onTimeout: () {
+      throw ApiException(
+          504, 'Scan timed out. The server is taking too long to respond.');
+    });
     final res = await http.Response.fromStream(streamed);
     if (res.statusCode == 401) {
       final refreshed = await _tryRefreshToken();
@@ -1483,7 +1489,11 @@ class ApiService {
             contentType: contentType,
           ),
         );
-        final streamed2 = await request2.send();
+        final streamed2 = await request2.send().timeout(
+          const Duration(seconds: 60),
+          onTimeout: () => throw ApiException(
+              504, 'Scan timed out. The server is taking too long to respond.'),
+        );
         final res2 = await http.Response.fromStream(streamed2);
         return Map<String, dynamic>.from(_handleResponse(res2));
       }

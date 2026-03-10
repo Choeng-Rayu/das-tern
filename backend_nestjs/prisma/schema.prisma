@@ -436,6 +436,7 @@ enum PrescriptionStatus {
 }
 
 enum TimePeriod {
+  MORNING
   DAYTIME
   NIGHT
 }

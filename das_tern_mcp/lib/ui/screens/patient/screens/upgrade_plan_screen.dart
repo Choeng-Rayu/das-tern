@@ -295,7 +295,7 @@ class _CurrentPlanCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: (isPremium ? const Color(0xFF667EEA) : AppColors.primaryBlue)
-                .withOpacity(0.4),
+                .withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 8),
             spreadRadius: 0,
@@ -514,49 +514,6 @@ class _FeatureComparisonSection extends StatelessWidget {
     );
   }
 
-  Widget _tierHeaderBadge(BuildContext context, String text, bool isActive) {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: isActive
-              ? AppColors.primaryBlue.withOpacity(0.15)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: isActive
-              ? Border.all(color: AppColors.primaryBlue, width: 1.5)
-              : null,
-        ),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
-            letterSpacing: 0.8,
-            color: isActive ? AppColors.primaryBlue : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _divider() {
-    return Container(
-      height: 1,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.black.withOpacity(0),
-            Colors.black.withOpacity(0.08),
-            Colors.black.withOpacity(0),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _comparisonRow(
     BuildContext context,
     String feature,
@@ -622,9 +579,9 @@ class _ClaimTrialButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primaryBlue.withOpacity(isDark ? 0.2 : 0.1),
+        color: AppColors.primaryBlue.withValues(alpha: isDark ? 0.2 : 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -679,12 +636,12 @@ class _TrialBanner extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.primaryBlue.withOpacity(isDark ? 0.35 : 0.2),
-            AppColors.primaryBlue.withOpacity(isDark ? 0.15 : 0.05),
+            AppColors.primaryBlue.withValues(alpha: isDark ? 0.35 : 0.2),
+            AppColors.primaryBlue.withValues(alpha: isDark ? 0.15 : 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
