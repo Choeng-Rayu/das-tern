@@ -41,10 +41,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           backgroundColor: AppColors.successGreen,
         ),
       );
-      Navigator.of(context).pushNamed(
-        '/reset-password',
-        arguments: {'identifier': identifier},
-      );
+      Navigator.of(
+        context,
+      ).pushNamed('/reset-password', arguments: {'identifier': identifier});
     }
   }
 

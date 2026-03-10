@@ -38,9 +38,15 @@ class NotificationProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _log.info('NotificationProvider', 'Fetching notifications (unreadOnly=$unreadOnly)');
+      _log.info(
+        'NotificationProvider',
+        'Fetching notifications (unreadOnly=$unreadOnly)',
+      );
       final result = await _api.getNotifications(unreadOnly: unreadOnly);
-      _log.debug('NotificationProvider', 'Raw API result keys: ${result.keys.toList()}');
+      _log.debug(
+        'NotificationProvider',
+        'Raw API result keys: ${result.keys.toList()}',
+      );
 
       // Backend returns { notifications: [...], unreadCount: N }
       dynamic rawList = result['notifications'] ?? result['data'] ?? [];
@@ -48,7 +54,10 @@ class NotificationProvider extends ChangeNotifier {
       if (rawList is List) {
         list = rawList;
       } else {
-        _log.warning('NotificationProvider', 'Unexpected list type: ${rawList.runtimeType}');
+        _log.warning(
+          'NotificationProvider',
+          'Unexpected list type: ${rawList.runtimeType}',
+        );
         list = <dynamic>[];
       }
       final parsed = list
@@ -56,7 +65,11 @@ class NotificationProvider extends ChangeNotifier {
             try {
               return AppNotification.fromJson(Map<String, dynamic>.from(n));
             } catch (e) {
-              _log.error('NotificationProvider', 'Failed to parse notification', e);
+              _log.error(
+                'NotificationProvider',
+                'Failed to parse notification',
+                e,
+              );
               return null;
             }
           })
@@ -64,7 +77,10 @@ class NotificationProvider extends ChangeNotifier {
           .toList();
       _notifications = parsed;
       _hasFetched = true;
-      _log.success('NotificationProvider', 'Loaded ${_notifications.length} notifications');
+      _log.success(
+        'NotificationProvider',
+        'Loaded ${_notifications.length} notifications',
+      );
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
       _log.error('NotificationProvider', 'fetchNotifications failed', e);

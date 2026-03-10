@@ -67,9 +67,15 @@ class User {
           ? DateTime.parse(json['dateOfBirth'])
           : null,
       idCardNumber: json['idCardNumber'],
-      accountStatus: _accountStatusFromString(json['accountStatus'] ?? 'ACTIVE'),
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updatedAt'] ?? DateTime.now().toIso8601String()),
+      accountStatus: _accountStatusFromString(
+        json['accountStatus'] ?? 'ACTIVE',
+      ),
+      createdAt: DateTime.parse(
+        json['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
+      updatedAt: DateTime.parse(
+        json['updatedAt'] ?? DateTime.now().toIso8601String(),
+      ),
       dailyProgress: json['dailyProgress'],
       greeting: json['greeting'],
       subscriptionTier: json['subscriptionTier'],
@@ -77,17 +83,17 @@ class User {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'role': userRoleToString(role),
-        'firstName': firstName,
-        'lastName': lastName,
-        'fullName': fullName,
-        'phoneNumber': phoneNumber,
-        'email': email,
-        'gender': gender != null ? genderToString(gender!) : null,
-        'dateOfBirth': dateOfBirth?.toIso8601String(),
-        'idCardNumber': idCardNumber,
-      };
+    'id': id,
+    'role': userRoleToString(role),
+    'firstName': firstName,
+    'lastName': lastName,
+    'fullName': fullName,
+    'phoneNumber': phoneNumber,
+    'email': email,
+    'gender': gender != null ? genderToString(gender!) : null,
+    'dateOfBirth': dateOfBirth?.toIso8601String(),
+    'idCardNumber': idCardNumber,
+  };
 
   static AccountStatus _accountStatusFromString(String v) {
     switch (v) {

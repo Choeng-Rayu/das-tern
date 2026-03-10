@@ -13,8 +13,7 @@ class ContactSupportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? const Color(0xFF1E1E2E) : Colors.white;
-    final subtitleColor =
-        isDark ? Colors.white70 : AppColors.textSecondary;
+    final subtitleColor = isDark ? Colors.white70 : AppColors.textSecondary;
 
     return Scaffold(
       appBar: AppBar(
@@ -55,8 +54,7 @@ class ContactSupportScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            const Color(0xFF007AFF).withValues(alpha: 0.3),
+                        color: const Color(0xFF007AFF).withValues(alpha: 0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -71,9 +69,9 @@ class ContactSupportScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   'How can we help?',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -122,8 +120,11 @@ class ContactSupportScreen extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.schedule_rounded,
-                    size: 20, color: AppColors.textSecondary),
+                Icon(
+                  Icons.schedule_rounded,
+                  size: 20,
+                  color: AppColors.textSecondary,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -131,16 +132,14 @@ class ContactSupportScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Office Hours',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         _hours,
-                        style:
-                            TextStyle(color: subtitleColor, fontSize: 13),
+                        style: TextStyle(color: subtitleColor, fontSize: 13),
                       ),
                     ],
                   ),
@@ -222,14 +221,16 @@ class _ContactCard extends StatelessWidget {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: isDark ? Colors.white60 : AppColors.textSecondary,
+                        color: isDark
+                            ? Colors.white60
+                            : AppColors.textSecondary,
                         fontSize: 13,
                       ),
                     ),
@@ -237,8 +238,10 @@ class _ContactCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 7,
+                ),
                 decoration: BoxDecoration(
                   color: iconBg.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),

@@ -50,9 +50,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          details?.patient.displayName ?? l10n.patient,
-        ),
+        title: Text(details?.patient.displayName ?? l10n.patient),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
@@ -66,24 +64,24 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
       body: provider.detailsLoading
           ? const Center(child: CircularProgressIndicator())
           : details == null
-              ? Center(
-                  child: Text(
-                    provider.error ?? l10n.failedToLoadPatientDetails,
-                    style: TextStyle(color: AppColors.alertRed),
-                  ),
-                )
-              : TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _OverviewTab(details: details),
-                    _AdherenceTab(details: details),
-                    _VitalsTab(patientId: widget.patientId),
-                    _NotesTab(
-                      patientId: widget.patientId,
-                      noteController: _noteController,
-                    ),
-                  ],
+          ? Center(
+              child: Text(
+                provider.error ?? l10n.failedToLoadPatientDetails,
+                style: TextStyle(color: AppColors.alertRed),
+              ),
+            )
+          : TabBarView(
+              controller: _tabController,
+              children: [
+                _OverviewTab(details: details),
+                _AdherenceTab(details: details),
+                _VitalsTab(patientId: widget.patientId),
+                _NotesTab(
+                  patientId: widget.patientId,
+                  noteController: _noteController,
                 ),
+              ],
+            ),
     );
   }
 }
@@ -119,7 +117,9 @@ class _OverviewTab extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 28,
-                        backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
+                        backgroundColor: AppColors.primaryBlue.withValues(
+                          alpha: 0.1,
+                        ),
                         child: Text(
                           (patient.firstName ?? '?')[0].toUpperCase(),
                           style: const TextStyle(
@@ -136,24 +136,21 @@ class _OverviewTab extends StatelessWidget {
                           children: [
                             Text(
                               patient.displayName,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
+                              style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              l10n.ageLabel(patient.age?.toString() ?? 'N/A', patient.gender ?? 'N/A'),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              l10n.ageLabel(
+                                patient.age?.toString() ?? 'N/A',
+                                patient.gender ?? 'N/A',
+                              ),
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: AppColors.textSecondary),
                             ),
                             Text(
                               patient.phoneNumber ?? '',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
@@ -202,11 +199,12 @@ class _OverviewTab extends StatelessWidget {
 
           // Prescriptions
           Text(
-            l10n.activePrescriptionsCount(prescriptions.where((p) => p.isActive).length),
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w600),
+            l10n.activePrescriptionsCount(
+              prescriptions.where((p) => p.isActive).length,
+            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpacing.sm),
           if (prescriptions.isEmpty)
@@ -230,10 +228,9 @@ class _OverviewTab extends StatelessWidget {
                   ),
                   trailing: Text(
                     _formatDate(rx.createdAt),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: AppColors.textSecondary),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
               ),
@@ -271,7 +268,11 @@ class _MetricColumn extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
-  const _MetricColumn({required this.label, required this.value, required this.color});
+  const _MetricColumn({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -279,18 +280,17 @@ class _MetricColumn extends StatelessWidget {
       children: [
         Text(
           value,
-          style: Theme.of(context)
-              .textTheme
-              .headlineSmall
-              ?.copyWith(fontWeight: FontWeight.bold, color: color),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: AppColors.textSecondary),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
         ),
       ],
     );
@@ -321,10 +321,9 @@ class _AdherenceTab extends StatelessWidget {
         children: [
           Text(
             l10n.dailyAdherenceLast30,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -371,27 +370,28 @@ class _AdherenceTab extends StatelessWidget {
           // Timeline list
           Text(
             l10n.dailyBreakdown,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpacing.sm),
-          ...timeline.reversed.take(14).map(
-            (point) => ListTile(
-              dense: true,
-              leading: Icon(
-                Icons.circle,
-                size: 12,
-                color: _barColor(point.percentage),
+          ...timeline.reversed
+              .take(14)
+              .map(
+                (point) => ListTile(
+                  dense: true,
+                  leading: Icon(
+                    Icons.circle,
+                    size: 12,
+                    color: _barColor(point.percentage),
+                  ),
+                  title: Text(point.date),
+                  trailing: Text(
+                    '${point.percentage.toStringAsFixed(0)}% (${point.takenDoses}/${point.totalDoses})',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
               ),
-              title: Text(point.date),
-              trailing: Text(
-                '${point.percentage.toStringAsFixed(0)}% (${point.takenDoses}/${point.totalDoses})',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -482,58 +482,64 @@ class _NotesTab extends StatelessWidget {
           child: provider.notesLoading
               ? const Center(child: CircularProgressIndicator())
               : provider.doctorNotes.isEmpty
-                  ? Center(child: Text(l10n.noNotesYet))
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      itemCount: provider.doctorNotes.length,
-                      itemBuilder: (context, index) {
-                        final note = provider.doctorNotes[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppSpacing.md),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+              ? Center(child: Text(l10n.noNotesYet))
+              : ListView.builder(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  itemCount: provider.doctorNotes.length,
+                  itemBuilder: (context, index) {
+                    final note = provider.doctorNotes[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
+                                Text(
+                                  note.formattedDate,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                ),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                      note.formattedDate,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, size: 18),
+                                      onPressed: () => _showEditDialog(
+                                        context,
+                                        provider,
+                                        note,
+                                      ),
                                     ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.edit, size: 18),
-                                          onPressed: () =>
-                                              _showEditDialog(context, provider, note),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete, size: 18,
-                                              color: AppColors.alertRed),
-                                          onPressed: () =>
-                                              _showDeleteDialog(context, provider, note),
-                                        ),
-                                      ],
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        size: 18,
+                                        color: AppColors.alertRed,
+                                      ),
+                                      onPressed: () => _showDeleteDialog(
+                                        context,
+                                        provider,
+                                        note,
+                                      ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: AppSpacing.xs),
-                                Text(note.content),
                               ],
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(note.content),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -666,10 +672,7 @@ class _VitalsTabState extends State<_VitalsTab> {
           children: [
             Text(_error!, style: const TextStyle(color: AppColors.alertRed)),
             const SizedBox(height: AppSpacing.sm),
-            ElevatedButton(
-              onPressed: _loadVitals,
-              child: Text(l10n.retry),
-            ),
+            ElevatedButton(onPressed: _loadVitals, child: Text(l10n.retry)),
           ],
         ),
       );
@@ -697,10 +700,9 @@ class _VitalsTabState extends State<_VitalsTab> {
           children: [
             Text(
               l10n.latestReadings,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.sm),
             GridView.count(
@@ -762,43 +764,48 @@ class _VitalsTabState extends State<_VitalsTab> {
             const SizedBox(height: AppSpacing.lg),
             Text(
               l10n.historyCount(_vitals.length),
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.sm),
-            ..._vitals.take(50).map(
-              (vital) => Card(
-                margin: const EdgeInsets.only(bottom: AppSpacing.xs),
-                child: ListTile(
-                  dense: true,
-                  leading: Container(
-                    width: 6,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: vital.isAbnormal
-                          ? AppColors.alertRed
-                          : AppColors.successGreen,
-                      borderRadius: BorderRadius.circular(3),
+            ..._vitals
+                .take(50)
+                .map(
+                  (vital) => Card(
+                    margin: const EdgeInsets.only(bottom: AppSpacing.xs),
+                    child: ListTile(
+                      dense: true,
+                      leading: Container(
+                        width: 6,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: vital.isAbnormal
+                              ? AppColors.alertRed
+                              : AppColors.successGreen,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                      title: Text(
+                        '${vital.vitalType.displayName}: ${vital.displayValue} ${vital.unit}',
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                      subtitle: Text(
+                        '${vital.measuredAt.day}/${vital.measuredAt.month}/${vital.measuredAt.year} '
+                        '${vital.measuredAt.hour.toString().padLeft(2, '0')}:'
+                        '${vital.measuredAt.minute.toString().padLeft(2, '0')}',
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                      trailing: vital.isAbnormal
+                          ? const Icon(
+                              Icons.warning,
+                              color: AppColors.alertRed,
+                              size: 18,
+                            )
+                          : null,
                     ),
                   ),
-                  title: Text(
-                    '${vital.vitalType.displayName}: ${vital.displayValue} ${vital.unit}',
-                    style: const TextStyle(fontSize: 13),
-                  ),
-                  subtitle: Text(
-                    '${vital.measuredAt.day}/${vital.measuredAt.month}/${vital.measuredAt.year} '
-                    '${vital.measuredAt.hour.toString().padLeft(2, '0')}:'
-                    '${vital.measuredAt.minute.toString().padLeft(2, '0')}',
-                    style: const TextStyle(fontSize: 11),
-                  ),
-                  trailing: vital.isAbnormal
-                      ? const Icon(Icons.warning, color: AppColors.alertRed, size: 18)
-                      : null,
                 ),
-              ),
-            ),
           ],
         ),
       ),

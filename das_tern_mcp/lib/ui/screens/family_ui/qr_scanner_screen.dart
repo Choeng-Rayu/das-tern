@@ -71,10 +71,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       body: Stack(
         children: [
           // Camera preview
-          MobileScanner(
-            controller: _controller,
-            onDetect: _onDetect,
-          ),
+          MobileScanner(controller: _controller, onDetect: _onDetect),
 
           // Overlay with scan area
           _buildScanOverlay(context),
@@ -104,34 +101,38 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                     Text(
                       l10n.positionQrInFrame,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       l10n.qrWillScanAutomatically,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.white.withValues(alpha: 0.7),
-                          ),
+                        color: AppColors.white.withValues(alpha: 0.7),
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     // Manual entry link
                     TextButton.icon(
                       onPressed: () {
                         Navigator.pushReplacementNamed(
-                            context, '/family/enter-code');
+                          context,
+                          '/family/enter-code',
+                        );
                       },
-                      icon: const Icon(Icons.keyboard,
-                          color: AppColors.white, size: 18),
+                      icon: const Icon(
+                        Icons.keyboard,
+                        color: AppColors.white,
+                        size: 18,
+                      ),
                       label: Text(
                         l10n.enterCodeManually,
-                        style:
-                            Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.white,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColors.white,
-                                ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.white,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.white,
+                        ),
                       ),
                     ),
                   ],
@@ -184,10 +185,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
             height: scanSize,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppRadius.xl),
-              border: Border.all(
-                color: AppColors.primaryBlue,
-                width: 2,
-              ),
+              border: Border.all(color: AppColors.primaryBlue, width: 2),
             ),
             child: const _ScanCorners(),
           ),
@@ -328,18 +326,30 @@ class _CornerPainter extends CustomPainter {
     if (topRight) {
       canvas.drawLine(Offset(0, 0), Offset(size.width, 0), paint);
       canvas.drawLine(
-          Offset(size.width, 0), Offset(size.width, size.height), paint);
+        Offset(size.width, 0),
+        Offset(size.width, size.height),
+        paint,
+      );
     }
     if (bottomLeft) {
       canvas.drawLine(Offset(0, 0), Offset(0, size.height), paint);
       canvas.drawLine(
-          Offset(0, size.height), Offset(size.width, size.height), paint);
+        Offset(0, size.height),
+        Offset(size.width, size.height),
+        paint,
+      );
     }
     if (bottomRight) {
       canvas.drawLine(
-          Offset(size.width, 0), Offset(size.width, size.height), paint);
+        Offset(size.width, 0),
+        Offset(size.width, size.height),
+        paint,
+      );
       canvas.drawLine(
-          Offset(0, size.height), Offset(size.width, size.height), paint);
+        Offset(0, size.height),
+        Offset(size.width, size.height),
+        paint,
+      );
     }
   }
 

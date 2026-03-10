@@ -793,9 +793,9 @@ class ApiService {
 
   /// GET /connections/search-patient?query= – search patient by phone/email
   Future<Map<String, dynamic>> searchPatientByContact(String query) async {
-    final uri = Uri.parse('$baseUrl/connections/search-patient').replace(
-      queryParameters: {'query': query},
-    );
+    final uri = Uri.parse(
+      '$baseUrl/connections/search-patient',
+    ).replace(queryParameters: {'query': query});
     return Map<String, dynamic>.from(
       await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
@@ -889,15 +889,24 @@ class ApiService {
     );
     // Ensure we always return a Map
     if (result is Map) {
-      _log.debug('ApiService', 'getNotifications returned Map with ${result.length} keys');
+      _log.debug(
+        'ApiService',
+        'getNotifications returned Map with ${result.length} keys',
+      );
       return Map<String, dynamic>.from(result);
     }
     // If result is a List, wrap it
     if (result is List) {
-      _log.debug('ApiService', 'getNotifications returned List with ${result.length} items');
+      _log.debug(
+        'ApiService',
+        'getNotifications returned List with ${result.length} items',
+      );
       return {'notifications': result, 'unreadCount': result.length};
     }
-    _log.warning('ApiService', 'getNotifications returned unexpected type: ${result.runtimeType}');
+    _log.warning(
+      'ApiService',
+      'getNotifications returned unexpected type: ${result.runtimeType}',
+    );
     return {'notifications': [], 'unreadCount': 0};
   }
 
@@ -917,10 +926,7 @@ class ApiService {
   /// DELETE /notifications/:id
   Future<void> deleteNotification(String id) async {
     await _authenticatedRequest(
-      (h) => http.delete(
-        Uri.parse('$baseUrl/notifications/$id'),
-        headers: h,
-      ),
+      (h) => http.delete(Uri.parse('$baseUrl/notifications/$id'), headers: h),
     );
   }
 
@@ -1042,13 +1048,11 @@ class ApiService {
   Future<Map<String, dynamic>> getDoctorDashboardGraph({
     String period = 'week',
   }) async {
-    final uri = Uri.parse('$baseUrl/doctor/dashboard/graph').replace(
-      queryParameters: {'period': period},
-    );
+    final uri = Uri.parse(
+      '$baseUrl/doctor/dashboard/graph',
+    ).replace(queryParameters: {'period': period});
     return Map<String, dynamic>.from(
-      await _authenticatedRequest(
-        (h) => http.get(uri, headers: h),
-      ),
+      await _authenticatedRequest((h) => http.get(uri, headers: h)),
     );
   }
 
@@ -1466,12 +1470,15 @@ class ApiService {
     );
 
     // 60-second timeout: OCR (~30s) + AI enhancement (~20s) + margin
-    final streamed = await request
-        .send()
-        .timeout(const Duration(seconds: 60), onTimeout: () {
-      throw ApiException(
-          504, 'Scan timed out. The server is taking too long to respond.');
-    });
+    final streamed = await request.send().timeout(
+      const Duration(seconds: 60),
+      onTimeout: () {
+        throw ApiException(
+          504,
+          'Scan timed out. The server is taking too long to respond.',
+        );
+      },
+    );
     final res = await http.Response.fromStream(streamed);
     if (res.statusCode == 401) {
       final refreshed = await _tryRefreshToken();
@@ -1492,7 +1499,9 @@ class ApiService {
         final streamed2 = await request2.send().timeout(
           const Duration(seconds: 60),
           onTimeout: () => throw ApiException(
-              504, 'Scan timed out. The server is taking too long to respond.'),
+            504,
+            'Scan timed out. The server is taking too long to respond.',
+          ),
         );
         final res2 = await http.Response.fromStream(streamed2);
         return Map<String, dynamic>.from(_handleResponse(res2));
@@ -1606,7 +1615,10 @@ class ApiService {
   }
 
   /// POST /prescriptions/:id/reject – reject prescription
-  Future<Map<String, dynamic>> rejectPrescription(String id, {String? reason}) async {
+  Future<Map<String, dynamic>> rejectPrescription(
+    String id, {
+    String? reason,
+  }) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.post(

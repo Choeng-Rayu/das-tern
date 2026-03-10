@@ -14,10 +14,7 @@ class FamilyConnectIntroScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.connectFamilyTitle),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.connectFamilyTitle), centerTitle: true),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -44,18 +41,18 @@ class FamilyConnectIntroScreen extends StatelessWidget {
               Text(
                 l10n.connectWithFamily,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 l10n.shareMedicationWithFamily,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                      height: 1.5,
-                    ),
+                  color: AppColors.textSecondary,
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: AppSpacing.xxl),
 
@@ -67,10 +64,7 @@ class FamilyConnectIntroScreen extends StatelessWidget {
                 subtitle: l10n.generateCodeForFamily,
                 color: AppColors.primaryBlue,
                 onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/family/access-level',
-                  );
+                  Navigator.pushNamed(context, '/family/access-level');
                 },
               ),
               const SizedBox(height: AppSpacing.md),
@@ -106,15 +100,18 @@ class FamilyConnectIntroScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.info_outline,
-                      size: 16, color: AppColors.textSecondary),
+                  Icon(
+                    Icons.info_outline,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
                   const SizedBox(width: AppSpacing.xs),
                   Flexible(
                     child: Text(
                       l10n.codeValidFor24Hours,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ),
                 ],
@@ -155,16 +152,16 @@ class FamilyConnectIntroScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),

@@ -22,8 +22,7 @@ class BatchProvider extends ChangeNotifier {
   List<MedicationBatch> get batches => _batches;
   MedicationBatch? get selectedBatch => _selectedBatch;
 
-  int get activeBatchCount =>
-      _batches.where((b) => b.isActive).length;
+  int get activeBatchCount => _batches.where((b) => b.isActive).length;
 
   /// Fetch batches. Online -> API + cache. Offline -> SQLite.
   Future<void> fetchBatches() async {
@@ -34,25 +33,21 @@ class BatchProvider extends ChangeNotifier {
       if (_sync.isOnline) {
         final result = await _api.getBatches();
         _batches = result
-            .map((b) =>
-                MedicationBatch.fromJson(Map<String, dynamic>.from(b)))
+            .map((b) => MedicationBatch.fromJson(Map<String, dynamic>.from(b)))
             .toList();
         await _db.cacheBatches(
-            result.map((b) => Map<String, dynamic>.from(b)).toList());
+          result.map((b) => Map<String, dynamic>.from(b)).toList(),
+        );
       } else {
         final cached = await _db.getCachedBatches();
-        _batches = cached
-            .map((b) => MedicationBatch.fromJson(b))
-            .toList();
+        _batches = cached.map((b) => MedicationBatch.fromJson(b)).toList();
       }
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
       try {
         final cached = await _db.getCachedBatches();
         if (cached.isNotEmpty) {
-          _batches = cached
-              .map((b) => MedicationBatch.fromJson(b))
-              .toList();
+          _batches = cached.map((b) => MedicationBatch.fromJson(b)).toList();
           _error = null;
         }
       } catch (_) {}
@@ -106,13 +101,18 @@ class BatchProvider extends ChangeNotifier {
         // Schedule notification even when offline
         final medicines = data['medicines'] as List<dynamic>? ?? [];
         final medicineNames = medicines
-            .map((m) => (m as Map<String, dynamic>)['medicineName'] as String? ?? '')
+            .map(
+              (m) =>
+                  (m as Map<String, dynamic>)['medicineName'] as String? ?? '',
+            )
             .where((n) => n.isNotEmpty)
             .toList();
         final timeParts = (data['scheduledTime'] as String).split(':');
         final now = DateTime.now();
         var reminderTime = DateTime(
-          now.year, now.month, now.day,
+          now.year,
+          now.month,
+          now.day,
           int.parse(timeParts[0]),
           int.parse(timeParts[1]),
         );
@@ -186,7 +186,9 @@ class BatchProvider extends ChangeNotifier {
 
   /// Add a medicine to a batch.
   Future<bool> addMedicineToBatch(
-      String batchId, Map<String, dynamic> data) async {
+    String batchId,
+    Map<String, dynamic> data,
+  ) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -213,7 +215,9 @@ class BatchProvider extends ChangeNotifier {
 
   /// Remove a medicine from a batch.
   Future<bool> removeMedicineFromBatch(
-      String batchId, String medicineId) async {
+    String batchId,
+    String medicineId,
+  ) async {
     try {
       await _api.removeMedicineFromBatch(batchId, medicineId);
       await fetchBatches();
@@ -236,8 +240,7 @@ class BatchProvider extends ChangeNotifier {
   Future<void> _scheduleBatchNotification(MedicationBatch batch) async {
     if (!batch.isActive || batch.id == null) return;
 
-    final medicineNames =
-        batch.medications.map((m) => m.medicineName).toList();
+    final medicineNames = batch.medications.map((m) => m.medicineName).toList();
     if (medicineNames.isEmpty) return;
 
     final timeParts = batch.scheduledTime.split(':');
@@ -245,7 +248,9 @@ class BatchProvider extends ChangeNotifier {
 
     final now = DateTime.now();
     var reminderTime = DateTime(
-      now.year, now.month, now.day,
+      now.year,
+      now.month,
+      now.day,
       int.parse(timeParts[0]),
       int.parse(timeParts[1]),
     );

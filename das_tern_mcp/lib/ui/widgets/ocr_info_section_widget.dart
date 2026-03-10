@@ -65,8 +65,9 @@ class _OcrInfoSectionWidgetState extends State<OcrInfoSectionWidget> {
   @override
   Widget build(BuildContext context) {
     // Filter out entries with empty values unless a custom valueWidget is provided
-    final visibleEntries =
-        widget.entries.where((e) => e.valueWidget != null || e.value.isNotEmpty).toList();
+    final visibleEntries = widget.entries
+        .where((e) => e.valueWidget != null || e.value.isNotEmpty)
+        .toList();
 
     if (visibleEntries.isEmpty) return const SizedBox.shrink();
 
@@ -104,8 +105,8 @@ class _OcrInfoSectionWidgetState extends State<OcrInfoSectionWidget> {
                     child: Text(
                       widget.title,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   if (widget.trailing != null) ...[
@@ -150,19 +151,20 @@ class _OcrInfoSectionWidgetState extends State<OcrInfoSectionWidget> {
             child: Text(
               '${entry.label}:',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           Expanded(
-            child: entry.valueWidget ??
+            child:
+                entry.valueWidget ??
                 Text(
                   entry.value,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: entry.valueColor,
-                      ),
+                    fontWeight: FontWeight.w500,
+                    color: entry.valueColor,
+                  ),
                 ),
           ),
         ],

@@ -271,8 +271,7 @@ void main() {
 
     test('only DUE doses should get reminders', () {
       final doseStatuses = ['DUE', 'TAKEN_ON_TIME', 'TAKEN_LATE', 'SKIPPED'];
-      final schedulable =
-          doseStatuses.where((s) => s == 'DUE').toList();
+      final schedulable = doseStatuses.where((s) => s == 'DUE').toList();
       expect(schedulable.length, 1);
       expect(schedulable.first, 'DUE');
     });

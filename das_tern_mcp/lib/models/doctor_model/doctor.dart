@@ -46,22 +46,24 @@ class Doctor {
           ? _fromString(json['accountStatus'])
           : AccountStatus.active,
       createdAt: DateTime.parse(
-          json['createdAt'] ?? DateTime.now().toIso8601String()),
+        json['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
       updatedAt: DateTime.parse(
-          json['updatedAt'] ?? DateTime.now().toIso8601String()),
+        json['updatedAt'] ?? DateTime.now().toIso8601String(),
+      ),
       patientCount: json['patientCount'] ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'fullName': fullName,
-        'phoneNumber': phoneNumber,
-        'email': email,
-        'hospitalClinic': hospitalClinic,
-        'specialty': specialty,
-        'licenseNumber': licenseNumber,
-      };
+    'id': id,
+    'fullName': fullName,
+    'phoneNumber': phoneNumber,
+    'email': email,
+    'hospitalClinic': hospitalClinic,
+    'specialty': specialty,
+    'licenseNumber': licenseNumber,
+  };
 
   static AccountStatus _fromString(String v) {
     switch (v) {
