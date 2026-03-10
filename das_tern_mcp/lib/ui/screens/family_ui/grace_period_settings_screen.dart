@@ -97,10 +97,7 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.gracePeriodTitle),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.gracePeriodTitle), centerTitle: true),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -110,69 +107,68 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
               if (v != null) setState(() => _selectedMinutes = v);
             },
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.access_time,
-                        color: AppColors.primaryBlue, size: 24),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.gracePeriodLabel,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            l10n.gracePeriodDescription,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: AppColors.textSecondary),
-                          ),
-                        ],
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        color: AppColors.primaryBlue,
+                        size: 24,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.gracePeriodLabel,
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              l10n.gracePeriodDescription,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.lg),
 
-              // Options
-              ...List.generate(options.length, (index) {
-                final option = options[index];
-                final isSelected = _selectedMinutes == option.minutes;
+                // Options
+                ...List.generate(options.length, (index) {
+                  final option = options[index];
+                  final isSelected = _selectedMinutes == option.minutes;
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  child: _buildOptionCard(context, option, isSelected),
-                );
-              }),
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: _buildOptionCard(context, option, isSelected),
+                  );
+                }),
 
-              const Spacer(),
+                const Spacer(),
 
-              // Save button
-              PrimaryButton(
-                text: l10n.save,
-                isLoading: _isSaving,
-                onPressed: _save,
-              ),
-              const SizedBox(height: AppSpacing.md),
-            ],
-          ),
+                // Save button
+                PrimaryButton(
+                  text: l10n.save,
+                  isLoading: _isSaving,
+                  onPressed: _save,
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
+            ),
           ),
         ),
       ),
@@ -215,10 +211,9 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
                     children: [
                       Text(
                         option.label,
-                        style:
-                            Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       if (option.isRecommended) ...[
                         const SizedBox(width: AppSpacing.sm),
@@ -247,8 +242,8 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
                   Text(
                     option.description,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),

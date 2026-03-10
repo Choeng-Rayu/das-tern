@@ -665,6 +665,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
     }
   }
 }
+
 class _TimePeriodCard extends StatelessWidget {
   const _TimePeriodCard({
     required this.label,

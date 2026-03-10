@@ -39,15 +39,15 @@ class _DoctorPrescriptionHistoryTabState
         child: provider.isLoading
             ? const Center(child: CircularProgressIndicator())
             : provider.prescriptions.isEmpty
-                ? _buildEmptyState(context)
-                : ListView.builder(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    itemCount: provider.prescriptions.length,
-                    itemBuilder: (context, index) {
-                      final rx = provider.prescriptions[index];
-                      return _buildPrescriptionCard(context, rx);
-                    },
-                  ),
+            ? _buildEmptyState(context)
+            : ListView.builder(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                itemCount: provider.prescriptions.length,
+                itemBuilder: (context, index) {
+                  final rx = provider.prescriptions[index];
+                  return _buildPrescriptionCard(context, rx);
+                },
+              ),
       ),
     );
   }
@@ -58,8 +58,11 @@ class _DoctorPrescriptionHistoryTabState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.description_outlined,
-              size: 64, color: AppColors.neutral300),
+          Icon(
+            Icons.description_outlined,
+            size: 64,
+            color: AppColors.neutral300,
+          ),
           const SizedBox(height: AppSpacing.md),
           Text(
             l10n.noPrescriptionHistory,
@@ -68,10 +71,9 @@ class _DoctorPrescriptionHistoryTabState
           const SizedBox(height: AppSpacing.sm),
           Text(
             l10n.prescriptionsCreatedAppearHere,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: AppColors.textSecondary),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],
@@ -79,10 +81,7 @@ class _DoctorPrescriptionHistoryTabState
     );
   }
 
-  Widget _buildPrescriptionCard(
-    BuildContext context,
-    Prescription rx,
-  ) {
+  Widget _buildPrescriptionCard(BuildContext context, Prescription rx) {
     final patientName = rx.patientName;
     final status = rx.status;
     final date = rx.createdAt.toIso8601String().split('T')[0];
@@ -102,10 +101,9 @@ class _DoctorPrescriptionHistoryTabState
                 Expanded(
                   child: Text(
                     patientName,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 Container(
@@ -132,10 +130,9 @@ class _DoctorPrescriptionHistoryTabState
               const SizedBox(height: AppSpacing.xs),
               Text(
                 date,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
             ],
             if (medications.isNotEmpty) ...[

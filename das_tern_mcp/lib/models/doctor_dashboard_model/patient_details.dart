@@ -22,22 +22,31 @@ class PatientDetails {
   factory PatientDetails.fromJson(Map<String, dynamic> json) {
     return PatientDetails(
       patient: PatientInfo.fromJson(
-          Map<String, dynamic>.from(json['patient'] ?? {})),
+        Map<String, dynamic>.from(json['patient'] ?? {}),
+      ),
       adherence: AdherenceResult.fromJson(
-          Map<String, dynamic>.from(json['adherence'] ?? {})),
-      adherenceTimeline: (json['adherenceTimeline'] as List<dynamic>?)
-              ?.map((e) => AdherenceTimelinePoint.fromJson(
-                  Map<String, dynamic>.from(e)))
-              .toList() ??
-          [],
-      prescriptions: (json['prescriptions'] as List<dynamic>?)
-              ?.map((e) => PatientPrescription.fromJson(
-                  Map<String, dynamic>.from(e)))
-              .toList() ??
-          [],
-      notes: (json['notes'] as List<dynamic>?)
+        Map<String, dynamic>.from(json['adherence'] ?? {}),
+      ),
+      adherenceTimeline:
+          (json['adherenceTimeline'] as List<dynamic>?)
               ?.map(
-                  (e) => DoctorNote.fromJson(Map<String, dynamic>.from(e)))
+                (e) => AdherenceTimelinePoint.fromJson(
+                  Map<String, dynamic>.from(e),
+                ),
+              )
+              .toList() ??
+          [],
+      prescriptions:
+          (json['prescriptions'] as List<dynamic>?)
+              ?.map(
+                (e) =>
+                    PatientPrescription.fromJson(Map<String, dynamic>.from(e)),
+              )
+              .toList() ??
+          [],
+      notes:
+          (json['notes'] as List<dynamic>?)
+              ?.map((e) => DoctorNote.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           [],
       connectionId: json['connectionId'] ?? '',
@@ -122,9 +131,13 @@ class PatientPrescription {
       symptoms: json['symptoms'],
       status: json['status'] ?? 'DRAFT',
       currentVersion: json['currentVersion'] ?? 1,
-      medications: (json['medications'] as List<dynamic>?)
-              ?.map((e) => PrescriptionMedication.fromJson(
-                  Map<String, dynamic>.from(e)))
+      medications:
+          (json['medications'] as List<dynamic>?)
+              ?.map(
+                (e) => PrescriptionMedication.fromJson(
+                  Map<String, dynamic>.from(e),
+                ),
+              )
               .toList() ??
           [],
       createdAt: json['createdAt'],

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -127,17 +127,21 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                         _ThemeOptionCard(
                           icon: Icons.phone_android_rounded,
                           label: 'System',
-                          isSelected: themeProvider.themeMode == ThemeMode.system,
+                          isSelected:
+                              themeProvider.themeMode == ThemeMode.system,
                           isDark: isDark,
-                          onTap: () => themeProvider.setThemeMode(ThemeMode.system),
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.system),
                         ),
                         const SizedBox(width: 10),
                         _ThemeOptionCard(
                           icon: Icons.light_mode_rounded,
                           label: 'Light',
-                          isSelected: themeProvider.themeMode == ThemeMode.light,
+                          isSelected:
+                              themeProvider.themeMode == ThemeMode.light,
                           isDark: isDark,
-                          onTap: () => themeProvider.setThemeMode(ThemeMode.light),
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.light),
                         ),
                         const SizedBox(width: 10),
                         _ThemeOptionCard(
@@ -145,7 +149,8 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                           label: 'Dark',
                           isSelected: themeProvider.themeMode == ThemeMode.dark,
                           isDark: isDark,
-                          onTap: () => themeProvider.setThemeMode(ThemeMode.dark),
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.dark),
                         ),
                       ],
                     ),
@@ -713,9 +718,7 @@ class _ThemeOptionCard extends StatelessWidget {
             color: isSelected ? selectedBg : unselectedBg,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected
-                  ? AppColors.primaryBlue
-                  : Colors.transparent,
+              color: isSelected ? AppColors.primaryBlue : Colors.transparent,
               width: 1.5,
             ),
           ),

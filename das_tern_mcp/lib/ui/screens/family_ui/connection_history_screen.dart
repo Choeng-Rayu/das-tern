@@ -50,10 +50,7 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.connectionHistory),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.connectionHistory), centerTitle: true),
       body: Column(
         children: [
           // Filter chips
@@ -77,35 +74,36 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _history.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.history,
-                                size: 48, color: AppColors.neutral300),
-                            const SizedBox(height: AppSpacing.md),
-                            Text(
-                              l10n.noHistoryFound,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.history,
+                          size: 48,
+                          color: AppColors.neutral300,
                         ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: _loadHistory,
-                        child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.md),
-                          itemCount: _history.length,
-                          itemBuilder: (context, index) {
-                            return _buildHistoryItem(
-                                context, _history[index]);
-                          },
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          l10n.noHistoryFound,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.textSecondary),
                         ),
+                      ],
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _loadHistory,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
                       ),
+                      itemCount: _history.length,
+                      itemBuilder: (context, index) {
+                        return _buildHistoryItem(context, _history[index]);
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
@@ -126,8 +124,7 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
     );
   }
 
-  Widget _buildHistoryItem(
-      BuildContext context, Map<String, dynamic> item) {
+  Widget _buildHistoryItem(BuildContext context, Map<String, dynamic> item) {
     final l10n = AppLocalizations.of(context)!;
     final status = item['status'] ?? 'PENDING';
     final createdAt = item['createdAt'] != null
@@ -153,11 +150,9 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
     final initiator = item['initiator'] ?? {};
     final recipient = item['recipient'] ?? {};
     final initiatorName =
-        '${initiator['firstName'] ?? ''} ${initiator['lastName'] ?? ''}'
-            .trim();
+        '${initiator['firstName'] ?? ''} ${initiator['lastName'] ?? ''}'.trim();
     final recipientName =
-        '${recipient['firstName'] ?? ''} ${recipient['lastName'] ?? ''}'
-            .trim();
+        '${recipient['firstName'] ?? ''} ${recipient['lastName'] ?? ''}'.trim();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -176,15 +171,15 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
                         ? '$initiatorName → $recipientName'
                         : l10n.connectionLabel,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${createdAt.day}/${createdAt.month}/${createdAt.year}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),

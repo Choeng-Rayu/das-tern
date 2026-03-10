@@ -115,8 +115,7 @@ class Prescription {
       if (clinicalNote != null) 'clinicalNote': clinicalNote,
       if (doctorLicenseNumber != null)
         'doctorLicenseNumber': doctorLicenseNumber,
-      if (followUpDate != null)
-        'followUpDate': followUpDate!.toIso8601String(),
+      if (followUpDate != null) 'followUpDate': followUpDate!.toIso8601String(),
       if (startDate != null) 'startDate': startDate!.toIso8601String(),
       if (endDate != null) 'endDate': endDate!.toIso8601String(),
       if (ocrMetadata != null) 'ocrMetadata': ocrMetadata,
@@ -186,18 +185,18 @@ class PrescriptionMedication {
       morningDosage: json['morningDosage'] is Map
           ? Map<String, dynamic>.from(json['morningDosage'])
           : (json['morningDosage'] is num
-              ? {'amount': (json['morningDosage'] as num).toDouble()}
-              : null),
+                ? {'amount': (json['morningDosage'] as num).toDouble()}
+                : null),
       daytimeDosage: json['daytimeDosage'] is Map
           ? Map<String, dynamic>.from(json['daytimeDosage'])
           : (json['daytimeDosage'] is num
-              ? {'amount': (json['daytimeDosage'] as num).toDouble()}
-              : null),
+                ? {'amount': (json['daytimeDosage'] as num).toDouble()}
+                : null),
       nightDosage: json['nightDosage'] is Map
           ? Map<String, dynamic>.from(json['nightDosage'])
           : (json['nightDosage'] is num
-              ? {'amount': (json['nightDosage'] as num).toDouble()}
-              : null),
+                ? {'amount': (json['nightDosage'] as num).toDouble()}
+                : null),
       frequency: json['frequency'] as String,
       timing: json['timing'] as String,
       medicationData: json['medication'] is Map

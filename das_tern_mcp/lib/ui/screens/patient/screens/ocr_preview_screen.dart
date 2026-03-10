@@ -56,7 +56,9 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
       _parseOcrResponse();
     } catch (e) {
       debugPrint('[OcrPreview] Error parsing OCR response: $e');
-      debugPrint('[OcrPreview] Raw data keys: ${widget.extractedData.keys.toList()}');
+      debugPrint(
+        '[OcrPreview] Raw data keys: ${widget.extractedData.keys.toList()}',
+      );
       _medicines = [];
       _title = 'Scanned Prescription';
       _aiStatus = 'not_responded';
@@ -113,8 +115,12 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
   /// }
   void _parseOcrResponse() {
     final raw = widget.extractedData;
-    debugPrint('[OcrPreview] Parsing response — top-level keys: ${raw.keys.toList()}');
-    debugPrint('[OcrPreview] ai_status: ${raw['ai_status']}, ai_enhanced type: ${raw['ai_enhanced']?.runtimeType}');
+    debugPrint(
+      '[OcrPreview] Parsing response — top-level keys: ${raw.keys.toList()}',
+    );
+    debugPrint(
+      '[OcrPreview] ai_status: ${raw['ai_status']}, ai_enhanced type: ${raw['ai_enhanced']?.runtimeType}',
+    );
 
     // Navigate into the nested structure (using _asMap for bulletproof casting)
     final data = _asMap(raw['data']);
@@ -258,7 +264,10 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
 
       // Apply AI-corrected diagnoses
       final aiDiagList = _asList(aiEnhanced['diagnoses']);
-      final validDiags = aiDiagList.map((d) => d.toString()).where((s) => s.isNotEmpty).toList();
+      final validDiags = aiDiagList
+          .map((d) => d.toString())
+          .where((s) => s.isNotEmpty)
+          .toList();
       if (validDiags.isNotEmpty) {
         _diagnosis = validDiags.join(', ');
         _title = _diagnosis!;
@@ -272,7 +281,9 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
       }
     }
 
-    debugPrint('[OcrPreview] Parsed ${_medicines.length} medicines, ai_status=$_aiStatus');
+    debugPrint(
+      '[OcrPreview] Parsed ${_medicines.length} medicines, ai_status=$_aiStatus',
+    );
   }
 
   /// Transform a single OCR medication item into the flat Map format
@@ -386,7 +397,8 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
       'night': night,
       'beforeMeal': beforeMeal,
       'isPRN': isPRN,
-      if (description != null) 'description': description, // ignore: use_null_aware_elements
+      if (description != null)
+        'description': description, // ignore: use_null_aware_elements
     };
   }
 

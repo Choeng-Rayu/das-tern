@@ -66,8 +66,9 @@ void showConnectionRequestSheet({
                   // Doctor icon
                   CircleAvatar(
                     radius: 32,
-                    backgroundColor:
-                        AppColors.primaryBlue.withValues(alpha: 0.1),
+                    backgroundColor: AppColors.primaryBlue.withValues(
+                      alpha: 0.1,
+                    ),
                     child: const Icon(
                       Icons.person_add,
                       color: AppColors.primaryBlue,

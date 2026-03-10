@@ -137,7 +137,9 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                   ],
 
                   // Prescriptions Section (ACTIVE only)
-                  if (provider.prescriptions.where((p) => p.status == 'ACTIVE').isNotEmpty) ...[
+                  if (provider.prescriptions
+                      .where((p) => p.status == 'ACTIVE')
+                      .isNotEmpty) ...[
                     Text(
                       l10n.prescriptions,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -145,103 +147,116 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    ...provider.prescriptions.where((p) => p.status == 'ACTIVE').map(
-                      (rx) => Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: AppCard(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRouter.prescriptionDetail,
-                              arguments: {'prescriptionId': rx.id},
-                            );
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                    ...provider.prescriptions
+                        .where((p) => p.status == 'ACTIVE')
+                        .map(
+                          (rx) => Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppSpacing.sm,
+                            ),
+                            child: AppCard(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRouter.prescriptionDetail,
+                                  arguments: {'prescriptionId': rx.id},
+                                );
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: AppSpacing.sm,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.successGreen.withValues(
-                                        alpha: 0.1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                        AppRadius.sm,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      rx.status.toUpperCase(),
-                                      style: const TextStyle(
-                                        color: AppColors.successGreen,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  Text(
-                                    'v${rx.currentVersion}',
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(
-                                          color: AppColors.textSecondary,
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: AppSpacing.sm,
+                                          vertical: 2,
                                         ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.successGreen
+                                              .withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            AppRadius.sm,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          rx.status.toUpperCase(),
+                                          style: const TextStyle(
+                                            color: AppColors.successGreen,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        'v${rx.currentVersion}',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: AppColors.textSecondary,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Text(
+                                    l10n.medicationCountLabel(
+                                      rx.medications.length,
+                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  if (rx.notes != null) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      rx.notes!,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Wrap(
+                                    spacing: 6,
+                                    runSpacing: 6,
+                                    children: rx.medications.map((m) {
+                                      final name =
+                                          m.medicationData?['name'] ??
+                                          m.medicineName;
+                                      return Chip(
+                                        label: Text(
+                                          name,
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                        materialTapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                        visualDensity: VisualDensity.compact,
+                                      );
+                                    }).toList(),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: AppSpacing.sm),
-                              Text(
-                                l10n.medicationCountLabel(
-                                  rx.medications.length,
-                                ),
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              if (rx.notes != null) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  rx.notes!,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                              const SizedBox(height: AppSpacing.sm),
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: rx.medications.map((m) {
-                                  final name =
-                                      m.medicationData?['name'] ??
-                                      m.medicineName;
-                                  return Chip(
-                                    label: Text(
-                                      name,
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    materialTapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                    visualDensity: VisualDensity.compact,
-                                  );
-                                }).toList(),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
                   ],
 
                   // Empty state
-                  if (provider.prescriptions.where((p) => p.status == 'ACTIVE').isEmpty &&
-                      provider.prescriptions.where((p) => p.status == 'DRAFT').isEmpty &&
+                  if (provider.prescriptions
+                          .where((p) => p.status == 'ACTIVE')
+                          .isEmpty &&
+                      provider.prescriptions
+                          .where((p) => p.status == 'DRAFT')
+                          .isEmpty &&
                       batchProvider.batches.isEmpty)
                     Center(
                       child: Padding(
@@ -289,9 +304,9 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
     return [
       Text(
         l10n.pendingPrescriptions,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
       ),
       const SizedBox(height: AppSpacing.sm),
       ...pending.map(
@@ -316,10 +331,8 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.warningOrange
-                            .withValues(alpha: 0.1),
-                        borderRadius:
-                            BorderRadius.circular(AppRadius.sm),
+                        color: AppColors.warningOrange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
                       ),
                       child: Text(
                         rx.status.toUpperCase(),
@@ -333,10 +346,9 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                     const Spacer(),
                     Text(
                       'v${rx.currentVersion}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: AppColors.textSecondary),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -347,29 +359,25 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                     rx.doctor?['fullName'] as String? ?? '',
                   ),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   l10n.medicationCountLabel(rx.medications.length),
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: AppColors.textSecondary),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
                   children: rx.medications.map((m) {
-                    final name =
-                        m.medicationData?['name'] ?? m.medicineName;
+                    final name = m.medicationData?['name'] ?? m.medicineName;
                     return Chip(
-                      label: Text(name,
-                          style: const TextStyle(fontSize: 12)),
-                      materialTapTargetSize:
-                          MaterialTapTargetSize.shrinkWrap,
+                      label: Text(name, style: const TextStyle(fontSize: 12)),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       visualDensity: VisualDensity.compact,
                     );
                   }).toList(),
@@ -381,17 +389,16 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () async {
-                          final ok = await provider
-                              .rejectPrescription(rx.id!);
+                          final ok = await provider.rejectPrescription(rx.id!);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(ok
-                                    ? l10n.prescriptionRejected
-                                    : (provider.error ?? '')),
-                                backgroundColor: ok
-                                    ? null
-                                    : AppColors.alertRed,
+                                content: Text(
+                                  ok
+                                      ? l10n.prescriptionRejected
+                                      : (provider.error ?? ''),
+                                ),
+                                backgroundColor: ok ? null : AppColors.alertRed,
                               ),
                             );
                           }
@@ -403,14 +410,15 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
-                          final ok = await provider
-                              .confirmPrescription(rx.id!);
+                          final ok = await provider.confirmPrescription(rx.id!);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(ok
-                                    ? l10n.prescriptionConfirmed
-                                    : (provider.error ?? '')),
+                                content: Text(
+                                  ok
+                                      ? l10n.prescriptionConfirmed
+                                      : (provider.error ?? ''),
+                                ),
                                 backgroundColor: ok
                                     ? AppColors.successGreen
                                     : AppColors.alertRed,
