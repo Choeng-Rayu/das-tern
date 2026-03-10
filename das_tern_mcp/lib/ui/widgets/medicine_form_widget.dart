@@ -113,17 +113,23 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
       'scheduleTimes': scheduleTimes,
       if (_morning)
         'morningDosage': {
-          'amount': (_dosageController.text.trim().isEmpty ? '1' : _dosageController.text.trim()),
+          'amount': (_dosageController.text.trim().isEmpty
+              ? '1'
+              : _dosageController.text.trim()),
           'beforeMeal': _beforeMeal,
         },
       if (_daytime)
         'daytimeDosage': {
-          'amount': (_dosageController.text.trim().isEmpty ? '1' : _dosageController.text.trim()),
+          'amount': (_dosageController.text.trim().isEmpty
+              ? '1'
+              : _dosageController.text.trim()),
           'beforeMeal': _beforeMeal,
         },
       if (_night)
         'nightDosage': {
-          'amount': (_dosageController.text.trim().isEmpty ? '1' : _dosageController.text.trim()),
+          'amount': (_dosageController.text.trim().isEmpty
+              ? '1'
+              : _dosageController.text.trim()),
           'beforeMeal': _beforeMeal,
         },
       'beforeMeal': _beforeMeal,

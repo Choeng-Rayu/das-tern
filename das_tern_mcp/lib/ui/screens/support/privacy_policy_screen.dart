@@ -8,7 +8,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final subtitleColor = isDark ? Colors.white70 : AppColors.textSecondary;
-    final bodyColor = isDark ? Colors.white.withValues(alpha: 0.85) : AppColors.textPrimary;
+    final bodyColor = isDark
+        ? Colors.white.withValues(alpha: 0.85)
+        : AppColors.textPrimary;
     final cardColor = isDark ? const Color(0xFF1E1E2E) : Colors.white;
 
     return Scaffold(
@@ -56,12 +58,18 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.shield_rounded, size: 32, color: Colors.white),
+                  child: const Icon(
+                    Icons.shield_rounded,
+                    size: 32,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 14),
                 Text(
                   'Privacy Policy',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -77,7 +85,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFFAF52DE).withValues(alpha: isDark ? 0.12 : 0.06),
+              color: const Color(
+                0xFFAF52DE,
+              ).withValues(alpha: isDark ? 0.12 : 0.06),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: const Color(0xFFAF52DE).withValues(alpha: 0.2),
@@ -85,7 +95,11 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.verified_user_rounded, color: Color(0xFFAF52DE), size: 20),
+                const Icon(
+                  Icons.verified_user_rounded,
+                  color: Color(0xFFAF52DE),
+                  size: 20,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -103,14 +117,16 @@ class PrivacyPolicyScreen extends StatelessWidget {
           const SizedBox(height: 20),
 
           // ── Sections ──
-          ..._sections.map((section) => _PolicySection(
-                cardColor: cardColor,
-                isDark: isDark,
-                bodyColor: bodyColor,
-                icon: section['icon'] as IconData,
-                title: section['title'] as String,
-                body: section['body'] as String,
-              )),
+          ..._sections.map(
+            (section) => _PolicySection(
+              cardColor: cardColor,
+              isDark: isDark,
+              bodyColor: bodyColor,
+              icon: section['icon'] as IconData,
+              title: section['title'] as String,
+              body: section['body'] as String,
+            ),
+          ),
 
           const SizedBox(height: 20),
           Center(
@@ -227,8 +243,8 @@ class _PolicySection extends StatelessWidget {
                   Text(
                     title,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(

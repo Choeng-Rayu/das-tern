@@ -91,82 +91,80 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
                 ],
               )
             : provider.error != null && provider.notifications.isEmpty
-                ? ListView(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.6,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                size: 64,
-                                color: AppColors.alertRed,
-                              ),
-                              const SizedBox(height: AppSpacing.md),
-                              Text(
-                                provider.error!,
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.alertRed,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.md),
-                              ElevatedButton(
-                                onPressed: () {
-                                  provider.clearError();
-                                  provider.fetchNotifications();
-                                },
-                                child: Text(l10n.retry),
-                              ),
-                            ],
+            ? ListView(
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: AppColors.alertRed,
                           ),
-                        ),
-                      ),
-                    ],
-                  )
-                : provider.notifications.isEmpty
-                ? ListView(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.6,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.notifications_off_outlined,
-                                size: 64,
-                                color: AppColors.neutral300,
-                              ),
-                              const SizedBox(height: AppSpacing.md),
-                              Text(
-                                l10n.noNotifications,
-                                style:
-                                    Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ],
+                          const SizedBox(height: AppSpacing.md),
+                          Text(
+                            provider.error!,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.alertRed),
                           ),
-                        ),
+                          const SizedBox(height: AppSpacing.md),
+                          ElevatedButton(
+                            onPressed: () {
+                              provider.clearError();
+                              provider.fetchNotifications();
+                            },
+                            child: Text(l10n.retry),
+                          ),
+                        ],
                       ),
-                    ],
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    itemCount: provider.notifications.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: AppSpacing.sm),
-                    itemBuilder: (context, index) {
-                      final notif = provider.notifications[index];
-                      return _buildDismissible(
-                        notif,
-                        notif.type == 'CONNECTION_REQUEST'
-                            ? _buildConnectionRequestCard(notif)
-                            : _buildStandardNotification(notif),
-                      );
-                    },
+                    ),
                   ),
+                ],
+              )
+            : provider.notifications.isEmpty
+            ? ListView(
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.notifications_off_outlined,
+                            size: 64,
+                            color: AppColors.neutral300,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          Text(
+                            l10n.noNotifications,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                itemCount: provider.notifications.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: AppSpacing.sm),
+                itemBuilder: (context, index) {
+                  final notif = provider.notifications[index];
+                  return _buildDismissible(
+                    notif,
+                    notif.type == 'CONNECTION_REQUEST'
+                        ? _buildConnectionRequestCard(notif)
+                        : _buildStandardNotification(notif),
+                  );
+                },
+              ),
       ),
     );
   }
@@ -199,8 +197,10 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: Text(l10n.remove,
-                    style: const TextStyle(color: AppColors.alertRed)),
+                child: Text(
+                  l10n.remove,
+                  style: const TextStyle(color: AppColors.alertRed),
+                ),
               ),
             ],
           ),
@@ -277,7 +277,9 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
                   // Doctor icon
                   CircleAvatar(
                     radius: 32,
-                    backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
+                    backgroundColor: AppColors.primaryBlue.withValues(
+                      alpha: 0.1,
+                    ),
                     child: const Icon(
                       Icons.person_add,
                       color: AppColors.primaryBlue,
@@ -467,7 +469,8 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
     final isAccepted = connection?.status == ConnectionStatus.accepted;
     final isRevoked = connection?.status == ConnectionStatus.revoked;
     // Show approve/reject buttons when pending OR when connection hasn't loaded yet
-    final showActions = (isPending || connection == null) && connectionId != null;
+    final showActions =
+        (isPending || connection == null) && connectionId != null;
 
     return GestureDetector(
       onTap: connectionId != null
@@ -481,8 +484,8 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
             color: isPending
                 ? AppColors.primaryBlue.withValues(alpha: 0.3)
                 : isAccepted
-                    ? AppColors.successGreen.withValues(alpha: 0.3)
-                    : AppColors.neutral300,
+                ? AppColors.successGreen.withValues(alpha: 0.3)
+                : AppColors.neutral300,
           ),
         ),
         color: notif.isRead
@@ -496,8 +499,9 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor:
-                        AppColors.primaryBlue.withValues(alpha: 0.1),
+                    backgroundColor: AppColors.primaryBlue.withValues(
+                      alpha: 0.1,
+                    ),
                     child: const Icon(
                       Icons.person_add,
                       color: AppColors.primaryBlue,
@@ -538,10 +542,7 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text(
-                notif.message,
-                style: const TextStyle(fontSize: 14),
-              ),
+              Text(notif.message, style: const TextStyle(fontSize: 14)),
               const SizedBox(height: AppSpacing.md),
               // Inline action buttons for pending connections
               if (showActions) ...[
@@ -635,9 +636,9 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
         ),
         trailing: Text(
           _timeAgo(notif.createdAt),
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
         ),
         onTap: () {
           if (!notif.isRead) {
@@ -649,17 +650,18 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
   }
 
   Future<void> _handleApprove(
-      AppNotification notif, String connectionId) async {
+    AppNotification notif,
+    String connectionId,
+  ) async {
     final l10n = AppLocalizations.of(context)!;
     setState(() => _processingIds.add(connectionId));
 
     final connProvider = context.read<ConnectionProvider>();
     final notifProvider = context.read<NotificationProvider>();
 
-    final success = await connProvider.acceptConnection(
-      connectionId,
-      {'permissionLevel': 'ALLOWED'},
-    );
+    final success = await connProvider.acceptConnection(connectionId, {
+      'permissionLevel': 'ALLOWED',
+    });
 
     if (!notif.isRead) {
       await notifProvider.markAsRead(notif.id);
@@ -675,18 +677,17 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            success
-                ? l10n.connectionApproved
-                : (connProvider.error ?? 'Error'),
+            success ? l10n.connectionApproved : (connProvider.error ?? 'Error'),
           ),
-          backgroundColor: success ? AppColors.successGreen : AppColors.alertRed,
+          backgroundColor: success
+              ? AppColors.successGreen
+              : AppColors.alertRed,
         ),
       );
     }
   }
 
-  Future<void> _handleReject(
-      AppNotification notif, String connectionId) async {
+  Future<void> _handleReject(AppNotification notif, String connectionId) async {
     final l10n = AppLocalizations.of(context)!;
     setState(() => _processingIds.add(connectionId));
 
@@ -709,12 +710,11 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            success
-                ? l10n.connectionRejected
-                : (connProvider.error ?? 'Error'),
+            success ? l10n.connectionRejected : (connProvider.error ?? 'Error'),
           ),
-          backgroundColor:
-              success ? AppColors.textSecondary : AppColors.alertRed,
+          backgroundColor: success
+              ? AppColors.textSecondary
+              : AppColors.alertRed,
         ),
       );
     }

@@ -97,14 +97,8 @@ final ThemeData darkTheme = ThemeData(
       fontWeight: FontWeight.w600,
       color: AppColors.white,
     ),
-    bodyLarge: TextStyle(
-      fontSize: 14,
-      color: AppColors.white,
-    ),
-    bodySmall: TextStyle(
-      fontSize: 12,
-      color: AppColors.neutralGray,
-    ),
+    bodyLarge: TextStyle(fontSize: 14, color: AppColors.white),
+    bodySmall: TextStyle(fontSize: 12, color: AppColors.neutralGray),
     labelLarge: TextStyle(
       fontSize: 16,
       fontWeight: FontWeight.w600,

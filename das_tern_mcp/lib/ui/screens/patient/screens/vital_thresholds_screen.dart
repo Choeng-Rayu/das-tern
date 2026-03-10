@@ -58,13 +58,17 @@ class _VitalThresholdsScreenState extends State<VitalThresholdsScreen> {
   void _editThreshold(BuildContext context, VitalType type, dynamic threshold) {
     final l10n = AppLocalizations.of(context)!;
     final minCtrl = TextEditingController(
-        text: threshold?.minValue?.toString() ?? '');
+      text: threshold?.minValue?.toString() ?? '',
+    );
     final maxCtrl = TextEditingController(
-        text: threshold?.maxValue?.toString() ?? '');
+      text: threshold?.maxValue?.toString() ?? '',
+    );
     final minSecCtrl = TextEditingController(
-        text: threshold?.minSecondary?.toString() ?? '');
+      text: threshold?.minSecondary?.toString() ?? '',
+    );
     final maxSecCtrl = TextEditingController(
-        text: threshold?.maxSecondary?.toString() ?? '');
+      text: threshold?.maxSecondary?.toString() ?? '',
+    );
 
     showDialog(
       context: context,
@@ -146,9 +150,9 @@ class _VitalThresholdsScreenState extends State<VitalThresholdsScreen> {
                 if (maxSecCtrl.text.isNotEmpty)
                   'maxSecondary': double.parse(maxSecCtrl.text),
               };
-              await context
-                  .read<HealthMonitoringProvider>()
-                  .updateThreshold(data);
+              await context.read<HealthMonitoringProvider>().updateThreshold(
+                data,
+              );
               if (ctx.mounted) Navigator.pop(ctx);
             },
             child: Text(l10n.save),

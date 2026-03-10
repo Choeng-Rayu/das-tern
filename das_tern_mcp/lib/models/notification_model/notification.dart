@@ -30,13 +30,16 @@ class AppNotification {
 
     return AppNotification(
       id: json['id']?.toString() ?? '',
-      userId: json['recipientId']?.toString() ?? json['userId']?.toString() ?? '',
+      userId:
+          json['recipientId']?.toString() ?? json['userId']?.toString() ?? '',
       type: json['type']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       message: json['message']?.toString() ?? '',
       isRead: json['isRead'] == true,
       metadata: meta,
-      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
     );
   }
 }

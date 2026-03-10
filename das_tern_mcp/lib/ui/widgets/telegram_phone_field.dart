@@ -229,9 +229,9 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Text(
                 l10n.selectCountry,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             // Search
@@ -280,13 +280,15 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                         color: isSelected
                             ? AppColors.primaryBlue
                             : AppColors.textSecondary,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                     selected: isSelected,
-                    selectedTileColor:
-                        AppColors.primaryBlue.withValues(alpha: 0.06),
+                    selectedTileColor: AppColors.primaryBlue.withValues(
+                      alpha: 0.06,
+                    ),
                     onTap: () => widget.onSelected(country),
                   );
                 },

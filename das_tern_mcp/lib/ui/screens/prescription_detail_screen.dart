@@ -20,7 +20,9 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<PrescriptionProvider>().fetchPrescription(widget.prescriptionId);
+    context.read<PrescriptionProvider>().fetchPrescription(
+      widget.prescriptionId,
+    );
   }
 
   @override
@@ -36,178 +38,201 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : rx == null
-              ? Center(child: Text(l10n.notFound))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Status badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md,
-                          vertical: AppSpacing.xs,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _statusColor(rx.status).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(AppRadius.full),
-                        ),
-                        child: Text(
-                          rx.status,
-                          style: TextStyle(
-                            color: _statusColor(rx.status),
-                            fontWeight: FontWeight.w600,
-                          ),
+          ? Center(child: Text(l10n.notFound))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Status badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _statusColor(rx.status).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(AppRadius.full),
+                    ),
+                    child: Text(
+                      rx.status,
+                      style: TextStyle(
+                        color: _statusColor(rx.status),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Patient info
+                  _InfoRow(l10n.patient, rx.patientName),
+                  if (rx.doctor != null && rx.doctor!['fullName'] != null)
+                    _InfoRow(
+                      l10n.prescribedBy,
+                      rx.doctor!['fullName'] as String,
+                    ),
+                  _InfoRow(l10n.symptomsLabel, rx.symptoms),
+                  if (rx.diagnosis != null)
+                    _InfoRow(l10n.diagnosis, rx.diagnosis!),
+                  if (rx.clinicalNote != null)
+                    _InfoRow(l10n.clinicalNote, rx.clinicalNote!),
+                  if (rx.doctorLicenseNumber != null)
+                    _InfoRow(l10n.licenseNumber, rx.doctorLicenseNumber!),
+                  if (rx.followUpDate != null)
+                    _InfoRow(
+                      l10n.followUpLabel,
+                      '${rx.followUpDate!.day}/${rx.followUpDate!.month}/${rx.followUpDate!.year}',
+                    ),
+                  _InfoRow(l10n.versionLabel, 'v${rx.currentVersion}'),
+
+                  // OCR Metadata sections
+                  if (rx.ocrMetadata != null) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    _buildOcrScanBanner(l10n),
+                    const SizedBox(height: AppSpacing.sm),
+                    _buildPrescriberSection(l10n, rx.ocrMetadata!),
+                    _buildFacilitySection(l10n, rx.ocrMetadata!),
+                    _buildScanMetadataSection(l10n, rx.ocrMetadata!),
+                  ],
+
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    l10n.medicines,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+
+                  ...rx.medications.map(
+                    (med) => Card(
+                      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              med.medicineName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                            if (med.medicineNameKhmer.isNotEmpty)
+                              Text(
+                                med.medicineNameKhmer,
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            const SizedBox(height: 4),
+                            Text('${l10n.frequency}: ${med.frequency}'),
+                            Text('${l10n.timing}: ${med.timing}'),
+                            if (med.duration != null)
+                              Text(
+                                '${l10n.durationDays}: ${med.duration} ${l10n.days}',
+                              ),
+                            if (med.description != null)
+                              Text(
+                                '${l10n.descriptionLabel}: ${med.description}',
+                              ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.md),
-
-                      // Patient info
-                      _InfoRow(l10n.patient, rx.patientName),
-                      if (rx.doctor != null && rx.doctor!['fullName'] != null)
-                        _InfoRow(l10n.prescribedBy, rx.doctor!['fullName'] as String),
-                      _InfoRow(l10n.symptomsLabel, rx.symptoms),
-                      if (rx.diagnosis != null)
-                        _InfoRow(l10n.diagnosis, rx.diagnosis!),
-                      if (rx.clinicalNote != null)
-                        _InfoRow(l10n.clinicalNote, rx.clinicalNote!),
-                      if (rx.doctorLicenseNumber != null)
-                        _InfoRow(l10n.licenseNumber, rx.doctorLicenseNumber!),
-                      if (rx.followUpDate != null)
-                        _InfoRow(l10n.followUpLabel,
-                            '${rx.followUpDate!.day}/${rx.followUpDate!.month}/${rx.followUpDate!.year}'),
-                      _InfoRow(l10n.versionLabel, 'v${rx.currentVersion}'),
-
-                      // OCR Metadata sections
-                      if (rx.ocrMetadata != null) ...[
-                        const SizedBox(height: AppSpacing.md),
-                        _buildOcrScanBanner(l10n),
-                        const SizedBox(height: AppSpacing.sm),
-                        _buildPrescriberSection(l10n, rx.ocrMetadata!),
-                        _buildFacilitySection(l10n, rx.ocrMetadata!),
-                        _buildScanMetadataSection(l10n, rx.ocrMetadata!),
-                      ],
-
-                      const SizedBox(height: AppSpacing.md),
-                      Text(l10n.medicines,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      const SizedBox(height: AppSpacing.sm),
-
-                      ...rx.medications.map((med) => Card(
-                            margin:
-                                const EdgeInsets.only(bottom: AppSpacing.sm),
-                            child: Padding(
-                              padding: const EdgeInsets.all(AppSpacing.md),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(med.medicineName,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 15)),
-                                  if (med.medicineNameKhmer.isNotEmpty)
-                                    Text(med.medicineNameKhmer,
-                                        style: const TextStyle(
-                                            color: AppColors.textSecondary)),
-                                  const SizedBox(height: 4),
-                                  Text('${l10n.frequency}: ${med.frequency}'),
-                                  Text('${l10n.timing}: ${med.timing}'),
-                                  if (med.duration != null)
-                                    Text('${l10n.durationDays}: ${med.duration} ${l10n.days}'),
-                                  if (med.description != null)
-                                    Text('${l10n.descriptionLabel}: ${med.description}'),
-                                ],
-                              ),
-                            ),
-                          )),
-
-                      const SizedBox(height: AppSpacing.lg),
-
-                      // Action buttons
-                      if (!isDoctor && (rx.status == 'PENDING_CONFIRMATION' || rx.status == 'DRAFT'))
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () async {
-                                  final ok = await provider
-                                      .rejectPrescription(rx.id!);
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(ok
-                                            ? l10n.prescriptionRejected
-                                            : (provider.error ?? '')),
-                                        backgroundColor: ok
-                                            ? null
-                                            : AppColors.alertRed,
-                                      ),
-                                    );
-                                    if (ok) Navigator.pop(context);
-                                  }
-                                },
-                                child: Text(l10n.rejectPrescription),
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.sm),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  await provider
-                                      .confirmPrescription(rx.id!);
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(l10n.prescriptionConfirmed),
-                                        backgroundColor: AppColors.successGreen,
-                                      ),
-                                    );
-                                    Navigator.pop(context);
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.successGreen,
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: Text(l10n.confirm),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                      if (!isDoctor && rx.status == 'ACTIVE')
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () =>
-                                    provider.pausePrescription(rx.id!),
-                                child: Text(l10n.pauseButton),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                      if (!isDoctor && rx.status == 'PAUSED')
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () =>
-                                    provider.resumePrescription(rx.id!),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primaryBlue,
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: Text(l10n.resumeButton),
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
+                    ),
                   ),
-                ),
+
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Action buttons
+                  if (!isDoctor &&
+                      (rx.status == 'PENDING_CONFIRMATION' ||
+                          rx.status == 'DRAFT'))
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () async {
+                              final ok = await provider.rejectPrescription(
+                                rx.id!,
+                              );
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      ok
+                                          ? l10n.prescriptionRejected
+                                          : (provider.error ?? ''),
+                                    ),
+                                    backgroundColor: ok
+                                        ? null
+                                        : AppColors.alertRed,
+                                  ),
+                                );
+                                if (ok) Navigator.pop(context);
+                              }
+                            },
+                            child: Text(l10n.rejectPrescription),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await provider.confirmPrescription(rx.id!);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.prescriptionConfirmed),
+                                    backgroundColor: AppColors.successGreen,
+                                  ),
+                                );
+                                Navigator.pop(context);
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.successGreen,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: Text(l10n.confirm),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                  if (!isDoctor && rx.status == 'ACTIVE')
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => provider.pausePrescription(rx.id!),
+                            child: Text(l10n.pauseButton),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                  if (!isDoctor && rx.status == 'PAUSED')
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () =>
+                                provider.resumePrescription(rx.id!),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryBlue,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: Text(l10n.resumeButton),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
     );
   }
 
@@ -221,14 +246,15 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
       decoration: BoxDecoration(
         color: AppColors.primaryBlue.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(
-          color: AppColors.primaryBlue.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.document_scanner_outlined,
-              size: 18, color: AppColors.primaryBlue),
+          const Icon(
+            Icons.document_scanner_outlined,
+            size: 18,
+            color: AppColors.primaryBlue,
+          ),
           const SizedBox(width: AppSpacing.sm),
           Text(
             l10n.ocrScanInfoSection,
@@ -245,7 +271,9 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
 
   /// Prescriber information section from OCR metadata.
   Widget _buildPrescriberSection(
-      AppLocalizations l10n, Map<String, dynamic> meta) {
+    AppLocalizations l10n,
+    Map<String, dynamic> meta,
+  ) {
     final prescriberName = meta['prescriberName'] as String? ?? '';
     if (prescriberName.isEmpty) return const SizedBox.shrink();
 
@@ -261,7 +289,9 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
 
   /// Healthcare facility section from OCR metadata.
   Widget _buildFacilitySection(
-      AppLocalizations l10n, Map<String, dynamic> meta) {
+    AppLocalizations l10n,
+    Map<String, dynamic> meta,
+  ) {
     final facility = meta['healthcareFacility'] as Map<String, dynamic>?;
     if (facility == null) return const SizedBox.shrink();
 
@@ -278,8 +308,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
       displayType = facilityType;
     }
 
-    final displayName =
-        nameEnglish.isNotEmpty ? nameEnglish : nameKhmer;
+    final displayName = nameEnglish.isNotEmpty ? nameEnglish : nameKhmer;
 
     if (displayName.isEmpty && displayType.isEmpty) {
       return const SizedBox.shrink();
@@ -298,7 +327,9 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
 
   /// Scan metadata section (confidence, engine, processing time, etc.).
   Widget _buildScanMetadataSection(
-      AppLocalizations l10n, Map<String, dynamic> meta) {
+    AppLocalizations l10n,
+    Map<String, dynamic> meta,
+  ) {
     final confidenceScore = meta['confidenceScore'] as num? ?? 0;
     final ocrEngine = meta['ocrEngine'] as String? ?? '';
     final processingTimeMs = meta['processingTimeMs'] as num? ?? 0;
@@ -384,12 +415,9 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
               ? l10n.ocrMilliseconds(processingTimeMs.toStringAsFixed(0))
               : '',
         ),
-        OcrInfoEntry(
-            label: l10n.ocrPrescriptionType, value: typeDisplay),
-        OcrInfoEntry(
-            label: l10n.ocrLanguagesDetected, value: languagesDisplay),
-        OcrInfoEntry(
-            label: l10n.ocrValidationStatus, value: validationDisplay),
+        OcrInfoEntry(label: l10n.ocrPrescriptionType, value: typeDisplay),
+        OcrInfoEntry(label: l10n.ocrLanguagesDetected, value: languagesDisplay),
+        OcrInfoEntry(label: l10n.ocrValidationStatus, value: validationDisplay),
       ],
     );
   }
@@ -425,10 +453,13 @@ class _InfoRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 120,
-            child: Text('$label:',
-                style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500)),
+            child: Text(
+              '$label:',
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
           Expanded(child: Text(value)),
         ],

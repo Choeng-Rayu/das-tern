@@ -220,10 +220,7 @@ class _PatientName extends StatelessWidget {
 }
 
 class _NotificationBell extends StatelessWidget {
-  const _NotificationBell({
-    required this.unreadCount,
-    required this.onTap,
-  });
+  const _NotificationBell({required this.unreadCount, required this.onTap});
 
   final int unreadCount;
   final VoidCallback? onTap;

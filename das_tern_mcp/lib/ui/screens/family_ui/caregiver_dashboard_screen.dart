@@ -79,15 +79,13 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
 
     // The patient is whoever is NOT the current caregiver
     // We determine by checking whose role includes patient context
-    if (patientFromRecipient != null &&
-        patientFromRecipient['id'] != null) {
+    if (patientFromRecipient != null && patientFromRecipient['id'] != null) {
       final recipientRole = patientFromRecipient['role'] as String? ?? '';
       if (recipientRole == 'PATIENT') {
         return patientFromRecipient['id'] as String;
       }
     }
-    if (patientFromInitiator != null &&
-        patientFromInitiator['id'] != null) {
+    if (patientFromInitiator != null && patientFromInitiator['id'] != null) {
       final initiatorRole = patientFromInitiator['role'] as String? ?? '';
       if (initiatorRole == 'PATIENT') {
         return patientFromInitiator['id'] as String;
@@ -128,7 +126,11 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                 value: 'revoke',
                 child: Row(
                   children: [
-                    const Icon(Icons.link_off, color: AppColors.alertRed, size: 20),
+                    const Icon(
+                      Icons.link_off,
+                      color: AppColors.alertRed,
+                      size: 20,
+                    ),
                     const SizedBox(width: AppSpacing.sm),
                     Text(l10n.disconnectConnection),
                   ],
@@ -141,30 +143,33 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.error_outline,
-                            color: AppColors.alertRed, size: 48),
-                        const SizedBox(height: AppSpacing.md),
-                        Text(
-                          _error!,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        ElevatedButton(
-                          onPressed: _loadPatientData,
-                          child: Text(AppLocalizations.of(context)!.retry),
-                        ),
-                      ],
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: AppColors.alertRed,
+                      size: 48,
                     ),
-                  ),
-                )
-              : RefreshIndicator(
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      _error!,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    ElevatedButton(
+                      onPressed: _loadPatientData,
+                      child: Text(AppLocalizations.of(context)!.retry),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : RefreshIndicator(
               onRefresh: _loadPatientData,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -184,8 +189,8 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                     Text(
                       l10n.todayMedicationSchedule,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     _buildDoseOverview(context),
@@ -213,8 +218,11 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
           CircleAvatar(
             radius: 28,
             backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
-            child: const Icon(Icons.person,
-                size: 28, color: AppColors.primaryBlue),
+            child: const Icon(
+              Icons.person,
+              size: 28,
+              color: AppColors.primaryBlue,
+            ),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -224,8 +232,8 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                 Text(
                   name.isEmpty ? l10n.patient : name,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Row(
@@ -242,8 +250,8 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                     Text(
                       l10n.connectionConnected,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.successGreen,
-                          ),
+                        color: AppColors.successGreen,
+                      ),
                     ),
                   ],
                 ),
@@ -256,18 +264,19 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
               Switch(
                 value: _connection!.alertsEnabled,
                 onChanged: (value) {
-                  context
-                      .read<ConnectionProvider>()
-                      .toggleAlerts(_connection!.id, value);
+                  context.read<ConnectionProvider>().toggleAlerts(
+                    _connection!.id,
+                    value,
+                  );
                 },
                 activeTrackColor: AppColors.primaryBlue,
               ),
               Text(
                 l10n.notifications,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.textSecondary,
-                      fontSize: 10,
-                    ),
+                  color: AppColors.textSecondary,
+                  fontSize: 10,
+                ),
               ),
             ],
           ),
@@ -289,8 +298,11 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.shield_outlined,
-              color: AppColors.primaryBlue, size: 20),
+          const Icon(
+            Icons.shield_outlined,
+            color: AppColors.primaryBlue,
+            size: 20,
+          ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
@@ -299,16 +311,17 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                 Text(
                   l10n.accessLevelTitle,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 Text(
                   Connection.permissionLevelToDisplay(
-                      _connection!.permissionLevel),
+                    _connection!.permissionLevel,
+                  ),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primaryBlue,
-                      ),
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryBlue,
+                  ),
                 ),
               ],
             ),
@@ -320,7 +333,8 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
 
   Widget _buildDoseOverview(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final doses = (_doseData?['doses'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final doses =
+        (_doseData?['doses'] as List?)?.cast<Map<String, dynamic>>() ?? [];
 
     if (doses.isEmpty) {
       return AppCard(
@@ -329,14 +343,17 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               children: [
-                Icon(Icons.medication_outlined,
-                    size: 40, color: AppColors.neutral300),
+                Icon(
+                  Icons.medication_outlined,
+                  size: 40,
+                  color: AppColors.neutral300,
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   l10n.noMedicationData,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -355,7 +372,12 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
         // Summary row
         Row(
           children: [
-            _buildStatChip(context, '$taken/$total', l10n.taken, AppColors.successGreen),
+            _buildStatChip(
+              context,
+              '$taken/$total',
+              l10n.taken,
+              AppColors.successGreen,
+            ),
             const SizedBox(width: AppSpacing.sm),
             _buildStatChip(context, '$missed', l10n.missed, AppColors.alertRed),
           ],
@@ -367,10 +389,16 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   }
 
   Widget _buildStatChip(
-      BuildContext context, String value, String label, Color color) {
+    BuildContext context,
+    String value,
+    String label,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
@@ -382,7 +410,10 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
             TextSpan(
               text: '$value ',
               style: TextStyle(
-                  fontWeight: FontWeight.bold, color: color, fontSize: 14),
+                fontWeight: FontWeight.bold,
+                color: color,
+                fontSize: 14,
+              ),
             ),
             TextSpan(
               text: label,
@@ -438,22 +469,26 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.w600)),
-                  Text(time,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: AppColors.textSecondary)),
+                  Text(
+                    name,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    time,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                 ],
               ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                horizontal: AppSpacing.sm,
+                vertical: AppSpacing.xs,
+              ),
               decoration: BoxDecoration(
                 color: statusColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
@@ -461,9 +496,10 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
               child: Text(
                 statusLabel,
                 style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: statusColor),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: statusColor,
+                ),
               ),
             ),
           ],
@@ -474,7 +510,8 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
 
   Widget _buildMissedDosesSection(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final doses = (_doseData?['doses'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final doses =
+        (_doseData?['doses'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     final missedDoses = doses.where((d) => d['status'] == 'MISSED').toList();
     final canNudge = _connection!.permissionLevel.index >= 1;
 
@@ -483,14 +520,18 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       children: [
         Row(
           children: [
-            const Icon(Icons.warning_amber, color: AppColors.alertRed, size: 20),
+            const Icon(
+              Icons.warning_amber,
+              color: AppColors.alertRed,
+              size: 20,
+            ),
             const SizedBox(width: AppSpacing.xs),
             Text(
               l10n.missedDosesSection,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.alertRed,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: AppColors.alertRed,
+              ),
             ),
           ],
         ),
@@ -503,15 +544,17 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                 child: Text(
                   '${l10n.noMissedDoses} \u2713',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.successGreen,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    color: AppColors.successGreen,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),
           )
         else
-          ...missedDoses.map((dose) => _buildMissedDoseCard(context, dose, canNudge)),
+          ...missedDoses.map(
+            (dose) => _buildMissedDoseCard(context, dose, canNudge),
+          ),
       ],
     );
   }
@@ -559,21 +602,23 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                       Text(
                         name,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       Text(
                         timeStr,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.alertRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -581,9 +626,10 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                   child: Text(
                     l10n.missed,
                     style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.alertRed),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.alertRed,
+                    ),
                   ),
                 ),
               ],
@@ -599,7 +645,9 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.warningOrange,
                     side: const BorderSide(color: AppColors.warningOrange),
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.xs,
+                    ),
                     textStyle: const TextStyle(fontSize: 13),
                   ),
                 ),
@@ -616,21 +664,24 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
     return AppCard(
       child: Column(
         children: [
-          const Icon(Icons.notifications_active,
-              size: 32, color: AppColors.warningOrange),
+          const Icon(
+            Icons.notifications_active,
+            size: 32,
+            color: AppColors.warningOrange,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             l10n.sendNudge,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             l10n.nudgeRemindPatient,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -664,10 +715,13 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            success ? l10n.nudgeSentSuccess : (provider.error ?? l10n.nudgeSentFailed),
+            success
+                ? l10n.nudgeSentSuccess
+                : (provider.error ?? l10n.nudgeSentFailed),
           ),
-          backgroundColor:
-              success ? AppColors.successGreen : AppColors.alertRed,
+          backgroundColor: success
+              ? AppColors.successGreen
+              : AppColors.alertRed,
         ),
       );
     }
@@ -679,9 +733,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l10n.disconnectDialogTitle),
-        content: Text(
-          l10n.disconnectDialogContent,
-        ),
+        content: Text(l10n.disconnectDialogContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -690,9 +742,9 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              context
-                  .read<ConnectionProvider>()
-                  .revokeConnection(_connection!.id);
+              context.read<ConnectionProvider>().revokeConnection(
+                _connection!.id,
+              );
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.alertRed),
