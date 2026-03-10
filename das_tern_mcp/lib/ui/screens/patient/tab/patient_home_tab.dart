@@ -64,558 +64,548 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
     final notifProvider = context.watch<NotificationProvider>();
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _onRefresh,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Patient header with background image ──
-              PatientHeader(
-                onNotificationTap: () {
-                  final notifProv = context.read<NotificationProvider>();
-                  Navigator.pushNamed(
-                    context,
-                    AppRouter.patientNotifications,
-                  ).then((_) {
-                    if (!mounted) return;
-                    notifProv.fetchNotifications();
-                  });
-                },
-                unreadCount: notifProvider.unreadCount,
-              ),
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Patient header with background image ──
+            PatientHeader(
+              onNotificationTap: () {
+                final notifProv = context.read<NotificationProvider>();
+                Navigator.pushNamed(
+                  context,
+                  AppRouter.patientNotifications,
+                ).then((_) {
+                  if (!mounted) return;
+                  notifProv.fetchNotifications();
+                });
+              },
+              unreadCount: notifProvider.unreadCount,
+            ),
 
-              // ── Time-period medicine section ──
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.medicationTracker,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+            // ── Time-period medicine section ──
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.medicationTracker,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'ថ្ងៃ អាទិត្យ- ទី ${DateTime.now().day}- ${_khmerMonth(DateTime.now().month)}',
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 13,
-                      ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'ថ្ងៃ អាទិត្យ- ទី ${DateTime.now().day}- ${_khmerMonth(DateTime.now().month)}',
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
 
-                    // Time period cards row
-                    Row(
+                  // Time period cards row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _TimePeriodCard(
+                          label: l10n.morning,
+                          icon: Icons.wb_sunny_outlined,
+                          doseCount: _getDoseCountByPeriod(
+                            doseProvider,
+                            'MORNING',
+                          ),
+                          badgeText: l10n.beforeMeal,
+                          backgroundImage: 'assets/morning.png',
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: _TimePeriodCard(
+                          label: l10n.afternoon,
+                          icon: Icons.wb_twilight,
+                          doseCount: _getDoseCountByPeriod(
+                            doseProvider,
+                            'DAYTIME',
+                          ),
+                          badgeText: l10n.afternoon,
+                          backgroundImage: 'assets/afternoon.png',
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: _TimePeriodCard(
+                          label: l10n.night,
+                          icon: Icons.nightlight_round,
+                          doseCount: _getDoseCountByPeriod(
+                            doseProvider,
+                            'NIGHT',
+                          ),
+                          badgeText: l10n.night,
+                          backgroundImage: 'assets/night.png',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // ── Progress circle section ──
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE3F2FD),
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                    ),
+                    child: Row(
                       children: [
-                        Expanded(
-                          child: _TimePeriodCard(
-                            label: l10n.morning,
-                            icon: Icons.wb_sunny_outlined,
-                            doseCount: _getDoseCountByPeriod(
-                              doseProvider,
-                              'MORNING',
-                            ),
-                            badgeText: l10n.beforeMeal,
-                            backgroundImage: 'assets/morning.png',
+                        // Progress circle
+                        SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              CircularProgressIndicator(
+                                value: doseProvider.progress,
+                                strokeWidth: 6,
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.5,
+                                ),
+                                color: AppColors.primaryBlue,
+                              ),
+                              Text(
+                                '${(doseProvider.progress * 30).toInt()} ${l10n.daysUnit}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: AppColors.primaryBlue,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: AppSpacing.sm),
+                        const SizedBox(width: AppSpacing.md),
                         Expanded(
-                          child: _TimePeriodCard(
-                            label: l10n.afternoon,
-                            icon: Icons.wb_twilight,
-                            doseCount: _getDoseCountByPeriod(
-                              doseProvider,
-                              'DAYTIME',
-                            ),
-                            badgeText: l10n.afternoon,
-                            backgroundImage: 'assets/afternoon.png',
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: _TimePeriodCard(
-                            label: l10n.night,
-                            icon: Icons.nightlight_round,
-                            doseCount: _getDoseCountByPeriod(
-                              doseProvider,
-                              'NIGHT',
-                            ),
-                            badgeText: l10n.night,
-                            backgroundImage: 'assets/night.png',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.progressMessage,
+                                style: TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                l10n.dayProgress(
+                                  (doseProvider.progress * 30).toInt(),
+                                ),
+                                style: const TextStyle(
+                                  color: AppColors.primaryBlue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                l10n.totalDuration,
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
 
-                    // ── Progress circle section ──
+                  // ── Today's doses (checklist) ──
+                  Row(
+                    children: [
+                      const Icon(Icons.checklist, size: 20),
+                      const SizedBox(width: AppSpacing.xs),
+                      Text(
+                        l10n.todaysTasks,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+
+                  if (doseProvider.isLoading)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(AppSpacing.lg),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  else if (doseProvider.todaysDoses.isEmpty)
                     Container(
                       width: double.infinity,
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.check_circle_outline,
+                            size: 48,
+                            color: AppColors.successGreen,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            l10n.allCompleted,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            l10n.noMoreMedicationsToday,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ...doseProvider.todaysDoses.map(
+                      (dose) => _DoseCheckItem(
+                        name: dose.medicationName,
+                        dosage: dose.dosage,
+                        isTaken: dose.status == 'TAKEN',
+                        onTake: () => doseProvider.markTaken(dose.id ?? ''),
+                      ),
+                    ),
+
+                  // ── Missed dose banner ──
+                  if (doseProvider.todaysDoses.any((d) => d.status == 'MISSED'))
+                    _MissedDoseBanner(
+                      missedCount: doseProvider.todaysDoses
+                          .where((d) => d.status == 'MISSED')
+                          .length,
+                      onMarkTaken: () {
+                        final missed = doseProvider.todaysDoses
+                            .where((d) => d.status == 'MISSED')
+                            .toList();
+                        if (missed.isNotEmpty) {
+                          doseProvider.markTaken(missed.first.id ?? '');
+                        }
+                      },
+                    ),
+
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // ── Quick actions (មុខងារសំខាន់ៗ) ──
+                  Text(
+                    l10n.quickActions,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+
+                  _QuickActionCard(
+                    icon: Icons.translate,
+                    title: l10n.searchPrescription,
+                    color: AppColors.primaryBlue,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _QuickActionCard(
+                          icon: Icons.history,
+                          title: l10n.medicationIntakeHistory,
+                          color: const Color(0xFF0288D1),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRouter.familyAccessList,
+                          ),
+                          child: _QuickActionCard(
+                            icon: Icons.family_restroom,
+                            title: l10n.familyFeatures,
+                            color: const Color(0xFF29B6F6),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // ── Health Vitals Section ──
+                  if (healthProvider.unresolvedAlertCount > 0)
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
                       padding: const EdgeInsets.all(AppSpacing.md),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE3F2FD),
+                        color: AppColors.alertRed.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(AppRadius.lg),
+                        border: Border.all(
+                          color: AppColors.alertRed.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Row(
                         children: [
-                          // Progress circle
-                          SizedBox(
-                            width: 80,
-                            height: 80,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                CircularProgressIndicator(
-                                  value: doseProvider.progress,
-                                  strokeWidth: 6,
-                                  backgroundColor: Colors.white.withValues(
-                                    alpha: 0.5,
-                                  ),
-                                  color: AppColors.primaryBlue,
-                                ),
-                                Text(
-                                  '${(doseProvider.progress * 30).toInt()} ${l10n.daysUnit}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    color: AppColors.primaryBlue,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          const Icon(
+                            Icons.warning_amber_rounded,
+                            color: AppColors.alertRed,
+                            size: 24,
                           ),
-                          const SizedBox(width: AppSpacing.md),
+                          const SizedBox(width: AppSpacing.sm),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.progressMessage,
-                                  style: TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  l10n.dayProgress(
-                                    (doseProvider.progress * 30).toInt(),
-                                  ),
-                                  style: const TextStyle(
-                                    color: AppColors.primaryBlue,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  l10n.totalDuration,
-                                  style: TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
+                            child: Text(
+                              l10n.unresolvedAlerts(
+                                healthProvider.unresolvedAlertCount,
+                              ),
+                              style: const TextStyle(
+                                color: AppColors.alertRed,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
 
-                    // ── Today's doses (checklist) ──
-                    Row(
-                      children: [
-                        const Icon(Icons.checklist, size: 20),
-                        const SizedBox(width: AppSpacing.xs),
-                        Text(
-                          l10n.todaysTasks,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-
-                    if (doseProvider.isLoading)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(AppSpacing.lg),
-                          child: CircularProgressIndicator(),
-                        ),
-                      )
-                    else if (doseProvider.todaysDoses.isEmpty)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(AppRadius.lg),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.check_circle_outline,
-                              size: 48,
-                              color: AppColors.successGreen,
-                            ),
-                            const SizedBox(height: AppSpacing.sm),
-                            Text(
-                              l10n.allCompleted,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              l10n.noMoreMedicationsToday,
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    else
-                      ...doseProvider.todaysDoses.map(
-                        (dose) => _DoseCheckItem(
-                          name: dose.medicationName,
-                          dosage: dose.dosage,
-                          isTaken: dose.status == 'TAKEN',
-                          onTake: () => doseProvider.markTaken(dose.id ?? ''),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.healthVitals,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-
-                    // ── Missed dose banner ──
-                    if (doseProvider.todaysDoses.any(
-                      (d) => d.status == 'MISSED',
-                    ))
-                      _MissedDoseBanner(
-                        missedCount: doseProvider.todaysDoses
-                            .where((d) => d.status == 'MISSED')
-                            .length,
-                        onMarkTaken: () {
-                          final missed = doseProvider.todaysDoses
-                              .where((d) => d.status == 'MISSED')
-                              .toList();
-                          if (missed.isNotEmpty) {
-                            doseProvider.markTaken(missed.first.id ?? '');
-                          }
-                        },
+                      TextButton.icon(
+                        onPressed: () => Navigator.pushNamed(
+                          context,
+                          AppRouter.patientRecordVital,
+                        ),
+                        icon: const Icon(Icons.add, size: 18),
+                        label: Text(l10n.recordLabel),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.primaryBlue,
+                        ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
 
-                    const SizedBox(height: AppSpacing.lg),
+                  // Vital cards grid
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: AppSpacing.sm,
+                    crossAxisSpacing: AppSpacing.sm,
+                    childAspectRatio: 1.6,
+                    children: VitalType.values.map((type) {
+                      final vital = healthProvider.latestVitals
+                          .where((v) => v.vitalType == type)
+                          .firstOrNull;
+                      final hasValue = vital != null;
+                      final isAbnormal = vital?.isAbnormal ?? false;
 
-                    // ── Quick actions (មុខងារសំខាន់ៗ) ──
-                    Text(
-                      l10n.quickActions,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-
-                    _QuickActionCard(
-                      icon: Icons.translate,
-                      title: l10n.searchPrescription,
-                      color: AppColors.primaryBlue,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _QuickActionCard(
-                            icon: Icons.history,
-                            title: l10n.medicationIntakeHistory,
-                            color: const Color(0xFF0288D1),
-                          ),
+                      return GestureDetector(
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AppRouter.patientVitalTrend,
+                          arguments: {'vitalType': type},
                         ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => Navigator.pushNamed(
-                              context,
-                              AppRouter.familyAccessList,
+                        child: Container(
+                          padding: const EdgeInsets.all(AppSpacing.sm),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(AppRadius.lg),
+                            border: Border.all(
+                              color: isAbnormal
+                                  ? AppColors.alertRed.withValues(alpha: 0.5)
+                                  : AppColors.neutral300,
                             ),
-                            child: _QuickActionCard(
-                              icon: Icons.family_restroom,
-                              title: l10n.familyFeatures,
-                              color: const Color(0xFF29B6F6),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    // ── Health Vitals Section ──
-                    if (healthProvider.unresolvedAlertCount > 0)
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        padding: const EdgeInsets.all(AppSpacing.md),
-                        decoration: BoxDecoration(
-                          color: AppColors.alertRed.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(AppRadius.lg),
-                          border: Border.all(
-                            color: AppColors.alertRed.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.warning_amber_rounded,
-                              color: AppColors.alertRed,
-                              size: 24,
-                            ),
-                            const SizedBox(width: AppSpacing.sm),
-                            Expanded(
-                              child: Text(
-                                l10n.unresolvedAlerts(
-                                  healthProvider.unresolvedAlertCount,
-                                ),
-                                style: const TextStyle(
-                                  color: AppColors.alertRed,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          l10n.healthVitals,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            ],
                           ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () => Navigator.pushNamed(
-                            context,
-                            AppRouter.patientRecordVital,
-                          ),
-                          icon: const Icon(Icons.add, size: 18),
-                          label: Text(l10n.recordLabel),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.primaryBlue,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-
-                    // Vital cards grid
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      mainAxisSpacing: AppSpacing.sm,
-                      crossAxisSpacing: AppSpacing.sm,
-                      childAspectRatio: 1.6,
-                      children: VitalType.values.map((type) {
-                        final vital = healthProvider.latestVitals
-                            .where((v) => v.vitalType == type)
-                            .firstOrNull;
-                        final hasValue = vital != null;
-                        final isAbnormal = vital?.isAbnormal ?? false;
-
-                        return GestureDetector(
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            AppRouter.patientVitalTrend,
-                            arguments: {'vitalType': type},
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(AppSpacing.sm),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(AppRadius.lg),
-                              border: Border.all(
-                                color: isAbnormal
-                                    ? AppColors.alertRed.withValues(alpha: 0.5)
-                                    : AppColors.neutral300,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      _vitalIcon(type),
-                                      size: 18,
-                                      color: isAbnormal
-                                          ? AppColors.alertRed
-                                          : AppColors.primaryBlue,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        type.displayName,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.textSecondary,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    if (isAbnormal)
-                                      const Icon(
-                                        Icons.warning,
-                                        color: AppColors.alertRed,
-                                        size: 14,
-                                      ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  hasValue ? vital.displayValue : '--',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    _vitalIcon(type),
+                                    size: 18,
                                     color: isAbnormal
                                         ? AppColors.alertRed
-                                        : AppColors.textPrimary,
+                                        : AppColors.primaryBlue,
                                   ),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      type.displayName,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (isAbnormal)
+                                    const Icon(
+                                      Icons.warning,
+                                      color: AppColors.alertRed,
+                                      size: 14,
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                hasValue ? vital.displayValue : '--',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: isAbnormal
+                                      ? AppColors.alertRed
+                                      : AppColors.textPrimary,
                                 ),
+                              ),
+                              Text(
+                                type.unit,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+
+                  // Thresholds & Emergency row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRouter.patientVitalThresholds,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(AppSpacing.md),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryBlue.withValues(
+                                alpha: 0.08,
+                              ),
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.tune,
+                                  size: 20,
+                                  color: AppColors.primaryBlue,
+                                ),
+                                const SizedBox(width: AppSpacing.xs),
                                 Text(
-                                  type.unit,
+                                  l10n.thresholds,
                                   style: const TextStyle(
-                                    fontSize: 11,
-                                    color: AppColors.textSecondary,
+                                    color: AppColors.primaryBlue,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-
-                    // Thresholds & Emergency row
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => Navigator.pushNamed(
-                              context,
-                              AppRouter.patientVitalThresholds,
-                            ),
-                            child: Container(
-                              padding: const EdgeInsets.all(AppSpacing.md),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryBlue.withValues(
-                                  alpha: 0.08,
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                  AppRadius.lg,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.tune,
-                                    size: 20,
-                                    color: AppColors.primaryBlue,
-                                  ),
-                                  const SizedBox(width: AppSpacing.xs),
-                                  Text(
-                                    l10n.thresholds,
-                                    style: const TextStyle(
-                                      color: AppColors.primaryBlue,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
                         ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => Navigator.pushNamed(
-                              context,
-                              AppRouter.patientEmergency,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRouter.patientEmergency,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(AppSpacing.md),
+                            decoration: BoxDecoration(
+                              color: AppColors.alertRed.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
                             ),
-                            child: Container(
-                              padding: const EdgeInsets.all(AppSpacing.md),
-                              decoration: BoxDecoration(
-                                color: AppColors.alertRed.withValues(
-                                  alpha: 0.08,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.emergency,
+                                  size: 20,
+                                  color: AppColors.alertRed,
                                 ),
-                                borderRadius: BorderRadius.circular(
-                                  AppRadius.lg,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.emergency,
-                                    size: 20,
+                                const SizedBox(width: AppSpacing.xs),
+                                Text(
+                                  l10n.emergencyLabel,
+                                  style: const TextStyle(
                                     color: AppColors.alertRed,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
-                                  const SizedBox(width: AppSpacing.xs),
-                                  Text(
-                                    l10n.emergencyLabel,
-                                    style: const TextStyle(
-                                      color: AppColors.alertRed,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
 
-                    const SizedBox(height: AppSpacing.lg),
-                  ],
-                ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

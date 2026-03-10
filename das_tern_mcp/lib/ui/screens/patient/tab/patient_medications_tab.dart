@@ -32,101 +32,32 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
     final provider = context.watch<PrescriptionProvider>();
     final batchProvider = context.watch<BatchProvider>();
 
-    return Scaffold(
-      appBar: AppHeader(title: l10n.medications),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, AppRouter.medicationChoice);
-        },
-        backgroundColor: AppColors.primaryBlue,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await provider.fetchPrescriptions();
-          await batchProvider.fetchBatches();
-        },
-        child: provider.isLoading && batchProvider.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                children: [
-                  // Pending Prescriptions Section (DRAFT from doctor)
-                  ..._buildPendingSection(context, l10n, provider),
+    return Column(
+      children: [
+        AppHeader(title: l10n.medications),
+        Expanded(
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    await provider.fetchPrescriptions();
+                    await batchProvider.fetchBatches();
+                  },
+                  child: provider.isLoading && batchProvider.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView(
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          children: [
+                            // Pending Prescriptions Section (DRAFT from doctor)
+                            ..._buildPendingSection(context, l10n, provider),
 
-                  // Batch Groups Section
-                  if (batchProvider.batches.isNotEmpty) ...[
-                    Text(
-                      l10n.batchGroupsTitle,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    ...batchProvider.batches.map(
-                      (batch) => Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: AppCard(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              AppRouter.batchDetail,
-                              arguments: {'batchId': batch.id},
-                            );
-                          },
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: AppColors.successGreen.withValues(
-                                    alpha: 0.1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Icon(
-                                  Icons.medication_liquid_outlined,
-                                  color: AppColors.successGreen,
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      batch.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      l10n.batchScheduledTime(
-                                        batch.scheduledTime,
-                                      ),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            // Batch Groups Section
+                            if (batchProvider.batches.isNotEmpty) ...[
                               Text(
-                                l10n.batchMedicineCount(
-                                  batch.medications.length,
-                                ),
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: AppColors.primaryBlue),
-                              ),
-                              const SizedBox(width: AppSpacing.xs),
-                              const Icon(
-                                Icons.chevron_right,
-                                color: AppColors.textSecondary,
+                                l10n.batchGroupsTitle,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
@@ -243,7 +174,7 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                                       );
                                     }).toList(),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
@@ -283,11 +214,23 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                ],
+                ),
               ),
-      ),
+              Positioned(
+                right: 16,
+                bottom: 16,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRouter.medicationChoice);
+                  },
+                  backgroundColor: AppColors.primaryBlue,
+                  child: const Icon(Icons.add, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

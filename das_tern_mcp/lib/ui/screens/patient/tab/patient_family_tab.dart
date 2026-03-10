@@ -36,9 +36,9 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
         connectionProvider.caregivers.isNotEmpty ||
         connectionProvider.connectedPatients.isNotEmpty;
 
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: RefreshIndicator(
+    return ColoredBox(
+      color: AppColors.white,
+      child: RefreshIndicator(
         onRefresh: () async {
           await connectionProvider.fetchCaregivers();
           await connectionProvider.fetchConnectedPatients();

@@ -78,8 +78,8 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     return null;
   }
 
-  /// Safe Map converter: always returns Map<String, dynamic>.
-  /// Handles Map<dynamic, dynamic> from platform-specific JSON decoders.
+  // Safe Map converter: always returns Map<String, dynamic>.
+  // Handles Map<dynamic, dynamic> from platform-specific JSON decoders.
   Map<String, dynamic> _asMap(dynamic v) {
     if (v == null) return {};
     if (v is Map<String, dynamic>) return v;
@@ -87,7 +87,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     return {};
   }
 
-  /// Safe List converter: always returns List<dynamic>.
+  // Safe List converter: always returns List<dynamic>.
   List<dynamic> _asList(dynamic v) {
     if (v == null) return [];
     if (v is List) return v;
