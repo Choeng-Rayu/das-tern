@@ -64,8 +64,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
     final notifProvider = context.watch<NotificationProvider>();
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      body: RefreshIndicator(
+    return RefreshIndicator(
         onRefresh: _onRefresh,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -617,7 +616,6 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
             ],
           ),
         ),
-      ),
     );
   }
 

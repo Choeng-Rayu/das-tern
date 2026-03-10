@@ -293,10 +293,12 @@ class _PatientScanTabState extends State<PatientScanTab> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      appBar: AppHeader(title: l10n.scanPrescriptionTitle),
-      body: Center(
-        child: _isProcessing
+    return Column(
+      children: [
+        AppHeader(title: l10n.scanPrescriptionTitle),
+        Expanded(
+          child: Center(
+            child: _isProcessing
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -376,7 +378,9 @@ class _PatientScanTabState extends State<PatientScanTab> {
                   ],
                 ),
               ),
-      ),
+          ),
+        ),
+      ],
     );
   }
 }

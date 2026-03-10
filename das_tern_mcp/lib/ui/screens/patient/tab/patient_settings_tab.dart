@@ -36,9 +36,11 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     final localeProvider = context.watch<LocaleProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      appBar: AppHeader(title: l10n.settings),
-      body: SingleChildScrollView(
+    return Column(
+      children: [
+        AppHeader(title: l10n.settings),
+        Expanded(
+          child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.md,
@@ -398,6 +400,8 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
           ],
         ),
       ),
+        ),
+      ],
     );
   }
 
