@@ -1042,5 +1042,18 @@
   "ocrLanguagesDetected": "ភាសាដែលរកឃើញ",
   "ocrValidationStatus": "ស្ថានភាពផ្ទៀងផ្ទាត់",
   "ocrValidated": "ផ្ទៀងផ្ទាត់រួច",
-  "ocrScanInfoSection": "ព័ត៌មានលម្អិតស្កេន"
+  "ocrScanInfoSection": "ព័ត៌មានលម្អិតស្កេន",
+
+  "activityReport": "របាយការណ៍សកម្មភាព",
+  "adherenceSummary": "សង្ខេបការប្រើថ្នាំ",
+  "weeklyAdherence": "សប្តាហ៍នេះ",
+  "monthlyAdherence": "ខែនេះ",
+  "onTime": "ទាន់ពេល",
+  "late": "យឺត",
+  "totalDoses": "ថ្នាំសរុប",
+  "doseHistory": "ប្រវត្តិថ្នាំ",
+  "reportPeriod": "រយៈពេលរបាយការណ៍",
+  "last7Days": "៧ ថ្ងៃចុងក្រោយ",
+  "last30Days": "៣០ ថ្ងៃចុងក្រោយ",
+  "noAdherenceData": "មិនមានទិន្នន័យការប្រើថ្នាំ"
 }

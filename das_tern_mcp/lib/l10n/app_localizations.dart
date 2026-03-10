@@ -4939,6 +4939,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scan Information'**
   String get ocrScanInfoSection;
+
+  /// No description provided for @activityReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Report'**
+  String get activityReport;
+
+  /// No description provided for @adherenceSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Adherence Summary'**
+  String get adherenceSummary;
+
+  /// No description provided for @weeklyAdherence.
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get weeklyAdherence;
+
+  /// No description provided for @monthlyAdherence.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get monthlyAdherence;
+
+  /// No description provided for @onTime.
+  ///
+  /// In en, this message translates to:
+  /// **'On Time'**
+  String get onTime;
+
+  /// No description provided for @totalDoses.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Doses'**
+  String get totalDoses;
+
+  /// No description provided for @doseHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Dose History'**
+  String get doseHistory;
+
+  /// No description provided for @reportPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Period'**
+  String get reportPeriod;
+
+  /// No description provided for @last7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 Days'**
+  String get last7Days;
+
+  /// No description provided for @last30Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 Days'**
+  String get last30Days;
 }
 
 class _AppLocalizationsDelegate

@@ -1,10 +1,8 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
@@ -16,6 +14,7 @@ import 'providers/doctor_dashboard_provider.dart';
 import 'providers/subscription_provider.dart';
 import 'providers/health_monitoring_provider.dart';
 import 'providers/batch_provider.dart';
+import 'providers/adherence_provider.dart';
 import 'services/notification_service.dart';
 import 'services/sync_service.dart';
 import 'services/logger_service.dart';
@@ -84,6 +83,7 @@ class DasTernApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => HealthMonitoringProvider()),
         ChangeNotifierProvider(create: (_) => BatchProvider()),
+        ChangeNotifierProvider(create: (_) => AdherenceProvider()),
         ChangeNotifierProvider.value(value: SyncService.instance),
       ],
       child: Consumer2<ThemeProvider, LocaleProvider>(

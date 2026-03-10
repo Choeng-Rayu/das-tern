@@ -1578,7 +1578,7 @@ class AppLocalizationsKm extends AppLocalizations {
   }
 
   @override
-  String get noAdherenceData => 'គ្មានទិន្នន័យការប្រតិបត្តិតាម';
+  String get noAdherenceData => 'មិនមានទិន្នន័យការប្រើថ្នាំ';
 
   @override
   String get dailyAdherenceLast30 =>
@@ -2548,4 +2548,34 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get ocrScanInfoSection => 'ព័ត៌មានលម្អិតស្កេន';
+
+  @override
+  String get activityReport => 'របាយការណ៍សកម្មភាព';
+
+  @override
+  String get adherenceSummary => 'សង្ខេបការប្រើថ្នាំ';
+
+  @override
+  String get weeklyAdherence => 'សប្តាហ៍នេះ';
+
+  @override
+  String get monthlyAdherence => 'ខែនេះ';
+
+  @override
+  String get onTime => 'ទាន់ពេល';
+
+  @override
+  String get totalDoses => 'ថ្នាំសរុប';
+
+  @override
+  String get doseHistory => 'ប្រវត្តិថ្នាំ';
+
+  @override
+  String get reportPeriod => 'រយៈពេលរបាយការណ៍';
+
+  @override
+  String get last7Days => '៧ ថ្ងៃចុងក្រោយ';
+
+  @override
+  String get last30Days => '៣០ ថ្ងៃចុងក្រោយ';
 }
