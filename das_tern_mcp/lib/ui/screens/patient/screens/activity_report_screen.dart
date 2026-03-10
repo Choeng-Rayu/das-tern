@@ -44,8 +44,9 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA),
+      backgroundColor: isDark
+          ? const Color(0xFF121212)
+          : const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: Text(l10n.activityReport),
         elevation: 0,
@@ -249,7 +250,12 @@ class _ArcPainter extends CustomPainter {
       ..strokeWidth = stroke
       ..strokeCap = StrokeCap.round;
     canvas.drawArc(
-        rect, -math.pi / 2, 2 * math.pi * progress, false, progressPaint);
+      rect,
+      -math.pi / 2,
+      2 * math.pi * progress,
+      false,
+      progressPaint,
+    );
   }
 
   @override
@@ -333,9 +339,9 @@ class _StatBadge extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppColors.textSecondary,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
         ),
       ],
     );
@@ -357,8 +363,7 @@ class _WeeklyBreakdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final days =
-        (adherence.weeklyAdherence?['days'] as List<dynamic>?) ?? [];
+    final days = (adherence.weeklyAdherence?['days'] as List<dynamic>?) ?? [];
 
     if (days.isEmpty) return const SizedBox.shrink();
 
@@ -385,7 +390,8 @@ class _WeeklyBreakdown extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: days.map<Widget>((dayData) {
               final map = dayData as Map<String, dynamic>;
-              final label = (map['dayLabel'] as String?) ??
+              final label =
+                  (map['dayLabel'] as String?) ??
                   (map['date'] as String? ?? '').split('-').last;
               final pct =
                   (map['percentage'] as num?)?.toDouble().clamp(0.0, 100.0) ??
@@ -439,10 +445,7 @@ class _DayBar extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 11,
-            color: AppColors.textSecondary,
-          ),
+          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
         ),
       ],
     );
@@ -548,8 +551,9 @@ class _DoseHistorySection extends StatelessWidget {
                       leading: Icon(icon, color: iconColor),
                       title: Text(
                         d.medicationName,
-                        style: Theme.of(context).textTheme.bodyMedium
-                            ?.copyWith(fontWeight: FontWeight.w500),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       subtitle: Text(
                         '$dateStr  $timeStr',
