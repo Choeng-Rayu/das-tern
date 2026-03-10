@@ -397,8 +397,8 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
       'night': night,
       'beforeMeal': beforeMeal,
       'isPRN': isPRN,
-      if (description != null)
-        'description': description, // ignore: use_null_aware_elements
+      // ignore: use_null_aware_elements
+      if (description != null) 'description': description,
     };
   }
 
