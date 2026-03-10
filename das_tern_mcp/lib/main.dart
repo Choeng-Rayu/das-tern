@@ -1,10 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
@@ -47,12 +44,10 @@ Future<void> main() async {
     await dotenv.load(fileName: '.env');
     log.success('App', 'Environment loaded');
 
-    // Initialize offline services (not supported on web)
+    // Initialize offline services
     log.info('App', 'Initializing services');
-    if (!kIsWeb) {
-      await NotificationService.instance.init();
-      await SyncService.instance.startListening();
-    }
+    await NotificationService.instance.init();
+    await SyncService.instance.startListening();
     log.success('App', 'Services initialized');
 
     runApp(const DasTernApp());

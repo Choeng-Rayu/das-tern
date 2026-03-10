@@ -1260,6 +1260,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get freeTrialOffer => '1-month free trial for new users!';
 
   @override
+  String get claimYourFreeTrial => 'Claim Your Free Trial';
+
+  @override
+  String get getOneMonthFreePremiumAccess => 'Get 1 month free premium access';
+
+  @override
+  String get claimTrial => 'Claim Trial';
+
+  @override
+  String trialDaysRemainingBanner(int days) {
+    return 'You have $days days remaining';
+  }
+
+  @override
   String get yourTrialPeriod => 'Your Trial Period';
 
   @override
@@ -2573,20 +2587,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ocrScanInfoSection => 'Scan Information';
-
-  @override
-  String get claimYourFreeTrial => 'Claim Your Free Trial';
-
-  @override
-  String get getOneMonthFreePremiumAccess => 'Get 1 month free premium access';
-
-  @override
-  String get claimTrial => 'Claim Trial';
-
-  @override
-  String trialDaysRemainingBanner(int days) {
-    return 'You have $days days remaining';
-  }
 
   @override
   String get timeAgoJustNow => 'now';

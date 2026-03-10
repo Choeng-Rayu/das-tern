@@ -16,7 +16,8 @@ class OcrPreviewScreen extends StatefulWidget {
 }
 
 class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
-  late List<Map<String, dynamic>> _medicines;
+  // Initialised here so it's never `late`-uninitialized even when parsing throws.
+  List<Map<String, dynamic>> _medicines = [];
   int? _expandedIndex;
   bool _isSubmitting = false;
 
@@ -51,12 +52,45 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
   @override
   void initState() {
     super.initState();
-    _parseOcrResponse();
+    try {
+      _parseOcrResponse();
+    } catch (e) {
+      debugPrint('[OcrPreview] Error parsing OCR response: $e');
+      debugPrint('[OcrPreview] Raw data keys: ${widget.extractedData.keys.toList()}');
+      _medicines = [];
+      _title = 'Scanned Prescription';
+      _aiStatus = 'not_responded';
+    }
   }
 
   // ── AI enhancement status ──
   String _aiStatus = 'not_responded'; // 'ok' | 'not_responded'
-  String? _aiMessage;
+
+  /// Safe int converter: handles int, double (truncates), and numeric strings.
+  /// Python's JSON serialisation may produce 7.0 (double) for whole numbers.
+  int? _toInt(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    if (v is String) return int.tryParse(v);
+    return null;
+  }
+
+  /// Safe Map converter: always returns Map<String, dynamic>.
+  /// Handles Map<dynamic, dynamic> from platform-specific JSON decoders.
+  Map<String, dynamic> _asMap(dynamic v) {
+    if (v == null) return {};
+    if (v is Map<String, dynamic>) return v;
+    if (v is Map) return Map<String, dynamic>.from(v);
+    return {};
+  }
+
+  /// Safe List converter: always returns List<dynamic>.
+  List<dynamic> _asList(dynamic v) {
+    if (v == null) return [];
+    if (v is List) return v;
+    return [];
+  }
 
   /// Parse the nested OCR service response into flat medicine maps
   /// that MedicineFormWidget understands, and extract all prescription metadata.
@@ -79,40 +113,40 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
   /// }
   void _parseOcrResponse() {
     final raw = widget.extractedData;
+    debugPrint('[OcrPreview] Parsing response — top-level keys: ${raw.keys.toList()}');
+    debugPrint('[OcrPreview] ai_status: ${raw['ai_status']}, ai_enhanced type: ${raw['ai_enhanced']?.runtimeType}');
 
-    // Navigate into the nested structure
-    final data = raw['data'] as Map<String, dynamic>? ?? {};
-    final prescription = data['prescription'] as Map<String, dynamic>? ?? {};
+    // Navigate into the nested structure (using _asMap for bulletproof casting)
+    final data = _asMap(raw['data']);
+    final prescription = _asMap(data['prescription']);
+    debugPrint('[OcrPreview] data keys: ${data.keys.toList()}');
+    debugPrint('[OcrPreview] prescription keys: ${prescription.keys.toList()}');
 
     // ── Patient Information ──
-    final patient = prescription['patient'] as Map<String, dynamic>? ?? {};
-    final identification =
-        patient['identification'] as Map<String, dynamic>? ?? {};
-    final patientIdMap =
-        identification['patient_id'] as Map<String, dynamic>? ?? {};
+    final patient = _asMap(prescription['patient']);
+    final identification = _asMap(patient['identification']);
+    final patientIdMap = _asMap(identification['patient_id']);
     _patientId = patientIdMap['value'] as String?;
 
-    final personalInfo =
-        patient['personal_info'] as Map<String, dynamic>? ?? {};
-    final nameInfo = personalInfo['name'] as Map<String, dynamic>? ?? {};
+    final personalInfo = _asMap(patient['personal_info']);
+    final nameInfo = _asMap(personalInfo['name']);
     _patientFullName = nameInfo['full_name'] as String?;
     _patientKhmerName = nameInfo['khmer_name'] as String?;
 
-    final ageInfo = personalInfo['age'] as Map<String, dynamic>? ?? {};
-    _patientAge = ageInfo['value'] as int?;
+    final ageInfo = _asMap(personalInfo['age']);
+    _patientAge = _toInt(ageInfo['value']);
 
-    final genderInfo = personalInfo['gender'] as Map<String, dynamic>? ?? {};
+    final genderInfo = _asMap(personalInfo['gender']);
     _patientGender =
         (genderInfo['value'] as String?) ?? (genderInfo['english'] as String?);
 
     // ── Clinical Information (diagnoses) ──
-    final clinicalInfo =
-        prescription['clinical_information'] as Map<String, dynamic>? ?? {};
-    final diagnosesList = clinicalInfo['diagnoses'] as List<dynamic>? ?? [];
+    final clinicalInfo = _asMap(prescription['clinical_information']);
+    final diagnosesList = _asList(clinicalInfo['diagnoses']);
     final diagnosisStrings = diagnosesList
         .map((d) {
           if (d is Map) {
-            final diag = d['diagnosis'] as Map<String, dynamic>? ?? {};
+            final diag = _asMap(d['diagnosis']);
             return (diag['english'] as String?) ??
                 (diag['khmer'] as String?) ??
                 '';
@@ -127,27 +161,24 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     _title = _diagnosis ?? 'Scanned Prescription';
 
     // ── Prescriber ──
-    final prescriber =
-        prescription['prescriber'] as Map<String, dynamic>? ?? {};
-    final prescriberNameMap = prescriber['name'] as Map<String, dynamic>? ?? {};
+    final prescriber = _asMap(prescription['prescriber']);
+    final prescriberNameMap = _asMap(prescriber['name']);
     _prescriberName = prescriberNameMap['full_name'] as String?;
     _doctorName = _prescriberName;
 
     // ── Healthcare Facility ──
-    final facility =
-        prescription['healthcare_facility'] as Map<String, dynamic>? ?? {};
-    final facilityName = facility['name'] as Map<String, dynamic>? ?? {};
+    final facility = _asMap(prescription['healthcare_facility']);
+    final facilityName = _asMap(facility['name']);
     _facilityNameEnglish = facilityName['english'] as String?;
     _facilityNameKhmer = facilityName['khmer'] as String?;
     _facilityType = facility['type'] as String?;
 
     // ── Metadata ──
-    final metadata = prescription['metadata'] as Map<String, dynamic>? ?? {};
+    final metadata = _asMap(prescription['metadata']);
     _prescriptionType = metadata['prescription_type'] as String?;
     _validationStatus = metadata['validation_status'] as String?;
 
-    final extractionInfo =
-        metadata['extraction_info'] as Map<String, dynamic>? ?? {};
+    final extractionInfo = _asMap(metadata['extraction_info']);
     _ocrEngine = extractionInfo['ocr_engine'] as String?;
     _confidenceScore = (extractionInfo['confidence_score'] is num)
         ? (extractionInfo['confidence_score'] as num).toDouble()
@@ -156,18 +187,15 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
         ? (extractionInfo['processing_time_ms'] as num).toDouble()
         : null;
 
-    final langInfo =
-        metadata['languages_detected'] as Map<String, dynamic>? ?? {};
+    final langInfo = _asMap(metadata['languages_detected']);
     _primaryLanguage = langInfo['primary'] as String?;
-    final secondaryList = langInfo['secondary'] as List<dynamic>? ?? [];
+    final secondaryList = _asList(langInfo['secondary']);
     _secondaryLanguages = secondaryList.map((l) => l.toString()).toList();
 
     // ── Extraction Summary ──
-    final extractionSummary =
-        raw['extraction_summary'] as Map<String, dynamic>? ?? {};
+    final extractionSummary = _asMap(raw['extraction_summary']);
     _needsReview = extractionSummary['needs_review'] as bool? ?? false;
-    final enginesUsedList =
-        extractionSummary['engines_used'] as List<dynamic>? ?? [];
+    final enginesUsedList = _asList(extractionSummary['engines_used']);
     _enginesUsed = enginesUsedList.map((e) => e.toString()).toList();
 
     // If confidence not in extraction_info, try extraction_summary
@@ -176,27 +204,87 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
         : null;
 
     // Extract medications from the nested items array
-    final medications =
-        prescription['medications'] as Map<String, dynamic>? ?? {};
-    final items = medications['items'] as List<dynamic>? ?? [];
+    final medications = _asMap(prescription['medications']);
+    final items = _asList(medications['items']);
 
-    _medicines = items.map((item) => _mapOcrItemToFormData(item)).toList();
+    debugPrint('[OcrPreview] Found ${items.length} medication items');
+    _medicines = items.map((item) {
+      try {
+        return _mapOcrItemToFormData(item);
+      } catch (e) {
+        debugPrint('[OcrPreview] Error mapping medication item: $e');
+        return <String, dynamic>{
+          'medicineName': '',
+          'frequency': '1 time daily',
+          'durationDays': 30,
+        };
+      }
+    }).toList();
 
     // ── AI Enhancement Status ──
-    _aiStatus = (raw['ai_status'] as String?) ?? 'not_responded';
-    _aiMessage = raw['ai_message'] as String?;
+    _aiStatus = raw['ai_status']?.toString() ?? 'not_responded';
+
+    // ── Apply AI Corrections (when AI enhancement ran successfully) ──
+    if (_aiStatus == 'ok') {
+      final aiEnhanced = _asMap(raw['ai_enhanced']);
+
+      // Build a lookup map: item_number (1-indexed) → AI correction entry
+      final aiMedList = _asList(aiEnhanced['medications']);
+      final Map<int, Map<String, dynamic>> aiMedMap = {};
+      for (final entry in aiMedList) {
+        final m = _asMap(entry);
+        final num = _toInt(m['item_number']);
+        if (num != null) aiMedMap[num] = m;
+      }
+
+      // Apply corrected medicine names to the parsed list
+      for (int i = 0; i < _medicines.length; i++) {
+        final aiMed = aiMedMap[i + 1]; // OCR items are 1-indexed
+        if (aiMed != null && aiMed['was_corrected'] == true) {
+          final corrected = aiMed['corrected_brand_name']?.toString();
+          if (corrected != null && corrected.isNotEmpty) {
+            _medicines[i] = Map<String, dynamic>.from(_medicines[i]);
+            _medicines[i]['medicineName'] = corrected;
+          }
+        }
+      }
+
+      // Apply AI-corrected prescriber name
+      final aiPrescriberName = aiEnhanced['prescriber_name']?.toString();
+      if (aiPrescriberName != null && aiPrescriberName.isNotEmpty) {
+        _prescriberName = aiPrescriberName;
+        _doctorName = aiPrescriberName;
+      }
+
+      // Apply AI-corrected diagnoses
+      final aiDiagList = _asList(aiEnhanced['diagnoses']);
+      final validDiags = aiDiagList.map((d) => d.toString()).where((s) => s.isNotEmpty).toList();
+      if (validDiags.isNotEmpty) {
+        _diagnosis = validDiags.join(', ');
+        _title = _diagnosis!;
+      }
+
+      // Apply AI-corrected patient name
+      final aiPatient = _asMap(aiEnhanced['patient']);
+      final aiPatientName = aiPatient['name']?.toString();
+      if (aiPatientName != null && aiPatientName.isNotEmpty) {
+        _patientFullName = aiPatientName;
+      }
+    }
+
+    debugPrint('[OcrPreview] Parsed ${_medicines.length} medicines, ai_status=$_aiStatus');
   }
 
   /// Transform a single OCR medication item into the flat Map format
   /// that MedicineFormWidget expects (medicineName, dosageAmount, frequency, etc.)
   Map<String, dynamic> _mapOcrItemToFormData(dynamic item) {
     if (item is! Map) return {'medicineName': '', 'frequency': ''};
-    final med = item['medication'] as Map<String, dynamic>? ?? {};
-    final dosing = item['dosing'] as Map<String, dynamic>? ?? {};
-    final instructions = item['instructions'] as Map<String, dynamic>? ?? {};
+    final med = _asMap(item['medication']);
+    final dosing = _asMap(item['dosing']);
+    final instructions = _asMap(item['instructions']);
 
     // Medicine name
-    final nameInfo = med['name'] as Map<String, dynamic>? ?? {};
+    final nameInfo = _asMap(med['name']);
     final medicineName =
         (nameInfo['brand_name'] as String?) ??
         (nameInfo['full_text'] as String?) ??
@@ -204,18 +292,18 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     final medicineNameKhmer = nameInfo['local_name'] as String? ?? '';
 
     // Strength / dosage
-    final strength = med['strength'] as Map<String, dynamic>? ?? {};
+    final strength = _asMap(med['strength']);
     final dosageAmount = (strength['numeric'] is num)
         ? (strength['numeric'] as num).toDouble()
         : 1.0;
     final dosageUnit = (strength['unit'] as String?) ?? 'tablet';
 
     // Form and type
-    final formInfo = med['form'] as Map<String, dynamic>? ?? {};
+    final formInfo = _asMap(med['form']);
     final form = (formInfo['value'] as String?) ?? 'tablet';
 
     // Medicine type from route
-    final routeInfo = med['route'] as Map<String, dynamic>? ?? {};
+    final routeInfo = _asMap(med['route']);
     final routeValue = (routeInfo['value'] as String?) ?? '';
     String medicineType = 'ORAL';
     if (routeValue.toUpperCase() == 'IV' ||
@@ -236,13 +324,13 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     }
 
     // Duration
-    final duration = dosing['duration'] as Map<String, dynamic>? ?? {};
-    final durationDays = duration['value'] as int?;
+    final duration = _asMap(dosing['duration']);
+    final durationDays = _toInt(duration['value']);
 
     // Schedule (morning, midday, afternoon, evening → morning, daytime, night)
-    final schedule = dosing['schedule'] as Map<String, dynamic>? ?? {};
-    final freq = schedule['frequency'] as Map<String, dynamic>? ?? {};
-    final timesPerDay = freq['times_per_day'] as int? ?? 1;
+    final schedule = _asMap(dosing['schedule']);
+    final freq = _asMap(schedule['frequency']);
+    final timesPerDay = _toInt(freq['times_per_day']) ?? 1;
     final frequency =
         (freq['text_description'] as String?) ?? '$timesPerDay times daily';
 
@@ -250,10 +338,10 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     bool morning = false;
     bool daytime = false;
     bool night = false;
-    final timeSlots = schedule['time_slots'] as List<dynamic>? ?? [];
+    final timeSlots = _asList(schedule['time_slots']);
     for (final slot in timeSlots) {
       if (slot is! Map) continue;
-      final enabled = slot['enabled'] as bool? ?? false;
+      final enabled = slot['enabled'] == true;
       if (!enabled) continue;
       final period = slot['period'] as String? ?? '';
       switch (period) {
@@ -272,17 +360,15 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     }
 
     // Before meal
-    final timingWithFood =
-        instructions['timing_with_food'] as Map<String, dynamic>? ?? {};
-    final beforeMeal = timingWithFood['before_meal'] as bool? ?? false;
+    final timingWithFood = _asMap(instructions['timing_with_food']);
+    final beforeMeal = timingWithFood['before_meal'] == true;
 
     // PRN
-    final prnInstructions =
-        schedule['prn_instructions'] as Map<String, dynamic>? ?? {};
-    final isPRN = prnInstructions['as_needed'] as bool? ?? false;
+    final prnInstructions = _asMap(schedule['prn_instructions']);
+    final isPRN = prnInstructions['as_needed'] == true;
 
     // Description
-    final clinicalNotes = item['clinical_notes'] as Map<String, dynamic>? ?? {};
+    final clinicalNotes = _asMap(item['clinical_notes']);
     final description = clinicalNotes['therapeutic_class'] as String?;
 
     return {
@@ -300,8 +386,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
       'night': night,
       'beforeMeal': beforeMeal,
       'isPRN': isPRN,
-      if (description != null)
-        'description': description, // ignore: use_null_aware_elements
+      if (description != null) 'description': description, // ignore: use_null_aware_elements
     };
   }
 
@@ -331,7 +416,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
         scheduleTimes.add({'timePeriod': 'daytime', 'time': '12:00'});
       }
       if (med['night'] == true) {
-        scheduleTimes.add({'timePeriod': 'evening', 'time': '20:00'});
+        scheduleTimes.add({'timePeriod': 'night', 'time': '20:00'});
       }
 
       return <String, dynamic>{
@@ -833,12 +918,12 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     AppLocalizations l10n,
   ) {
     final isExpanded = _expandedIndex == idx;
-    final name = (med['medicineName'] as String? ?? '').trim();
-    final nameKhmer = (med['medicineNameKhmer'] as String? ?? '').trim();
-    final frequency = med['frequency'] as String? ?? '';
-    final durationDays = med['durationDays'] as int?;
+    final name = (med['medicineName']?.toString() ?? '').trim();
+    final nameKhmer = (med['medicineNameKhmer']?.toString() ?? '').trim();
+    final frequency = med['frequency']?.toString() ?? '';
+    final durationDays = _toInt(med['durationDays']);
     final dosageAmount = med['dosageAmount'];
-    final dosageUnit = (med['dosageUnit'] as String? ?? '').trim();
+    final dosageUnit = (med['dosageUnit']?.toString() ?? '').trim();
     final morning = med['morning'] == true;
     final daytime = med['daytime'] == true;
     final night = med['night'] == true;

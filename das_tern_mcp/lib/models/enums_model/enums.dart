@@ -16,7 +16,7 @@ enum PermissionLevel { notAllowed, request, selected, allowed }
 
 enum PrescriptionStatus { draft, active, paused, inactive }
 
-enum TimePeriod { daytime, night }
+enum TimePeriod { morning, daytime, night }
 
 enum DoseEventStatus { due, takenOnTime, takenLate, missed, skipped }
 

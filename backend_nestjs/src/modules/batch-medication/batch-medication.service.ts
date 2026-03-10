@@ -380,7 +380,7 @@ export class BatchMedicationService {
     scheduledTime: string,
   ) {
     const [hours, minutes] = scheduledTime.split(':').map(Number);
-    const timePeriod = hours < 18 ? 'DAYTIME' : 'NIGHT';
+    const timePeriod = hours < 12 ? 'MORNING' : hours < 18 ? 'DAYTIME' : 'NIGHT';
     const reminderTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 
     const events: any[] = [];

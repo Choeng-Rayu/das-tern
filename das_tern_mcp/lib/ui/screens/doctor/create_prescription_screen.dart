@@ -233,7 +233,7 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
           )
         else
           DropdownButtonFormField<int>(
-            value: _selectedPatientIndex >= 0 ? _selectedPatientIndex : null,
+            initialValue: _selectedPatientIndex >= 0 ? _selectedPatientIndex : null,
             decoration: InputDecoration(
               labelText: l10n.selectPatient,
               border: const OutlineInputBorder(),

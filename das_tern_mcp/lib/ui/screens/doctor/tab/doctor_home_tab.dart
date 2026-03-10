@@ -66,7 +66,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                     AppRouter.doctorNotifications,
                   ).then((_) {
                     if (!mounted) return;
-                    context.read<NotificationProvider>().fetchNotifications();
+                    notifProvider.fetchNotifications();
                   });
                 },
               ),

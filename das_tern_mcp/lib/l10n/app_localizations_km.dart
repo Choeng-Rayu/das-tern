@@ -1263,6 +1263,21 @@ class AppLocalizationsKm extends AppLocalizations {
       'ការសាកល្បង ១ ខែឥតគិតថ្លៃសម្រាប់អ្នកប្រើប្រាស់ថ្មី!';
 
   @override
+  String get claimYourFreeTrial => 'ទាមទារការសាកល្បងឥតគិតថ្លៃ';
+
+  @override
+  String get getOneMonthFreePremiumAccess =>
+      'ទទួលបានការប្រើប្រាស់ Premium ឥតគិតថ្លៃ ១ ខែ';
+
+  @override
+  String get claimTrial => 'ទាមទារការសាកល្បង';
+
+  @override
+  String trialDaysRemainingBanner(int days) {
+    return 'អ្នកនៅសល់ $days ថ្ងៃ';
+  }
+
+  @override
   String get yourTrialPeriod => 'រយៈពេលសាកល្បងរបស់អ្នក';
 
   @override
@@ -2465,7 +2480,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
 
   @override
-  String get missedDoseBanner => 'អ្នកបានខ្លាចដូស';
+  String get missedDoseBanner => 'អ្នកមានដូសដែលខ្លាចថ្ងៃនេះ';
 
   @override
   String get ocrOutpatient => 'អ្នកជំងឺទូលទាត់';
@@ -2573,34 +2588,20 @@ class AppLocalizationsKm extends AppLocalizations {
   String get ocrScanInfoSection => 'ព័ត៌មានលម្អិតស្កេន';
 
   @override
-  String get claimYourFreeTrial => 'ទាមទារការសាកល្បងឥតគិតថ្លៃ';
-
-  @override
-  String get getOneMonthFreePremiumAccess => 'ទទួលបានការប្រើប្រាស់ Premium ឥតគិតថ្លៃ ១ ខែ';
-
-  @override
-  String get claimTrial => 'ទាមទារការសាកល្បង';
-
-  @override
-  String trialDaysRemainingBanner(int days) {
-    return 'អ្នកនៅសល់ $days ថ្ងៃ';
-  }
-
-  @override
   String get timeAgoJustNow => 'ឥឡូវ';
 
   @override
   String timeAgoMinutes(int count) {
-    return '${count}នាទី';
+    return '$countនាទី';
   }
 
   @override
   String timeAgoHours(int count) {
-    return '${count}ម';
+    return '$countម';
   }
 
   @override
   String timeAgoDays(int count) {
-    return '${count}ថ';
+    return '$countថ';
   }
 }

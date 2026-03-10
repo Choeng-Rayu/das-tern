@@ -119,7 +119,7 @@ export class OcrService {
         this.httpService.post<{ success: boolean; ai_enhanced: boolean; enhanced: AiEnhancement; error?: string }>(
           url,
           { ocr_result: ocrResult },
-          { timeout: 90000 },
+          { timeout: 20000 },
         ),
       );
 
@@ -139,10 +139,10 @@ export class OcrService {
       }
 
       if (data.success && data.enhanced && data.ai_enhanced === false) {
-        // Python returned OCR-based fallback without running LLM — treat as raw OCR
+        // Python returned OCR-based fallback without running LLM — pass through the fallback data
         const reason = data.error ?? 'LLM returned no result';
         this.logger.warn(`[AI] Python returned OCR fallback (ai_enhanced=false): ${reason}`);
-        return { enhanced: null, status: 'not_responded', message: `AI did not enhance: ${reason}` };
+        return { enhanced: data.enhanced, status: 'not_responded', message: `AI did not enhance: ${reason}` };
       }
 
       const reason = data.error || 'AI service returned success=false or empty enhanced object';
