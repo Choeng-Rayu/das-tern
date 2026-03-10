@@ -52,8 +52,13 @@ class AuthProvider extends ChangeNotifier {
       _refreshToken = DevConfig.devRefreshToken;
       _user = Map<String, dynamic>.from(DevConfig.devUser);
       _isAuthenticated = true;
-      await _secureStorage.write(key: 'accessToken', value: _accessToken);
-      await _secureStorage.write(key: 'refreshToken', value: _refreshToken);
+      try {
+        await _secureStorage.deleteAll();
+        await _secureStorage.write(key: 'accessToken', value: _accessToken);
+        await _secureStorage.write(key: 'refreshToken', value: _refreshToken);
+      } catch (_) {
+        // Keychain errors in simulator are non-fatal in dev mode
+      }
       notifyListeners();
       return;
     }
@@ -352,6 +357,64 @@ class AuthProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  /// Update user profile fields.
+  Future<bool> updateUserProfile(Map<String, dynamic> data) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      final result = await _api.updateProfile(data);
+      _user = result;
+      _log.success('AuthProvider', 'Profile updated');
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e is ApiException
+          ? e.message
+          : e.toString().replaceFirst('Exception: ', '');
+      _log.error('AuthProvider', 'Profile update failed', e);
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Change password for current user.
+  Future<bool> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _api.changePassword(currentPassword, newPassword);
+      _log.success('AuthProvider', 'Password changed');
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e is ApiException
+          ? e.message
+          : e.toString().replaceFirst('Exception: ', '');
+      _log.error('AuthProvider', 'Password change failed', e);
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Refresh current user profile from server.
+  Future<void> refreshProfile() async {
+    try {
+      if (_accessToken != null) {
+        _user = await _api.getProfile(_accessToken!);
+        notifyListeners();
+      }
+    } catch (e) {
+      _log.error('AuthProvider', 'Failed to refresh profile', e);
+    }
   }
 
   // ── Private helpers ──

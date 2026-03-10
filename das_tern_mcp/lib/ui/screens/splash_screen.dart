@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.of(context).pushReplacementNamed(AppRouter.patientHome);
       }
     } else {
-      Navigator.of(context).pushReplacementNamed(AppRouter.login);
+      Navigator.of(context).pushReplacementNamed(AppRouter.welcome);
     }
   }
 

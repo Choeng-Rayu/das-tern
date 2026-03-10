@@ -76,7 +76,7 @@ void main() {
           'timing': 'After meals',
           'createdAt': '2025-01-15T00:00:00.000Z',
           'updatedAt': '2025-01-15T00:00:00.000Z',
-        }
+        },
       ],
       'currentVersion': 1,
       'isUrgent': false,
@@ -243,7 +243,7 @@ void main() {
         patientId: 'p-001',
         scheduledTime: DateTime(2025, 1, 15, 8, 0),
         timePeriod: 'MORNING',
-        reminderTime: DateTime(2025, 1, 15, 7, 50),
+        reminderTime: DateTime(2025, 1, 15, 7, 50).toIso8601String(),
         status: 'DUE',
         wasOffline: false,
         medicationName: 'Amoxicillin',
@@ -267,7 +267,7 @@ void main() {
           patientId: 'p-001',
           scheduledTime: DateTime.now(),
           timePeriod: period,
-          reminderTime: DateTime.now(),
+          reminderTime: DateTime.now().toIso8601String(),
           status: 'DUE',
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
@@ -277,8 +277,13 @@ void main() {
     });
 
     test('all dose statuses are handled', () {
-      for (final status
-          in ['DUE', 'TAKEN_ON_TIME', 'TAKEN_LATE', 'MISSED', 'SKIPPED']) {
+      for (final status in [
+        'DUE',
+        'TAKEN_ON_TIME',
+        'TAKEN_LATE',
+        'MISSED',
+        'SKIPPED',
+      ]) {
         final json = {
           'id': 'dose-status-$status',
           'prescriptionId': 'rx-001',
@@ -304,7 +309,10 @@ void main() {
     test('userRoleFromString handles all values', () {
       expect(enums.userRoleFromString('PATIENT'), enums.UserRole.patient);
       expect(enums.userRoleFromString('DOCTOR'), enums.UserRole.doctor);
-      expect(enums.userRoleFromString('FAMILY_MEMBER'), enums.UserRole.familyMember);
+      expect(
+        enums.userRoleFromString('FAMILY_MEMBER'),
+        enums.UserRole.familyMember,
+      );
       // Invalid defaults to patient
       expect(enums.userRoleFromString('UNKNOWN'), enums.UserRole.patient);
     });
@@ -318,10 +326,18 @@ void main() {
     });
 
     test('connectionStatusFromString handles all values', () {
-      expect(enums.connectionStatusFromString('PENDING'), enums.ConnectionStatus.pending);
       expect(
-          enums.connectionStatusFromString('ACCEPTED'), enums.ConnectionStatus.accepted);
-      expect(enums.connectionStatusFromString('REVOKED'), enums.ConnectionStatus.revoked);
+        enums.connectionStatusFromString('PENDING'),
+        enums.ConnectionStatus.pending,
+      );
+      expect(
+        enums.connectionStatusFromString('ACCEPTED'),
+        enums.ConnectionStatus.accepted,
+      );
+      expect(
+        enums.connectionStatusFromString('REVOKED'),
+        enums.ConnectionStatus.revoked,
+      );
     });
   });
 
@@ -332,10 +348,7 @@ void main() {
     test('login request format is correct', () {
       const phoneNumber = '+85512345678';
       const password = 'Test123!';
-      final body = {
-        'phoneNumber': phoneNumber,
-        'password': password,
-      };
+      final body = {'phoneNumber': phoneNumber, 'password': password};
       expect(body, containsPair('phoneNumber', phoneNumber));
       expect(body, containsPair('password', password));
     });
@@ -351,10 +364,19 @@ void main() {
         'password': 'Test123!',
         'pinCode': '1234',
       };
-      expect(body.keys, containsAll([
-        'firstName', 'lastName', 'gender', 'dateOfBirth',
-        'idCardNumber', 'phoneNumber', 'password', 'pinCode',
-      ]));
+      expect(
+        body.keys,
+        containsAll([
+          'firstName',
+          'lastName',
+          'gender',
+          'dateOfBirth',
+          'idCardNumber',
+          'phoneNumber',
+          'password',
+          'pinCode',
+        ]),
+      );
     });
 
     test('register doctor request has all required fields', () {
@@ -366,10 +388,17 @@ void main() {
         'licenseNumber': 'KH-DOC-001',
         'password': 'SecurePass123!',
       };
-      expect(body.keys, containsAll([
-        'fullName', 'phoneNumber', 'hospitalClinic',
-        'specialty', 'licenseNumber', 'password',
-      ]));
+      expect(
+        body.keys,
+        containsAll([
+          'fullName',
+          'phoneNumber',
+          'hospitalClinic',
+          'specialty',
+          'licenseNumber',
+          'password',
+        ]),
+      );
     });
 
     test('phone number format validation (+855)', () {
@@ -377,12 +406,18 @@ void main() {
       const invalidPhones = ['012345678', '85512345678', '+1234567'];
 
       for (final phone in validPhones) {
-        expect(phone.replaceAll(' ', '').startsWith('+855'), true,
-            reason: '$phone should be valid');
+        expect(
+          phone.replaceAll(' ', '').startsWith('+855'),
+          true,
+          reason: '$phone should be valid',
+        );
       }
       for (final phone in invalidPhones) {
-        expect(phone.startsWith('+855'), false,
-            reason: '$phone should be invalid');
+        expect(
+          phone.startsWith('+855'),
+          false,
+          reason: '$phone should be invalid',
+        );
       }
     });
 
@@ -391,12 +426,18 @@ void main() {
       const invalidOtps = ['123', '12345', 'abcd', ''];
 
       for (final otp in validOtps) {
-        expect(RegExp(r'^\d{4}$').hasMatch(otp), true,
-            reason: '$otp should be valid');
+        expect(
+          RegExp(r'^\d{4}$').hasMatch(otp),
+          true,
+          reason: '$otp should be valid',
+        );
       }
       for (final otp in invalidOtps) {
-        expect(RegExp(r'^\d{4}$').hasMatch(otp), false,
-            reason: '$otp should be invalid');
+        expect(
+          RegExp(r'^\d{4}$').hasMatch(otp),
+          false,
+          reason: '$otp should be invalid',
+        );
       }
     });
   });
@@ -427,10 +468,13 @@ void main() {
       final doses = <DoseEvent>[];
       final progress = doses.isNotEmpty
           ? doses
-                  .where((d) =>
-                      d.status == 'TAKEN_ON_TIME' || d.status == 'TAKEN_LATE')
-                  .length /
-              doses.length
+                    .where(
+                      (d) =>
+                          d.status == 'TAKEN_ON_TIME' ||
+                          d.status == 'TAKEN_LATE',
+                    )
+                    .length /
+                doses.length
           : 0.0;
       expect(progress, 0.0);
     });
@@ -467,8 +511,11 @@ void main() {
 }
 
 /// Helper to create a minimal dose JSON with given id and status.
-Map<String, dynamic> _dueJson(String id, String status,
-    {String period = 'MORNING'}) {
+Map<String, dynamic> _dueJson(
+  String id,
+  String status, {
+  String period = 'MORNING',
+}) {
   return {
     'id': id,
     'prescriptionId': 'rx-001',

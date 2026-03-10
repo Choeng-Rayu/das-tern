@@ -19,8 +19,9 @@ class CaregiverDashboardScreen extends StatefulWidget {
 
 class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   Connection? _connection;
-  final List<Map<String, dynamic>> _doses = [];
+  Map<String, dynamic>? _doseData;
   bool _isLoading = true;
+  String? _error;
 
   @override
   void didChangeDependencies() {
@@ -36,13 +37,64 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   }
 
   Future<void> _loadPatientData() async {
-    setState(() => _isLoading = true);
-    // In a full impl, fetch the patient's dose schedule via API
-    // For now, we'll show the connection info
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (mounted) {
-      setState(() => _isLoading = false);
+    if (_connection == null) return;
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      // Determine the patient ID from the connection
+      final patientId = _getPatientId();
+      if (patientId == null) {
+        setState(() {
+          _error = 'Could not determine patient';
+          _isLoading = false;
+        });
+        return;
+      }
+      final apiService = context.read<ConnectionProvider>();
+      final data = await apiService.getPatientDoses(patientId);
+      if (mounted) {
+        setState(() {
+          _doseData = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString().replaceFirst('Exception: ', '');
+          _isLoading = false;
+        });
+      }
     }
+  }
+
+  String? _getPatientId() {
+    if (_connection == null) return null;
+    // In getCaregivers(), the caregiver is the initiator and patient is the recipient
+    // In getConnectedPatients(), the caregiver is initiator, patient is recipient
+    final patientFromRecipient = _connection!.recipient;
+    final patientFromInitiator = _connection!.initiator;
+
+    // The patient is whoever is NOT the current caregiver
+    // We determine by checking whose role includes patient context
+    if (patientFromRecipient != null &&
+        patientFromRecipient['id'] != null) {
+      final recipientRole = patientFromRecipient['role'] as String? ?? '';
+      if (recipientRole == 'PATIENT') {
+        return patientFromRecipient['id'] as String;
+      }
+    }
+    if (patientFromInitiator != null &&
+        patientFromInitiator['id'] != null) {
+      final initiatorRole = patientFromInitiator['role'] as String? ?? '';
+      if (initiatorRole == 'PATIENT') {
+        return patientFromInitiator['id'] as String;
+      }
+    }
+    // Fall back to recipientId
+    return _connection!.recipientId;
   }
 
   @override
@@ -56,7 +108,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       );
     }
 
-    final patient = _connection!.recipient ?? {};
+    final patient = _connection!.recipient ?? _connection!.initiator ?? {};
     final patientName =
         '${patient['firstName'] ?? ''} ${patient['lastName'] ?? ''}'.trim();
 
@@ -88,7 +140,31 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
+          : _error != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline,
+                            color: AppColors.alertRed, size: 48),
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          _error!,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        ElevatedButton(
+                          onPressed: _loadPatientData,
+                          child: Text(AppLocalizations.of(context)!.retry),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : RefreshIndicator(
               onRefresh: _loadPatientData,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -244,7 +320,9 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
 
   Widget _buildDoseOverview(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    if (_doses.isEmpty) {
+    final doses = (_doseData?['doses'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+
+    if (doses.isEmpty) {
       return AppCard(
         child: Center(
           child: Padding(
@@ -267,10 +345,52 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       );
     }
 
+    final taken = _doseData?['taken'] as int? ?? 0;
+    final total = _doseData?['total'] as int? ?? 0;
+    final missed = _doseData?['missed'] as int? ?? 0;
+
     return Column(
-      children: _doses.map((dose) {
-        return _buildDoseCard(context, dose);
-      }).toList(),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Summary row
+        Row(
+          children: [
+            _buildStatChip(context, '$taken/$total', l10n.taken, AppColors.successGreen),
+            const SizedBox(width: AppSpacing.sm),
+            _buildStatChip(context, '$missed', l10n.missed, AppColors.alertRed),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        ...doses.map((dose) => _buildDoseCard(context, dose)),
+      ],
+    );
+  }
+
+  Widget _buildStatChip(
+      BuildContext context, String value, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '$value ',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: color, fontSize: 14),
+            ),
+            TextSpan(
+              text: label,
+              style: TextStyle(color: color, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -354,6 +474,10 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
 
   Widget _buildMissedDosesSection(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final doses = (_doseData?['doses'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final missedDoses = doses.where((d) => d['status'] == 'MISSED').toList();
+    final canNudge = _connection!.permissionLevel.index >= 1;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -371,21 +495,119 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
-        AppCard(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Text(
-                '${l10n.noMissedDoses} \u2713',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.successGreen,
-                      fontWeight: FontWeight.w500,
-                    ),
+        if (missedDoses.isEmpty)
+          AppCard(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Text(
+                  '${l10n.noMissedDoses} \u2713',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.successGreen,
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
               ),
             ),
-          ),
-        ),
+          )
+        else
+          ...missedDoses.map((dose) => _buildMissedDoseCard(context, dose, canNudge)),
       ],
+    );
+  }
+
+  Widget _buildMissedDoseCard(
+    BuildContext context,
+    Map<String, dynamic> dose,
+    bool canNudge,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final name = dose['medicationName'] ?? l10n.unknown;
+    final rawTime = dose['scheduledTime'];
+    String timeStr = '';
+    if (rawTime != null) {
+      try {
+        final dt = DateTime.parse(rawTime as String).toLocal();
+        timeStr =
+            '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+      } catch (_) {
+        timeStr = rawTime.toString();
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.alertRed,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                      Text(
+                        timeStr,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                  decoration: BoxDecoration(
+                    color: AppColors.alertRed.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    l10n.missed,
+                    style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.alertRed),
+                  ),
+                ),
+              ],
+            ),
+            if (canNudge) ...[
+              const SizedBox(height: AppSpacing.sm),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _sendNudgeForDose(context, dose),
+                  icon: const Icon(Icons.notifications_active, size: 16),
+                  label: Text(l10n.sendNudge),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.warningOrange,
+                    side: const BorderSide(color: AppColors.warningOrange),
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                    textStyle: const TextStyle(fontSize: 13),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -423,21 +645,26 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
   }
 
   Future<void> _sendNudge(BuildContext context) async {
+    return _sendNudgeForDose(context, null);
+  }
+
+  Future<void> _sendNudgeForDose(
+    BuildContext context,
+    Map<String, dynamic>? dose,
+  ) async {
     if (_connection == null) return;
 
     final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
     final provider = context.read<ConnectionProvider>();
-    final success = await provider.sendNudge(
-      _connection!.recipientId,
-      null, // doseId - could pass specific dose
-    );
+    final patientId = _getPatientId() ?? _connection!.recipientId;
+    final success = await provider.sendNudge(patientId, dose?['id'] as String?);
 
     if (mounted) {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            success ? l10n.nudgeSentSuccess : l10n.nudgeSentFailed,
+            success ? l10n.nudgeSentSuccess : (provider.error ?? l10n.nudgeSentFailed),
           ),
           backgroundColor:
               success ? AppColors.successGreen : AppColors.alertRed,

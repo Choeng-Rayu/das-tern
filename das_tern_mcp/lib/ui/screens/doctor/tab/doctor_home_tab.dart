@@ -1,13 +1,14 @@
-﻿import 'dart:math' as math;
-import 'package:fl_chart/fl_chart.dart';
+﻿import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../providers/auth_provider.dart';
 import '../../../../providers/doctor_dashboard_provider.dart';
+import '../../../../providers/notification_provider.dart';
+import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/common_widgets.dart';
+import '../../../widgets/header_widgets.dart';
 
 /// Doctor home tab  redesigned to match reference DoctorScreen design.
 class DoctorHomeTab extends StatefulWidget {
@@ -28,45 +29,47 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
       final provider = context.read<DoctorDashboardProvider>();
       provider.fetchDashboardOverview();
       provider.fetchPendingConnections();
+      provider.fetchGraphData();
+      context.read<NotificationProvider>().fetchNotifications();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final auth = context.watch<AuthProvider>();
     final dashboard = context.watch<DoctorDashboardProvider>();
-    final user = auth.user;
+    final notifProvider = context.watch<NotificationProvider>();
     final overview = dashboard.dashboardOverview;
 
-    final String doctorName =
-        user?['fullName'] ?? user?['firstName'] ?? l10n.doctorRole;
-
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.blue.shade400, Colors.blue.shade50],
-            stops: const [0.0, 0.28],
-          ),
-        ),
-        child: SafeArea(
-          child: RefreshIndicator(
-            onRefresh: () async {
-              await dashboard.fetchDashboardOverview();
-              await dashboard.fetchPendingConnections();
-            },
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _DoctorHeader(
-                    greeting: _greeting(context),
-                    doctorName: doctorName,
-                  ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await dashboard.fetchDashboardOverview();
+          await dashboard.fetchPendingConnections();
+          await dashboard.fetchGraphData();
+          if (context.mounted) {
+            await context.read<NotificationProvider>().fetchNotifications();
+          }
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Reusable header with notification bell ──
+              PatientHeader(
+                roleLabel: l10n.doctorRole,
+                unreadCount: notifProvider.unreadCount,
+                onNotificationTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRouter.doctorNotifications,
+                  ).then((_) {
+                    if (!mounted) return;
+                    context.read<NotificationProvider>().fetchNotifications();
+                  });
+                },
+              ),
                   const SizedBox(height: 20),
                   if (dashboard.dashboardLoading)
                     const Center(
@@ -189,12 +192,17 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                       const SizedBox(height: 12),
                     ],
                     _ChartSection(
-                      totalPatients: overview?.totalPatients ?? 0,
-                      patientsNeedingAttention:
-                          overview?.patientsNeedingAttention ?? 0,
+                      graphData: dashboard.graphData,
+                      graphLoading: dashboard.graphLoading,
                       showMonthly: _showMonthly,
-                      onDayTap: () => setState(() => _showMonthly = false),
-                      onMonthTap: () => setState(() => _showMonthly = true),
+                      onDayTap: () {
+                        setState(() => _showMonthly = false);
+                        dashboard.setGraphPeriod('week');
+                      },
+                      onMonthTap: () {
+                        setState(() => _showMonthly = true);
+                        dashboard.setGraphPeriod('month');
+                      },
                     ),
                     const SizedBox(height: 20),
                     Padding(
@@ -234,54 +242,6 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  String _greeting(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final hour = DateTime.now().hour;
-    if (hour < 12) return l10n.goodMorning;
-    if (hour < 17) return l10n.goodAfternoon;
-    return l10n.goodEvening;
-  }
-}
-
-class _DoctorHeader extends StatelessWidget {
-  final String greeting;
-  final String doctorName;
-
-  const _DoctorHeader({required this.greeting, required this.doctorName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: Colors.white,
-            child: Icon(Icons.person, color: Colors.blue.shade400, size: 24),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              '$greeting $doctorName !',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
-      ),
     );
   }
 }
@@ -662,37 +622,30 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _ChartSection extends StatelessWidget {
-  final int totalPatients;
-  final int patientsNeedingAttention;
+  final List<Map<String, dynamic>> graphData;
+  final bool graphLoading;
   final bool showMonthly;
   final VoidCallback onDayTap;
   final VoidCallback onMonthTap;
 
   const _ChartSection({
-    required this.totalPatients,
-    required this.patientsNeedingAttention,
+    required this.graphData,
+    required this.graphLoading,
     required this.showMonthly,
     required this.onDayTap,
     required this.onMonthTap,
   });
 
-  List<BarChartGroupData> _buildGroups(List<String> labels, int seed) {
-    final rng = math.Random(seed);
-    return List.generate(labels.length, (i) {
-      final received = math.max(
-        1.0,
-        (totalPatients * (0.4 + rng.nextDouble() * 0.6)).roundToDouble(),
-      );
-      final missed = math.max(
-        0.0,
-        (patientsNeedingAttention * (0.2 + rng.nextDouble() * 0.8))
-            .roundToDouble(),
-      );
+  List<BarChartGroupData> _buildGroups() {
+    return List.generate(graphData.length, (i) {
+      final item = graphData[i];
+      final taken = (item['taken'] as num?)?.toDouble() ?? 0;
+      final missed = (item['missed'] as num?)?.toDouble() ?? 0;
       return BarChartGroupData(
         x: i,
         barRods: [
           BarChartRodData(
-            toY: received,
+            toY: taken,
             color: Colors.blue.shade400,
             width: 10,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
@@ -712,27 +665,10 @@ class _ChartSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final dayLabels = [
-      l10n.dayMon,
-      l10n.dayTue,
-      l10n.dayWed,
-      l10n.dayThu,
-      l10n.dayFri,
-      l10n.daySat,
-      l10n.daySun,
-    ];
-    final monthLabels = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-    ];
-    final labels = showMonthly ? monthLabels : dayLabels;
-    final groups = _buildGroups(labels, showMonthly ? 99 : 42);
+    final labels = graphData
+        .map((d) => (d['label'] as String?) ?? '')
+        .toList();
+    final groups = _buildGroups();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -802,6 +738,22 @@ class _ChartSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
+          if (graphLoading)
+            const SizedBox(
+              height: 150,
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (graphData.isEmpty)
+            SizedBox(
+              height: 150,
+              child: Center(
+                child: Text(
+                  l10n.noAlerts,
+                  style: TextStyle(color: Colors.grey.shade500),
+                ),
+              ),
+            )
+          else
           SizedBox(
             height: 150,
             child: BarChart(

@@ -138,6 +138,7 @@ class PrescriptionEnhancer:
         Returns:
             Enhanced prescription with AI improvements and validation
         """
+        raw_text: Optional[str] = None
         try:
             # Extract raw text from OCR data (handle various formats)
             raw_text = self._extract_raw_text_from_ocr(ocr_data)
@@ -189,7 +190,7 @@ class PrescriptionEnhancer:
             return {
                 "success": False,
                 "error": f"Enhancement failed: {str(e)}",
-                "raw_text": raw_text if 'raw_text' in locals() else None
+                "raw_text": raw_text
             }
     
     def _extract_raw_text_from_ocr(self, ocr_data: Dict) -> str:
@@ -225,7 +226,8 @@ class PrescriptionEnhancer:
     def _validate_extracted_data(self, extracted_data: Dict) -> Dict:
         """Validate extracted data using existing validator.py"""
         try:
-            from ...validator import validate_prescription
+            # validator.py is in the same package (app/features/prescription/)
+            from .validator import validate_prescription
             return validate_prescription(extracted_data)
         except ImportError:
             logger.warning("Validator not available, skipping validation")

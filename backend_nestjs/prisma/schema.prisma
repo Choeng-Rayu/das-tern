@@ -1,11 +1,6 @@
-// Prisma Schema for Das Tern Backend
-// Prisma Version: 6.2.0
-// PostgreSQL Version: 17
-// Database: dastern
-
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextIndex", "fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -13,9 +8,382 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// ENUMS
-// ============================================
+model User {
+  id                     String                @id @default(uuid()) @db.Uuid
+  role                   UserRole
+  firstName              String?               @db.VarChar(100)
+  lastName               String?               @db.VarChar(100)
+  fullName               String?               @db.VarChar(200)
+  phoneNumber            String?               @unique @db.VarChar(20)
+  email                  String?               @unique @db.VarChar(255)
+  passwordHash           String                @db.VarChar(255)
+  googleId               String?               @unique @db.VarChar(255)
+  gender                 Gender?
+  dateOfBirth            DateTime?             @db.Date
+  idCardNumber           String?               @unique @db.VarChar(50)
+  profilePictureUrl      String?
+  language               Language              @default(KHMER)
+  theme                  Theme                 @default(LIGHT)
+  hospitalClinic         String?               @db.VarChar(255)
+  specialty              String?               @db.VarChar(100)
+  licenseNumber          String?               @unique @db.VarChar(100)
+  licensePhotoUrl        String?
+  gracePeriodMinutes     Int                   @default(30)
+  accountStatus          AccountStatus         @default(ACTIVE)
+  failedLoginAttempts    Int                   @default(0)
+  lockedUntil            DateTime?             @db.Timestamptz(3)
+  resetToken             String?               @db.VarChar(255)
+  resetTokenExpiry       DateTime?             @db.Timestamptz(3)
+  createdAt              DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime              @updatedAt @db.Timestamptz(3)
+  auditLogs              AuditLog[]
+  connectionTokens       ConnectionToken[]
+  initiatedConnections   Connection[]          @relation("ConnectionInitiator")
+  receivedConnections    Connection[]          @relation("ConnectionRecipient")
+  doctorNotes            DoctorNote[]          @relation("DoctorNotes")
+  patientNotes           DoctorNote[]          @relation("PatientNotes")
+  doseEvents             DoseEvent[]
+  familyMemberships      FamilyMember[]
+  healthAlerts           HealthAlert[]         @relation("PatientAlerts")
+  healthVitals           HealthVital[]         @relation("PatientVitals")
+  mealTimePreference     MealTimePreference?
+  medicationBatches      MedicationBatch[]
+  notifications          Notification[]
+  prescriptionVersions   PrescriptionVersion[]
+  prescriptionsAsDoctor  Prescription[]        @relation("DoctorPrescriptions")
+  prescriptionsAsPatient Prescription[]        @relation("PatientPrescriptions")
+  subscription           Subscription?
+  vitalThresholds        VitalThreshold[]      @relation("PatientThresholds")
+
+  @@index([phoneNumber])
+  @@index([email])
+  @@index([role])
+  @@index([accountStatus])
+  @@map("users")
+}
+
+model Connection {
+  id              String           @id @default(uuid()) @db.Uuid
+  initiatorId     String           @db.Uuid
+  recipientId     String           @db.Uuid
+  status          ConnectionStatus @default(PENDING)
+  permissionLevel PermissionLevel  @default(ALLOWED)
+  metadata        Json?
+  requestedAt     DateTime         @default(now()) @db.Timestamptz(3)
+  acceptedAt      DateTime?        @db.Timestamptz(3)
+  revokedAt       DateTime?        @db.Timestamptz(3)
+  createdAt       DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime         @updatedAt @db.Timestamptz(3)
+  initiator       User             @relation("ConnectionInitiator", fields: [initiatorId], references: [id], onDelete: Cascade)
+  recipient       User             @relation("ConnectionRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@unique([initiatorId, recipientId])
+  @@index([initiatorId])
+  @@index([recipientId])
+  @@index([status])
+  @@map("connections")
+}
+
+model Prescription {
+  id                  String                @id @default(uuid()) @db.Uuid
+  patientId           String                @db.Uuid
+  doctorId            String?               @db.Uuid
+  patientName         String                @db.VarChar(200)
+  patientGender       Gender
+  patientAge          Int
+  symptoms            String
+  diagnosis           String?
+  clinicalNote        String?
+  doctorLicenseNumber String?               @db.VarChar(100)
+  followUpDate        DateTime?             @db.Date
+  startDate           DateTime?             @db.Date
+  endDate             DateTime?             @db.Date
+  ocrMetadata         Json?
+  status              PrescriptionStatus    @default(DRAFT)
+  currentVersion      Int                   @default(1)
+  isUrgent            Boolean               @default(false)
+  urgentReason        String?
+  createdAt           DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime              @updatedAt @db.Timestamptz(3)
+  doseEvents          DoseEvent[]
+  medications         Medication[]
+  versions            PrescriptionVersion[]
+  doctor              User?                 @relation("DoctorPrescriptions", fields: [doctorId], references: [id])
+  patient             User                  @relation("PatientPrescriptions", fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([status])
+  @@index([patientId, status])
+  @@map("prescriptions")
+}
+
+model PrescriptionVersion {
+  id                  String       @id @default(uuid()) @db.Uuid
+  prescriptionId      String       @db.Uuid
+  versionNumber       Int
+  authorId            String?      @db.Uuid
+  changeReason        String?
+  medicationsSnapshot Json
+  createdAt           DateTime     @default(now()) @db.Timestamptz(3)
+  author              User?        @relation(fields: [authorId], references: [id])
+  prescription        Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  @@unique([prescriptionId, versionNumber])
+  @@index([prescriptionId])
+  @@map("prescription_versions")
+}
+
+model Medication {
+  id                String           @id @default(uuid()) @db.Uuid
+  prescriptionId    String           @db.Uuid
+  rowNumber         Int
+  batchId           String?          @db.Uuid
+  medicineName      String           @db.VarChar(255)
+  medicineNameKhmer String?          @db.VarChar(255)
+  imageUrl          String?
+  medicineType      MedicineType     @default(ORAL)
+  unit              MedicineUnit     @default(TABLET)
+  dosageAmount      Float            @default(1)
+  description       String?
+  additionalNote    String?
+  createdBy         String?          @db.Uuid
+  morningDosage     Json?
+  daytimeDosage     Json?
+  nightDosage       Json?
+  frequency         String?          @db.VarChar(100)
+  duration          Int?
+  timing            String?          @db.VarChar(100)
+  isPRN             Boolean          @default(false)
+  beforeMeal        Boolean          @default(false)
+  createdAt         DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
+  doseEvents        DoseEvent[]
+  batch             MedicationBatch? @relation(fields: [batchId], references: [id])
+  prescription      Prescription     @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  @@index([prescriptionId])
+  @@index([batchId])
+  @@map("medications")
+}
+
+model DoseEvent {
+  id             String          @id @default(uuid()) @db.Uuid
+  prescriptionId String          @db.Uuid
+  medicationId   String          @db.Uuid
+  patientId      String          @db.Uuid
+  scheduledTime  DateTime        @db.Timestamptz(3)
+  timePeriod     TimePeriod
+  reminderTime   String?         @db.VarChar(10)
+  status         DoseEventStatus @default(DUE)
+  takenAt        DateTime?       @db.Timestamptz(3)
+  skipReason     String?
+  wasOffline     Boolean         @default(false)
+  createdAt      DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime        @updatedAt @db.Timestamptz(3)
+  medication     Medication      @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  patient        User            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  prescription   Prescription    @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([scheduledTime])
+  @@index([status])
+  @@index([patientId, scheduledTime])
+  @@index([prescriptionId])
+  @@map("dose_events")
+}
+
+model Notification {
+  id          String           @id @default(uuid()) @db.Uuid
+  recipientId String           @db.Uuid
+  type        NotificationType
+  title       String           @db.VarChar(255)
+  message     String
+  data        Json?
+  isRead      Boolean          @default(false)
+  readAt      DateTime?        @db.Timestamptz(3)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(3)
+  recipient   User             @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId])
+  @@index([recipientId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id           String          @id @default(uuid()) @db.Uuid
+  actorId      String?         @db.Uuid
+  actorRole    UserRole?
+  actionType   AuditActionType
+  resourceType String          @db.VarChar(100)
+  resourceId   String?         @db.Uuid
+  details      Json?
+  ipAddress    String?         @db.VarChar(45)
+  createdAt    DateTime        @default(now()) @db.Timestamptz(3)
+  actor        User?           @relation(fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([resourceId])
+  @@index([createdAt])
+  @@index([actionType])
+  @@map("audit_logs")
+}
+
+model Subscription {
+  id            String           @id @default(uuid()) @db.Uuid
+  userId        String           @unique @db.Uuid
+  tier          SubscriptionTier @default(FREEMIUM)
+  storageQuota  BigInt           @default(5368709120)
+  storageUsed   BigInt           @default(0)
+  expiresAt     DateTime?        @db.Timestamptz(3)
+  createdAt     DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime         @updatedAt @db.Timestamptz(3)
+  hasUsedTrial  Boolean          @default(false)
+  familyMembers FamilyMember[]
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tier])
+  @@map("subscriptions")
+}
+
+model FamilyMember {
+  id             String       @id @default(uuid()) @db.Uuid
+  subscriptionId String       @db.Uuid
+  memberId       String       @db.Uuid
+  addedAt        DateTime     @default(now()) @db.Timestamptz(3)
+  member         User         @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriptionId, memberId])
+  @@index([subscriptionId])
+  @@map("family_members")
+}
+
+model MealTimePreference {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @unique @db.Uuid
+  morningMeal   String?  @db.VarChar(20)
+  afternoonMeal String?  @db.VarChar(20)
+  nightMeal     String?  @db.VarChar(20)
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("meal_time_preferences")
+}
+
+model DoctorNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  doctorId  String   @db.Uuid
+  patientId String   @db.Uuid
+  content   String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  doctor    User     @relation("DoctorNotes", fields: [doctorId], references: [id], onDelete: Cascade)
+  patient   User     @relation("PatientNotes", fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId])
+  @@index([patientId])
+  @@index([createdAt])
+  @@index([doctorId, patientId])
+  @@map("doctor_notes")
+}
+
+model ConnectionToken {
+  id              String          @id @default(uuid()) @db.Uuid
+  patientId       String          @db.Uuid
+  token           String          @unique @db.VarChar(20)
+  permissionLevel PermissionLevel @default(ALLOWED)
+  expiresAt       DateTime        @db.Timestamptz(3)
+  usedAt          DateTime?       @db.Timestamptz(3)
+  usedById        String?         @db.Uuid
+  createdAt       DateTime        @default(now()) @db.Timestamptz(3)
+  patient         User            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([patientId])
+  @@index([expiresAt])
+  @@map("connection_tokens")
+}
+
+model HealthVital {
+  id             String        @id @default(uuid()) @db.Uuid
+  patientId      String        @db.Uuid
+  vitalType      VitalType
+  value          Float
+  valueSecondary Float?
+  unit           String        @db.VarChar(20)
+  measuredAt     DateTime      @db.Timestamptz(3)
+  notes          String?
+  isAbnormal     Boolean       @default(false)
+  source         String?       @default("manual") @db.VarChar(50)
+  createdAt      DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime      @updatedAt @db.Timestamptz(3)
+  alerts         HealthAlert[]
+  patient        User          @relation("PatientVitals", fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([vitalType])
+  @@index([measuredAt])
+  @@index([patientId, vitalType, measuredAt])
+  @@map("health_vitals")
+}
+
+model VitalThreshold {
+  id           String    @id @default(uuid()) @db.Uuid
+  patientId    String    @db.Uuid
+  vitalType    VitalType
+  minValue     Float?
+  maxValue     Float?
+  minSecondary Float?
+  maxSecondary Float?
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+  patient      User      @relation("PatientThresholds", fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@unique([patientId, vitalType])
+  @@index([patientId])
+  @@map("vital_thresholds")
+}
+
+model HealthAlert {
+  id         String        @id @default(uuid()) @db.Uuid
+  patientId  String        @db.Uuid
+  vitalId    String?       @db.Uuid
+  alertType  String        @db.VarChar(50)
+  severity   AlertSeverity @default(MEDIUM)
+  message    String
+  isResolved Boolean       @default(false)
+  resolvedAt DateTime?     @db.Timestamptz(3)
+  resolvedBy String?       @db.Uuid
+  createdAt  DateTime      @default(now()) @db.Timestamptz(3)
+  patient    User          @relation("PatientAlerts", fields: [patientId], references: [id], onDelete: Cascade)
+  vital      HealthVital?  @relation(fields: [vitalId], references: [id])
+
+  @@index([patientId])
+  @@index([isResolved])
+  @@index([createdAt])
+  @@map("health_alerts")
+}
+
+model MedicationBatch {
+  id            String       @id @default(uuid()) @db.Uuid
+  patientId     String       @db.Uuid
+  name          String       @db.VarChar(255)
+  scheduledTime String       @db.VarChar(10)
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime     @updatedAt @db.Timestamptz(3)
+  patient       User         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  medications   Medication[]
+
+  @@index([patientId])
+  @@index([patientId, isActive])
+  @@map("medication_batches")
+}
 
 enum UserRole {
   PATIENT
@@ -118,10 +486,6 @@ enum AuditActionType {
   EMERGENCY_TRIGGERED
 }
 
-// ============================================
-// MEDICINE & HEALTH MONITORING ENUMS
-// ============================================
-
 enum MedicineType {
   PO
   ORAL
@@ -153,535 +517,4 @@ enum AlertSeverity {
   MEDIUM
   HIGH
   CRITICAL
-}
-
-// ============================================
-// USER MODEL
-// ============================================
-
-model User {
-  id                   String         @id @default(uuid()) @db.Uuid
-  role                 UserRole
-  
-  // Basic Information
-  firstName            String?        @db.VarChar(100)
-  lastName             String?        @db.VarChar(100)
-  fullName             String?        @db.VarChar(200)
-  phoneNumber          String?        @unique @db.VarChar(20)
-  email                String?        @unique @db.VarChar(255)
-  passwordHash         String         @db.VarChar(255)
-  googleId             String?        @unique @db.VarChar(255)
-
-  // Personal Details
-  gender               Gender?
-  dateOfBirth          DateTime?      @db.Date
-  idCardNumber         String?        @unique @db.VarChar(50)
-  profilePictureUrl    String?        @db.Text
-
-  // Preferences
-  language             Language       @default(KHMER)
-  theme                Theme          @default(LIGHT)
-  
-  // Doctor-specific fields
-  hospitalClinic       String?        @db.VarChar(255)
-  specialty            String?        @db.VarChar(100)
-  licenseNumber        String?        @unique @db.VarChar(100)
-  licensePhotoUrl      String?        @db.Text
-  
-  // Grace Period (for missed dose detection)
-  gracePeriodMinutes   Int            @default(30)
-  
-  // Account Security
-  accountStatus        AccountStatus  @default(ACTIVE)
-  failedLoginAttempts  Int            @default(0)
-  lockedUntil          DateTime?      @db.Timestamptz(3)
-  resetToken           String?        @db.VarChar(255)
-  resetTokenExpiry     DateTime?      @db.Timestamptz(3)
-  
-  // Timestamps
-  createdAt            DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt            DateTime       @updatedAt @db.Timestamptz(3)
-  
-  // Relations
-  initiatedConnections Connection[]   @relation("ConnectionInitiator")
-  receivedConnections  Connection[]   @relation("ConnectionRecipient")
-  connectionTokens     ConnectionToken[]
-  prescriptionsAsPatient Prescription[] @relation("PatientPrescriptions")
-  prescriptionsAsDoctor  Prescription[] @relation("DoctorPrescriptions")
-  doseEvents           DoseEvent[]
-  notifications        Notification[]
-  auditLogs            AuditLog[]
-  subscription         Subscription?
-  familyMemberships    FamilyMember[]
-  mealTimePreference   MealTimePreference?
-  prescriptionVersions PrescriptionVersion[]
-  doctorNotes          DoctorNote[]          @relation("DoctorNotes")
-  patientNotes         DoctorNote[]          @relation("PatientNotes")
-  healthVitals         HealthVital[]         @relation("PatientVitals")
-  vitalThresholds      VitalThreshold[]      @relation("PatientThresholds")
-  healthAlerts         HealthAlert[]         @relation("PatientAlerts")
-  medicationBatches    MedicationBatch[]
-  
-  @@index([phoneNumber])
-  @@index([email])
-  @@index([role])
-  @@index([accountStatus])
-  @@map("users")
-}
-
-// ============================================
-// CONNECTION MODEL
-// ============================================
-
-model Connection {
-  id              String           @id @default(uuid()) @db.Uuid
-  initiatorId     String           @db.Uuid
-  recipientId     String           @db.Uuid
-  status          ConnectionStatus @default(PENDING)
-  permissionLevel PermissionLevel  @default(ALLOWED)
-  
-  // Metadata (alertsEnabled, nudge counts, etc.)
-  metadata        Json?            @db.JsonB
-  
-  // Timestamps
-  requestedAt     DateTime         @default(now()) @db.Timestamptz(3)
-  acceptedAt      DateTime?        @db.Timestamptz(3)
-  revokedAt       DateTime?        @db.Timestamptz(3)
-  createdAt       DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime         @updatedAt @db.Timestamptz(3)
-  
-  // Relations
-  initiator       User             @relation("ConnectionInitiator", fields: [initiatorId], references: [id], onDelete: Cascade)
-  recipient       User             @relation("ConnectionRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
-  
-  @@unique([initiatorId, recipientId])
-  @@index([initiatorId])
-  @@index([recipientId])
-  @@index([status])
-  @@map("connections")
-}
-
-// ============================================
-// PRESCRIPTION MODELS
-// ============================================
-
-model Prescription {
-  id             String             @id @default(uuid()) @db.Uuid
-  patientId      String             @db.Uuid
-  doctorId       String?            @db.Uuid
-
-  // Patient Info (snapshot at creation)
-  patientName    String             @db.VarChar(200)
-  patientGender  Gender
-  patientAge     Int
-  symptoms       String             @db.Text
-
-  // Clinical Details
-  diagnosis         String?         @db.Text
-  clinicalNote      String?         @db.Text
-  doctorLicenseNumber String?       @db.VarChar(100)
-  followUpDate      DateTime?       @db.Date
-  startDate         DateTime?       @db.Date
-  endDate           DateTime?       @db.Date
-
-  // Prescription Details
-  status         PrescriptionStatus @default(DRAFT)
-  currentVersion Int                @default(1)
-  isUrgent       Boolean            @default(false)
-  urgentReason   String?            @db.Text
-
-  // Timestamps
-  createdAt      DateTime           @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime           @updatedAt @db.Timestamptz(3)
-
-  // Relations
-  patient        User               @relation("PatientPrescriptions", fields: [patientId], references: [id], onDelete: Cascade)
-  doctor         User?              @relation("DoctorPrescriptions", fields: [doctorId], references: [id], onDelete: SetNull)
-  medications    Medication[]
-  doseEvents     DoseEvent[]
-  versions       PrescriptionVersion[]
-
-  @@index([patientId])
-  @@index([doctorId])
-  @@index([status])
-  @@index([patientId, status])
-  @@map("prescriptions")
-}
-
-model PrescriptionVersion {
-  id                  String   @id @default(uuid()) @db.Uuid
-  prescriptionId      String   @db.Uuid
-  versionNumber       Int
-  authorId            String?  @db.Uuid
-  changeReason        String?  @db.Text
-  medicationsSnapshot Json     @db.JsonB
-  
-  // Timestamps
-  createdAt           DateTime @default(now()) @db.Timestamptz(3)
-  
-  // Relations
-  prescription        Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
-  author              User?        @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  
-  @@unique([prescriptionId, versionNumber])
-  @@index([prescriptionId])
-  @@map("prescription_versions")
-}
-
-model Medication {
-  id               String       @id @default(uuid()) @db.Uuid
-  prescriptionId   String       @db.Uuid
-  rowNumber        Int
-  batchId          String?      @db.Uuid
-
-  // Medication Details
-  medicineName     String       @db.VarChar(255)
-  medicineNameKhmer String?     @db.VarChar(255)
-  imageUrl         String?      @db.Text
-  medicineType     MedicineType @default(ORAL)
-  unit             MedicineUnit @default(TABLET)
-  dosageAmount     Float        @default(1)
-  description      String?      @db.Text
-  additionalNote   String?      @db.Text
-  createdBy        String?      @db.Uuid
-
-  // Dosage Information (JSONB for flexibility)
-  morningDosage    Json?        @db.JsonB
-  daytimeDosage    Json?        @db.JsonB
-  nightDosage      Json?        @db.JsonB
-
-  // Schedule
-  frequency        String?      @db.VarChar(100)
-  duration         Int?
-  timing           String?      @db.VarChar(100)
-  isPRN            Boolean      @default(false)
-  beforeMeal       Boolean      @default(false)
-
-  // Timestamps
-  createdAt        DateTime     @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime     @updatedAt @db.Timestamptz(3)
-
-  // Relations
-  prescription     Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
-  batch            MedicationBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
-  doseEvents       DoseEvent[]
-
-  @@index([prescriptionId])
-  @@index([batchId])
-  @@map("medications")
-}
-
-// ============================================
-// DOSE EVENT MODEL
-// ============================================
-
-model DoseEvent {
-  id             String          @id @default(uuid()) @db.Uuid
-  prescriptionId String          @db.Uuid
-  medicationId   String          @db.Uuid
-  patientId      String          @db.Uuid
-  
-  // Schedule Information
-  scheduledTime  DateTime        @db.Timestamptz(3)
-  timePeriod     TimePeriod
-  reminderTime   String?         @db.VarChar(10)
-  
-  // Status Tracking
-  status         DoseEventStatus @default(DUE)
-  takenAt        DateTime?       @db.Timestamptz(3)
-  skipReason     String?         @db.Text
-  wasOffline     Boolean         @default(false)
-  
-  // Timestamps
-  createdAt      DateTime        @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime        @updatedAt @db.Timestamptz(3)
-  
-  // Relations
-  prescription   Prescription    @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
-  medication     Medication      @relation(fields: [medicationId], references: [id], onDelete: Cascade)
-  patient        User            @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  
-  @@index([patientId])
-  @@index([scheduledTime])
-  @@index([status])
-  @@index([patientId, scheduledTime])
-  @@index([prescriptionId])
-  @@map("dose_events")
-}
-
-// ============================================
-// NOTIFICATION MODEL
-// ============================================
-
-model Notification {
-  id          String           @id @default(uuid()) @db.Uuid
-  recipientId String           @db.Uuid
-  type        NotificationType
-  
-  // Content
-  title       String           @db.VarChar(255)
-  message     String           @db.Text
-  data        Json?            @db.JsonB
-  
-  // Status
-  isRead      Boolean          @default(false)
-  readAt      DateTime?        @db.Timestamptz(3)
-  
-  // Timestamps
-  createdAt   DateTime         @default(now()) @db.Timestamptz(3)
-  
-  // Relations
-  recipient   User             @relation(fields: [recipientId], references: [id], onDelete: Cascade)
-  
-  @@index([recipientId])
-  @@index([recipientId, isRead])
-  @@index([createdAt])
-  @@map("notifications")
-}
-
-// ============================================
-// AUDIT LOG MODEL
-// ============================================
-
-model AuditLog {
-  id           String          @id @default(uuid()) @db.Uuid
-  actorId      String?         @db.Uuid
-  actorRole    UserRole?
-  actionType   AuditActionType
-  resourceType String          @db.VarChar(100)
-  resourceId   String?         @db.Uuid
-  details      Json?           @db.JsonB
-  ipAddress    String?         @db.VarChar(45)
-  
-  // Timestamps
-  createdAt    DateTime        @default(now()) @db.Timestamptz(3)
-  
-  // Relations
-  actor        User?           @relation(fields: [actorId], references: [id], onDelete: SetNull)
-  
-  @@index([actorId])
-  @@index([resourceId])
-  @@index([createdAt])
-  @@index([actionType])
-  @@map("audit_logs")
-}
-
-// ============================================
-// SUBSCRIPTION MODELS
-// ============================================
-
-model Subscription {
-  id           String           @id @default(uuid()) @db.Uuid
-  userId       String           @unique @db.Uuid
-  tier         SubscriptionTier @default(FREEMIUM)
-  
-  // Storage Management
-  storageQuota BigInt           @default(5368709120)
-  storageUsed  BigInt           @default(0)
-  
-  // Subscription Details
-  expiresAt    DateTime?        @db.Timestamptz(3)
-  
-  // Timestamps
-  createdAt    DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime         @updatedAt @db.Timestamptz(3)
-  
-  // Relations
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  familyMembers FamilyMember[]
-  
-  @@index([userId])
-  @@index([tier])
-  @@map("subscriptions")
-}
-
-model FamilyMember {
-  id             String       @id @default(uuid()) @db.Uuid
-  subscriptionId String       @db.Uuid
-  memberId       String       @db.Uuid
-  
-  // Timestamps
-  addedAt        DateTime     @default(now()) @db.Timestamptz(3)
-  
-  // Relations
-  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  member         User         @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  
-  @@unique([subscriptionId, memberId])
-  @@index([subscriptionId])
-  @@map("family_members")
-}
-
-// ============================================
-// MEAL TIME PREFERENCE MODEL
-// ============================================
-
-model MealTimePreference {
-  id            String   @id @default(uuid()) @db.Uuid
-  userId        String   @unique @db.Uuid
-  
-  // Meal Time Ranges
-  morningMeal   String?  @db.VarChar(20)
-  afternoonMeal String?  @db.VarChar(20)
-  nightMeal     String?  @db.VarChar(20)
-  
-  // Timestamps
-  createdAt     DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
-  
-  // Relations
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId])
-  @@map("meal_time_preferences")
-}
-
-// ============================================
-// DOCTOR NOTE MODEL
-// ============================================
-
-model DoctorNote {
-  id        String   @id @default(uuid()) @db.Uuid
-  doctorId  String   @db.Uuid
-  patientId String   @db.Uuid
-  content   String   @db.Text
-  
-  // Timestamps
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt @db.Timestamptz(3)
-  
-  // Relations
-  doctor    User     @relation("DoctorNotes", fields: [doctorId], references: [id], onDelete: Cascade)
-  patient   User     @relation("PatientNotes", fields: [patientId], references: [id], onDelete: Cascade)
-  
-  @@index([doctorId])
-  @@index([patientId])
-  @@index([createdAt])
-  @@index([doctorId, patientId])
-  @@map("doctor_notes")
-}
-
-// ============================================
-// CONNECTION TOKEN MODEL
-// ============================================
-
-model ConnectionToken {
-  id              String          @id @default(uuid()) @db.Uuid
-  patientId       String          @db.Uuid
-  token           String          @unique @db.VarChar(20)
-  permissionLevel PermissionLevel @default(ALLOWED)
-  expiresAt       DateTime        @db.Timestamptz(3)
-  usedAt          DateTime?       @db.Timestamptz(3)
-  usedById        String?         @db.Uuid
-  
-  // Timestamps
-  createdAt       DateTime        @default(now()) @db.Timestamptz(3)
-  
-  // Relations
-  patient         User            @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  
-  @@index([token])
-  @@index([patientId])
-  @@index([expiresAt])
-  @@map("connection_tokens")
-}
-
-// ============================================
-// HEALTH MONITORING MODELS
-// ============================================
-
-model HealthVital {
-  id             String    @id @default(uuid()) @db.Uuid
-  patientId      String    @db.Uuid
-  vitalType      VitalType
-  value          Float
-  valueSecondary Float?
-  unit           String    @db.VarChar(20)
-  measuredAt     DateTime  @db.Timestamptz(3)
-  notes          String?   @db.Text
-  isAbnormal     Boolean   @default(false)
-  source         String?   @db.VarChar(50) @default("manual")
-
-  // Timestamps
-  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime  @updatedAt @db.Timestamptz(3)
-
-  // Relations
-  patient        User      @relation("PatientVitals", fields: [patientId], references: [id], onDelete: Cascade)
-  alerts         HealthAlert[]
-
-  @@index([patientId])
-  @@index([vitalType])
-  @@index([measuredAt])
-  @@index([patientId, vitalType, measuredAt])
-  @@map("health_vitals")
-}
-
-model VitalThreshold {
-  id             String    @id @default(uuid()) @db.Uuid
-  patientId      String    @db.Uuid
-  vitalType      VitalType
-  minValue       Float?
-  maxValue       Float?
-  minSecondary   Float?
-  maxSecondary   Float?
-
-  // Timestamps
-  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime  @updatedAt @db.Timestamptz(3)
-
-  // Relations
-  patient        User      @relation("PatientThresholds", fields: [patientId], references: [id], onDelete: Cascade)
-
-  @@unique([patientId, vitalType])
-  @@index([patientId])
-  @@map("vital_thresholds")
-}
-
-model HealthAlert {
-  id             String        @id @default(uuid()) @db.Uuid
-  patientId      String        @db.Uuid
-  vitalId        String?       @db.Uuid
-  alertType      String        @db.VarChar(50)
-  severity       AlertSeverity @default(MEDIUM)
-  message        String        @db.Text
-  isResolved     Boolean       @default(false)
-  resolvedAt     DateTime?     @db.Timestamptz(3)
-  resolvedBy     String?       @db.Uuid
-
-  // Timestamps
-  createdAt      DateTime      @default(now()) @db.Timestamptz(3)
-
-  // Relations
-  patient        User          @relation("PatientAlerts", fields: [patientId], references: [id], onDelete: Cascade)
-  vital          HealthVital?  @relation(fields: [vitalId], references: [id], onDelete: SetNull)
-
-  @@index([patientId])
-  @@index([isResolved])
-  @@index([createdAt])
-  @@map("health_alerts")
-}
-
-// ============================================
-// MEDICATION BATCH MODEL
-// ============================================
-
-model MedicationBatch {
-  id             String       @id @default(uuid()) @db.Uuid
-  patientId      String       @db.Uuid
-  name           String       @db.VarChar(255)
-  scheduledTime  String       @db.VarChar(10)  // Format: "HH:mm"
-  isActive       Boolean      @default(true)
-
-  // Timestamps
-  createdAt      DateTime     @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime     @updatedAt @db.Timestamptz(3)
-
-  // Relations
-  patient        User         @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  medications    Medication[]
-
-  @@index([patientId])
-  @@index([patientId, isActive])
-  @@map("medication_batches")
 }

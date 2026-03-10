@@ -48,6 +48,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeMessage => 'Your medication reminder companion';
 
   @override
+  String get welcomeScreenSubtitle =>
+      'Your health, our priority. Manage your medical records with ease.';
+
+  @override
+  String get emergencyAccess => 'Emergency Access';
+
+  @override
+  String get doctorStep1PersonalInfo => 'Step 1 of 2 - Personal Information';
+
+  @override
+  String get doctorStep2ProfessionalInfo =>
+      'Step 2 of 2 - Professional & Security';
+
+  @override
   String get selectRoleTitle => 'I am...';
 
   @override
@@ -283,7 +297,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscription => 'Subscription';
 
   @override
-  String get unlockPremiumFeatures => 'Unlock premium features';
+  String get unlockPremiumFeatures =>
+      'Unlock premium features and get the most out of DasTern';
 
   @override
   String get todaySchedule => 'Today\'s Schedule';
@@ -852,6 +867,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknown => 'Unknown';
 
   @override
+  String get familyFunctionTitle => 'Family Features';
+
+  @override
+  String get familyIntroDescription =>
+      'Allow family members to track your daily medication intake and receive Notifications when:';
+
+  @override
+  String get familyBulletSender => 'You take medication';
+
+  @override
+  String get familyBulletReceiver => 'You miss a dose';
+
+  @override
+  String get familyIntroFooter =>
+      'Manage your family to receive updates and detailed monitoring information etc.';
+
+  @override
+  String get startUsing => 'Start Using';
+
+  @override
+  String get learnMore => 'Learn More';
+
+  @override
   String get scanPrescriptionTitle => 'Scan Prescription';
 
   @override
@@ -894,7 +932,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allFeaturesUnlocked => 'All features unlocked';
 
   @override
-  String get upgradeToUnlock => 'Upgrade to unlock all features';
+  String get upgradeToUnlock => 'Upgrade to unlock Premium features';
 
   @override
   String get upgrade => 'Upgrade';
@@ -1045,6 +1083,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openInBankingApp => 'Open in Banking App';
 
   @override
+  String get bankAmountPreFilled =>
+      'Bakong: payment pre-loaded · Others: open app and scan the QR above';
+
+  @override
   String get orOpenDirectly => 'Or tap to open your banking app directly:';
 
   @override
@@ -1122,6 +1164,137 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get familyPlanFeature => 'Family Plan';
+
+  @override
+  String get premiumTrialActive => '🎉 Premium Trial Active';
+
+  @override
+  String get dayRemaining => 'day remaining';
+
+  @override
+  String get daysRemaining => 'days remaining';
+
+  @override
+  String get expiresToday => 'Expires today';
+
+  @override
+  String get enjoyUnlimitedFeatures => 'Enjoy unlimited OCR & family features';
+
+  @override
+  String get claimFreeTrial => 'Claim 1-Month Free Trial';
+
+  @override
+  String get trialAlreadyClaimed => 'Trial already claimed';
+
+  @override
+  String get claimingTrial => 'Activating trial...';
+
+  @override
+  String get trialClaimedSuccess =>
+      'Free trial activated! Enjoy Premium features for 1 month.';
+
+  @override
+  String get trialClaimFailed => 'Failed to activate trial. Please try again.';
+
+  @override
+  String get premiumTrial => 'Premium Trial';
+
+  @override
+  String get topFeatures => 'Top Features';
+
+  @override
+  String get cancelAnytime => 'Cancel anytime';
+
+  @override
+  String get trialReminderNote =>
+      'We\'ll remind you 3 days before your trial ends';
+
+  @override
+  String get expandedOcrFeature => 'Unlimited OCR prescription scanning';
+
+  @override
+  String get familyConnectionsFeature => 'Connect up to 5 family members';
+
+  @override
+  String get expandedStorageFeature =>
+      '20 GB cloud storage for medical records';
+
+  @override
+  String get trialPeriod => 'Trial Period';
+
+  @override
+  String get oneMonthFree => '1 month free';
+
+  @override
+  String get promotion => 'Promotion';
+
+  @override
+  String get hundredPercentOff => '100% off for 1 month';
+
+  @override
+  String get afterTrial => 'After Trial';
+
+  @override
+  String get dueToday => 'Due today';
+
+  @override
+  String get premiumFeature => 'Premium Feature';
+
+  @override
+  String get ocrPremiumMessage =>
+      'OCR scanning is a Premium feature. Upgrade to Premium to unlock:';
+
+  @override
+  String get unlimitedOcrScanning => 'Unlimited OCR scanning';
+
+  @override
+  String get connectFamilyMembers => 'Connect up to 5 family members';
+
+  @override
+  String get twentyGBStorage => '20 GB storage';
+
+  @override
+  String get prioritySupport => 'Priority support';
+
+  @override
+  String get freeTrialOffer => '1-month free trial for new users!';
+
+  @override
+  String get yourTrialPeriod => 'Your Trial Period';
+
+  @override
+  String get trialExpiresOn => 'Trial expires on';
+
+  @override
+  String get daysLeft => 'days left';
+
+  @override
+  String get dayLeft => 'day left';
+
+  @override
+  String get enjoyingPremium => 'You are enjoying Premium features';
+
+  @override
+  String get afterTrialEnds => 'After trial ends';
+
+  @override
+  String get autoRevertToFree =>
+      'Your plan will automatically revert to Freemium (Free plan)';
+
+  @override
+  String get keepPremiumFeatures => 'Want to keep Premium features?';
+
+  @override
+  String get upgradeToPremium => 'Upgrade to Premium';
+
+  @override
+  String get onlyPerMonth => 'Only \$0.50/month or \$1 for 3 months';
+
+  @override
+  String get whatYouGet => 'What you\'re enjoying now';
+
+  @override
+  String get continuePremium => 'Continue with Premium';
 
   @override
   String get addAtLeastOneMedicine => 'Add at least one medicine';
@@ -1650,6 +1823,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String shareCodeMessage(String token) {
     return 'DasTern connection code: $token';
+  }
+
+  @override
+  String shareQrAndCodeMessage(String token) {
+    return 'Here is my DasTern connection code: $token\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.';
   }
 
   @override
@@ -2204,6 +2382,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get termsOfService => 'Terms of Service';
 
   @override
+  String get manageSubscriptions => 'Manage Subscriptions';
+
+  @override
+  String get restoreSubscription => 'Restore Subscription';
+
+  @override
+  String get rateApp => 'Rate App';
+
+  @override
+  String get support => 'Support';
+
+  @override
   String get currentPassword => 'Current Password';
 
   @override
@@ -2215,5 +2405,204 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String adherencePercentage(String percentage) {
     return '$percentage%';
+  }
+
+  @override
+  String get connectNewPatient => 'Connect New Patient';
+
+  @override
+  String get enterPhoneOrEmail => 'Enter phone number or email';
+
+  @override
+  String get noPatientFound => 'No patient found';
+
+  @override
+  String get connectionRequestSent => 'Connection request sent';
+
+  @override
+  String get connectionRequestFailed => 'Connection request failed';
+
+  @override
+  String get sendConnectionRequest => 'Send Connection Request';
+
+  @override
+  String get connectionApproved => 'Connection approved';
+
+  @override
+  String get connectionRejected => 'Connection rejected';
+
+  @override
+  String get approveConnection => 'Approve Connection';
+
+  @override
+  String get rejectConnection => 'Reject Connection';
+
+  @override
+  String get removeNotification => 'Remove Notification';
+
+  @override
+  String get removeNotificationConfirm => 'Remove notification?';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get prescriptionConfirmed => 'Prescription confirmed';
+
+  @override
+  String get prescriptionRejected => 'Prescription rejected';
+
+  @override
+  String get rejectPrescription => 'Reject Prescription';
+
+  @override
+  String get confirmPrescription => 'Confirm Prescription';
+
+  @override
+  String prescriptionFromDoctor(String doctor) {
+    return 'Prescription from $doctor';
+  }
+
+  @override
+  String get pendingPrescriptions => 'Pending Prescriptions';
+
+  @override
+  String get missedDoseBanner => 'You missed a dose';
+
+  @override
+  String get ocrOutpatient => 'Outpatient';
+
+  @override
+  String get ocrInpatient => 'Inpatient';
+
+  @override
+  String get ocrFacilityHospital => 'Hospital';
+
+  @override
+  String get ocrFacilityClinic => 'Clinic';
+
+  @override
+  String get ocrNotAvailable => 'Not available';
+
+  @override
+  String get ocrNeedsReviewYes => 'Yes, needs review';
+
+  @override
+  String get ocrAiEnhanced => 'AI Enhanced';
+
+  @override
+  String get ocrAiUnavailable => 'OCR Only';
+
+  @override
+  String get ocrPatientInfoSection => 'Patient Information';
+
+  @override
+  String get ocrPatientId => 'Patient ID';
+
+  @override
+  String get ocrPatientName => 'Patient Name';
+
+  @override
+  String get ocrPatientKhmerName => 'Patient Name (Khmer)';
+
+  @override
+  String get ocrPatientAge => 'Age';
+
+  @override
+  String ocrYearsOld(String age) {
+    return '$age years old';
+  }
+
+  @override
+  String get ocrPatientGender => 'Gender';
+
+  @override
+  String get ocrPrescriberSection => 'Prescriber Information';
+
+  @override
+  String get ocrPrescriberName => 'Prescriber Name';
+
+  @override
+  String get ocrFacilitySection => 'Facility Information';
+
+  @override
+  String get ocrFacilityName => 'Facility Name';
+
+  @override
+  String get ocrFacilityType => 'Facility Type';
+
+  @override
+  String get ocrClinicalSection => 'Clinical Information';
+
+  @override
+  String get ocrDiagnosis => 'Diagnosis';
+
+  @override
+  String get ocrMetadataSection => 'Metadata';
+
+  @override
+  String get ocrConfidenceScore => 'Confidence Score';
+
+  @override
+  String ocrConfidencePercent(String confidence) {
+    return '$confidence%';
+  }
+
+  @override
+  String get ocrEngine => 'OCR Engine';
+
+  @override
+  String get ocrProcessingTime => 'Processing Time';
+
+  @override
+  String ocrMilliseconds(String ms) {
+    return '${ms}ms';
+  }
+
+  @override
+  String get ocrPrescriptionType => 'Prescription Type';
+
+  @override
+  String get ocrLanguagesDetected => 'Languages Detected';
+
+  @override
+  String get ocrValidationStatus => 'Validation Status';
+
+  @override
+  String get ocrValidated => 'Validated';
+
+  @override
+  String get ocrScanInfoSection => 'Scan Information';
+
+  @override
+  String get claimYourFreeTrial => 'Claim Your Free Trial';
+
+  @override
+  String get getOneMonthFreePremiumAccess => 'Get 1 month free premium access';
+
+  @override
+  String get claimTrial => 'Claim Trial';
+
+  @override
+  String trialDaysRemainingBanner(int days) {
+    return 'You have $days days remaining';
+  }
+
+  @override
+  String get timeAgoJustNow => 'now';
+
+  @override
+  String timeAgoMinutes(int count) {
+    return '${count}m';
+  }
+
+  @override
+  String timeAgoHours(int count) {
+    return '${count}h';
+  }
+
+  @override
+  String timeAgoDays(int count) {
+    return '${count}d';
   }
 }

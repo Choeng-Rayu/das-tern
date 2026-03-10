@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../providers/dose_provider.dart';
 import '../../../../providers/prescription_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
@@ -36,19 +37,20 @@ class _CreatePatientMedicineScreenState
     }
 
     final data = <String, dynamic>{
-      'symptoms': _titleController.text.isNotEmpty
+      'title': _titleController.text.isNotEmpty
           ? _titleController.text.trim()
           : l10n.selfPrescribed,
-      'medications': _medicines
-          .asMap()
-          .entries
-          .map((e) => {'rowNumber': e.key + 1, ...e.value})
-          .toList(),
+      'startDate': DateTime.now().toIso8601String().split('T')[0],
+      'medicines': _medicines.toList(),
     };
 
     final success = await context
         .read<PrescriptionProvider>()
-        .createPatientPrescription(data);
+        .createPatientPrescription(
+          data,
+          onAfterCreate: () =>
+              context.read<DoseProvider>().fetchTodaySchedule(),
+        );
 
     if (mounted && success) {
       ScaffoldMessenger.of(

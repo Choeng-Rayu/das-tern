@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { NotificationType } from '@prisma/client';
 
@@ -23,6 +23,10 @@ export class NotificationsService {
   }
 
   async markAsRead(id: string, userId: string) {
+    const notification = await this.prisma.notification.findUnique({ where: { id } });
+    if (!notification || notification.recipientId !== userId) {
+      throw new NotFoundException('Notification not found');
+    }
     return this.prisma.notification.update({
       where: { id },
       data: { isRead: true, readAt: new Date() },
@@ -33,6 +37,14 @@ export class NotificationsService {
     return this.prisma.notification.count({
       where: { recipientId: userId, isRead: false },
     });
+  }
+
+  async remove(id: string, userId: string) {
+    const notification = await this.prisma.notification.findUnique({ where: { id } });
+    if (!notification || notification.recipientId !== userId) {
+      throw new NotFoundException('Notification not found');
+    }
+    return this.prisma.notification.delete({ where: { id } });
   }
 
   async sendMissedDoseAlert(patientId: string, doseId: string, isDelayed = false) {

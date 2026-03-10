@@ -1,0 +1,566 @@
+{
+  "success": true,
+  "data": {
+    "$schema": "cambodia-prescription-universal-v2.0",
+    "prescription": {
+      "metadata": {
+        "extraction_info": {
+          "extracted_at": "2026-03-07T12:32:17.929669+07:00",
+          "ocr_engine": "kiri-ocr",
+          "confidence_score": 0.4316,
+          "processing_time_ms": 16436.8,
+          "preprocessing_applied": [
+            "denoise",
+            "clahe",
+            "deskew(-3.5°)",
+            "resize"
+          ],
+          "image_metadata": {
+            "width": 1725908,
+            "height": 1725908,
+            "format": "png",
+            "dpi": 200,
+            "file_size_bytes": 1725908
+          }
+        },
+        "prescription_id": null,
+        "version": "2.0",
+        "languages_detected": {
+          "primary": "khmer",
+          "secondary": [
+            "english"
+          ],
+          "mixed_content": true
+        },
+        "prescription_type": "outpatient",
+        "validation_status": "validated"
+      },
+      "healthcare_facility": {
+        "name": {
+          "english": null,
+          "khmer": null,
+          "french": null,
+          "bbox": null
+        },
+        "type": "hospital"
+      },
+      "patient": {
+        "identification": {
+          "patient_id": {
+            "value": "HAKF1354164"
+          }
+        },
+        "personal_info": {
+          "name": {
+            "full_name": null,
+            "khmer_name": "ង៉ាំ ដាន់"
+          },
+          "age": {
+            "value": 19,
+            "unit": "years"
+          },
+          "gender": {
+            "value": null,
+            "english": null
+          }
+        }
+      },
+      "clinical_information": {
+        "diagnoses": [
+          {
+            "diagnosis": {
+              "english": null,
+              "khmer": "Chronic Cystitis ២២១១ 2. Encour ménorrhée ផ្នែក : ពិគ្រោះជំងឺក្រៅ-បន្ទប់លេខ5 វេជ្ជបញ្ជា ល្ល..ររ[ ឈ្មោះឱសថ ចំនួន ត្រូវគីប្រើ] (6-2)) គ្រឹក ] ថ្ងៃគ្រង់]["
+            }
+          }
+        ]
+      },
+      "medications": {
+        "items": [
+          {
+            "item_number": {
+              "value": 1,
+              "bbox": null
+            },
+            "medication": {
+              "name": {
+                "brand_name": "Butylscopolamine",
+                "generic_name": null,
+                "local_name": null,
+                "full_text": "Butylscopolamine",
+                "bbox": null
+              },
+              "strength": {
+                "value": null,
+                "numeric": null,
+                "unit": null
+              },
+              "form": {
+                "value": "tablet",
+                "khmer": null,
+                "french": null
+              },
+              "route": {
+                "value": "PO",
+                "description": null
+              }
+            },
+            "dosing": {
+              "duration": {
+                "value": 7,
+                "unit": "days",
+                "text_original": "7 days (calculated)",
+                "khmer_text": null,
+                "note": null,
+                "bbox": null
+              },
+              "schedule": {
+                "type": "fixed",
+                "frequency": {
+                  "times_per_day": 2,
+                  "interval_hours": 12.0,
+                  "text_description": "2x/day"
+                },
+                "time_slots": [
+                  {
+                    "period": "morning",
+                    "time_range": "06:00-08:00",
+                    "dose": {
+                      "value": "1.0",
+                      "numeric": 1.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  },
+                  {
+                    "period": "midday",
+                    "time_range": "11:00-12:00",
+                    "dose": {
+                      "value": "0",
+                      "numeric": null,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  },
+                  {
+                    "period": "afternoon",
+                    "time_range": "17:00-18:00",
+                    "dose": {
+                      "value": "0",
+                      "numeric": null,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  },
+                  {
+                    "period": "evening",
+                    "time_range": "20:00-22:00",
+                    "dose": {
+                      "value": "1.0",
+                      "numeric": 1.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  }
+                ],
+                "prn_instructions": {
+                  "as_needed": false,
+                  "condition": null
+                }
+              },
+              "total_quantity": {
+                "value": 14,
+                "unit": "tablet"
+              }
+            },
+            "instructions": {
+              "timing_with_food": {
+                "before_meal": null,
+                "after_meal": null,
+                "text": "10m9 | Butylscopolamine | 14 គ្រាប់ | 11 | 1"
+              }
+            },
+            "clinical_notes": {
+              "therapeutic_class": null
+            }
+          },
+          {
+            "item_number": {
+              "value": 2,
+              "bbox": null
+            },
+            "medication": {
+              "name": {
+                "brand_name": "Multivitamine",
+                "generic_name": null,
+                "local_name": null,
+                "full_text": "Multivitamine",
+                "bbox": null
+              },
+              "strength": {
+                "value": null,
+                "numeric": null,
+                "unit": null
+              },
+              "form": {
+                "value": "tablet",
+                "khmer": null,
+                "french": null
+              },
+              "route": {
+                "value": "PO",
+                "description": null
+              }
+            },
+            "dosing": {
+              "duration": {
+                "value": 33,
+                "unit": "days",
+                "text_original": "33 days (calculated)",
+                "khmer_text": null,
+                "note": null,
+                "bbox": null
+              },
+              "schedule": {
+                "type": "fixed",
+                "frequency": {
+                  "times_per_day": 2,
+                  "interval_hours": 12.0,
+                  "text_description": "2x/day"
+                },
+                "time_slots": [
+                  {
+                    "period": "morning",
+                    "time_range": "06:00-08:00",
+                    "dose": {
+                      "value": "2.0",
+                      "numeric": 2.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  },
+                  {
+                    "period": "midday",
+                    "time_range": "11:00-12:00",
+                    "dose": {
+                      "value": "0",
+                      "numeric": null,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  },
+                  {
+                    "period": "afternoon",
+                    "time_range": "17:00-18:00",
+                    "dose": {
+                      "value": "0",
+                      "numeric": null,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  },
+                  {
+                    "period": "evening",
+                    "time_range": "20:00-22:00",
+                    "dose": {
+                      "value": "1.0",
+                      "numeric": 1.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  }
+                ],
+                "prn_instructions": {
+                  "as_needed": false,
+                  "condition": null
+                }
+              },
+              "total_quantity": {
+                "value": 100,
+                "unit": "tablet"
+              }
+            },
+            "instructions": {
+              "timing_with_food": {
+                "before_meal": null,
+                "after_meal": null,
+                "text": "2 | | Multivitamine | 100 គ្រាប់ | 2 | - | 11"
+              }
+            },
+            "clinical_notes": {
+              "therapeutic_class": null
+            }
+          },
+          {
+            "item_number": {
+              "value": 3,
+              "bbox": null
+            },
+            "medication": {
+              "name": {
+                "brand_name": "Essome",
+                "generic_name": null,
+                "local_name": null,
+                "full_text": "Essome",
+                "bbox": null
+              },
+              "strength": {
+                "value": "20mg",
+                "numeric": 20.0,
+                "unit": "mg"
+              },
+              "form": {
+                "value": "capsule",
+                "khmer": null,
+                "french": null
+              },
+              "route": {
+                "value": "PO",
+                "description": null
+              }
+            },
+            "dosing": {
+              "duration": {
+                "value": 7,
+                "unit": "days",
+                "text_original": "7 days (calculated)",
+                "khmer_text": null,
+                "note": null,
+                "bbox": null
+              },
+              "schedule": {
+                "type": "fixed",
+                "frequency": {
+                  "times_per_day": 1,
+                  "interval_hours": 24.0,
+                  "text_description": "1x/day"
+                },
+                "time_slots": [
+                  {
+                    "period": "morning",
+                    "time_range": "06:00-08:00",
+                    "dose": {
+                      "value": "1.0",
+                      "numeric": 1.0,
+                      "unit": "capsule",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  },
+                  {
+                    "period": "midday",
+                    "time_range": "11:00-12:00",
+                    "dose": {
+                      "value": "0",
+                      "numeric": null,
+                      "unit": "capsule",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  },
+                  {
+                    "period": "afternoon",
+                    "time_range": "17:00-18:00",
+                    "dose": {
+                      "value": "0",
+                      "numeric": null,
+                      "unit": "capsule",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  },
+                  {
+                    "period": "evening",
+                    "time_range": "20:00-22:00",
+                    "dose": {
+                      "value": "0",
+                      "numeric": null,
+                      "unit": "capsule",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  }
+                ],
+                "prn_instructions": {
+                  "as_needed": false,
+                  "condition": null
+                }
+              },
+              "total_quantity": {
+                "value": 7,
+                "unit": "capsule"
+              }
+            },
+            "instructions": {
+              "timing_with_food": {
+                "before_meal": null,
+                "after_meal": true,
+                "text": "3 | \tEssome 20mg | ] 7 គ្រាប់ស្រោប | | PO | || គ្រាប់ ក្រោយបាយ\t | 11"
+              }
+            },
+            "clinical_notes": {
+              "therapeutic_class": null
+            }
+          },
+          {
+            "item_number": {
+              "value": 4,
+              "bbox": null
+            },
+            "medication": {
+              "name": {
+                "brand_name": "Parracetamoli",
+                "generic_name": null,
+                "local_name": null,
+                "full_text": "Parracetamoli",
+                "bbox": null
+              },
+              "strength": {
+                "value": null,
+                "numeric": null,
+                "unit": null
+              },
+              "form": {
+                "value": "tablet",
+                "khmer": null,
+                "french": null
+              },
+              "route": {
+                "value": "PO",
+                "description": null
+              }
+            },
+            "dosing": {
+              "duration": {
+                "value": 7,
+                "unit": "days",
+                "text_original": "7 days (calculated)",
+                "khmer_text": null,
+                "note": null,
+                "bbox": null
+              },
+              "schedule": {
+                "type": "fixed",
+                "frequency": {
+                  "times_per_day": 2,
+                  "interval_hours": 12.0,
+                  "text_description": "2x/day"
+                },
+                "time_slots": [
+                  {
+                    "period": "morning",
+                    "time_range": "06:00-08:00",
+                    "dose": {
+                      "value": "1.0",
+                      "numeric": 1.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  },
+                  {
+                    "period": "midday",
+                    "time_range": "11:00-12:00",
+                    "dose": {
+                      "value": "0",
+                      "numeric": null,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  },
+                  {
+                    "period": "afternoon",
+                    "time_range": "17:00-18:00",
+                    "dose": {
+                      "value": "0",
+                      "numeric": null,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": false
+                  },
+                  {
+                    "period": "evening",
+                    "time_range": "20:00-22:00",
+                    "dose": {
+                      "value": "1.0",
+                      "numeric": 1.0,
+                      "unit": "tablet",
+                      "bbox": null
+                    },
+                    "enabled": true
+                  }
+                ],
+                "prn_instructions": {
+                  "as_needed": false,
+                  "condition": null
+                }
+              },
+              "total_quantity": {
+                "value": 15,
+                "unit": "tablet"
+              }
+            },
+            "instructions": {
+              "timing_with_food": {
+                "before_meal": null,
+                "after_meal": true,
+                "text": "5000m9 | Parracetamoli | 15គ្រាប់ | PO | | || គ្រាប់ ក្រោយបាយ | 11 | គ្រាប់ | 1 | ] 1គ្រាប់ ក្រោយបាយ"
+              }
+            },
+            "clinical_notes": {
+              "therapeutic_class": null
+            }
+          }
+        ],
+        "summary": {
+          "total_medications": 4,
+          "max_duration_days": 33
+        }
+      },
+      "prescriber": {
+        "name": {
+          "full_name": "ហឹង គឹមអាង"
+        }
+      },
+      "prescription_details": {
+        "dates": {
+          "issue_date": {
+            "value": null
+          }
+        }
+      },
+      "raw_extraction_data": {
+        "full_text": "សងmerzsoviershessary How ឫស្សស គឺជាតិអនុមិតកាន់ខ្មែរៀត អ.DQjp លេខកូដ: HAKF1354164 ឈ្មោះអ្នកជំងឺ: ង៉ាំ ដាន់ អាយុ 19 ឆ្នាំ ភែទៈ ស្រី ប្រភេទបង់ប្រាក់ : មូលនិធិសមធម៌ / 20002-0409 ( អ្នកជិត ) រោគវិនិច្ឆ័យ : Chronic Cystitis ២២១១ 2. Encour ménorrhée\nផ្នែក : ពិគ្រោះជំងឺក្រៅ-បន្ទប់លេខ5\nវេជ្ជបញ្ជា\nល្ល..ររ[ ឈ្មោះឱសថ ចំនួន ត្រូវគីប្រើ] (6-2))\nគ្រឹក ] ថ្ងៃគ្រង់][\n||(13:21|| (05-06)\nល្ងាច\n|{(co3-110)|\nយប់\n10m9 Butylscopolamine 14 គ្រាប់ 11 1\n2 | Multivitamine 100 គ្រាប់ 2 - 11\n3 \tEssome 20mg ] 7 គ្រាប់ស្រោប | PO || គ្រាប់ ក្រោយបាយ\t 11\n5000m9 Parracetamoli 15គ្រាប់ PO | || គ្រាប់ ក្រោយបាយ\n11\nគ្រាប់ 1 ] 1គ្រាប់ ក្រោយបាយ\nរាជធានីភ្នំពេញ,ថ្ងៃទី 22/2025 14:47\nគ្រពេទ្យព្យាបាល\nសូមយកវេជ្ជបញ្ជាមកវិញ ពេលតនត្យលើកក្រោយ វេជ្ជបណ្ឌិត ហឹង គឹមអាង",
+        "ocr_confidence_by_section": {},
+        "processing_flags": {
+          "handwritten_detected": false,
+          "poor_image_quality": false,
+          "partial_occlusion": false,
+          "corrections_applied": false
+        },
+        "alternative_readings": [],
+        "words_by_section": {}
+      }
+    }
+  },
+  "extraction_summary": {
+    "total_medications": 4,
+    "confidence_score": 0.4316,
+    "needs_review": true,
+    "fields_needing_review": [],
+    "processing_time_ms": 16436.8,
+    "engines_used": [
+      "kiri-ocr"
+    ]
+  }
+}

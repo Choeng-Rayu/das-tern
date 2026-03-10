@@ -8,7 +8,9 @@ import '../../widgets/auth_widgets.dart';
 import '../../widgets/language_switcher.dart';
 import '../../widgets/telegram_phone_field.dart';
 
-/// Doctor registration – single-page form with grouped sections.
+/// Doctor registration – two-step form with step indicator.
+/// Step 1: Personal info (fullName, email, phone).
+/// Step 2: Professional info + Security (hospital, specialty, license, password).
 class RegisterDoctorScreen extends StatefulWidget {
   const RegisterDoctorScreen({super.key});
 
@@ -17,11 +19,18 @@ class RegisterDoctorScreen extends StatefulWidget {
 }
 
 class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _fullNameController = TextEditingController();
+  final _formKey1 = GlobalKey<FormState>();
+  final _formKey2 = GlobalKey<FormState>();
+  int _currentStep = 0;
+
+  // Step 1 controllers
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _phoneFieldKey = GlobalKey<TelegramStylePhoneFieldState>();
+
+  // Step 2 controllers
   final _hospitalController = TextEditingController();
   String? _selectedSpecialty;
   final _licenseController = TextEditingController();
@@ -47,7 +56,8 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
 
   @override
   void dispose() {
-    _fullNameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _hospitalController.dispose();
@@ -55,6 +65,12 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  void _nextStep() {
+    if (_currentStep == 0 && _formKey1.currentState!.validate()) {
+      setState(() => _currentStep = 1);
+    }
   }
 
   String _getSpecialtyLabel(BuildContext context, String value) {
@@ -88,7 +104,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
   }
 
   Future<void> _handleRegister() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey2.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
     final email = _emailController.text.trim();
@@ -99,7 +115,8 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
     }
 
     final result = await auth.registerDoctor(
-      fullName: _fullNameController.text.trim(),
+      fullName:
+          '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
       email: email,
       phoneNumber: phone,
       hospitalClinic: _hospitalController.text.trim().isNotEmpty
@@ -114,10 +131,9 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
 
     if (!mounted) return;
     if (result != null) {
-      Navigator.of(context).pushNamed(
-        '/otp-verification',
-        arguments: {'identifier': email},
-      );
+      Navigator.of(
+        context,
+      ).pushNamed('/otp-verification', arguments: {'identifier': email});
     }
   }
 
@@ -142,335 +158,303 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final l10n = AppLocalizations.of(context)!;
+    final size = MediaQuery.of(context).size;
+    final hPad = (size.width * 0.06).clamp(16.0, 40.0);
+    final titleFontSize = size.width < 360 ? 16.0 : 20.0;
 
     return AuthGradientScaffold(
       child: Column(
         children: [
-          // ── Header ──
           AuthHeader(
             showBackButton: true,
-            onBack: () => Navigator.of(context).pop(),
-            trailing: const LanguageSwitcherButton(),
+            onBack: () {
+              if (_currentStep > 0) {
+                setState(() => _currentStep = 0);
+              } else {
+                Navigator.of(context).pop();
+              }
+            },
+            trailing: const LanguageSwitcherButton(lightBackground: true),
           ),
 
-          // ── Title ──
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
+            padding: EdgeInsets.symmetric(
+              horizontal: hPad,
               vertical: AppSpacing.sm,
             ),
             child: Column(
               children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.medical_services_outlined,
-                    color: Colors.white,
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
                 Text(
                   l10n.doctorRegistrationTitle,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
+                  style: TextStyle(
+                    color: const Color(0xFF111111),
+                    fontSize: titleFontSize,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  l10n.doctorRegistrationSubtitle,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.center,
+                const SizedBox(height: AppSpacing.md),
+                AuthStepIndicator(
+                  currentStep: _currentStep,
+                  totalSteps: 2,
+                  stepLabel: _currentStep == 0
+                      ? l10n.doctorStep1PersonalInfo
+                      : l10n.doctorStep2ProfessionalInfo,
                 ),
               ],
             ),
           ),
 
-          // ── Form ──
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // ── Personal Info Section ──
-                    _SectionHeader(title: l10n.personalInfoSection),
-                    const SizedBox(height: AppSpacing.sm),
-
-                    AuthFieldLabel(l10n.fullName),
-                    const SizedBox(height: AppSpacing.xs),
-                    AuthTextField(
-                      controller: _fullNameController,
-                      hintText: l10n.fullNameHint,
-                      validator: (v) =>
-                          v?.isEmpty ?? true ? l10n.fullNameError : null,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    AuthFieldLabel(l10n.email),
-                    const SizedBox(height: AppSpacing.xs),
-                    AuthTextField(
-                      controller: _emailController,
-                      hintText: l10n.emailHint,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return l10n.emailEmpty;
-                        final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                        if (!emailRegex.hasMatch(v.trim())) return l10n.emailInvalid;
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    AuthFieldLabel('${l10n.phoneNumber} ${l10n.phoneOptional}'),
-                    const SizedBox(height: AppSpacing.xs),
-                    TelegramStylePhoneField(
-                      key: _phoneFieldKey,
-                      controller: _phoneController,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    // ── Professional Info Section ──
-                    _SectionHeader(title: l10n.professionalInfoSection),
-                    const SizedBox(height: AppSpacing.sm),
-
-                    AuthFieldLabel('${l10n.hospitalClinic} ${l10n.hospitalClinicOptional}'),
-                    const SizedBox(height: AppSpacing.xs),
-                    AuthTextField(
-                      controller: _hospitalController,
-                      hintText: l10n.hospitalClinicHint,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    AuthFieldLabel('${l10n.specialty} ${l10n.hospitalClinicOptional}'),
-                    const SizedBox(height: AppSpacing.xs),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedSpecialty,
-                          isExpanded: true,
-                          hint: Text(
-                            l10n.selectSpecialty,
-                            style: TextStyle(
-                              color: AppColors.textSecondary.withValues(alpha: 0.6),
-                            ),
-                          ),
-                          items: _specialtyValues.map((value) {
-                            return DropdownMenuItem(
-                              value: value,
-                              child: Text(_getSpecialtyLabel(context, value)),
-                            );
-                          }).toList(),
-                          onChanged: (v) => setState(() => _selectedSpecialty = v),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    AuthFieldLabel('${l10n.medicalLicense} ${l10n.medicalLicenseOptional}'),
-                    const SizedBox(height: AppSpacing.xs),
-                    AuthTextField(
-                      controller: _licenseController,
-                      hintText: l10n.medicalLicenseHint,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    // ── Security Section ──
-                    _SectionHeader(title: l10n.accountSecuritySection),
-                    const SizedBox(height: AppSpacing.sm),
-
-                    AuthFieldLabel(l10n.password),
-                    const SizedBox(height: AppSpacing.xs),
-                    AuthTextField(
-                      controller: _passwordController,
-                      hintText: l10n.passwordTooShort,
-                      obscureText: _obscurePassword,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                          color: AppColors.textSecondary,
-                        ),
-                        onPressed: () =>
-                            setState(() => _obscurePassword = !_obscurePassword),
-                      ),
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return l10n.passwordEmpty;
-                        if (v.length < 6) return l10n.passwordTooShort;
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    AuthFieldLabel(l10n.confirmPassword),
-                    const SizedBox(height: AppSpacing.xs),
-                    AuthTextField(
-                      controller: _confirmPasswordController,
-                      hintText: l10n.confirmPasswordHint,
-                      obscureText: _obscureConfirm,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirm
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                          color: AppColors.textSecondary,
-                        ),
-                        onPressed: () =>
-                            setState(() => _obscureConfirm = !_obscureConfirm),
-                      ),
-                      validator: (v) {
-                        if (v != _passwordController.text) {
-                          return l10n.passwordMismatch;
-                        }
-                        return null;
-                      },
-                    ),
-
-                    // Error
-                    if (auth.error != null) ...[
-                      const SizedBox(height: AppSpacing.md),
-                      AuthErrorBanner(message: auth.error!),
-                    ],
-                    const SizedBox(height: AppSpacing.xl),
-
-                    // Register button
-                    AuthPrimaryButton(
-                      onPressed: _handleRegister,
-                      isLoading: auth.isLoading,
-                      label: l10n.createAccount,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    // ── OR divider ──
-                    Row(
-                      children: [
-                        const Expanded(child: Divider(color: Colors.white30)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                          child: Text(
-                            l10n.orRegisterWith,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                        const Expanded(child: Divider(color: Colors.white30)),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    // ── Google Register button ──
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: OutlinedButton.icon(
-                        onPressed: auth.isLoading ? null : _handleGoogleRegister,
-                        icon: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Icon(Icons.g_mobiledata,
-                              color: Colors.red, size: 20),
-                        ),
-                        label: Text(
-                          l10n.registerWithGoogle,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white54, width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppRadius.xl),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-
-                    Text(
-                      l10n.accountVerificationInfo,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        fontSize: 12,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    // Already have account link
-                    AuthLinkRow(
-                      message: l10n.alreadyHaveAccount,
-                      actionText: l10n.signIn,
-                      onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/login',
-                        (_) => false,
-                      ),
-                    ),
-                  ],
-                ),
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                horizontal: hPad,
+                vertical: AppSpacing.md,
               ),
+              child: _currentStep == 0 ? _buildStep1() : _buildStep2(auth),
             ),
           ),
         ],
       ),
     );
   }
-}
 
-// ── Section Header ──
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 3,
-          height: 16,
-          decoration: BoxDecoration(
-            color: const Color(0xFF29B6F6),
-            borderRadius: BorderRadius.circular(2),
+  Widget _buildStep1() {
+    final l10n = AppLocalizations.of(context)!;
+    return Form(
+      key: _formKey1,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AuthFieldLabel(l10n.lastName),
+          const SizedBox(height: AppSpacing.xs),
+          AuthTextField(
+            controller: _lastNameController,
+            hintText: l10n.fillLastNameHint,
+            validator: (v) =>
+                v?.isEmpty ?? true ? l10n.fillLastNameError : null,
           ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Text(
-          title,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.8),
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
+          const SizedBox(height: AppSpacing.md),
+          AuthFieldLabel(l10n.firstName),
+          const SizedBox(height: AppSpacing.xs),
+          AuthTextField(
+            controller: _firstNameController,
+            hintText: l10n.fillFirstNameHint,
+            validator: (v) =>
+                v?.isEmpty ?? true ? l10n.fillFirstNameError : null,
           ),
-        ),
-      ],
+          const SizedBox(height: AppSpacing.md),
+
+          AuthFieldLabel(l10n.email),
+          const SizedBox(height: AppSpacing.xs),
+          AuthTextField(
+            controller: _emailController,
+            hintText: l10n.emailHint,
+            keyboardType: TextInputType.emailAddress,
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return l10n.emailEmpty;
+              final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+              if (!emailRegex.hasMatch(v.trim())) return l10n.emailInvalid;
+              return null;
+            },
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          AuthFieldLabel('${l10n.phoneNumber} ${l10n.phoneOptional}'),
+          const SizedBox(height: AppSpacing.xs),
+          TelegramStylePhoneField(
+            key: _phoneFieldKey,
+            controller: _phoneController,
+          ),
+          const SizedBox(height: AppSpacing.xl),
+
+          AuthPrimaryButton(onPressed: _nextStep, label: l10n.continueButton),
+          const SizedBox(height: AppSpacing.md),
+
+          Row(
+            children: [
+              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: Text(
+                  l10n.orRegisterWith,
+                  style: const TextStyle(
+                    color: Color(0xFFAAAAAA),
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton.icon(
+              onPressed: _handleGoogleRegister,
+              icon: const Icon(Icons.g_mobiledata, color: Colors.red, size: 22),
+              label: Text(
+                l10n.registerWithGoogle,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF333333),
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF333333),
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          AuthLinkRow(
+            message: l10n.alreadyHaveAccount,
+            actionText: l10n.signIn,
+            onTap: () => Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/login', (_) => false),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep2(AuthProvider auth) {
+    final l10n = AppLocalizations.of(context)!;
+    return Form(
+      key: _formKey2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AuthFieldLabel(
+            '${l10n.hospitalClinic} ${l10n.hospitalClinicOptional}',
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          AuthTextField(
+            controller: _hospitalController,
+            hintText: l10n.hospitalClinicHint,
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          AuthFieldLabel('${l10n.specialty} ${l10n.hospitalClinicOptional}'),
+          const SizedBox(height: AppSpacing.xs),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(color: const Color(0xFFE8EAF0), width: 1.5),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _selectedSpecialty,
+                isExpanded: true,
+                hint: const Text(
+                  'Select specialty',
+                  style: TextStyle(color: Color(0xFFBBBBBB), fontSize: 13),
+                ),
+                items: _specialtyValues.map((value) {
+                  return DropdownMenuItem(
+                    value: value,
+                    child: Text(_getSpecialtyLabel(context, value)),
+                  );
+                }).toList(),
+                onChanged: (v) => setState(() => _selectedSpecialty = v),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          AuthFieldLabel(
+            '${l10n.medicalLicense} ${l10n.medicalLicenseOptional}',
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          AuthTextField(
+            controller: _licenseController,
+            hintText: l10n.medicalLicenseHint,
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          AuthFieldLabel(l10n.password),
+          const SizedBox(height: AppSpacing.xs),
+          AuthTextField(
+            controller: _passwordController,
+            hintText: l10n.passwordTooShort,
+            obscureText: _obscurePassword,
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                color: AppColors.textSecondary,
+              ),
+              onPressed: () =>
+                  setState(() => _obscurePassword = !_obscurePassword),
+            ),
+            validator: (v) {
+              if (v == null || v.isEmpty) return l10n.passwordEmpty;
+              if (v.length < 6) return l10n.passwordTooShort;
+              return null;
+            },
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          AuthFieldLabel(l10n.confirmPassword),
+          const SizedBox(height: AppSpacing.xs),
+          AuthTextField(
+            controller: _confirmPasswordController,
+            hintText: l10n.confirmPasswordHint,
+            obscureText: _obscureConfirm,
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscureConfirm ? Icons.visibility_off : Icons.visibility,
+                color: AppColors.textSecondary,
+              ),
+              onPressed: () =>
+                  setState(() => _obscureConfirm = !_obscureConfirm),
+            ),
+            validator: (v) {
+              if (v != _passwordController.text) return l10n.passwordMismatch;
+              return null;
+            },
+          ),
+
+          if (auth.error != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            AuthErrorBanner(message: auth.error!),
+          ],
+          const SizedBox(height: AppSpacing.xl),
+
+          AuthPrimaryButton(
+            onPressed: _handleRegister,
+            isLoading: auth.isLoading,
+            label: l10n.createAccount,
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          Text(
+            l10n.accountVerificationInfo,
+            style: const TextStyle(color: Color(0xFFAAAAAA), fontSize: 12),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          AuthLinkRow(
+            message: l10n.alreadyHaveAccount,
+            actionText: l10n.signIn,
+            onTap: () => Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/login', (_) => false),
+          ),
+        ],
+      ),
     );
   }
 }

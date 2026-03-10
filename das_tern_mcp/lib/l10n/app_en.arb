@@ -16,6 +16,10 @@
   "register": "Register",
 
   "welcomeMessage": "Your medication reminder companion",
+  "welcomeScreenSubtitle": "Your health, our priority. Manage your medical records with ease.",
+  "emergencyAccess": "Emergency Access",
+  "doctorStep1PersonalInfo": "Step 1 of 2 - Personal Information",
+  "doctorStep2ProfessionalInfo": "Step 2 of 2 - Professional & Security",
 
   "selectRoleTitle": "I am...",
   "selectRoleSubtitle": "Select your role to get started",
@@ -342,6 +346,13 @@
   "waitingStatus": "Waiting",
   "gracePeriodSettings": "Grace Period Settings",
   "unknown": "Unknown",
+  "familyFunctionTitle": "Family Features",
+  "familyIntroDescription": "Allow family members to track your daily medication intake and receive Notifications when:",
+  "familyBulletSender": "You take medication",
+  "familyBulletReceiver": "You miss a dose",
+  "familyIntroFooter": "Manage your family to receive updates and detailed monitoring information etc.",
+  "startUsing": "Start Using",
+  "learnMore": "Learn More",
 
   "scanPrescriptionTitle": "Scan Prescription",
   "scanPrescriptionDescription": "Use your camera to scan a prescription\nfrom your doctor.",
@@ -422,6 +433,7 @@
   "payWithBankingApp": "Pay with Banking App",
   "selectYourBank": "Select Your Bank",
   "openInBankingApp": "Open in Banking App",
+  "bankAmountPreFilled": "Bakong: payment pre-loaded · Others: open app and scan the QR above",
   "orOpenDirectly": "Or tap to open your banking app directly:",
   "noBankingAppInstalled": "Could not open banking app. Please scan the QR code instead.",
   "bankNotInstalled": "App not installed. Please scan the QR code instead.",
@@ -449,6 +461,61 @@
   "storageFeature": "Storage",
   "prioritySupportFeature": "Priority Support",
   "familyPlanFeature": "Family Plan",
+
+  "unlockPremiumFeatures": "Unlock premium features and get the most out of DasTern",
+  "premiumTrialActive": "🎉 Premium Trial Active",
+  "dayRemaining": "day remaining",
+  "daysRemaining": "days remaining",
+  "expiresToday": "Expires today",
+  "enjoyUnlimitedFeatures": "Enjoy unlimited OCR & family features",
+  "claimFreeTrial": "Claim 1-Month Free Trial",
+  "trialAlreadyClaimed": "Trial already claimed",
+  "claimingTrial": "Activating trial...",
+  "trialClaimedSuccess": "Free trial activated! Enjoy Premium features for 1 month.",
+  "trialClaimFailed": "Failed to activate trial. Please try again.",
+  "upgradeToUnlock": "Upgrade to unlock Premium features",
+  "premiumTrial": "Premium Trial",
+  "topFeatures": "Top Features",
+  "cancelAnytime": "Cancel anytime",
+  "trialReminderNote": "We'll remind you 3 days before your trial ends",
+  "expandedOcrFeature": "Unlimited OCR prescription scanning",
+  "familyConnectionsFeature": "Connect up to 5 family members",
+  "expandedStorageFeature": "20 GB cloud storage for medical records",
+  "trialPeriod": "Trial Period",
+  "oneMonthFree": "1 month free",
+  "promotion": "Promotion",
+  "hundredPercentOff": "100% off for 1 month",
+  "afterTrial": "After Trial",
+  "dueToday": "Due today",
+  "confirm": "Confirm",
+  "premiumFeature": "Premium Feature",
+  "ocrPremiumMessage": "OCR scanning is a Premium feature. Upgrade to Premium to unlock:",
+  "unlimitedOcrScanning": "Unlimited OCR scanning",
+  "connectFamilyMembers": "Connect up to 5 family members",
+  "twentyGBStorage": "20 GB storage",
+  "prioritySupport": "Priority support",
+  "freeTrialOffer": "1-month free trial for new users!",
+  "claimYourFreeTrial": "Claim Your Free Trial",
+  "getOneMonthFreePremiumAccess": "Get 1 month free premium access",
+  "claimTrial": "Claim Trial",
+  "trialDaysRemainingBanner": "You have {days} days remaining",
+  "@trialDaysRemainingBanner": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "yourTrialPeriod": "Your Trial Period",
+  "trialExpiresOn": "Trial expires on",
+  "daysLeft": "days left",
+  "dayLeft": "day left",
+  "enjoyingPremium": "You are enjoying Premium features",
+  "afterTrialEnds": "After trial ends",
+  "autoRevertToFree": "Your plan will automatically revert to Freemium (Free plan)",
+  "keepPremiumFeatures": "Want to keep Premium features?",
+  "upgradeToPremium": "Upgrade to Premium",
+  "onlyPerMonth": "Only $0.50/month or $1 for 3 months",
+  "whatYouGet": "What you're enjoying now",
+  "continuePremium": "Continue with Premium",
 
   "addAtLeastOneMedicine": "Add at least one medicine",
   "selfPrescribed": "Self-prescribed",
@@ -694,6 +761,12 @@
       "token": {"type": "String"}
     }
   },
+  "shareQrAndCodeMessage": "Here is my DasTern connection code: {token}\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.",
+  "@shareQrAndCodeMessage": {
+    "placeholders": {
+      "token": {"type": "String"}
+    }
+  },
   "generateNewCode": "Generate New Code",
   "codeCopied": "Code copied",
 
@@ -920,6 +993,10 @@
   "contactSupport": "Contact Support",
   "privacyPolicy": "Privacy Policy",
   "termsOfService": "Terms of Service",
+  "manageSubscriptions": "Manage Subscriptions",
+  "restoreSubscription": "Restore Subscription",
+  "rateApp": "Rate App",
+  "support": "Support",
   "currentPassword": "Current Password",
   "updatePassword": "Update Password",
   "passwordUpdated": "Password updated successfully",
@@ -927,6 +1004,100 @@
   "@adherencePercentage": {
     "placeholders": {
       "percentage": {"type": "String"}
+    }
+  },
+
+  "connectNewPatient": "Connect New Patient",
+  "enterPhoneOrEmail": "Enter phone number or email",
+  "noPatientFound": "No patient found",
+  "connectionRequestSent": "Connection request sent",
+  "connectionRequestFailed": "Connection request failed",
+  "sendConnectionRequest": "Send Connection Request",
+  "connectionApproved": "Connection approved",
+  "connectionRejected": "Connection rejected",
+  "approveConnection": "Approve Connection",
+  "rejectConnection": "Reject Connection",
+  "removeNotification": "Remove Notification",
+  "removeNotificationConfirm": "Remove notification?",
+  "remove": "Remove",
+  "prescriptionConfirmed": "Prescription confirmed",
+  "prescriptionRejected": "Prescription rejected",
+  "rejectPrescription": "Reject Prescription",
+  "confirmPrescription": "Confirm Prescription",
+  "prescriptionFromDoctor": "Prescription from {doctor}",
+  "@prescriptionFromDoctor": {
+    "placeholders": {
+      "doctor": {"type": "String"}
+    }
+  },
+  "pendingPrescriptions": "Pending Prescriptions",
+  "missedDoseBanner": "You missed a dose",
+
+  "ocrOutpatient": "Outpatient",
+  "ocrInpatient": "Inpatient",
+  "ocrFacilityHospital": "Hospital",
+  "ocrFacilityClinic": "Clinic",
+  "ocrNotAvailable": "Not available",
+  "ocrNeedsReviewYes": "Yes, needs review",
+  "ocrAiEnhanced": "AI Enhanced",
+  "ocrAiUnavailable": "OCR Only",
+  "ocrPatientInfoSection": "Patient Information",
+  "ocrPatientId": "Patient ID",
+  "ocrPatientName": "Patient Name",
+  "ocrPatientKhmerName": "Patient Name (Khmer)",
+  "ocrPatientAge": "Age",
+  "ocrYearsOld": "{age} years old",
+  "@ocrYearsOld": {
+    "placeholders": {
+      "age": {"type": "String"}
+    }
+  },
+  "ocrPatientGender": "Gender",
+  "ocrPrescriberSection": "Prescriber Information",
+  "ocrPrescriberName": "Prescriber Name",
+  "ocrFacilitySection": "Facility Information",
+  "ocrFacilityName": "Facility Name",
+  "ocrFacilityType": "Facility Type",
+  "ocrClinicalSection": "Clinical Information",
+  "ocrDiagnosis": "Diagnosis",
+  "ocrMetadataSection": "Metadata",
+  "ocrConfidenceScore": "Confidence Score",
+  "ocrConfidencePercent": "{confidence}%",
+  "@ocrConfidencePercent": {
+    "placeholders": {
+      "confidence": {"type": "String"}
+    }
+  },
+  "ocrEngine": "OCR Engine",
+  "ocrProcessingTime": "Processing Time",
+  "ocrMilliseconds": "{ms}ms",
+  "@ocrMilliseconds": {
+    "placeholders": {
+      "ms": {"type": "String"}
+    }
+  },
+  "ocrPrescriptionType": "Prescription Type",
+  "ocrLanguagesDetected": "Languages Detected",
+  "ocrValidationStatus": "Validation Status",
+  "ocrValidated": "Validated",
+  "ocrScanInfoSection": "Scan Information",
+  "timeAgoJustNow": "now",
+  "timeAgoMinutes": "{count}m",
+  "@timeAgoMinutes": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "timeAgoHours": "{count}h",
+  "@timeAgoHours": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "timeAgoDays": "{count}d",
+  "@timeAgoDays": {
+    "placeholders": {
+      "count": {"type": "int"}
     }
   }
 }
