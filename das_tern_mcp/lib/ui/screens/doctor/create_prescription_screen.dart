@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/prescription_provider.dart';
 import '../../../providers/connection_provider.dart';
 import '../../theme/app_colors.dart';
@@ -71,7 +72,13 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
     setState(() => _isSubmitting = true);
 
     final patient = patients[_selectedPatientIndex];
-    final patientData = patient.recipient ?? patient.initiator;
+    final doctorUserId =
+        context.read<AuthProvider>().user?['id'] as String? ?? '';
+    final isInitiator = patient.initiatorId == doctorUserId;
+    final patientData =
+        isInitiator ? patient.recipient : patient.initiator;
+    final patientActualId =
+        isInitiator ? patient.recipientId : patient.initiatorId;
 
     final patientName = patientData != null
         ? '${patientData['firstName'] ?? ''} ${patientData['lastName'] ?? ''}'
@@ -79,7 +86,7 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
         : l10n.unknown;
 
     final data = <String, dynamic>{
-      'patientId': patient.recipientId,
+      'patientId': patientActualId,
       'patientName': patientName,
       'patientGender': patientData?['gender'] ?? 'OTHER',
       'patientAge': _calculateAge(patientData?['dateOfBirth']),
@@ -239,7 +246,11 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
             ),
             items: patients.asMap().entries.map((entry) {
               final conn = entry.value;
-              final patientData = conn.recipient ?? conn.initiator;
+              final doctorUserId =
+                  context.read<AuthProvider>().user?['id'] as String? ?? '';
+              final isInitiator = conn.initiatorId == doctorUserId;
+              final patientData =
+                  isInitiator ? conn.recipient : conn.initiator;
               final name = patientData != null
                   ? '${patientData['firstName'] ?? ''} ${patientData['lastName'] ?? ''}'
                         .trim()

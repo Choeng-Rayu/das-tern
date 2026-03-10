@@ -42,6 +42,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
     final overview = dashboard.dashboardOverview;
 
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       body: RefreshIndicator(
         onRefresh: () async {
           await dashboard.fetchDashboardOverview();
@@ -304,7 +305,6 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
@@ -312,65 +312,39 @@ class _StatCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: onTap != null
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+            boxShadow: const [
+              BoxShadow(color: Colors.black12, blurRadius: 6),
+            ],
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    count,
-                    style: const TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    l10n.personUnit,
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(icon, color: iconColor, size: 20),
+                  Icon(icon, color: iconColor),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
-                label,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-              if (onTap != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  '›',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.blue.shade300,
-                    fontWeight: FontWeight.bold,
-                  ),
+                count,
+                style: const TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
                 ),
-              ],
+              ),
             ],
           ),
         ),
@@ -443,16 +417,12 @@ class _ReminderSection extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.red.shade50,
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.red),
                 ),
                 child: Text(
                   '${reminders.length} ${l10n.alertsLabel}',
-                  style: TextStyle(
-                    color: Colors.red.shade400,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
                 ),
               ),
             ],
@@ -504,28 +474,16 @@ class _ReminderItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.red.shade50,
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.red[100],
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.red.shade400,
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(20),
-                  right: Radius.circular(4),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Icon(Icons.medication, color: Colors.red.shade400, size: 20),
-            const SizedBox(width: 8),
+            Icon(Icons.medication, color: Colors.red),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -534,13 +492,13 @@ class _ReminderItem extends StatelessWidget {
                     name,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 15,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     description,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -552,7 +510,7 @@ class _ReminderItem extends StatelessWidget {
               '$missedCount$missedLabel',
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.red.shade400,
+                color: Colors.red.shade700,
                 fontWeight: FontWeight.w600,
               ),
             ),
