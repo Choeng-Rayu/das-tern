@@ -153,26 +153,25 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
                     ),
                     const SizedBox(height: AppSpacing.md),
 
-                  // Plan cards – from backend or static fallback
-                  if (hasPlans)
-                    ...sub.plans!.map(
-                      (plan) => _PlanCard(
-                        plan: plan,
-                        isCurrentPlan: sub.currentTier == plan['id'],
-                        onUpgrade: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/subscription/payment-method',
-                            arguments: {
-                              'planType': plan['id'],
-                              'plan': plan,
-                            },
-                          );
-                        },
-                      ),
-                    )
-                  else
-                    ..._defaultPlanCards(sub.currentTier),
+                    // Plan cards – from backend or static fallback
+                    if (hasPlans)
+                      ...sub.plans!.map(
+                        (plan) => _PlanCard(
+                          plan: plan,
+                          isCurrentPlan: sub.currentTier == plan['id'],
+                          isRecommended: false,
+                          isDark: isDark,
+                          onUpgrade: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/subscription/payment-method',
+                              arguments: {'planType': plan['id'], 'plan': plan},
+                            );
+                          },
+                        ),
+                      )
+                    else
+                      ..._defaultPlanCards(sub.currentTier, isDark),
 
                     const SizedBox(height: AppSpacing.xl),
 
@@ -998,41 +997,29 @@ class _FeatureComparisonSection extends StatelessWidget {
           ),
           child: Column(
             children: [
+              _comparisonRow(context, 'Prescriptions', '1', '\u221e', '\u221e'),
+              const Divider(height: 1),
+              _comparisonRow(context, 'Medicines', '3', '\u221e', '\u221e'),
+              const Divider(height: 1),
+              _comparisonRow(context, 'Family Links', '1', '5', '5'),
+              const Divider(height: 1),
+              _comparisonRow(context, 'Storage', '5 GB', '20 GB', '20 GB'),
+              const Divider(height: 1),
               _comparisonRow(
                 context,
-                Icons.description,
-                'Prescriptions',
-                '1',
-                '\u221e',
+                l10n.prioritySupportFeature,
+                '\u2715',
+                '\u2713',
+                '\u2713',
               ),
               const Divider(height: 1),
               _comparisonRow(
                 context,
-                Icons.medication,
-                'Medicines',
-                '3',
-                '\u221e',
+                l10n.familyPlanFeature,
+                '\u2715',
+                '\u2715',
+                '\u2713 (3)',
               ),
-              const Divider(height: 1),
-              _comparisonRow(
-                context,
-                Icons.family_restroom,
-                'Family Links',
-                '1',
-                '5',
-              ),
-              const Divider(height: 1),
-              _comparisonRow(
-                context,
-                Icons.storage,
-                'Storage',
-                '5 GB',
-                '20 GB',
-              ),
-              const Divider(height: 1),
-              _comparisonRow(context, l10n.prioritySupportFeature, '\u2715', '\u2713', '\u2713'),
-              const Divider(height: 1),
-              _comparisonRow(context, l10n.familyPlanFeature, '\u2715', '\u2715', '\u2713 (3)'),
             ],
           ),
         ),
@@ -1098,9 +1085,9 @@ class _FeatureComparisonSection extends StatelessWidget {
             flex: 3,
             child: Text(
               feature,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
           ),
           Expanded(
@@ -1110,7 +1097,9 @@ class _FeatureComparisonSection extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: currentTier == 'FREEMIUM' ? FontWeight.bold : FontWeight.normal,
+                fontWeight: currentTier == 'FREEMIUM'
+                    ? FontWeight.bold
+                    : FontWeight.normal,
                 color: currentTier == 'FREEMIUM' ? AppColors.primaryBlue : null,
               ),
             ),
@@ -1122,7 +1111,9 @@ class _FeatureComparisonSection extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: currentTier == 'PREMIUM' ? FontWeight.bold : FontWeight.normal,
+                fontWeight: currentTier == 'PREMIUM'
+                    ? FontWeight.bold
+                    : FontWeight.normal,
                 color: currentTier == 'PREMIUM' ? AppColors.primaryBlue : null,
               ),
             ),
@@ -1134,8 +1125,12 @@ class _FeatureComparisonSection extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: currentTier == 'FAMILY_PREMIUM' ? FontWeight.bold : FontWeight.normal,
-                color: currentTier == 'FAMILY_PREMIUM' ? AppColors.primaryBlue : null,
+                fontWeight: currentTier == 'FAMILY_PREMIUM'
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+                color: currentTier == 'FAMILY_PREMIUM'
+                    ? AppColors.primaryBlue
+                    : null,
               ),
             ),
           ),

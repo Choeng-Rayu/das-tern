@@ -133,17 +133,21 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                         _ThemeOptionCard(
                           icon: Icons.phone_android_rounded,
                           label: l10n.systemTheme,
-                          isSelected: themeProvider.themeMode == ThemeMode.system,
+                          isSelected:
+                              themeProvider.themeMode == ThemeMode.system,
                           isDark: isDark,
-                          onTap: () => themeProvider.setThemeMode(ThemeMode.system),
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.system),
                         ),
                         const SizedBox(width: 10),
                         _ThemeOptionCard(
                           icon: Icons.light_mode_rounded,
                           label: l10n.lightTheme,
-                          isSelected: themeProvider.themeMode == ThemeMode.light,
+                          isSelected:
+                              themeProvider.themeMode == ThemeMode.light,
                           isDark: isDark,
-                          onTap: () => themeProvider.setThemeMode(ThemeMode.light),
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.light),
                         ),
                         const SizedBox(width: 10),
                         _ThemeOptionCard(
@@ -151,7 +155,8 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                           label: l10n.darkTheme,
                           isSelected: themeProvider.themeMode == ThemeMode.dark,
                           isDark: isDark,
-                          onTap: () => themeProvider.setThemeMode(ThemeMode.dark),
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.dark),
                         ),
                       ],
                     ),
@@ -175,7 +180,8 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                     const Spacer(),
                     GestureDetector(
                       onTap: () {
-                        final isKhmer = localeProvider.locale.languageCode == 'km';
+                        final isKhmer =
+                            localeProvider.locale.languageCode == 'km';
                         localeProvider.changeLocale(
                           isKhmer ? const Locale('en') : const Locale('km'),
                         );
@@ -340,20 +346,9 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 context,
                 icon: Icons.workspace_premium_outlined,
                 label: l10n.manageSubscriptions,
-                onTap: () {
-                  Navigator.pushNamed(context, '/subscription/upgrade');
-                },
-              ),
-              _divider(isDark),
-              _buildNavRow(
-                context,
-                icon: Icons.restore_rounded,
-                label: l10n.restoreSubscription,
                 isLast: true,
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.restoringSubscription)),
-                  );
+                  Navigator.pushNamed(context, '/subscription/upgrade');
                 },
               ),
             ]),
@@ -745,9 +740,7 @@ class _ThemeOptionCard extends StatelessWidget {
             color: isSelected ? selectedBg : unselectedBg,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected
-                  ? AppColors.primaryBlue
-                  : Colors.transparent,
+              color: isSelected ? AppColors.primaryBlue : Colors.transparent,
               width: 1.5,
             ),
           ),

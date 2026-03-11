@@ -58,7 +58,6 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
             children: [
               // ── Reusable header with notification bell ──
               PatientHeader(
-                roleLabel: l10n.doctorRole,
                 unreadCount: notifProvider.unreadCount,
                 onNotificationTap: () {
                   Navigator.pushNamed(
@@ -70,178 +69,171 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                   });
                 },
               ),
-                  const SizedBox(height: 20),
-                  if (dashboard.dashboardLoading)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(AppSpacing.lg),
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  else ...[
-                    _StatisticsRow(
-                      receivedCount: '${overview?.totalPatients ?? 0}',
-                      pendingCount:
-                          '${overview?.patientsNeedingAttention ?? 0}',
-                      receivedLabel: l10n.patientsInTreatment,
-                      pendingLabel: l10n.patientsPendingMeds,
-                      onReceivedTap: () =>
-                          Navigator.pushNamed(context, '/doctor/med-patients'),
-                      onPendingTap: () => Navigator.pushNamed(
-                        context,
-                        '/doctor/pending-patients',
-                      ),
+              const SizedBox(height: 20),
+              if (dashboard.dashboardLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(AppSpacing.lg),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else ...[
+                _StatisticsRow(
+                  receivedCount: '${overview?.totalPatients ?? 0}',
+                  pendingCount: '${overview?.patientsNeedingAttention ?? 0}',
+                  receivedLabel: l10n.patientsInTreatment,
+                  pendingLabel: l10n.patientsPendingMeds,
+                  onReceivedTap: () =>
+                      Navigator.pushNamed(context, '/doctor/med-patients'),
+                  onPendingTap: () =>
+                      Navigator.pushNamed(context, '/doctor/pending-patients'),
+                ),
+                const SizedBox(height: 20),
+                _ReminderSection(
+                  reminders: (overview?.todayAlerts ?? [])
+                      .map(
+                        (a) => _ReminderData(
+                          name: a.patientName,
+                          description: l10n.consecutiveMissedDoses(
+                            a.consecutiveMissed,
+                          ),
+                          missedCount: a.consecutiveMissed,
+                          alertType: a.type,
+                          patientId: a.patientId,
+                        ),
+                      )
+                      .toList(),
+                  onItemTap: (patientId) => Navigator.pushNamed(
+                    context,
+                    '/doctor/patient-detail',
+                    arguments: {'patientId': patientId},
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (dashboard.pendingConnections.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _SectionHeader(
+                      icon: Icons.person_add_outlined,
+                      iconColor: AppColors.warningOrange,
+                      title: l10n.pendingConnectionRequests,
+                      badgeCount: dashboard.pendingConnections.length,
+                      badgeSuffix: l10n.alertsLabel,
                     ),
-                    const SizedBox(height: 20),
-                    _ReminderSection(
-                      reminders: (overview?.todayAlerts ?? [])
-                          .map(
-                            (a) => _ReminderData(
-                              name: a.patientName,
-                              description: l10n.consecutiveMissedDoses(
-                                a.consecutiveMissed,
+                  ),
+                  const SizedBox(height: 8),
+                  ...dashboard.pendingConnections.map(
+                    (conn) => Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: AppCard(
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: AppColors.warningOrange
+                                  .withValues(alpha: 0.12),
+                              child: const Icon(
+                                Icons.person_add,
+                                color: AppColors.warningOrange,
                               ),
-                              missedCount: a.consecutiveMissed,
-                              alertType: a.type,
-                              patientId: a.patientId,
                             ),
-                          )
-                          .toList(),
-                      onItemTap: (patientId) => Navigator.pushNamed(
-                        context,
-                        '/doctor/patient-detail',
-                        arguments: {'patientId': patientId},
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    if (dashboard.pendingConnections.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: _SectionHeader(
-                          icon: Icons.person_add_outlined,
-                          iconColor: AppColors.warningOrange,
-                          title: l10n.pendingConnectionRequests,
-                          badgeCount: dashboard.pendingConnections.length,
-                          badgeSuffix: l10n.alertsLabel,
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    conn.patientName,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  Text(
+                                    conn.initiator?.phoneNumber ??
+                                        l10n.connectionRequest,
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.check_circle,
+                                color: AppColors.successGreen,
+                              ),
+                              onPressed: () async =>
+                                  dashboard.acceptConnection(conn.id),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.cancel,
+                                color: AppColors.alertRed,
+                              ),
+                              onPressed: () async =>
+                                  dashboard.rejectConnection(conn.id),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      ...dashboard.pendingConnections.map(
-                        (conn) => Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                          child: AppCard(
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: AppColors.warningOrange
-                                      .withValues(alpha: 0.12),
-                                  child: const Icon(
-                                    Icons.person_add,
-                                    color: AppColors.warningOrange,
-                                  ),
-                                ),
-                                const SizedBox(width: AppSpacing.md),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        conn.patientName,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                      ),
-                                      Text(
-                                        conn.initiator?.phoneNumber ??
-                                            l10n.connectionRequest,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color: AppColors.textSecondary,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.check_circle,
-                                    color: AppColors.successGreen,
-                                  ),
-                                  onPressed: () async =>
-                                      dashboard.acceptConnection(conn.id),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.cancel,
-                                    color: AppColors.alertRed,
-                                  ),
-                                  onPressed: () async =>
-                                      dashboard.rejectConnection(conn.id),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    _ChartSection(
-                      graphData: dashboard.graphData,
-                      graphLoading: dashboard.graphLoading,
-                      showMonthly: _showMonthly,
-                      onDayTap: () {
-                        setState(() => _showMonthly = false);
-                        dashboard.setGraphPeriod('week');
-                      },
-                      onMonthTap: () {
-                        setState(() => _showMonthly = true);
-                        dashboard.setGraphPeriod('month');
-                      },
                     ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        l10n.quickActions,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: _ActionCard(
-                              icon: Icons.description_outlined,
-                              label: l10n.newPrescription,
-                              onTap: () => widget.onSwitchTab?.call(2),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _ActionCard(
-                              icon: Icons.search,
-                              label: l10n.findPatient,
-                              onTap: () => widget.onSwitchTab?.call(1),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
+                  ),
+                  const SizedBox(height: 12),
                 ],
-              ),
-            ),
+                _ChartSection(
+                  graphData: dashboard.graphData,
+                  graphLoading: dashboard.graphLoading,
+                  showMonthly: _showMonthly,
+                  onDayTap: () {
+                    setState(() => _showMonthly = false);
+                    dashboard.setGraphPeriod('week');
+                  },
+                  onMonthTap: () {
+                    setState(() => _showMonthly = true);
+                    dashboard.setGraphPeriod('month');
+                  },
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    l10n.quickActions,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _ActionCard(
+                          icon: Icons.description_outlined,
+                          label: l10n.newPrescription,
+                          onTap: () => widget.onSwitchTab?.call(2),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _ActionCard(
+                          icon: Icons.search,
+                          label: l10n.findPatient,
+                          onTap: () => widget.onSwitchTab?.call(1),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ],
           ),
+        ),
+      ),
     );
   }
 }
@@ -665,9 +657,7 @@ class _ChartSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final labels = graphData
-        .map((d) => (d['label'] as String?) ?? '')
-        .toList();
+    final labels = graphData.map((d) => (d['label'] as String?) ?? '').toList();
     final groups = _buildGroups();
 
     return Container(
@@ -754,60 +744,60 @@ class _ChartSection extends StatelessWidget {
               ),
             )
           else
-          SizedBox(
-            height: 150,
-            child: BarChart(
-              BarChartData(
-                barGroups: groups,
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (_) =>
-                      FlLine(color: Colors.grey.shade200, strokeWidth: 1),
-                ),
-                borderData: FlBorderData(show: false),
-                titlesData: FlTitlesData(
-                  leftTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+            SizedBox(
+              height: 150,
+              child: BarChart(
+                BarChartData(
+                  barGroups: groups,
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (_) =>
+                        FlLine(color: Colors.grey.shade200, strokeWidth: 1),
                   ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 24,
-                      getTitlesWidget: (value, meta) {
-                        final idx = value.toInt();
-                        if (idx < 0 || idx >= labels.length) {
-                          return const SizedBox();
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 6),
-                          child: Text(
-                            labels[idx],
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey.shade600,
+                  borderData: FlBorderData(show: false),
+                  titlesData: FlTitlesData(
+                    leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 24,
+                        getTitlesWidget: (value, meta) {
+                          final idx = value.toInt();
+                          if (idx < 0 || idx >= labels.length) {
+                            return const SizedBox();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Text(
+                              labels[idx],
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.shade600,
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-                barTouchData: BarTouchData(
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => Colors.blueGrey.shade700,
-                    tooltipRoundedRadius: 8,
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (_) => Colors.blueGrey.shade700,
+                      tooltipRoundedRadius: 8,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
