@@ -1745,37 +1745,37 @@ abstract class AppLocalizations {
   /// No description provided for @familyFunctionTitle.
   ///
   /// In en, this message translates to:
-  /// **'Family Features'**
+  /// **'Family & Caregivers'**
   String get familyFunctionTitle;
 
   /// No description provided for @familyIntroDescription.
   ///
   /// In en, this message translates to:
-  /// **'Allow family members to track your daily medication intake and receive Notifications when:'**
+  /// **'Connect with family members or caregivers to share your medication schedule.'**
   String get familyIntroDescription;
 
   /// No description provided for @familyBulletSender.
   ///
   /// In en, this message translates to:
-  /// **'You take medication'**
+  /// **'Share your schedule with family to let them monitor your medication adherence'**
   String get familyBulletSender;
 
   /// No description provided for @familyBulletReceiver.
   ///
   /// In en, this message translates to:
-  /// **'You miss a dose'**
+  /// **'Scan a patient\'s QR code to start monitoring their medication intake'**
   String get familyBulletReceiver;
 
   /// No description provided for @familyIntroFooter.
   ///
   /// In en, this message translates to:
-  /// **'Manage your family to receive updates and detailed monitoring information etc.'**
+  /// **'Connections require patient approval and can be revoked at any time.'**
   String get familyIntroFooter;
 
   /// No description provided for @startUsing.
   ///
   /// In en, this message translates to:
-  /// **'Start Using'**
+  /// **'Get Started'**
   String get startUsing;
 
   /// No description provided for @learnMore.
@@ -2579,7 +2579,7 @@ abstract class AppLocalizations {
   /// No description provided for @addAtLeastOneMedicine.
   ///
   /// In en, this message translates to:
-  /// **'Please add at least one medicine'**
+  /// **'Add at least one medicine'**
   String get addAtLeastOneMedicine;
 
   /// No description provided for @selfPrescribed.
@@ -4951,48 +4951,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have missed doses today'**
   String get missedDoseBanner;
-
-  /// No description provided for @familyFunctionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Family & Caregivers'**
-  String get familyFunctionTitle;
-
-  /// No description provided for @familyIntroDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Connect with family members or caregivers to share your medication schedule.'**
-  String get familyIntroDescription;
-
-  /// No description provided for @familyBulletSender.
-  ///
-  /// In en, this message translates to:
-  /// **'Share your schedule with family to let them monitor your medication adherence'**
-  String get familyBulletSender;
-
-  /// No description provided for @familyBulletReceiver.
-  ///
-  /// In en, this message translates to:
-  /// **'Scan a patient\'s QR code to start monitoring their medication intake'**
-  String get familyBulletReceiver;
-
-  /// No description provided for @familyIntroFooter.
-  ///
-  /// In en, this message translates to:
-  /// **'Connections require patient approval and can be revoked at any time.'**
-  String get familyIntroFooter;
-
-  /// No description provided for @startUsing.
-  ///
-  /// In en, this message translates to:
-  /// **'Get Started'**
-  String get startUsing;
-
-  /// No description provided for @learnMore.
-  ///
-  /// In en, this message translates to:
-  /// **'Learn More'**
-  String get learnMore;
 
   /// No description provided for @appearance.
   ///

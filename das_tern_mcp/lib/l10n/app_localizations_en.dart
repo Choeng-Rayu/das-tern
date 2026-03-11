@@ -853,24 +853,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknown => 'Unknown';
 
   @override
-  String get familyFunctionTitle => 'Family Features';
+  String get familyFunctionTitle => 'Family & Caregivers';
 
   @override
   String get familyIntroDescription =>
-      'Allow family members to track your daily medication intake and receive Notifications when:';
+      'Connect with family members or caregivers to share your medication schedule.';
 
   @override
-  String get familyBulletSender => 'You take medication';
+  String get familyBulletSender =>
+      'Share your schedule with family to let them monitor your medication adherence';
 
   @override
-  String get familyBulletReceiver => 'You miss a dose';
+  String get familyBulletReceiver =>
+      'Scan a patient\'s QR code to start monitoring their medication intake';
 
   @override
   String get familyIntroFooter =>
-      'Manage your family to receive updates and detailed monitoring information etc.';
+      'Connections require patient approval and can be revoked at any time.';
 
   @override
-  String get startUsing => 'Start Using';
+  String get startUsing => 'Get Started';
 
   @override
   String get learnMore => 'Learn More';
@@ -1293,7 +1295,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continuePremium => 'Continue with Premium';
 
   @override
-  String get addAtLeastOneMedicine => 'Please add at least one medicine';
+  String get addAtLeastOneMedicine => 'Add at least one medicine';
 
   @override
   String get selfPrescribed => 'Self-prescribed';
@@ -2556,31 +2558,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missedDoseBanner => 'You have missed doses today';
-
-  @override
-  String get familyFunctionTitle => 'Family & Caregivers';
-
-  @override
-  String get familyIntroDescription =>
-      'Connect with family members or caregivers to share your medication schedule.';
-
-  @override
-  String get familyBulletSender =>
-      'Share your schedule with family to let them monitor your medication adherence';
-
-  @override
-  String get familyBulletReceiver =>
-      'Scan a patient\'s QR code to start monitoring their medication intake';
-
-  @override
-  String get familyIntroFooter =>
-      'Connections require patient approval and can be revoked at any time.';
-
-  @override
-  String get startUsing => 'Get Started';
-
-  @override
-  String get learnMore => 'Learn More';
 
   @override
   String get appearance => 'Appearance';
