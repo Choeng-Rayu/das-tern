@@ -2617,6 +2617,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get last30Days => 'Last 30 Days';
+
+  @override
   String get timeAgoJustNow => 'now';
 
   @override

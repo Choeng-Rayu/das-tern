@@ -1093,7 +1093,7 @@
   "reportPeriod": "Report Period",
   "last7Days": "Last 7 Days",
   "last30Days": "Last 30 Days",
-  "noAdherenceData": "No adherence data available"
+  "noAdherenceData": "No adherence data available",
   "timeAgoJustNow": "now",
   "timeAgoMinutes": "{count}m",
   "@timeAgoMinutes": {

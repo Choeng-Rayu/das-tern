@@ -2616,6 +2616,8 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get last30Days => '៣០ ថ្ងៃចុងក្រោយ';
+
+  @override
   String get timeAgoJustNow => 'ឥឡូវ';
 
   @override

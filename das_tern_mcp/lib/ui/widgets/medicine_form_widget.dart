@@ -95,14 +95,6 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
-    final unitStr = _unit.toJson().toLowerCase();
-    final scheduleTimes = <Map<String, String>>[
-      if (_morning) {'timePeriod': 'morning', 'time': '07:00'},
-      if (_afternoon) {'timePeriod': 'afternoon', 'time': '12:00'},
-      if (_evening) {'timePeriod': 'evening', 'time': '17:00'},
-      if (_night) {'timePeriod': 'night', 'time': '20:00'},
-    ];
-
     widget.onSave({
       'medicineName': _nameController.text.trim(),
       'medicineNameKhmer': _nameKhmerController.text.trim(),
@@ -510,19 +502,21 @@ class _ScheduleChip extends StatelessWidget {
   const _ScheduleChip({
     required this.label,
     required this.icon,
+    this.color,
     required this.selected,
     required this.onTap,
   });
 
   final String label;
   final IconData icon;
+  final Color? color;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accentColor = AppColors.primaryBlue;
+    final accentColor = color ?? AppColors.primaryBlue;
     final unselectedColor = isDark ? Colors.grey[600]! : Colors.grey[300]!;
 
     return Expanded(

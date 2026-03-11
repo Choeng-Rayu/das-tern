@@ -5065,6 +5065,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last 30 Days'**
   String get last30Days;
+
   /// No description provided for @timeAgoJustNow.
   ///
   /// In en, this message translates to:

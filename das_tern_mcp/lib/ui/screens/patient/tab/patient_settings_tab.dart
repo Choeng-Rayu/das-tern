@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
 import '../../../screens/support/contact_support_screen.dart';
-import '../../../screens/support/terms_of_service_screen.dart';
 import '../../../screens/support/privacy_policy_screen.dart';
+import '../../../screens/support/terms_of_service_screen.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/theme_provider.dart';
 import '../../../widgets/common_widgets.dart';
 import '../screens/activity_report_screen.dart';
 
-/// Settings tab for patient – clean professional UI matching design standard.
-/// Sections: Appearance, Notification Permission, Account (with Security),
-/// Subscription, Rate App, Support.
 class PatientSettingsTab extends StatefulWidget {
   const PatientSettingsTab({super.key});
 
@@ -44,7 +42,6 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Patient info card
                 Container(
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
@@ -96,8 +93,23 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
-
-                // APPEARANCE
+                _sectionLabel('REPORTS'),
+                _buildGroupCard(isDark, [
+                  _buildNavRow(
+                    context,
+                    icon: Icons.bar_chart_outlined,
+                    label: l10n.activityReport,
+                    isLast: true,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const ActivityReportScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ]),
+                const SizedBox(height: AppSpacing.md),
                 _sectionLabel('APPEARANCE'),
                 _buildGroupCard(isDark, [
                   Padding(
@@ -155,55 +167,22 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            // ACTIVITY REPORT
-            _sectionLabel('REPORTS'),
-            _buildGroupCard(isDark, [
-              _buildNavRow(
-                context,
-                icon: Icons.bar_chart_outlined,
-                label: l10n.activityReport,
-                isLast: true,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const ActivityReportScreen(),
-                    ),
-                  );
-                },
-              ),
-            ]),
-            const SizedBox(height: AppSpacing.md),
-
-            // APPEARANCE
-            _sectionLabel('APPEARANCE'),
-            _buildGroupCard(isDark, [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.brightness_6_outlined, size: 20),
-                    const SizedBox(width: 12),
-                    Text(
-                      l10n.theme,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                  _divider(isDark),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.language_outlined, size: 20),
                         const SizedBox(width: 12),
-                        Text(
-                          l10n.language,
-                          style: Theme.of(context).textTheme.bodyLarge,
+                        Expanded(
+                          child: Text(
+                            l10n.language,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
                         ),
-                        const Spacer(),
                         DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: localeProvider.locale.languageCode,
@@ -218,9 +197,9 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                                 child: Text('ខ្មែរ'),
                               ),
                             ],
-                            onChanged: (v) {
-                              if (v != null) {
-                                localeProvider.changeLocale(Locale(v));
+                            onChanged: (value) {
+                              if (value != null) {
+                                localeProvider.changeLocale(Locale(value));
                               }
                             },
                           ),
@@ -230,8 +209,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                   ),
                 ]),
                 const SizedBox(height: AppSpacing.md),
-
-                // NOTIFICATION PERMISSION
+                _sectionLabel('NOTIFICATIONS'),
                 _buildGroupCard(isDark, [
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -290,8 +268,6 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                   ),
                 ]),
                 const SizedBox(height: AppSpacing.md),
-
-                // ACCOUNT (Edit Profile + Security/Change Password + Logout)
                 _sectionLabel('ACCOUNT'),
                 _buildGroupCard(isDark, [
                   _buildNavRow(
@@ -345,8 +321,6 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                   ),
                 ]),
                 const SizedBox(height: AppSpacing.md),
-
-                // SUBSCRIPTION
                 _sectionLabel(l10n.subscription.toUpperCase()),
                 _buildGroupCard(isDark, [
                   _buildNavRow(
@@ -366,15 +340,13 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Restoring subscription…'),
+                          content: Text('Restoring subscription...'),
                         ),
                       );
                     },
                   ),
                 ]),
                 const SizedBox(height: AppSpacing.md),
-
-                // SUPPORT
                 _sectionLabel(l10n.support.toUpperCase()),
                 _buildGroupCard(isDark, [
                   _buildSupportRow(
@@ -385,7 +357,6 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                     label: l10n.rateApp,
                     subtitle: 'Help us improve DasTern',
                     onTap: () async {
-                      // TODO: Replace with actual app store URL
                       final uri = Uri.parse('https://play.google.com/store');
                       if (await canLaunchUrl(uri)) {
                         await launchUrl(
@@ -457,13 +428,14 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     );
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
-
   String _patientName(Map<String, dynamic>? user) {
     if (user == null) return 'Patient';
+
     final first = user['firstName'] ?? '';
     final last = user['lastName'] ?? '';
-    return '$first $last'.trim().isEmpty ? 'Patient' : '$first $last'.trim();
+    final fullName = '$first $last'.trim();
+
+    return fullName.isEmpty ? 'Patient' : fullName;
   }
 
   Widget _sectionLabel(String label) {
@@ -534,6 +506,72 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     );
   }
 
+  Widget _buildSupportRow(
+    BuildContext context, {
+    required bool isDark,
+    required IconData icon,
+    required Color iconBg,
+    required String label,
+    required String subtitle,
+    required VoidCallback onTap,
+    bool isLast = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: isLast
+          ? const BorderRadius.only(
+              bottomLeft: Radius.circular(14),
+              bottomRight: Radius.circular(14),
+            )
+          : BorderRadius.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: iconBg.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 20, color: iconBg),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.62)
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _divider(bool isDark) {
     return Divider(
       height: 1,
@@ -547,26 +585,23 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
 
   void _confirmLogout(BuildContext context, AuthProvider auth) {
     final l10n = AppLocalizations.of(context)!;
-    showDialog(
+
+    showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(l10n.logout),
         content: Text(l10n.logoutConfirmation),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(dialogContext);
               auth.logout();
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/login',
-                (_) => false,
-              );
+              Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.statusError),
             child: Text(l10n.logout),
@@ -577,14 +612,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
   }
 }
 
-/// Tappable theme option card with icon, label, and selected state.
 class _ThemeOptionCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isSelected;
-  final bool isDark;
-  final VoidCallback onTap;
-
   const _ThemeOptionCard({
     required this.icon,
     required this.label,
@@ -592,6 +620,12 @@ class _ThemeOptionCard extends StatelessWidget {
     required this.isDark,
     required this.onTap,
   });
+
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final bool isDark;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -642,7 +676,7 @@ class _ThemeOptionCard extends StatelessWidget {
               AnimatedOpacity(
                 opacity: isSelected ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 200),
-                child: Icon(
+                child: const Icon(
                   Icons.check_circle_rounded,
                   size: 16,
                   color: AppColors.primaryBlue,

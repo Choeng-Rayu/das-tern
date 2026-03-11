@@ -1070,7 +1070,7 @@
   "reportPeriod": "រយៈពេលរបាយការណ៍",
   "last7Days": "៧ ថ្ងៃចុងក្រោយ",
   "last30Days": "៣០ ថ្ងៃចុងក្រោយ",
-  "noAdherenceData": "មិនមានទិន្នន័យការប្រើថ្នាំ"
+  "noAdherenceData": "មិនមានទិន្នន័យការប្រើថ្នាំ",
   "timeAgoJustNow": "ឥឡូវ",
   "timeAgoMinutes": "{count}នាទី",
   "@timeAgoMinutes": {
