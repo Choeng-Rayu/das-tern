@@ -1081,6 +1081,19 @@
   "ocrValidationStatus": "Validation Status",
   "ocrValidated": "Validated",
   "ocrScanInfoSection": "Scan Information",
+
+  "activityReport": "Activity Report",
+  "adherenceSummary": "Adherence Summary",
+  "weeklyAdherence": "This Week",
+  "monthlyAdherence": "This Month",
+  "onTime": "On Time",
+  "late": "Late",
+  "totalDoses": "Total Doses",
+  "doseHistory": "Dose History",
+  "reportPeriod": "Report Period",
+  "last7Days": "Last 7 Days",
+  "last30Days": "Last 30 Days",
+  "noAdherenceData": "No adherence data available"
   "timeAgoJustNow": "now",
   "timeAgoMinutes": "{count}m",
   "@timeAgoMinutes": {
