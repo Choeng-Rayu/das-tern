@@ -2589,6 +2589,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrScanInfoSection => 'Scan Information';
 
   @override
+  String get activityReport => 'Activity Report';
+
+  @override
+  String get adherenceSummary => 'Adherence Summary';
+
+  @override
+  String get weeklyAdherence => 'This Week';
+
+  @override
+  String get monthlyAdherence => 'This Month';
+
+  @override
+  String get onTime => 'On Time';
+
+  @override
+  String get totalDoses => 'Total Doses';
+
+  @override
+  String get doseHistory => 'Dose History';
+
+  @override
+  String get reportPeriod => 'Report Period';
+
+  @override
+  String get last7Days => 'Last 7 Days';
+
+  @override
+  String get last30Days => 'Last 30 Days';
   String get timeAgoJustNow => 'now';
 
   @override

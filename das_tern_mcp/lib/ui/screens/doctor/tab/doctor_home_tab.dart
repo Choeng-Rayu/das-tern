@@ -42,6 +42,7 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
     final overview = dashboard.dashboardOverview;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
           await dashboard.fetchDashboardOverview();
@@ -304,73 +305,53 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).cardTheme.color ?? Colors.white,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: onTap != null
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                blurRadius: 6,
+              ),
+            ],
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    count,
-                    style: const TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    l10n.personUnit,
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(icon, color: iconColor, size: 20),
+                  Icon(icon, color: iconColor),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
-                label,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-              if (onTap != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  '›',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.blue.shade300,
-                    fontWeight: FontWeight.bold,
-                  ),
+                count,
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
                 ),
-              ],
+              ),
             ],
           ),
         ),
@@ -404,15 +385,16 @@ class _ReminderSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color ?? Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -426,13 +408,17 @@ class _ReminderSection extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.warning, color: Colors.red.shade400),
+                  Icon(
+                    Icons.warning,
+                    color: isDark ? AppColors.darkError : AppColors.alertRed,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     l10n.criticalAlerts,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : AppColors.textPrimary,
                     ),
                   ),
                 ],
@@ -443,15 +429,16 @@ class _ReminderSection extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.red.shade50,
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isDark ? AppColors.darkError : AppColors.alertRed,
+                  ),
                 ),
                 child: Text(
                   '${reminders.length} ${l10n.alertsLabel}',
                   style: TextStyle(
-                    color: Colors.red.shade400,
+                    color: isDark ? AppColors.darkError : AppColors.alertRed,
                     fontSize: 12,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -464,7 +451,10 @@ class _ReminderSection extends StatelessWidget {
               child: Center(
                 child: Text(
                   l10n.noAlerts,
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? Colors.grey[500] : Colors.grey.shade500,
+                  ),
                 ),
               ),
             )
@@ -501,46 +491,48 @@ class _ReminderItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.red.shade50,
-          borderRadius: BorderRadius.circular(12),
+          color: (isDark ? AppColors.darkError : AppColors.alertRed).withValues(
+            alpha: isDark ? 0.15 : 0.08,
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: (isDark ? AppColors.darkError : AppColors.alertRed)
+                .withValues(alpha: 0.3),
+          ),
         ),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.red.shade400,
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(20),
-                  right: Radius.circular(4),
-                ),
-              ),
+            Icon(
+              Icons.medication,
+              color: isDark ? AppColors.darkError : AppColors.alertRed,
             ),
-            const SizedBox(width: 12),
-            Icon(Icons.medication, color: Colors.red.shade400, size: 20),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 15,
+                      color: isDark ? Colors.white : AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     description,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.grey[400] : Colors.grey.shade700,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -552,7 +544,7 @@ class _ReminderItem extends StatelessWidget {
               '$missedCount$missedLabel',
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.red.shade400,
+                color: isDark ? AppColors.darkError : AppColors.alertRed,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -629,7 +621,7 @@ class _ChartSection extends StatelessWidget {
     required this.onMonthTap,
   });
 
-  List<BarChartGroupData> _buildGroups() {
+  List<BarChartGroupData> _buildGroups(bool isDark) {
     return List.generate(graphData.length, (i) {
       final item = graphData[i];
       final taken = (item['taken'] as num?)?.toDouble() ?? 0;
@@ -639,13 +631,13 @@ class _ChartSection extends StatelessWidget {
         barRods: [
           BarChartRodData(
             toY: taken,
-            color: Colors.blue.shade400,
+            color: AppColors.primaryBlue,
             width: 10,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
           ),
           BarChartRodData(
             toY: missed,
-            color: Colors.red.shade400,
+            color: isDark ? AppColors.darkError : AppColors.alertRed,
             width: 10,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
           ),
@@ -658,18 +650,19 @@ class _ChartSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final labels = graphData.map((d) => (d['label'] as String?) ?? '').toList();
-    final groups = _buildGroups();
+    final groups = _buildGroups(isDark);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color ?? Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -683,9 +676,10 @@ class _ChartSection extends StatelessWidget {
             children: [
               Text(
                 l10n.statisticsChart,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
                 ),
               ),
               Row(
@@ -694,8 +688,8 @@ class _ChartSection extends StatelessWidget {
                     onPressed: onDayTap,
                     style: TextButton.styleFrom(
                       foregroundColor: !showMonthly
-                          ? Colors.blue.shade400
-                          : Colors.grey.shade400,
+                          ? AppColors.primaryBlue
+                          : (isDark ? Colors.grey[600] : Colors.grey.shade400),
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(40, 36),
                     ),
@@ -705,8 +699,8 @@ class _ChartSection extends StatelessWidget {
                     onPressed: onMonthTap,
                     style: TextButton.styleFrom(
                       foregroundColor: showMonthly
-                          ? Colors.blue.shade400
-                          : Colors.grey.shade400,
+                          ? AppColors.primaryBlue
+                          : (isDark ? Colors.grey[600] : Colors.grey.shade400),
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(40, 36),
                     ),
@@ -719,13 +713,27 @@ class _ChartSection extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              _LegendDot(color: Colors.blue.shade400),
+              _LegendDot(color: AppColors.primaryBlue),
               const SizedBox(width: 4),
-              Text(l10n.receivedMeds, style: const TextStyle(fontSize: 12)),
+              Text(
+                l10n.receivedMeds,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey[300] : Colors.grey[700],
+                ),
+              ),
               const SizedBox(width: 16),
-              _LegendDot(color: Colors.red.shade400),
+              _LegendDot(
+                color: isDark ? AppColors.darkError : AppColors.alertRed,
+              ),
               const SizedBox(width: 4),
-              Text(l10n.missedMeds, style: const TextStyle(fontSize: 12)),
+              Text(
+                l10n.missedMeds,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey[300] : Colors.grey[700],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -740,7 +748,9 @@ class _ChartSection extends StatelessWidget {
               child: Center(
                 child: Text(
                   l10n.noAlerts,
-                  style: TextStyle(color: Colors.grey.shade500),
+                  style: TextStyle(
+                    color: isDark ? Colors.grey[500] : Colors.grey.shade500,
+                  ),
                 ),
               ),
             )
@@ -753,8 +763,10 @@ class _ChartSection extends StatelessWidget {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                    getDrawingHorizontalLine: (_) =>
-                        FlLine(color: Colors.grey.shade200, strokeWidth: 1),
+                    getDrawingHorizontalLine: (_) => FlLine(
+                      color: isDark ? Colors.grey[700]! : Colors.grey.shade200,
+                      strokeWidth: 1,
+                    ),
                   ),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
@@ -782,7 +794,9 @@ class _ChartSection extends StatelessWidget {
                               labels[idx],
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Colors.grey.shade600,
+                                color: isDark
+                                    ? Colors.grey[400]
+                                    : Colors.grey.shade600,
                               ),
                             ),
                           );
@@ -792,7 +806,8 @@ class _ChartSection extends StatelessWidget {
                   ),
                   barTouchData: BarTouchData(
                     touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (_) => Colors.blueGrey.shade700,
+                      getTooltipColor: (_) =>
+                          isDark ? Colors.grey[800]! : Colors.blueGrey.shade700,
                       tooltipRoundedRadius: 8,
                     ),
                   ),
@@ -832,8 +847,9 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).cardTheme.color ?? Colors.white,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -844,7 +860,7 @@ class _ActionCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -855,10 +871,10 @@ class _ActionCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
+                  color: AppColors.primaryBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: Colors.blue.shade400, size: 28),
+                child: Icon(icon, color: AppColors.primaryBlue, size: 28),
               ),
               const SizedBox(height: 10),
               Text(
@@ -866,7 +882,7 @@ class _ActionCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
                 ),
               ),
             ],

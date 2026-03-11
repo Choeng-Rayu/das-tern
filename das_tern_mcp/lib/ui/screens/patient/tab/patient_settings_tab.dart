@@ -11,6 +11,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/theme_provider.dart';
 import '../../../widgets/common_widgets.dart';
+import '../screens/activity_report_screen.dart';
 
 /// Settings tab for patient – clean professional UI matching design standard.
 /// Sections: Appearance, Notification Permission, Account (with Security),
@@ -23,11 +24,6 @@ class PatientSettingsTab extends StatefulWidget {
 }
 
 class _PatientSettingsTabState extends State<PatientSettingsTab> {
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -159,11 +155,45 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                       ],
                     ),
                   ),
-                  _divider(isDark),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 4,
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // ACTIVITY REPORT
+            _sectionLabel('REPORTS'),
+            _buildGroupCard(isDark, [
+              _buildNavRow(
+                context,
+                icon: Icons.bar_chart_outlined,
+                label: l10n.activityReport,
+                isLast: true,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ActivityReportScreen(),
+                    ),
+                  );
+                },
+              ),
+            ]),
+            const SizedBox(height: AppSpacing.md),
+
+            // APPEARANCE
+            _sectionLabel('APPEARANCE'),
+            _buildGroupCard(isDark, [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.brightness_6_outlined, size: 20),
+                    const SizedBox(width: 12),
+                    Text(
+                      l10n.theme,
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     child: Row(
                       children: [
@@ -512,70 +542,6 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
       color: isDark
           ? Colors.white.withValues(alpha: 0.08)
           : Colors.black.withValues(alpha: 0.08),
-    );
-  }
-
-  Widget _buildSupportRow(
-    BuildContext context, {
-    required bool isDark,
-    required IconData icon,
-    required Color iconBg,
-    required String label,
-    required String subtitle,
-    required VoidCallback onTap,
-    bool isLast = false,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: isLast
-          ? const BorderRadius.only(
-              bottomLeft: Radius.circular(14),
-              bottomRight: Radius.circular(14),
-            )
-          : BorderRadius.zero,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: iconBg,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, size: 20, color: Colors.white),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(
-              Icons.chevron_right,
-              size: 18,
-              color: AppColors.textSecondary,
-            ),
-          ],
-        ),
-      ),
     );
   }
 
