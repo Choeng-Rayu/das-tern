@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/language_switcher.dart';
 
 class TermsOfServiceScreen extends StatelessWidget {
   const TermsOfServiceScreen({super.key});
@@ -12,35 +14,92 @@ class TermsOfServiceScreen extends StatelessWidget {
         ? Colors.white.withValues(alpha: 0.85)
         : AppColors.textPrimary;
     final cardColor = isDark ? const Color(0xFF1E1E2E) : Colors.white;
+    final l10n = AppLocalizations.of(context)!;
+
+    final sections = [
+      {
+        'number': '1',
+        'title': l10n.tosSection1Title,
+        'body': l10n.tosSection1Body,
+      },
+      {
+        'number': '2',
+        'title': l10n.tosSection2Title,
+        'body': l10n.tosSection2Body,
+      },
+      {
+        'number': '3',
+        'title': l10n.tosSection3Title,
+        'body': l10n.tosSection3Body,
+      },
+      {
+        'number': '4',
+        'title': l10n.tosSection4Title,
+        'body': l10n.tosSection4Body,
+      },
+      {
+        'number': '5',
+        'title': l10n.tosSection5Title,
+        'body': l10n.tosSection5Body,
+      },
+      {
+        'number': '6',
+        'title': l10n.tosSection6Title,
+        'body': l10n.tosSection6Body,
+      },
+      {
+        'number': '7',
+        'title': l10n.tosSection7Title,
+        'body': l10n.tosSection7Body,
+      },
+    ];
 
     return Scaffold(
+      backgroundColor: isDark
+          ? const Color(0xFF121212)
+          : const Color(0xFFF8F9FD),
       appBar: AppBar(
-        title: const Text('Terms of Service'),
+        title: Text(
+          l10n.termsOfService,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
         centerTitle: true,
         elevation: 0,
         scrolledUnderElevation: 0.5,
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: LanguageSwitcherButton(lightBackground: true),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         children: [
           // ── Header ──
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 28),
+            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: isDark
                     ? [
-                        const Color(0xFF34C759).withValues(alpha: 0.15),
-                        const Color(0xFF30D158).withValues(alpha: 0.08),
+                        AppColors.primaryBlue.withValues(alpha: 0.2),
+                        const Color(0xFF667EEA).withValues(alpha: 0.1),
                       ]
                     : [
-                        const Color(0xFF34C759).withValues(alpha: 0.08),
-                        const Color(0xFF30D158).withValues(alpha: 0.04),
+                        AppColors.primaryBlue.withValues(alpha: 0.08),
+                        const Color(0xFF667EEA).withValues(alpha: 0.04),
                       ],
               ),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isDark
+                    ? AppColors.primaryBlue.withValues(alpha: 0.2)
+                    : AppColors.primaryBlue.withValues(alpha: 0.1),
+              ),
             ),
             child: Column(
               children: [
@@ -48,57 +107,87 @@ class TermsOfServiceScreen extends StatelessWidget {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF34C759),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4A90D9), Color(0xFF667EEA)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF34C759).withValues(alpha: 0.3),
+                        color: AppColors.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 16,
                         offset: const Offset(0, 6),
                       ),
                     ],
                   ),
                   child: const Icon(
-                    Icons.article_rounded,
-                    size: 32,
+                    Icons.gavel_rounded,
+                    size: 30,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 Text(
-                  'Terms of Service',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  l10n.termsOfService,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.3,
+                  ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
-                  'Last updated: March 1, 2026',
+                  l10n.tosLastUpdated,
                   style: TextStyle(color: subtitleColor, fontSize: 13),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
 
           // ── Sections ──
-          ..._sections.map(
-            (section) => _SectionCard(
+          ...sections.asMap().entries.map(
+            (entry) => _SectionCard(
               cardColor: cardColor,
               isDark: isDark,
               bodyColor: bodyColor,
-              number: section['number']!,
-              title: section['title']!,
-              body: section['body']!,
+              number: entry.value['number']!,
+              title: entry.value['title']!,
+              body: entry.value['body']!,
+              isLast: entry.key == sections.length - 1,
             ),
           ),
 
-          const SizedBox(height: 20),
-          Center(
-            child: Text(
-              'If you have questions, contact us at support@dastern.com',
-              style: TextStyle(color: subtitleColor, fontSize: 12),
-              textAlign: TextAlign.center,
+          const SizedBox(height: 24),
+          // ── Footer ──
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.04)
+                  : AppColors.primaryBlue.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : AppColors.primaryBlue.withValues(alpha: 0.08),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.mail_outline_rounded,
+                  size: 18,
+                  color: subtitleColor,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l10n.tosContactFooter,
+                    style: TextStyle(color: subtitleColor, fontSize: 12.5),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 24),
@@ -108,51 +197,6 @@ class TermsOfServiceScreen extends StatelessWidget {
   }
 }
 
-const _sections = [
-  {
-    'number': '1',
-    'title': 'Acceptance of Terms',
-    'body':
-        'By accessing or using DasTern, you agree to be bound by these Terms of Service. If you do not agree, please do not use the application.',
-  },
-  {
-    'number': '2',
-    'title': 'Description of Service',
-    'body':
-        'DasTern provides medication management, health tracking, and telemedicine features. The app is not a substitute for professional medical advice, diagnosis, or treatment.',
-  },
-  {
-    'number': '3',
-    'title': 'User Accounts',
-    'body':
-        'You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate information and to update it as necessary.',
-  },
-  {
-    'number': '4',
-    'title': 'Subscription & Payments',
-    'body':
-        'Some features require a paid subscription. Prices are displayed before purchase. You may cancel at any time; access continues until the end of the billing period.',
-  },
-  {
-    'number': '5',
-    'title': 'Intellectual Property',
-    'body':
-        'All content, trademarks, and software in DasTern are owned by or licensed to us. You may not copy, modify, or distribute any part without written permission.',
-  },
-  {
-    'number': '6',
-    'title': 'Limitation of Liability',
-    'body':
-        'DasTern is provided "as is". We are not liable for any indirect, incidental, or consequential damages arising from your use of the service.',
-  },
-  {
-    'number': '7',
-    'title': 'Changes to Terms',
-    'body':
-        'We reserve the right to modify these terms at any time. Continued use after changes constitutes acceptance of the new terms.',
-  },
-];
-
 class _SectionCard extends StatelessWidget {
   final Color cardColor;
   final bool isDark;
@@ -160,6 +204,7 @@ class _SectionCard extends StatelessWidget {
   final String number;
   final String title;
   final String body;
+  final bool isLast;
 
   const _SectionCard({
     required this.cardColor,
@@ -168,41 +213,44 @@ class _SectionCard extends StatelessWidget {
     required this.number,
     required this.title,
     required this.body,
+    this.isLast = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 14),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            if (!isDark)
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-          ],
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : const Color(0xFFE8ECF2),
+          ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 30,
-              height: 30,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
-                color: const Color(0xFF34C759).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primaryBlue.withValues(alpha: 0.15),
+                    const Color(0xFF667EEA).withValues(alpha: 0.1),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(10),
               ),
               alignment: Alignment.center,
               child: Text(
                 number,
-                style: const TextStyle(
-                  color: Color(0xFF34C759),
+                style: TextStyle(
+                  color: AppColors.primaryBlue,
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
                 ),
@@ -217,15 +265,16 @@ class _SectionCard extends StatelessWidget {
                     title,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Text(
                     body,
                     style: TextStyle(
                       color: bodyColor,
-                      fontSize: 13,
-                      height: 1.5,
+                      fontSize: 13.5,
+                      height: 1.6,
                     ),
                   ),
                 ],

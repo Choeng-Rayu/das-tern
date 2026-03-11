@@ -71,7 +71,7 @@ class DasTernApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => LocaleProvider()..loadLocalePreference(),
         ),
-        ChangeNotifierProvider(create: (_) => AuthProvider()..loadAuthState()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => DoseProvider()),
         ChangeNotifierProvider(create: (_) => PrescriptionProvider()),
         ChangeNotifierProvider(create: (_) => ConnectionProvider()),
