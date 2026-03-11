@@ -203,27 +203,38 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                           l10n.language,
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
-                        const Spacer(),
-                        DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: localeProvider.locale.languageCode,
-                            isDense: true,
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'en',
-                                child: Text('English'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'km',
-                                child: Text('ខ្មែរ'),
-                              ),
-                            ],
-                            onChanged: (v) {
-                              if (v != null) {
-                                localeProvider.changeLocale(Locale(v));
-                              }
-                            },
-                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        _ThemeOptionCard(
+                          icon: Icons.phone_android_rounded,
+                          label: 'System',
+                          isSelected:
+                              themeProvider.themeMode == ThemeMode.system,
+                          isDark: isDark,
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.system),
+                        ),
+                        const SizedBox(width: 10),
+                        _ThemeOptionCard(
+                          icon: Icons.light_mode_rounded,
+                          label: 'Light',
+                          isSelected:
+                              themeProvider.themeMode == ThemeMode.light,
+                          isDark: isDark,
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.light),
+                        ),
+                        const SizedBox(width: 10),
+                        _ThemeOptionCard(
+                          icon: Icons.dark_mode_rounded,
+                          label: 'Dark',
+                          isSelected: themeProvider.themeMode == ThemeMode.dark,
+                          isDark: isDark,
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.dark),
                         ),
                       ],
                     ),

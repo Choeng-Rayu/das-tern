@@ -303,92 +303,92 @@ class _PatientScanTabState extends State<PatientScanTab> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Column(
-      children: [
-        AppHeader(title: l10n.scanPrescriptionTitle),
-        Expanded(
-          child: Center(
-            child: _isProcessing
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircularProgressIndicator(),
-                      const SizedBox(height: AppSpacing.lg),
-                      Text(
-                        l10n.scanProcessing,
-                        style: Theme.of(context).textTheme.bodyLarge,
+    return Scaffold(
+      appBar: AppHeader(title: l10n.scanPrescriptionTitle),
+      body: SafeArea(
+        child: _isProcessing
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      l10n.scanProcessing,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xl,
+                  vertical: AppSpacing.xl,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: const Icon(
+                          Icons.document_scanner_outlined,
+                          size: 64,
+                          color: AppColors.primaryBlue,
+                        ),
                       ),
-                    ],
-                  )
-                : SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: AppSpacing.xl),
-                        Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryBlue.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: const Icon(
-                            Icons.document_scanner_outlined,
-                            size: 64,
-                            color: AppColors.primaryBlue,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        Text(
-                          l10n.scanPrescriptionTitle,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        Padding(
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      l10n.scanPrescriptionTitle,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      l10n.scanPrescriptionDescription,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    Center(
+                      child: ElevatedButton.icon(
+                        onPressed: _showSourcePicker,
+                        icon: const Icon(Icons.camera_alt),
+                        label: Text(l10n.openScanner),
+                        style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                             horizontal: AppSpacing.xl,
-                          ),
-                          child: Text(
-                            l10n.scanPrescriptionDescription,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: AppColors.textSecondary),
-                            textAlign: TextAlign.center,
+                            vertical: AppSpacing.md,
                           ),
                         ),
-                        const SizedBox(height: AppSpacing.xl),
-                        ElevatedButton.icon(
-                          onPressed: _showSourcePicker,
-                          icon: const Icon(Icons.camera_alt),
-                          label: Text(l10n.openScanner),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.xl,
-                              vertical: AppSpacing.md,
-                            ),
-                          ),
-                        ),
-                        if (_errorMessage != null) ...[
-                          const SizedBox(height: AppSpacing.lg),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.xl,
-                            ),
-                            child: Text(
-                              _errorMessage!,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: AppColors.alertRed),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: AppSpacing.xl),
-                      ],
+                      ),
                     ),
-                  ),
-          ),
-        ),
-      ],
+                    if (_errorMessage != null) ...[
+                      const SizedBox(height: AppSpacing.lg),
+                      Text(
+                        _errorMessage!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.alertRed,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                    const SizedBox(height: AppSpacing.xl),
+                  ],
+                ),
+              ),
+      ),
     );
   }
 }
