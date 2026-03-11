@@ -131,9 +131,26 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           icon: Icons.wb_twilight,
                           doseCount: _getDoseCountByPeriod(
                             doseProvider,
-                            'DAYTIME',
+                            'AFTERNOON',
                           ),
                           badgeText: l10n.afternoon,
+                          backgroundImage: 'assets/afternoon.png',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _TimePeriodCard(
+                          label: l10n.evening,
+                          icon: Icons.wb_twilight,
+                          doseCount: _getDoseCountByPeriod(
+                            doseProvider,
+                            'EVENING',
+                          ),
+                          badgeText: l10n.evening,
                           backgroundImage: 'assets/afternoon.png',
                         ),
                       ),

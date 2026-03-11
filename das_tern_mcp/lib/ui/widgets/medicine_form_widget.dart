@@ -43,7 +43,8 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
   MedicineType _medicineType = MedicineType.oral;
   MedicineUnit _unit = MedicineUnit.tablet;
   bool _morning = true;
-  bool _daytime = false;
+  bool _afternoon = false;
+  bool _evening = false;
   bool _night = false;
   bool _beforeMeal = false;
   bool _isPRN = false;
@@ -69,7 +70,8 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
           ? MedicineUnit.fromJson(d['unit'])
           : MedicineUnit.tablet;
       _morning = d['morningDosage'] != null ? true : (d['morning'] ?? true);
-      _daytime = d['daytimeDosage'] != null ? true : (d['daytime'] ?? false);
+      _afternoon = d['afternoonDosage'] != null ? true : (d['afternoon'] ?? false);
+      _evening = d['eveningDosage'] != null ? true : (d['evening'] ?? false);
       _night = d['nightDosage'] != null ? true : (d['night'] ?? false);
       _beforeMeal = d['beforeMeal'] ?? false;
       _isPRN = d['isPRN'] ?? false;
@@ -93,6 +95,14 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
+    final unitStr = _unit.toJson().toLowerCase();
+    final scheduleTimes = <Map<String, String>>[
+      if (_morning) {'timePeriod': 'morning', 'time': '07:00'},
+      if (_afternoon) {'timePeriod': 'afternoon', 'time': '12:00'},
+      if (_evening) {'timePeriod': 'evening', 'time': '17:00'},
+      if (_night) {'timePeriod': 'night', 'time': '20:00'},
+    ];
+
     widget.onSave({
       'medicineName': _nameController.text.trim(),
       'medicineNameKhmer': _nameKhmerController.text.trim(),
@@ -108,8 +118,15 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
               : _dosageController.text.trim()),
           'beforeMeal': _beforeMeal,
         },
-      if (_daytime)
-        'daytimeDosage': {
+      if (_afternoon)
+        'afternoonDosage': {
+          'amount': (_dosageController.text.trim().isEmpty
+              ? '1'
+              : _dosageController.text.trim()),
+          'beforeMeal': _beforeMeal,
+        },
+      if (_evening)
+        'eveningDosage': {
           'amount': (_dosageController.text.trim().isEmpty
               ? '1'
               : _dosageController.text.trim()),
@@ -242,10 +259,23 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   _ScheduleChip(
-                    label: l10n.daytime,
+                    label: l10n.afternoon,
                     icon: Icons.wb_twilight,
-                    selected: _daytime,
-                    onTap: () => setState(() => _daytime = !_daytime),
+                    color: const Color(0xFF26C6DA),
+                    selected: _afternoon,
+                    onTap: () => setState(() => _afternoon = !_afternoon),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                children: [
+                  _ScheduleChip(
+                    label: l10n.evening,
+                    icon: Icons.wb_twilight,
+                    color: const Color(0xFFFF7043),
+                    selected: _evening,
+                    onTap: () => setState(() => _evening = !_evening),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   _ScheduleChip(

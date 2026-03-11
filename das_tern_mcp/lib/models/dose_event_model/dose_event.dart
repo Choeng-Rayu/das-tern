@@ -42,7 +42,7 @@ class DoseEvent {
       medicationId: json['medicationId'] as String? ?? '',
       patientId: json['patientId'] as String? ?? '',
       scheduledTime: DateTime.parse(json['scheduledTime'] as String),
-      timePeriod: json['timePeriod'] as String? ?? 'DAYTIME',
+      timePeriod: json['timePeriod'] as String? ?? 'MORNING',
       reminderTime: json['reminderTime'] as String?,
       status: json['status'] as String? ?? 'DUE',
       takenAt: json['takenAt'] != null

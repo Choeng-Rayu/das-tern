@@ -96,8 +96,9 @@ export class BatchMedicationService {
             createdBy: patientId,
             // All medicines in this batch share the same scheduled time
             morningDosage: hours < 12 ? dosage : Prisma.DbNull,
-            daytimeDosage: hours >= 12 && hours < 18 ? dosage : Prisma.DbNull,
-            nightDosage: hours >= 18 ? dosage : Prisma.DbNull,
+            afternoonDosage: hours >= 12 && hours < 17 ? dosage : Prisma.DbNull,
+            eveningDosage: hours >= 17 && hours < 20 ? dosage : Prisma.DbNull,
+            nightDosage: hours >= 20 ? dosage : Prisma.DbNull,
             timing: dto.scheduledTime,
           },
         });
@@ -321,8 +322,9 @@ export class BatchMedicationService {
         isPRN: dto.isPRN || false,
         createdBy: patientId,
         morningDosage: hours < 12 ? dosage : Prisma.DbNull,
-        daytimeDosage: hours >= 12 && hours < 18 ? dosage : Prisma.DbNull,
-        nightDosage: hours >= 18 ? dosage : Prisma.DbNull,
+        afternoonDosage: hours >= 12 && hours < 17 ? dosage : Prisma.DbNull,
+        eveningDosage: hours >= 17 && hours < 20 ? dosage : Prisma.DbNull,
+        nightDosage: hours >= 20 ? dosage : Prisma.DbNull,
         timing: batch.scheduledTime,
       },
     });
@@ -380,7 +382,7 @@ export class BatchMedicationService {
     scheduledTime: string,
   ) {
     const [hours, minutes] = scheduledTime.split(':').map(Number);
-    const timePeriod = hours < 12 ? 'MORNING' : hours < 18 ? 'DAYTIME' : 'NIGHT';
+    const timePeriod = hours < 12 ? 'MORNING' : hours < 17 ? 'AFTERNOON' : hours < 20 ? 'EVENING' : 'NIGHT';
     const reminderTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 
     const events: any[] = [];

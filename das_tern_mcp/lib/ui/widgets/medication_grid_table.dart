@@ -8,7 +8,8 @@ class MedicationGridRow {
   String medicineName;
   String medicineNameKhmer;
   String? morningDosage;
-  String? daytimeDosage;
+  String? afternoonDosage;
+  String? eveningDosage;
   String? nightDosage;
   bool beforeMeal;
 
@@ -16,7 +17,8 @@ class MedicationGridRow {
     this.medicineName = '',
     this.medicineNameKhmer = '',
     this.morningDosage,
-    this.daytimeDosage,
+    this.afternoonDosage,
+    this.eveningDosage,
     this.nightDosage,
     this.beforeMeal = true,
   });
@@ -27,7 +29,8 @@ class MedicationGridRow {
       medicineName: map['medicineName'] as String? ?? '',
       medicineNameKhmer: map['medicineNameKhmer'] as String? ?? '',
       morningDosage: _extractDosage(map['morningDosage']),
-      daytimeDosage: _extractDosage(map['daytimeDosage']),
+      afternoonDosage: _extractDosage(map['afternoonDosage']),
+      eveningDosage: _extractDosage(map['eveningDosage']),
       nightDosage: _extractDosage(map['nightDosage']),
       beforeMeal: map['beforeMeal'] as bool? ?? true,
     );
@@ -40,8 +43,10 @@ class MedicationGridRow {
       'medicineNameKhmer': medicineNameKhmer,
       if (morningDosage != null && morningDosage!.isNotEmpty)
         'morningDosage': {'amount': morningDosage},
-      if (daytimeDosage != null && daytimeDosage!.isNotEmpty)
-        'daytimeDosage': {'amount': daytimeDosage},
+      if (afternoonDosage != null && afternoonDosage!.isNotEmpty)
+        'afternoonDosage': {'amount': afternoonDosage},
+      if (eveningDosage != null && eveningDosage!.isNotEmpty)
+        'eveningDosage': {'amount': eveningDosage},
       if (nightDosage != null && nightDosage!.isNotEmpty)
         'nightDosage': {'amount': nightDosage},
       'beforeMeal': beforeMeal,
@@ -53,7 +58,8 @@ class MedicationGridRow {
   String _buildFrequency() {
     int count = 0;
     if (morningDosage != null && morningDosage!.isNotEmpty) count++;
-    if (daytimeDosage != null && daytimeDosage!.isNotEmpty) count++;
+    if (afternoonDosage != null && afternoonDosage!.isNotEmpty) count++;
+    if (eveningDosage != null && eveningDosage!.isNotEmpty) count++;
     if (nightDosage != null && nightDosage!.isNotEmpty) count++;
     return '$count times/day';
   }
@@ -63,8 +69,11 @@ class MedicationGridRow {
     if (morningDosage != null && morningDosage!.isNotEmpty) {
       parts.add('morning');
     }
-    if (daytimeDosage != null && daytimeDosage!.isNotEmpty) {
-      parts.add('daytime');
+    if (afternoonDosage != null && afternoonDosage!.isNotEmpty) {
+      parts.add('afternoon');
+    }
+    if (eveningDosage != null && eveningDosage!.isNotEmpty) {
+      parts.add('evening');
     }
     if (nightDosage != null && nightDosage!.isNotEmpty) parts.add('night');
     return parts.join(', ');
@@ -168,7 +177,15 @@ class MedicationGridTable extends StatelessWidget {
           Expanded(
             flex: 1,
             child: Text(
-              l10n.daytime,
+              l10n.afternoon,
+              style: headerStyle,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              l10n.evening,
               style: headerStyle,
               textAlign: TextAlign.center,
             ),
@@ -303,21 +320,38 @@ class MedicationGridTable extends StatelessWidget {
                 : _DosageCell(value: row.morningDosage),
           ),
 
-          // Daytime dosage
+          // Afternoon dosage
           Expanded(
             flex: 1,
             child: editable
                 ? _EditableCell(
-                    value: row.daytimeDosage ?? '',
+                    value: row.afternoonDosage ?? '',
                     hint: '-',
                     onChanged: (v) {
-                      row.daytimeDosage = v.isEmpty ? null : v;
+                      row.afternoonDosage = v.isEmpty ? null : v;
                       onRowsChanged?.call(List.from(rows));
                     },
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.text,
                   )
-                : _DosageCell(value: row.daytimeDosage),
+                : _DosageCell(value: row.afternoonDosage),
+          ),
+
+          // Evening dosage
+          Expanded(
+            flex: 1,
+            child: editable
+                ? _EditableCell(
+                    value: row.eveningDosage ?? '',
+                    hint: '-',
+                    onChanged: (v) {
+                      row.eveningDosage = v.isEmpty ? null : v;
+                      onRowsChanged?.call(List.from(rows));
+                    },
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.text,
+                  )
+                : _DosageCell(value: row.eveningDosage),
           ),
 
           // Night dosage

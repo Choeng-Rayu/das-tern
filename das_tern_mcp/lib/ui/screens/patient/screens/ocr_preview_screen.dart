@@ -506,10 +506,8 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
             backgroundColor: AppColors.successGreen,
           ),
         );
-        // Pop back to the scan tab (2 levels: preview → scan)
-        Navigator.of(context)
-          ..pop()
-          ..pop();
+        // Pop back to the patient home safely
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     }
   }

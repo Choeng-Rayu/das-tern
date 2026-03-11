@@ -149,7 +149,8 @@ model Medication {
   additionalNote    String?
   createdBy         String?          @db.Uuid
   morningDosage     Json?
-  daytimeDosage     Json?
+  afternoonDosage   Json?
+  eveningDosage     Json?
   nightDosage       Json?
   frequency         String?          @db.VarChar(100)
   duration          Int?
@@ -266,6 +267,7 @@ model MealTimePreference {
   userId        String   @unique @db.Uuid
   morningMeal   String?  @db.VarChar(20)
   afternoonMeal String?  @db.VarChar(20)
+  eveningMeal   String?  @db.VarChar(20)
   nightMeal     String?  @db.VarChar(20)
   createdAt     DateTime @default(now()) @db.Timestamptz(3)
   updatedAt     DateTime @updatedAt @db.Timestamptz(3)
@@ -437,7 +439,8 @@ enum PrescriptionStatus {
 
 enum TimePeriod {
   MORNING
-  DAYTIME
+  AFTERNOON
+  EVENING
   NIGHT
 }
 

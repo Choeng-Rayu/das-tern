@@ -346,14 +346,14 @@ export class OcrService {
             scheduleTimes.push({ timePeriod: 'morning', time: '07:00' });
             break;
           case 'midday':
-            scheduleTimes.push({ timePeriod: 'daytime', time: '12:00' });
+            scheduleTimes.push({ timePeriod: 'afternoon', time: '12:00' });
             break;
           case 'afternoon':
-            scheduleTimes.push({ timePeriod: 'afternoon', time: '17:00' });
+            scheduleTimes.push({ timePeriod: 'evening', time: '17:00' });
             break;
           case 'evening':
           case 'night':
-            scheduleTimes.push({ timePeriod: 'evening', time: '20:00' });
+            scheduleTimes.push({ timePeriod: 'night', time: '20:00' });
             break;
         }
       }
