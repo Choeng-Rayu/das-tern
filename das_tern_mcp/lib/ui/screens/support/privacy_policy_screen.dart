@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/language_switcher.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final subtitleColor = isDark ? Colors.white70 : AppColors.textSecondary;
     final bodyColor = isDark
@@ -13,12 +16,56 @@ class PrivacyPolicyScreen extends StatelessWidget {
         : AppColors.textPrimary;
     final cardColor = isDark ? const Color(0xFF1E1E2E) : Colors.white;
 
+    final sections = [
+      {
+        'icon': Icons.data_usage_rounded,
+        'title': l10n.ppSection1Title,
+        'body': l10n.ppSection1Body,
+      },
+      {
+        'icon': Icons.health_and_safety_rounded,
+        'title': l10n.ppSection2Title,
+        'body': l10n.ppSection2Body,
+      },
+      {
+        'icon': Icons.lock_rounded,
+        'title': l10n.ppSection3Title,
+        'body': l10n.ppSection3Body,
+      },
+      {
+        'icon': Icons.share_rounded,
+        'title': l10n.ppSection4Title,
+        'body': l10n.ppSection4Body,
+      },
+      {
+        'icon': Icons.cookie_rounded,
+        'title': l10n.ppSection5Title,
+        'body': l10n.ppSection5Body,
+      },
+      {
+        'icon': Icons.tune_rounded,
+        'title': l10n.ppSection6Title,
+        'body': l10n.ppSection6Body,
+      },
+      {
+        'icon': Icons.update_rounded,
+        'title': l10n.ppSection7Title,
+        'body': l10n.ppSection7Body,
+      },
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Privacy Policy'),
+        title: Text(l10n.privacyPolicy),
         centerTitle: true,
         elevation: 0,
         scrolledUnderElevation: 0.5,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: LanguageSwitcherButton(lightBackground: true),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -66,14 +113,14 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'Privacy Policy',
+                  l10n.privacyPolicy,
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Last updated: March 1, 2026',
+                  l10n.ppLastUpdated,
                   style: TextStyle(color: subtitleColor, fontSize: 13),
                 ),
               ],
@@ -103,7 +150,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Your health data is encrypted end-to-end and never shared without consent.',
+                    l10n.ppHighlightBanner,
                     style: TextStyle(
                       color: bodyColor,
                       fontSize: 13,
@@ -117,7 +164,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           const SizedBox(height: 20),
 
           // ── Sections ──
-          ..._sections.map(
+          ...sections.map(
             (section) => _PolicySection(
               cardColor: cardColor,
               isDark: isDark,
@@ -131,7 +178,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           const SizedBox(height: 20),
           Center(
             child: Text(
-              'Questions? Contact privacy@dastern.com',
+              l10n.ppContactFooter,
               style: TextStyle(color: subtitleColor, fontSize: 12),
               textAlign: TextAlign.center,
             ),
@@ -142,51 +189,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
     );
   }
 }
-
-final _sections = [
-  {
-    'icon': Icons.data_usage_rounded,
-    'title': 'Information We Collect',
-    'body':
-        'We collect personal information you provide (name, email, health data) and automatically gathered data (device info, usage patterns) to deliver and improve our services.',
-  },
-  {
-    'icon': Icons.health_and_safety_rounded,
-    'title': 'Health Data',
-    'body':
-        'Medication records, vital signs, and health notes are stored securely. We never sell health data. Access is limited to you, your care team (with your consent), and authorized staff for service delivery.',
-  },
-  {
-    'icon': Icons.lock_rounded,
-    'title': 'Data Security',
-    'body':
-        'We use industry-standard encryption (AES-256) for data at rest and TLS 1.3 for data in transit. Access is controlled with role-based permissions and regular security audits.',
-  },
-  {
-    'icon': Icons.share_rounded,
-    'title': 'Sharing & Disclosure',
-    'body':
-        'We do not sell your data. We may share information with healthcare providers you authorize, service partners under strict agreements, or when required by law.',
-  },
-  {
-    'icon': Icons.cookie_rounded,
-    'title': 'Cookies & Analytics',
-    'body':
-        'We use minimal analytics to understand app usage and improve features. No third-party advertising trackers are used in DasTern.',
-  },
-  {
-    'icon': Icons.tune_rounded,
-    'title': 'Your Rights',
-    'body':
-        'You can access, correct, export, or delete your personal data at any time from your profile settings. You may also withdraw consent for optional data processing.',
-  },
-  {
-    'icon': Icons.update_rounded,
-    'title': 'Policy Changes',
-    'body':
-        'We will notify you of significant changes via in-app notification or email. Continued use after changes constitutes acceptance.',
-  },
-];
 
 class _PolicySection extends StatelessWidget {
   final Color cardColor;
