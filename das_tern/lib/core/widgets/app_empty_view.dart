@@ -33,10 +33,7 @@ class AppEmptyView extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
-            if (action != null) ...[
-              const SizedBox(height: 16),
-              action!,
-            ],
+            if (action != null) ...[const SizedBox(height: 16), action!],
           ],
         ),
       ),

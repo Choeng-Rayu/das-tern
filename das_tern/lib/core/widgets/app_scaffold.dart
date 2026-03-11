@@ -39,10 +39,7 @@ class AppScaffold extends StatelessWidget {
             )
           : null,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: body,
-        ),
+        child: Padding(padding: const EdgeInsets.all(16), child: body),
       ),
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: currentIndex == null

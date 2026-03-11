@@ -40,30 +40,26 @@ class AppButton extends StatelessWidget {
           );
 
     final Widget button = switch (variant) {
-      case AppButtonVariant.primary:
-        FilledButton(
-          onPressed: isLoading ? null : onPressed,
-          child: content,
+      AppButtonVariant.primary => FilledButton(
+        onPressed: isLoading ? null : onPressed,
+        child: content,
+      ),
+      AppButtonVariant.secondary => OutlinedButton(
+        onPressed: isLoading ? null : onPressed,
+        child: content,
+      ),
+      AppButtonVariant.destructive => FilledButton.tonal(
+        onPressed: isLoading ? null : onPressed,
+        style: FilledButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.red.shade700,
         ),
-      case AppButtonVariant.secondary:
-        OutlinedButton(
-          onPressed: isLoading ? null : onPressed,
-          child: content,
-        ),
-      case AppButtonVariant.destructive:
-        FilledButton.tonal(
-          onPressed: isLoading ? null : onPressed,
-          style: FilledButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.red.shade700,
-          ),
-          child: content,
-        ),
-      case AppButtonVariant.ghost:
-        TextButton(
-          onPressed: isLoading ? null : onPressed,
-          child: content,
-        ),
+        child: content,
+      ),
+      AppButtonVariant.ghost => TextButton(
+        onPressed: isLoading ? null : onPressed,
+        child: content,
+      ),
     };
 
     if (!isFullWidth) {

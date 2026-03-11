@@ -15,9 +15,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<MedicationService>(
-          create: (_) => MockMedicationService(),
-        ),
+        Provider<MedicationService>(create: (_) => MockMedicationService()),
         Provider<MedicationRepository>(
           create: (context) => MedicationRepositoryImpl(
             service: context.read<MedicationService>(),

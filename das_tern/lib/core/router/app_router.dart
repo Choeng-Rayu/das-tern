@@ -20,21 +20,21 @@ class AppRouter {
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case home:
+      case AppRouter.home:
         return MaterialPageRoute<void>(builder: (_) => const HomeView());
-      case medications:
+      case AppRouter.medications:
         return MaterialPageRoute<void>(
           builder: (_) => const MedicationListView(),
         );
-      case scan:
+      case AppRouter.scan:
         return MaterialPageRoute<void>(
           builder: (_) => const _PlaceholderView(title: 'Scan'),
         );
-      case family:
+      case AppRouter.family:
         return MaterialPageRoute<void>(
           builder: (_) => const _PlaceholderView(title: 'Family'),
         );
-      case settings:
+      case AppRouter.settings:
         return MaterialPageRoute<void>(
           builder: (_) => const _PlaceholderView(title: 'Settings'),
         );
@@ -54,12 +54,12 @@ class _PlaceholderView extends StatelessWidget {
     return AppScaffold(
       title: title,
       currentIndex: AppRouter.tabRoutes.entries
-          .firstWhere((entry) => entry.value == ModalRoute.of(context)?.settings.name,
-              orElse: () => const MapEntry<int, String>(0, AppRouter.home))
+          .firstWhere(
+            (entry) => entry.value == ModalRoute.of(context)?.settings.name,
+            orElse: () => const MapEntry<int, String>(0, AppRouter.home),
+          )
           .key,
-      body: Center(
-        child: Text('$title screen is not migrated yet'),
-      ),
+      body: Center(child: Text('$title screen is not migrated yet')),
     );
   }
 }
