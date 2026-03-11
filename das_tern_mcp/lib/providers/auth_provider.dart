@@ -30,6 +30,7 @@ class AuthProvider extends ChangeNotifier {
   String? _refreshToken;
   Map<String, dynamic>? _user;
   String? _error;
+  Future<void>? _loadAuthStateFuture;
 
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _isAuthenticated;
@@ -41,6 +42,25 @@ class AuthProvider extends ChangeNotifier {
 
   /// Load stored auth state on app start.
   Future<void> loadAuthState() async {
+    final inFlight = _loadAuthStateFuture;
+    if (inFlight != null) {
+      await inFlight;
+      return;
+    }
+
+    final future = _loadAuthStateInternal();
+    _loadAuthStateFuture = future;
+
+    try {
+      await future;
+    } finally {
+      if (identical(_loadAuthStateFuture, future)) {
+        _loadAuthStateFuture = null;
+      }
+    }
+  }
+
+  Future<void> _loadAuthStateInternal() async {
     _log.info('AuthProvider', 'Loading auth state from storage');
 
     // ── DEV BYPASS ──────────────────────────────────────────────────────────
@@ -80,23 +100,47 @@ class AuthProvider extends ChangeNotifier {
           'role': _user?['role'],
         });
       } catch (e) {
-        _log.warning('AuthProvider', 'Access token invalid, trying refresh', e);
-        // Token expired – try refresh
-        if (_refreshToken != null) {
-          try {
-            final result = await _api.refreshToken(_refreshToken!);
-            await _saveTokens(result);
-            _user = result['user'];
-            _isAuthenticated = true;
-            _log.success('AuthProvider', 'Token refreshed, user authenticated');
-          } catch (e2) {
-            _log.error(
-              'AuthProvider',
-              'Token refresh failed, clearing tokens',
-              e2,
-            );
+        if (_isAuthFailure(e)) {
+          _log.warning(
+            'AuthProvider',
+            'Access token invalid, trying refresh',
+            e,
+          );
+          if (_refreshToken != null) {
+            try {
+              final result = await _api.refreshToken(_refreshToken!);
+              await _saveTokens(result);
+              _user = result['user'];
+              _isAuthenticated = true;
+              _log.success(
+                'AuthProvider',
+                'Token refreshed, user authenticated',
+              );
+            } catch (e2) {
+              if (_isAuthFailure(e2)) {
+                _log.error(
+                  'AuthProvider',
+                  'Token refresh rejected, clearing tokens',
+                  e2,
+                );
+                await _clearTokens();
+              } else {
+                _log.warning(
+                  'AuthProvider',
+                  'Token refresh failed due to network/server issue, keeping tokens',
+                  e2,
+                );
+              }
+            }
+          } else {
             await _clearTokens();
           }
+        } else {
+          _log.warning(
+            'AuthProvider',
+            'Profile verification failed due to network/server issue, keeping tokens',
+            e,
+          );
         }
       }
     } else {
@@ -446,7 +490,14 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _clearTokens() async {
     _accessToken = null;
     _refreshToken = null;
+    _user = null;
+    _isAuthenticated = false;
     await _secureStorage.delete(key: 'accessToken');
     await _secureStorage.delete(key: 'refreshToken');
+  }
+
+  bool _isAuthFailure(Object error) {
+    return error is ApiException &&
+        (error.statusCode == 401 || error.statusCode == 403);
   }
 }
