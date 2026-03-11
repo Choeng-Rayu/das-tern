@@ -1,386 +1,266 @@
 ---
 applyTo: '**'
 ---
-AI AGENT RULES – DASTERN ARCHITECTURE & WORKFLOW
+
+# AI AGENT RULES – DASTERN ARCHITECTURE & WORKFLOW
 
 
-Architecture Overview
-=====================
+# Architecture Overview
 
-System Components:
+## System Components
 
-1. backend (NestJS)
-   - Main business logic
-   - Handles authentication, medication, users, payment processing
-   - Communicates with Bakong Service
-   - Connects to PostgreSQL and Redis (via Docker)
+### 1. backend (NestJS)
+- Main business logic
+- Handles authentication, medication, users, prescription processing, and payment
+- Communicates with Bakong Service
+- Communicates with OCR service and AI LLM service
+- Connects to PostgreSQL and Redis (via Docker)
 
-2. bakong_service (Separate VPS)
-   - Handles Bakong payment integration
-   - Receives encrypted payload from backend
-   - Generates QR code via Bakong API
-   - Receives payment notification from Bakong
-   - Sends payment success callback to main backend
-   - Does NOT connect to the main PostgreSQL/Redis Docker
-   - Stores only minimal payment-related data
+### 2. bakong_service (Separate VPS)
+- Handles Bakong payment integration
+- Receives encrypted payload from backend
+- Generates QR code via Bakong API
+- Receives payment notification from Bakong
+- Sends payment success callback to main backend
+- Does **NOT** connect to the main PostgreSQL/Redis Docker
+- Stores only minimal payment-related data
 
-3. frontend: das_tern_mcp (Flutter)
-   - Mobile application
-   - Implement flutter must support english and khmer language so please check the /home/rayu/das-tern/das_tern_mcp/lib/l10n folder for the existing localization files and follow the pattern for adding new strings.
-   - Communicates only with backend (NOT directly with bakong_service)
-   - **Code Quality Rule**: Always run `flutter analyze` and fix ALL issues until ZERO issues before testing. After implementation, test to find new issues and fix them.
-   - **Widget Design Principle**: All widgets must be designed for scalability and reusability. Create base widgets with maximum configurability, then specialized widgets that extend or compose them.
-   - **Widget Thinking**: Before implementation, analyze existing widgets, plan parameters for all use cases, and ensure theme integration.
+### 3. OCR Service
+- Responsible for scanning and extracting text from prescription images
+- Receives image from backend
+- Processes OCR extraction
+- Returns structured OCR result to backend
+- Does **NOT** directly communicate with the frontend
 
-4. Database
-   - PostgreSQL (Docker only)
-   - Redis (Docker only)
-   - Docker is used ONLY for Postgres and Redis
+### 4. AI LLM Service
+- Responsible for improving or interpreting OCR results
+- Receives OCR output from backend
+- Analyzes medication names, dosage, and prescription structure
+- Returns refined or structured prescription data
+- If the AI service fails or does not respond, backend must fallback to OCR result
 
+### 5. frontend: das_tern_mcp (Flutter)
+- Mobile application
+- Communicates **only with backend**
+- NEVER communicates directly with OCR, AI LLM, or Bakong services
+- Must support **English and Khmer**
 
-System Flow
-===========
+Localization rules:
+- Check existing localization files in  
+`/home/rayu/das-tern/das_tern_mcp/lib/l10n`
+- Follow the same pattern when adding new strings
 
-Payment Flow:
+Flutter quality rules:
+- Always run `flutter analyze`
+- Fix ALL issues until **ZERO issues**
+- Only test when analysis is clean
 
-1. Flutter app sends payment request to backend (NestJS).
-2. Backend encrypts payload and sends request to bakong_service.
-3. bakong_service calls Bakong API and generates QR code.
-4. bakong_service returns QR code response to backend.
-5. Backend sends QR code to Flutter app.
-6. User pays via Bakong.
-7. Bakong sends payment notification to bakong_service.
-8. bakong_service validates and notifies backend.
-9. Backend updates payment status in PostgreSQL.
-10. Backend confirms successful payment to frontend.
+Widget rules:
+- Widgets must be scalable and reusable
+- Build base widgets with configurable parameters
+- Specialized widgets must extend or compose base widgets
+- Always integrate with theme and localization
 
-Important:
-- Flutter NEVER talks directly to bakong_service.
-- bakong_service NEVER connects to main database Docker.
-- Only backend updates main database.
-
-
-Agent Execution Rules
-=====================
-
-1. Sub-Agent Task Delegation
-----------------------------
-
-AI SUB-AGENT TASK RULES
+### 6. Database
+- PostgreSQL (Docker only)
+- Redis (Docker only)
+- Docker is used **ONLY** for PostgreSQL and Redis
 
 
-Core Principle
-==============
+# System Flow
 
-Sub-agents handle SMALL, ATOMIC, SINGLE tasks only.
+## Payment Flow
 
-Never assign a full feature.
-Never mix backend and frontend in one sub-agent.
-Never give unclear objectives.
+1. Flutter app sends payment request to backend (NestJS)
+2. Backend encrypts payload and sends request to `bakong_service`
+3. bakong_service calls Bakong API and generates QR code
+4. bakong_service returns QR code to backend
+5. Backend sends QR code to Flutter
+6. User pays via Bakong
+7. Bakong sends payment notification to `bakong_service`
+8. bakong_service validates payment
+9. bakong_service sends payment confirmation to backend
+10. Backend updates payment status in PostgreSQL
+11. Backend confirms payment success to frontend
 
-
-Task Size Rule
-==============
-
-BAD:
-- Implement create medication feature
-- Implement payment system
-
-GOOD:
-Backend:
-- Create Medication entity
-- Create CreateMedication DTO
-- Add POST /medications endpoint
-- Implement service logic
-- Write migration
-
-Frontend:
-- Create MedicationForm screen
-- Add form validation
-- Connect API call
-- Handle success/error state
-
-Integration:
-- Verify request matches DTO
-- Test API response
-- Confirm database record created
+Important rules:
+- Flutter NEVER talks to bakong_service
+- bakong_service NEVER connects to main database
+- Only backend updates database
 
 
-Delegation Rule
-===============
+# Prescription OCR & AI Flow
 
-For every task, the main agent must define:
+1. User scans prescription in Flutter
+2. Flutter uploads image to backend
+3. Backend sends image to **OCR Service**
+4. OCR Service extracts prescription text
+5. OCR result is returned to backend
+6. Backend sends OCR result to **AI LLM Service**
+7. AI analyzes and improves the prescription structure
+
+### AI Response Handling Rule
+
+If AI responds successfully:
+- Backend uses **AI improved result**
+- Backend sends refined prescription to frontend
+
+If AI fails or does not respond:
+- Backend MUST fallback to **original OCR result**
+- Backend sends OCR result directly to frontend
+- The system must continue working without blocking the user
+
+**AI service failure must NEVER break the prescription flow.**
+
+Frontend must always receive a result:
+- AI enhanced result OR
+- Raw OCR result
+
+
+# Agent Execution Rules
+
+
+# 1. Sub-Agent Task Delegation
+
+## Core Principle
+Sub-agents handle **small atomic tasks only**.
+
+Never assign:
+- Full feature implementation
+- Backend + frontend in the same task
+- Large or unclear tasks
+
+## Task Size Rule
+
+Bad tasks:
+- Implement prescription feature
+- Implement medication system
+
+Good tasks:
+
+Backend tasks
+- Create Prescription entity
+- Create CreatePrescription DTO
+- Implement POST /prescriptions endpoint
+- Add OCR integration service
+- Add AI service client
+
+Frontend tasks
+- Create ScanPrescription screen
+- Implement image upload
+- Display OCR result
+- Display AI improved result
+
+Integration tasks
+- Verify OCR response structure
+- Verify AI fallback logic
+- Verify API response to Flutter
+
+## Delegation Rule
+
+Each sub-agent must have:
 
 - Task type (Backend / Frontend / Integration / Database)
-- Exact objective
+- Clear objective
 - Expected output
-- Simple verification step
+- Verification step
 
-One sub-agent = One responsibility.
-
-
-Execution Rule
-==============
-
-- Do not modify unrelated modules.
-- Do not assume other tasks are correct.
-- If task feels big → split it again.
-- If dependency exists → complete dependency first.
+One sub-agent = one responsibility.
 
 
-Golden Rule
-===========
+# 2. Frontend UI Validation Rule
 
-If a task cannot be completed in isolation,
-it is too big and must be divided.
-
-
-2. Frontend UI Validation Rule
--------------------------------
-
-When implementing or modifying Flutter UI:
+When implementing Flutter UI:
 
 - MUST use sub-agent with MCP server
-- MUST check Figma design before implementing
-- UI must match Figma structure, spacing, naming, and components
+- MUST check Figma design
+- UI must match spacing, layout, and components from Figma
 
 
-3. Flutter Code Quality & Testing Rule
---------------------------------------
+# 3. Flutter Code Quality Rule
 
-**CRITICAL**: When implementing Flutter code:
+Before testing:
 
-**A. Pre-Testing Analysis:**
-- MUST run `flutter analyze` before ANY testing
-- MUST fix ALL issues until ZERO issues remain
-- NO testing is allowed with analysis issues present
+All issues MUST be fixed until **0 issues remain**.
 
-**B. Implementation Testing Cycle:**
-1. **Implement Feature**: Write the required code
-2. **Run Analysis**: Execute `flutter analyze`
-3. **Fix Issues**: Address ALL analysis issues
-4. **Verify Zero Issues**: Confirm `flutter analyze` shows 0 issues
-5. **Test Implementation**: Run tests to verify functionality
-6. **Find New Issues**: Testing may reveal new issues
-7. **Fix New Issues**: Address issues found during testing
-8. **Repeat Analysis**: Run `flutter analyze` again after fixes
-9. **Final Verification**: Ensure ZERO issues before completion
+Testing workflow:
 
-**C. Required Commands:**
-```bash
-# Before testing - MUST have 0 issues
-flutter analyze
+1. Implement feature
+2. Run `flutter analyze`
+3. Fix issues
+4. Confirm 0 issues
+5. Run tests
+6. Fix issues discovered during testing
+7. Run analysis again
+8. Confirm 0 issues before completion
 
-# After fixing issues - verify 0 issues
-flutter analyze --no-fatal-infos
-
-# Test implementation
-flutter test
-```
-
-**D. Prohibited Actions:**
-- ❌ Never test with existing `flutter analyze` issues
-- ❌ Never skip analysis after implementation
-- ❌ Never consider implementation complete with analysis issues
-- ❌ Never ignore issues found during testing
-
-**E. Acceptance Criteria:**
-- [ ] `flutter analyze` shows 0 issues before testing
-- [ ] All tests pass after implementation
-- [ ] `flutter analyze` shows 0 issues after testing fixes
-- [ ] No new analysis issues introduced
+Never test with existing analyzer issues.
 
 
-4. Widget Scalability & Reusability Rule
------------------------------------------
-
-When implementing Flutter widgets:
-
-**A. Widget Design Principles:**
-- Every widget MUST be designed for scalability and reusability
-- Base widgets should be generic and configurable through parameters
-- Specialized widgets should extend or compose base widgets
-- Avoid creating one-off widgets for unique use cases
-
-**B. Button Widget Example Pattern:**
-```
-// Base button widget - highly configurable
-class BaseButton extends StatelessWidget {
-  final String text;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final ButtonStyle? style;
-  final Widget? icon;
-  final EdgeInsets? padding;
-  // ... other configurable parameters
-  
-  // Use this base widget for all buttons
-}
-
-// Specialized buttons extend or compose base widget
-class PrimaryButton extends BaseButton {
-  // Custom styling for primary actions
-}
-
-class SecondaryButton extends BaseButton {
-  // Custom styling for secondary actions
-}
-
-class IconButton extends BaseButton {
-  // Button with icon only
-}
-```
-
-**C. Widget Implementation Requirements:**
-1. **Parameter Analysis**: Before creating a widget, analyze all potential use cases and required parameters
-2. **Default Values**: Provide sensible defaults for all optional parameters
-3. **Composition Over Inheritance**: Prefer composition for complex widgets
-4. **Theme Integration**: Use app theme colors, spacing, and typography consistently
-5. **Localization Support**: All text must support English and Khmer via AppLocalizations
-6. **Accessibility**: Include semantic labels and proper contrast ratios
-7. **Scalability First**: Design widgets to handle future requirements without breaking changes
-
-**D. Widget File Organization:**
-- Common reusable widgets → `/lib/ui/widgets/common_widgets.dart`
-- Feature-specific widgets → `/lib/ui/widgets/[feature_name]_widgets.dart`
-- Complex widget compositions → Separate files with clear naming
-- Widget examples and patterns → `/home/rayu/das-tern/.github/instructions/widget_scalability_example.md`
-
-
-5. Todo List Requirement
--------------------------
+# 4. Todo List Requirement
 
 Before implementing any feature:
 
-- MUST create a detailed step-by-step Todo list
-- Todo list must separate:
-  - Backend tasks
-  - Frontend tasks
-  - Integration tasks
-  - Testing tasks
+Agent MUST create a detailed Todo list including:
 
-No direct implementation without structured Todo plan.
+- Backend tasks
+- Frontend tasks
+- Integration tasks
+- Testing tasks
+
+Implementation must follow the Todo plan.
 
 
-6. Sensitive Value Change Rule
--------------------------------
+# 5. Sensitive Value Change Rule
 
-When changing any sensitive value:
+Sensitive values include:
 
-Examples:
-- .env variables
+- `.env` variables
 - Database schema
-- API route paths
+- API routes
 - DTO fields
 - Encryption keys
 - Redis keys
 - Payment status enums
 
-The agent MUST:
+When these change, the agent must update:
 
-- Identify all related fields affected
-- Update backend logic
-- Update frontend API calls if needed
-- Update validation DTOs
-- Update database schema if required
-- Update documentation
-- Restart required services (if environment/database related)
+- Backend logic
+- DTO validation
+- Database schema
+- Frontend API calls
+- Documentation
 
-No partial update is allowed.
+No partial updates allowed.
 
 
-7. Backend Responsibility Rule
-------------------------------
+# 6. Backend Responsibility Rule
 
-- Only backend (NestJS) can modify PostgreSQL.
-- bakong_service must NOT modify main database.
-- Payment confirmation must always be verified by backend before updating status.
-
-
-8. Separation of Concerns Rule
-------------------------------
-
-- Flutter → UI only
-- Backend → Business logic + Database
-- bakong_service → Payment gateway communication only
-- Docker → Only PostgreSQL and Redis
+- Only backend (NestJS) modifies PostgreSQL
+- bakong_service cannot modify main database
+- OCR and AI services also cannot modify the main database
 
 
-9. Widget Thinking Before Implementation Rule
----------------------------------------------
+# 7. Separation of Concerns
 
-**CRITICAL**: Before implementing any Flutter widget:
+System responsibility separation:
 
-**A. Analysis Phase:**
-1. **Existing Widget Check**: Search for existing widgets that can be reused or extended
-2. **Use Case Analysis**: Document all potential use cases for the widget
-3. **Parameter Planning**: List all configurable parameters needed for scalability
-4. **Theme Integration**: Plan how the widget will use app theme (colors, spacing, typography)
-
-**B. Implementation Strategy:**
-1. **Base Widget First**: Always create a base widget with maximum configurability
-2. **Specialized Widgets**: Create specialized widgets that extend or compose the base widget
-3. **Default Values**: Provide sensible defaults for all optional parameters
-4. **Localization Ready**: Ensure all text parameters support AppLocalizations
-
-**C. Example Workflow for Button Implementation:**
-```
-1. Analyze: Need buttons for primary actions, secondary actions, icon buttons, loading states
-2. Design: Create BaseButton with text, onPressed, isLoading, style, icon, padding, etc.
-3. Implement: 
-   - BaseButton (highly configurable)
-   - PrimaryButton extends BaseButton with primary styling
-   - SecondaryButton extends BaseButton with secondary styling
-   - IconButton composes BaseButton with icon-only configuration
-4. Test: Verify all button types work with different states and configurations
-```
-
-**D. Prohibited Actions:**
-- ❌ Never create one-off widgets for unique use cases
-- ❌ Never hardcode values that should be parameters
-- ❌ Never skip localization support for text
-- ❌ Never implement without checking existing widget patterns
+Flutter → UI only  
+Backend → Business logic + database  
+OCR service → text extraction only  
+AI LLM service → prescription interpretation only  
+bakong_service → payment gateway communication  
+Docker → PostgreSQL and Redis only
 
 
-Expected Agent Behavior
-=======================
+# Expected Agent Behavior
 
-- Always think in system architecture, not isolated features.
-- Never break separation of concerns.
-- Always validate backend ↔ frontend contract.
-- Always validate encryption and payment flow consistency.
-- Always work with structured delegation and clear task boundaries.
-- **Always think about widget reusability and scalability before implementation.**
+The agent must:
 
-End of Rules
-============
-
-**E. Agent Thinking Process for Widget Implementation:**
-
-When the agent is asked to implement frontend widgets, it MUST follow this thinking process:
-
-1. **Analysis Phase (Think First):**
-   - "What are all the possible use cases for this widget?"
-   - "What existing widgets can I reuse or extend?"
-   - "What parameters will make this widget scalable for future needs?"
-   - "How will this widget integrate with the app theme and localization?"
-
-2. **Design Phase (Plan Before Code):**
-   - Create a base widget with maximum configurability
-   - Plan specialized widgets for common use cases
-   - Design theme integration points
-   - Plan localization support
-
-3. **Implementation Phase (Code with Scalability):**
-   - Implement base widget first
-   - Create specialized widgets that extend/compose the base
-   - Add comprehensive parameter documentation
-   - Include usage examples
-
-4. **Validation Phase (Verify Scalability):**
-   - Test with different parameter combinations
-   - Verify theme integration works
-   - Check localization support
-   - Ensure accessibility compliance
-
-**CRITICAL RULE:** The agent must THINK about widget scalability BEFORE writing any code. No implementation should start without completing the analysis and design phases.
+- Think in system architecture, not isolated code
+- Maintain strict separation of services
+- Validate backend ↔ frontend API contracts
+- Ensure payment flow reliability
+- Ensure OCR → AI fallback reliability
+- Always delegate tasks into small sub-agent tasks
+- Maintain scalable Flutter widget design

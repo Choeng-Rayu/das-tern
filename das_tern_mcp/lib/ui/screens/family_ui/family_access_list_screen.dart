@@ -64,10 +64,7 @@ class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _CaregiversList(),
-          _PatientsMonitoredList(),
-        ],
+        children: [_CaregiversList(), _PatientsMonitoredList()],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -144,7 +141,8 @@ class _PatientsMonitoredList extends StatelessWidget {
             itemCount: provider.connectedPatients.length,
             itemBuilder: (context, index) {
               return _PatientCard(
-                  connection: provider.connectedPatients[index]);
+                connection: provider.connectedPatients[index],
+              );
             },
           ),
         );
@@ -169,17 +167,17 @@ Widget _buildEmptyState(
           const SizedBox(height: AppSpacing.md),
           Text(
             title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -198,8 +196,7 @@ class _CaregiverCard extends StatelessWidget {
     // For a patient, the caregiver is the initiator
     final caregiver = connection.initiator ?? {};
     final name =
-        '${caregiver['firstName'] ?? ''} ${caregiver['lastName'] ?? ''}'
-            .trim();
+        '${caregiver['firstName'] ?? ''} ${caregiver['lastName'] ?? ''}'.trim();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -209,8 +206,11 @@ class _CaregiverCard extends StatelessWidget {
             CircleAvatar(
               radius: 22,
               backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
-              child: const Icon(Icons.person,
-                  color: AppColors.primaryBlue, size: 22),
+              child: const Icon(
+                Icons.person,
+                color: AppColors.primaryBlue,
+                size: 22,
+              ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
@@ -220,16 +220,17 @@ class _CaregiverCard extends StatelessWidget {
                   Text(
                     name.isEmpty ? l10n.caregiverLabel : name,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     Connection.permissionLevelToDisplay(
-                        connection.permissionLevel),
+                      connection.permissionLevel,
+                    ),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -255,8 +256,8 @@ class _PatientCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     // For a caregiver, the patient is the recipient
     final patient = connection.recipient ?? {};
-    final name =
-        '${patient['firstName'] ?? ''} ${patient['lastName'] ?? ''}'.trim();
+    final name = '${patient['firstName'] ?? ''} ${patient['lastName'] ?? ''}'
+        .trim();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -274,10 +275,12 @@ class _PatientCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 22,
-              backgroundColor:
-                  AppColors.successGreen.withValues(alpha: 0.1),
-              child: const Icon(Icons.favorite,
-                  color: AppColors.successGreen, size: 22),
+              backgroundColor: AppColors.successGreen.withValues(alpha: 0.1),
+              child: const Icon(
+                Icons.favorite,
+                color: AppColors.successGreen,
+                size: 22,
+              ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
@@ -287,16 +290,17 @@ class _PatientCard extends StatelessWidget {
                   Text(
                     name.isEmpty ? l10n.patient : name,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     Connection.permissionLevelToDisplay(
-                        connection.permissionLevel),
+                      connection.permissionLevel,
+                    ),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -325,16 +329,17 @@ class _AlertsToggle extends StatelessWidget {
     return Switch(
       value: connection.alertsEnabled,
       onChanged: (value) {
-        context
-            .read<ConnectionProvider>()
-            .toggleAlerts(connection.id, value);
+        context.read<ConnectionProvider>().toggleAlerts(connection.id, value);
       },
       activeTrackColor: AppColors.primaryBlue,
     );
   }
 }
 
-Widget _buildConnectionStatusBadge(BuildContext context, Connection connection) {
+Widget _buildConnectionStatusBadge(
+  BuildContext context,
+  Connection connection,
+) {
   final l10n = AppLocalizations.of(context)!;
   final Color color;
   final String label;

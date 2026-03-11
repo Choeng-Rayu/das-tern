@@ -73,12 +73,17 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
             Material(
               color: isDark ? const Color(0xFF2A1F1F) : const Color(0xFFFFF3F3),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.wifi_off,
-                        size: 18, color: Color(0xFFE53935)),
+                    const Icon(
+                      Icons.wifi_off,
+                      size: 18,
+                      color: Color(0xFFE53935),
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -106,7 +111,8 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
                         style: const TextStyle(fontSize: 13),
                       ),
                       style: TextButton.styleFrom(
-                          foregroundColor: const Color(0xFFE53935)),
+                        foregroundColor: const Color(0xFFE53935),
+                      ),
                     ),
                   ],
                 ),
@@ -161,38 +167,34 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
 
                     const SizedBox(height: AppSpacing.xl),
 
-                  // Section title
-                  Text(
-                    l10n.choosePlan,
-                    style:
-                        Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-
-                  // Plan cards – from backend or static fallback
-                  if (hasPlans)
-                    ...sub.plans!.map(
-                      (plan) => _PlanCard(
-                        plan: plan,
-                        isCurrentPlan: sub.currentTier == plan['id'],
-                        isRecommended: plan['isRecommended'] ?? false,
-                        isDark: isDark,
-                        onUpgrade: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/subscription/payment-method',
-                            arguments: {
-                              'planType': plan['id'],
-                              'plan': plan,
-                            },
-                          );
-                        },
+                    // Section title
+                    Text(
+                      l10n.choosePlan,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                    )
-                  else
-                    ..._defaultPlanCards(sub.currentTier, isDark),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+
+                    // Plan cards – from backend or static fallback
+                    if (hasPlans)
+                      ...sub.plans!.map(
+                        (plan) => _PlanCard(
+                          plan: plan,
+                          isCurrentPlan: sub.currentTier == plan['id'],
+                          isRecommended: plan['isRecommended'] ?? false,
+                          isDark: isDark,
+                          onUpgrade: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/subscription/payment-method',
+                              arguments: {'planType': plan['id'], 'plan': plan},
+                            );
+                          },
+                        ),
+                      )
+                    else
+                      ..._defaultPlanCards(sub.currentTier, isDark),
 
                     const SizedBox(height: AppSpacing.xl),
 
@@ -287,7 +289,10 @@ class _CurrentPlanCard extends StatelessWidget {
         gradient: LinearGradient(
           colors: isPremium
               ? [const Color(0xFF6B4AA3), const Color(0xFF2D5BFF)]
-              : [AppColors.primaryBlue, AppColors.primaryBlue.withValues(alpha: 0.7)],
+              : [
+                  AppColors.primaryBlue,
+                  AppColors.primaryBlue.withValues(alpha: 0.7),
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -295,7 +300,7 @@ class _CurrentPlanCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: (isPremium ? const Color(0xFF667EEA) : AppColors.primaryBlue)
-                .withOpacity(0.4),
+                .withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 8),
             spreadRadius: 0,
@@ -315,9 +320,9 @@ class _CurrentPlanCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 l10n.currentPlan,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white70,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
               ),
             ],
           ),
@@ -325,17 +330,17 @@ class _CurrentPlanCard extends StatelessWidget {
           Text(
             tier.replaceAll('_', ' '),
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           if (!isPremium) ...[
             const SizedBox(height: 4),
             Text(
               l10n.upgradeToUnlock,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white60,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.white60),
             ),
           ],
         ],
@@ -386,13 +391,16 @@ class _PlanCard extends StatelessWidget {
               children: [
                 Text(
                   plan['name'] ?? '',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 if (isCurrentPlan)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.successGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -415,30 +423,41 @@ class _PlanCard extends StatelessWidget {
                   TextSpan(
                     text: '\$$price',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryBlue,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryBlue,
+                    ),
                   ),
                   TextSpan(
                     text: ' /${plan['period'] ?? 'month'}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            ...features.map((f) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check_circle, color: AppColors.successGreen, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(f, style: Theme.of(context).textTheme.bodyMedium)),
-                    ],
-                  ),
-                )),
+            ...features.map(
+              (f) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      color: AppColors.successGreen,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        f,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
             if (!isCurrentPlan)
               SizedBox(
@@ -455,7 +474,10 @@ class _PlanCard extends StatelessWidget {
                   ),
                   child: Text(
                     l10n.upgradeNow,
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -487,73 +509,62 @@ class _FeatureComparisonSection extends StatelessWidget {
       children: [
         Text(
           l10n.featureComparison,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppSpacing.sm),
         Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Column(
             children: [
-              _comparisonRow(context, l10n.prescriptionsFeature, '1', '\u221e', '\u221e'),
+              _comparisonRow(
+                context,
+                l10n.prescriptionsFeature,
+                '1',
+                '\u221e',
+                '\u221e',
+              ),
               const Divider(height: 1),
-              _comparisonRow(context, l10n.medicinesFeature, '3', '\u221e', '\u221e'),
+              _comparisonRow(
+                context,
+                l10n.medicinesFeature,
+                '3',
+                '\u221e',
+                '\u221e',
+              ),
               const Divider(height: 1),
               _comparisonRow(context, l10n.familyLinksFeature, '1', '5', '10'),
               const Divider(height: 1),
-              _comparisonRow(context, l10n.storageFeature, '5 GB', '20 GB', '20 GB'),
+              _comparisonRow(
+                context,
+                l10n.storageFeature,
+                '5 GB',
+                '20 GB',
+                '20 GB',
+              ),
               const Divider(height: 1),
-              _comparisonRow(context, l10n.prioritySupportFeature, '\u2715', '\u2713', '\u2713'),
+              _comparisonRow(
+                context,
+                l10n.prioritySupportFeature,
+                '\u2715',
+                '\u2713',
+                '\u2713',
+              ),
               const Divider(height: 1),
-              _comparisonRow(context, l10n.familyPlanFeature, '\u2715', '\u2715', '\u2713 (3)'),
+              _comparisonRow(
+                context,
+                l10n.familyPlanFeature,
+                '\u2715',
+                '\u2715',
+                '\u2713 (3)',
+              ),
             ],
           ),
         ),
       ],
-    );
-  }
-
-  Widget _tierHeaderBadge(BuildContext context, String text, bool isActive) {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: isActive
-              ? AppColors.primaryBlue.withOpacity(0.15)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: isActive
-              ? Border.all(color: AppColors.primaryBlue, width: 1.5)
-              : null,
-        ),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
-            letterSpacing: 0.8,
-            color: isActive ? AppColors.primaryBlue : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _divider() {
-    return Container(
-      height: 1,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.black.withOpacity(0),
-            Colors.black.withOpacity(0.08),
-            Colors.black.withOpacity(0),
-          ],
-        ),
-      ),
     );
   }
 
@@ -572,9 +583,9 @@ class _FeatureComparisonSection extends StatelessWidget {
             flex: 3,
             child: Text(
               feature,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
           ),
           Expanded(
@@ -611,10 +622,7 @@ class _ClaimTrialButton extends StatelessWidget {
   final bool isDark;
   final VoidCallback? onClaimed;
 
-  const _ClaimTrialButton({
-    required this.isDark,
-    this.onClaimed,
-  });
+  const _ClaimTrialButton({required this.isDark, this.onClaimed});
 
   @override
   Widget build(BuildContext context) {
@@ -622,9 +630,9 @@ class _ClaimTrialButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primaryBlue.withOpacity(isDark ? 0.2 : 0.1),
+        color: AppColors.primaryBlue.withValues(alpha: isDark ? 0.2 : 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -679,12 +687,12 @@ class _TrialBanner extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.primaryBlue.withOpacity(isDark ? 0.35 : 0.2),
-            AppColors.primaryBlue.withOpacity(isDark ? 0.15 : 0.05),
+            AppColors.primaryBlue.withValues(alpha: isDark ? 0.35 : 0.2),
+            AppColors.primaryBlue.withValues(alpha: isDark ? 0.15 : 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

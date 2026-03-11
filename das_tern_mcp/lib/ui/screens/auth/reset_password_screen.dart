@@ -20,8 +20,10 @@ class ResetPasswordScreen extends StatefulWidget {
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  final List<TextEditingController> _otpControllers =
-      List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> _otpControllers = List.generate(
+    4,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _otpFocusNodes = List.generate(4, (_) => FocusNode());
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -71,9 +73,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final otp = _otpCode;
     if (otp.length < 4) {
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.otpFillError)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.otpFillError)));
       return;
     }
 
@@ -202,8 +204,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.circular(AppRadius.lg),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.lg,
+                                ),
                                 borderSide: BorderSide.none,
                               ),
                             ),
@@ -253,11 +256,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               : Icons.visibility,
                           color: AppColors.textSecondary,
                         ),
-                        onPressed: () =>
-                            setState(() => _obscurePassword = !_obscurePassword),
+                        onPressed: () => setState(
+                          () => _obscurePassword = !_obscurePassword,
+                        ),
                       ),
                       validator: (v) {
-                        if (v == null || v.isEmpty) return l10n.newPasswordEmpty;
+                        if (v == null || v.isEmpty) {
+                          return l10n.newPasswordEmpty;
+                        }
                         if (v.length < 6) return l10n.passwordTooShort;
                         return null;
                       },
@@ -308,8 +314,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     AuthLinkRow(
                       message: '',
                       actionText: l10n.backToLogin,
-                      onTap: () => Navigator.of(context)
-                          .pushNamedAndRemoveUntil('/login', (_) => false),
+                      onTap: () => Navigator.of(
+                        context,
+                      ).pushNamedAndRemoveUntil('/login', (_) => false),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                   ],

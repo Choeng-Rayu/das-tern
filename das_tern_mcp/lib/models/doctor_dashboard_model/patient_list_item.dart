@@ -51,8 +51,7 @@ class PatientListItem {
       gender: json['gender'],
       phoneNumber: json['phoneNumber'] ?? '',
       activePrescriptions: json['activePrescriptions'] ?? 0,
-      adherencePercentage:
-          (json['adherencePercentage'] ?? 0).toDouble(),
+      adherencePercentage: (json['adherencePercentage'] ?? 0).toDouble(),
       adherenceLevel: json['adherenceLevel'] ?? 'GREEN',
       lastActivity: json['lastActivity'] != null
           ? DateTime.tryParse(json['lastActivity'].toString())
@@ -62,17 +61,17 @@ class PatientListItem {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'firstName': firstName,
-        'lastName': lastName,
-        'fullName': fullName,
-        'age': age,
-        'gender': gender,
-        'phoneNumber': phoneNumber,
-        'activePrescriptions': activePrescriptions,
-        'adherencePercentage': adherencePercentage,
-        'adherenceLevel': adherenceLevel,
-        'lastActivity': lastActivity?.toIso8601String(),
-        'connectionId': connectionId,
-      };
+    'id': id,
+    'firstName': firstName,
+    'lastName': lastName,
+    'fullName': fullName,
+    'age': age,
+    'gender': gender,
+    'phoneNumber': phoneNumber,
+    'activePrescriptions': activePrescriptions,
+    'adherencePercentage': adherencePercentage,
+    'adherenceLevel': adherenceLevel,
+    'lastActivity': lastActivity?.toIso8601String(),
+    'connectionId': connectionId,
+  };
 }

@@ -102,19 +102,36 @@ class _PatientScanTabState extends State<PatientScanTab> {
 
       if (!mounted) return;
 
+      // Log OCR result metadata for debugging
+      debugPrint('[Scan] OCR result keys: ${result.keys.toList()}');
+      debugPrint('[Scan] ai_status: ${result['ai_status']}');
+      final data = result['data'] as Map<String, dynamic>? ?? {};
+      final prescription = data['prescription'] as Map<String, dynamic>? ?? {};
+      final medications =
+          prescription['medications'] as Map<String, dynamic>? ?? {};
+      final items = medications['items'] as List<dynamic>? ?? [];
+      debugPrint('[Scan] Medications found: ${items.length}');
+
       setState(() => _isProcessing = false);
 
       // Navigate to editable preview screen with extracted data
       Navigator.pushNamed(context, AppRouter.ocrPreview, arguments: result);
     } catch (e) {
       if (!mounted) return;
+      final isTimeout =
+          e.toString().toLowerCase().contains('timed out') ||
+          e.toString().contains('504');
       setState(() {
         _isProcessing = false;
-        _errorMessage = e.toString();
+        _errorMessage = isTimeout
+            ? 'Scan timed out — the server took too long. Please check your connection and try again.'
+            : e.toString();
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.scanFailed),
+          content: Text(
+            isTimeout ? 'Scan timed out. Please try again.' : l10n.scanFailed,
+          ),
           backgroundColor: AppColors.alertRed,
         ),
       );
@@ -156,15 +173,13 @@ class _PatientScanTabState extends State<PatientScanTab> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.primaryBlue.withOpacity(0.1),
+                color: AppColors.primaryBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -177,7 +192,10 @@ class _PatientScanTabState extends State<PatientScanTab> {
             Expanded(
               child: Text(
                 l10n.premiumFeature,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -186,23 +204,29 @@ class _PatientScanTabState extends State<PatientScanTab> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              l10n.ocrPremiumMessage,
-              style: const TextStyle(fontSize: 14),
-            ),
+            Text(l10n.ocrPremiumMessage, style: const TextStyle(fontSize: 14)),
             const SizedBox(height: 16),
-            _buildFeatureItem(Icons.document_scanner_outlined, l10n.unlimitedOcrScanning),
+            _buildFeatureItem(
+              Icons.document_scanner_outlined,
+              l10n.unlimitedOcrScanning,
+            ),
             const SizedBox(height: 12),
-            _buildFeatureItem(Icons.family_restroom_outlined, l10n.connectFamilyMembers),
+            _buildFeatureItem(
+              Icons.family_restroom_outlined,
+              l10n.connectFamilyMembers,
+            ),
             const SizedBox(height: 12),
             _buildFeatureItem(Icons.storage_outlined, l10n.twentyGBStorage),
             const SizedBox(height: 12),
-            _buildFeatureItem(Icons.support_agent_outlined, l10n.prioritySupport),
+            _buildFeatureItem(
+              Icons.support_agent_outlined,
+              l10n.prioritySupport,
+            ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primaryBlue.withOpacity(0.1),
+                color: AppColors.primaryBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -264,14 +288,13 @@ class _PatientScanTabState extends State<PatientScanTab> {
   Widget _buildFeatureItem(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: AppColors.primaryBlue.withOpacity(0.7)),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 13),
-          ),
+        Icon(
+          icon,
+          size: 18,
+          color: AppColors.primaryBlue.withValues(alpha: 0.7),
         ),
+        const SizedBox(width: 8),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 13))),
       ],
     );
   }
@@ -280,90 +303,92 @@ class _PatientScanTabState extends State<PatientScanTab> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      appBar: AppHeader(title: l10n.scanPrescriptionTitle),
-      body: Center(
-        child: _isProcessing
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: AppSpacing.lg),
-                  Text(
-                    l10n.scanProcessing,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                ],
-              )
-            : SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: AppSpacing.xl),
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryBlue.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: const Icon(
-                        Icons.document_scanner_outlined,
-                        size: 64,
-                        color: AppColors.primaryBlue,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      l10n.scanPrescriptionTitle,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.xl,
-                      ),
-                      child: Text(
-                        l10n.scanPrescriptionDescription,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    ElevatedButton.icon(
-                      onPressed: _showSourcePicker,
-                      icon: const Icon(Icons.camera_alt),
-                      label: Text(l10n.openScanner),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.xl,
-                          vertical: AppSpacing.md,
-                        ),
-                      ),
-                    ),
-                    if (_errorMessage != null) ...[
+    return Column(
+      children: [
+        AppHeader(title: l10n.scanPrescriptionTitle),
+        Expanded(
+          child: Center(
+            child: _isProcessing
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(),
                       const SizedBox(height: AppSpacing.lg),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.xl,
-                        ),
-                        child: Text(
-                          _errorMessage!,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: AppColors.alertRed),
-                          textAlign: TextAlign.center,
-                        ),
+                      Text(
+                        l10n.scanProcessing,
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ],
-                    const SizedBox(height: AppSpacing.xl),
-                  ],
-                ),
-              ),
-      ),
+                  )
+                : SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: AppSpacing.xl),
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: const Icon(
+                            Icons.document_scanner_outlined,
+                            size: 64,
+                            color: AppColors.primaryBlue,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        Text(
+                          l10n.scanPrescriptionTitle,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.xl,
+                          ),
+                          child: Text(
+                            l10n.scanPrescriptionDescription,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.textSecondary),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        ElevatedButton.icon(
+                          onPressed: _showSourcePicker,
+                          icon: const Icon(Icons.camera_alt),
+                          label: Text(l10n.openScanner),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.xl,
+                              vertical: AppSpacing.md,
+                            ),
+                          ),
+                        ),
+                        if (_errorMessage != null) ...[
+                          const SizedBox(height: AppSpacing.lg),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.xl,
+                            ),
+                            child: Text(
+                              _errorMessage!,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.alertRed),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.xl),
+                      ],
+                    ),
+                  ),
+          ),
+        ),
+      ],
     );
   }
 }

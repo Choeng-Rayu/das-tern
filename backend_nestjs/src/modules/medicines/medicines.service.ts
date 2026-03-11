@@ -37,7 +37,10 @@ export class MedicinesService {
     const morningDosage = dto.scheduleTimes?.some(st => st.timePeriod === 'MORNING')
       ? { amount: `${dto.dosageAmount}${dto.dosageUnit}`, beforeMeal: dto.beforeMeal || false }
       : null;
-    const daytimeDosage = dto.scheduleTimes?.some(st => st.timePeriod === 'DAYTIME')
+    const afternoonDosage = dto.scheduleTimes?.some(st => st.timePeriod === 'AFTERNOON')
+      ? { amount: `${dto.dosageAmount}${dto.dosageUnit}`, beforeMeal: dto.beforeMeal || false }
+      : null;
+    const eveningDosage = dto.scheduleTimes?.some(st => st.timePeriod === 'EVENING')
       ? { amount: `${dto.dosageAmount}${dto.dosageUnit}`, beforeMeal: dto.beforeMeal || false }
       : null;
     const nightDosage = dto.scheduleTimes?.some(st => st.timePeriod === 'NIGHT')
@@ -45,7 +48,7 @@ export class MedicinesService {
       : null;
 
     // Default: if no schedule times specified, set to morning
-    const hasTimes = morningDosage || daytimeDosage || nightDosage;
+    const hasTimes = morningDosage || afternoonDosage || eveningDosage || nightDosage;
 
     const medicine = await this.prisma.medication.create({
       data: {
@@ -60,7 +63,8 @@ export class MedicinesService {
         additionalNote: dto.additionalNote,
         createdBy: userId,
         morningDosage: hasTimes ? (morningDosage || Prisma.DbNull) : { amount: `${dto.dosageAmount}${dto.dosageUnit}`, beforeMeal: dto.beforeMeal || false },
-        daytimeDosage: hasTimes ? (daytimeDosage || Prisma.DbNull) : Prisma.DbNull,
+        afternoonDosage: hasTimes ? (afternoonDosage || Prisma.DbNull) : Prisma.DbNull,
+        eveningDosage: hasTimes ? (eveningDosage || Prisma.DbNull) : Prisma.DbNull,
         nightDosage: hasTimes ? (nightDosage || Prisma.DbNull) : Prisma.DbNull,
         imageUrl: dto.imageUrl,
         frequency: dto.frequency || '1ដង/១ថ្ងៃ',
@@ -214,7 +218,9 @@ export class MedicinesService {
       const bm = dto.beforeMeal ?? medicine.beforeMeal;
       updateData.morningDosage = dto.scheduleTimes.some((st: any) => st.timePeriod === 'MORNING')
         ? { amount: dosageStr, beforeMeal: bm } : Prisma.DbNull;
-      updateData.daytimeDosage = dto.scheduleTimes.some((st: any) => st.timePeriod === 'DAYTIME')
+      updateData.afternoonDosage = dto.scheduleTimes.some((st: any) => st.timePeriod === 'AFTERNOON')
+        ? { amount: dosageStr, beforeMeal: bm } : Prisma.DbNull;
+      updateData.eveningDosage = dto.scheduleTimes.some((st: any) => st.timePeriod === 'EVENING')
         ? { amount: dosageStr, beforeMeal: bm } : Prisma.DbNull;
       updateData.nightDosage = dto.scheduleTimes.some((st: any) => st.timePeriod === 'NIGHT')
         ? { amount: dosageStr, beforeMeal: bm } : Prisma.DbNull;
@@ -367,6 +373,8 @@ export class MedicinesService {
     const morningMin = mealPref?.morningMeal ? parseInt(mealPref.morningMeal.split(':')[1]) : 0;
     const afternoonHour = mealPref?.afternoonMeal ? parseInt(mealPref.afternoonMeal.split(':')[0]) : 12;
     const afternoonMin = mealPref?.afternoonMeal ? parseInt(mealPref.afternoonMeal.split(':')[1]) : 0;
+    const eveningHour = mealPref?.eveningMeal ? parseInt(mealPref.eveningMeal.split(':')[0]) : 17;
+    const eveningMin = mealPref?.eveningMeal ? parseInt(mealPref.eveningMeal.split(':')[1]) : 0;
     const nightHour = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[0]) : 20;
     const nightMin = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[1]) : 0;
 
@@ -382,13 +390,13 @@ export class MedicinesService {
           medicationId,
           patientId,
           scheduledTime,
-          timePeriod: 'DAYTIME' as const,
+          timePeriod: 'MORNING' as const,
           status: 'DUE' as const,
           reminderTime: `${String(morningHour).padStart(2, '0')}:${String(morningMin).padStart(2, '0')}`,
         });
       }
 
-      if (medication.daytimeDosage) {
+      if (medication.afternoonDosage) {
         const scheduledTime = new Date(date);
         scheduledTime.setHours(afternoonHour, afternoonMin, 0, 0);
         events.push({
@@ -396,9 +404,23 @@ export class MedicinesService {
           medicationId,
           patientId,
           scheduledTime,
-          timePeriod: 'DAYTIME' as const,
+          timePeriod: 'AFTERNOON' as const,
           status: 'DUE' as const,
           reminderTime: `${String(afternoonHour).padStart(2, '0')}:${String(afternoonMin).padStart(2, '0')}`,
+        });
+      }
+
+      if (medication.eveningDosage) {
+        const scheduledTime = new Date(date);
+        scheduledTime.setHours(eveningHour, eveningMin, 0, 0);
+        events.push({
+          prescriptionId,
+          medicationId,
+          patientId,
+          scheduledTime,
+          timePeriod: 'EVENING' as const,
+          status: 'DUE' as const,
+          reminderTime: `${String(eveningHour).padStart(2, '0')}:${String(eveningMin).padStart(2, '0')}`,
         });
       }
 

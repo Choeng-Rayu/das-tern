@@ -331,6 +331,27 @@ class LLMClient:
             if resp.status_code == 200:
                 try:
                     body = resp.json()
+
+                    # OpenRouter sometimes returns HTTP 200 with an error object
+                    # instead of the standard choices array (e.g. model unavailable,
+                    # rate limited, or provider errors).
+                    if "error" in body:
+                        err_obj = body["error"]
+                        err_msg = err_obj.get("message", str(err_obj)) if isinstance(err_obj, dict) else str(err_obj)
+                        err_code = err_obj.get("code", "unknown") if isinstance(err_obj, dict) else "unknown"
+                        logger.error(
+                            f"[OPENROUTER] HTTP 200 but error in body — "
+                            f"code={err_code}, message={err_msg}"
+                        )
+                        return None
+
+                    if "choices" not in body or not body["choices"]:
+                        logger.error(
+                            f"[OPENROUTER] HTTP 200 but no 'choices' in response. "
+                            f"Keys: {list(body.keys())}. Body: {resp.text[:400]}"
+                        )
+                        return None
+
                     content = body["choices"][0]["message"]["content"].strip()
                     usage = body.get("usage", {})
                     logger.info(

@@ -142,7 +142,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                       width: 200,
                       height: 200,
                       child: ElevatedButton(
-                        onPressed: provider.isLoading ? null : _triggerEmergency,
+                        onPressed: provider.isLoading
+                            ? null
+                            : _triggerEmergency,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.alertRed,
                           foregroundColor: Colors.white,
@@ -150,7 +152,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                           elevation: 8,
                         ),
                         child: provider.isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
                             : const Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [

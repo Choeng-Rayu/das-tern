@@ -44,19 +44,27 @@ class Connection {
   factory Connection.fromJson(Map<String, dynamic> json) {
     return Connection(
       id: json['id']?.toString() ?? '',
-      initiatorId: json['initiatorId']?.toString() ?? json['doctorId']?.toString() ?? '',
-      recipientId: json['recipientId']?.toString() ?? json['patientId']?.toString() ?? '',
+      initiatorId:
+          json['initiatorId']?.toString() ?? json['doctorId']?.toString() ?? '',
+      recipientId:
+          json['recipientId']?.toString() ??
+          json['patientId']?.toString() ??
+          '',
       status: connectionStatusFromString(json['status'] ?? 'PENDING'),
-      permissionLevel:
-          _permissionFromString(json['permissionLevel'] ?? 'NOT_ALLOWED'),
-      metadata: json['metadata'] is Map ? Map<String, dynamic>.from(json['metadata']) : null,
+      permissionLevel: _permissionFromString(
+        json['permissionLevel'] ?? 'NOT_ALLOWED',
+      ),
+      metadata: json['metadata'] is Map
+          ? Map<String, dynamic>.from(json['metadata'])
+          : null,
       acceptedAt: json['acceptedAt'] != null
           ? DateTime.parse(json['acceptedAt'])
           : null,
       revokedAt: json['revokedAt'] != null
           ? DateTime.parse(json['revokedAt'])
           : null,
-      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+      createdAt:
+          DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
           DateTime.now(),
       initiator: json['initiator'] ?? json['doctor'],
       recipient: json['recipient'] ?? json['patient'],
@@ -64,19 +72,19 @@ class Connection {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'initiatorId': initiatorId,
-        'recipientId': recipientId,
-        'status': status.name.toUpperCase(),
-        'permissionLevel': permissionLevel.name.toUpperCase(),
-      };
+    'id': id,
+    'initiatorId': initiatorId,
+    'recipientId': recipientId,
+    'status': status.name.toUpperCase(),
+    'permissionLevel': permissionLevel.name.toUpperCase(),
+  };
 
   /// Get the other user's name from the connection (relative to userId).
   String getOtherUserName(String userId) {
     final other = initiatorId == userId ? recipient : initiator;
     if (other == null) return 'Unknown';
-    return other['fullName'] ?? 
-           '${other['firstName'] ?? ''} ${other['lastName'] ?? ''}'.trim();
+    return other['fullName'] ??
+        '${other['firstName'] ?? ''} ${other['lastName'] ?? ''}'.trim();
   }
 
   /// Get the other user's role from the connection.
