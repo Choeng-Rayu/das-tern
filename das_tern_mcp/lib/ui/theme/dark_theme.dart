@@ -32,7 +32,7 @@ final ThemeData darkTheme = ThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: AppColors.darkPrimary,
       foregroundColor: AppColors.white,
-      minimumSize: const Size(double.infinity, 48),
+      minimumSize: const Size(0, 48),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
@@ -42,7 +42,7 @@ final ThemeData darkTheme = ThemeData(
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
       foregroundColor: AppColors.darkPrimary,
-      minimumSize: const Size(double.infinity, 48),
+      minimumSize: const Size(0, 48),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),

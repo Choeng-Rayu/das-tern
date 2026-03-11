@@ -24,17 +24,23 @@ class PrescriptionSuccessScreen extends StatelessWidget {
   Map<String, List<Map<String, dynamic>>> _computeSchedule() {
     final schedule = <String, List<Map<String, dynamic>>>{};
     for (final med in medicines) {
-      final morning = med['morning'] == true ||
-          (med['scheduleTimes'] as List?)
-                  ?.any((t) => t['timePeriod'] == 'morning') ==
+      final morning =
+          med['morning'] == true ||
+          (med['scheduleTimes'] as List?)?.any(
+                (t) => t['timePeriod'] == 'morning',
+              ) ==
               true;
-      final daytime = med['daytime'] == true ||
-          (med['scheduleTimes'] as List?)
-                  ?.any((t) => t['timePeriod'] == 'daytime') ==
+      final daytime =
+          med['daytime'] == true ||
+          (med['scheduleTimes'] as List?)?.any(
+                (t) => t['timePeriod'] == 'daytime',
+              ) ==
               true;
-      final night = med['night'] == true ||
-          (med['scheduleTimes'] as List?)
-                  ?.any((t) => t['timePeriod'] == 'night') ==
+      final night =
+          med['night'] == true ||
+          (med['scheduleTimes'] as List?)?.any(
+                (t) => t['timePeriod'] == 'night',
+              ) ==
               true;
 
       if (morning) schedule.putIfAbsent('morning', () => []).add(med);
@@ -164,10 +170,7 @@ class _CelebrationHeader extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           l10n.yourScheduleReady,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 14,
-          ),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           textAlign: TextAlign.center,
         ),
       ],
@@ -216,8 +219,11 @@ class _SummaryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.description_outlined,
-                  color: Colors.white70, size: 18),
+              const Icon(
+                Icons.description_outlined,
+                color: Colors.white70,
+                size: 18,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -240,12 +246,16 @@ class _SummaryCard extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                const Icon(Icons.medical_services_outlined,
-                    color: Colors.white54, size: 14),
+                const Icon(
+                  Icons.medical_services_outlined,
+                  color: Colors.white54,
+                  size: 14,
+                ),
                 const SizedBox(width: 4),
-                Text(doctorName!,
-                    style:
-                        const TextStyle(color: Colors.white70, fontSize: 13)),
+                Text(
+                  doctorName!,
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                ),
               ],
             ),
           ],
@@ -259,8 +269,11 @@ class _SummaryCard extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.medication_outlined,
-                    color: Colors.white70, size: 14),
+                const Icon(
+                  Icons.medication_outlined,
+                  color: Colors.white70,
+                  size: 14,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   l10n.medicinesCount(medicineCount),
@@ -291,8 +304,11 @@ class _ScheduleHeader extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.schedule_outlined,
-                color: AppColors.primaryBlue, size: 20),
+            const Icon(
+              Icons.schedule_outlined,
+              color: AppColors.primaryBlue,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Text(
               l10n.schedulePreview,
@@ -313,7 +329,6 @@ class _ScheduleHeader extends StatelessWidget {
     );
   }
 }
-
 
 /// Color-coded time-slot card listing medicines for that period.
 class _ScheduleSlotCard extends StatelessWidget {
