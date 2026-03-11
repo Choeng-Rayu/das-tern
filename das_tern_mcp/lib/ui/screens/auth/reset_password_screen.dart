@@ -261,8 +261,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         ),
                       ),
                       validator: (v) {
-                        if (v == null || v.isEmpty)
+                        if (v == null || v.isEmpty) {
                           return l10n.newPasswordEmpty;
+                        }
                         if (v.length < 6) return l10n.passwordTooShort;
                         return null;
                       },
