@@ -133,7 +133,8 @@ class PrescriptionMedication {
   final String medicineNameKhmer;
   final String? imageUrl;
   final Map<String, dynamic>? morningDosage;
-  final Map<String, dynamic>? daytimeDosage;
+  final Map<String, dynamic>? afternoonDosage;
+  final Map<String, dynamic>? eveningDosage;
   final Map<String, dynamic>? nightDosage;
   final String frequency;
   final String timing;
@@ -157,7 +158,8 @@ class PrescriptionMedication {
     required this.medicineNameKhmer,
     this.imageUrl,
     this.morningDosage,
-    this.daytimeDosage,
+    this.afternoonDosage,
+    this.eveningDosage,
     this.nightDosage,
     required this.frequency,
     required this.timing,
@@ -187,10 +189,15 @@ class PrescriptionMedication {
           : (json['morningDosage'] is num
                 ? {'amount': (json['morningDosage'] as num).toDouble()}
                 : null),
-      daytimeDosage: json['daytimeDosage'] is Map
-          ? Map<String, dynamic>.from(json['daytimeDosage'])
-          : (json['daytimeDosage'] is num
-                ? {'amount': (json['daytimeDosage'] as num).toDouble()}
+      afternoonDosage: json['afternoonDosage'] is Map
+          ? Map<String, dynamic>.from(json['afternoonDosage'])
+          : (json['afternoonDosage'] is num
+                ? {'amount': (json['afternoonDosage'] as num).toDouble()}
+                : null),
+      eveningDosage: json['eveningDosage'] is Map
+          ? Map<String, dynamic>.from(json['eveningDosage'])
+          : (json['eveningDosage'] is num
+                ? {'amount': (json['eveningDosage'] as num).toDouble()}
                 : null),
       nightDosage: json['nightDosage'] is Map
           ? Map<String, dynamic>.from(json['nightDosage'])
@@ -226,7 +233,8 @@ class PrescriptionMedication {
       'medicineNameKhmer': medicineNameKhmer,
       if (imageUrl != null) 'imageUrl': imageUrl,
       if (morningDosage != null) 'morningDosage': morningDosage,
-      if (daytimeDosage != null) 'daytimeDosage': daytimeDosage,
+      if (afternoonDosage != null) 'afternoonDosage': afternoonDosage,
+      if (eveningDosage != null) 'eveningDosage': eveningDosage,
       if (nightDosage != null) 'nightDosage': nightDosage,
       'frequency': frequency,
       'timing': timing,

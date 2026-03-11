@@ -118,7 +118,7 @@ void main() {
         'medicationId': 'med-002',
         'patientId': 'patient-002',
         'scheduledTime': '2025-01-15T12:00:00.000Z',
-        'timePeriod': 'DAYTIME',
+        'timePeriod': 'AFTERNOON',
         'reminderTime': '2025-01-15T11:50:00.000Z',
         'status': 'DUE',
         'takenAt': null,
@@ -150,7 +150,7 @@ void main() {
       };
 
       expect(row['prescription_id'], 'rx-002');
-      expect(row['time_period'], 'DAYTIME');
+      expect(row['time_period'], 'AFTERNOON');
       expect(row['was_offline'], 0);
       expect(row['synced'], 1);
     });

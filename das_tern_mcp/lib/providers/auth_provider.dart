@@ -18,7 +18,10 @@ class AuthProvider extends ChangeNotifier {
   );
   late final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
+    // serverClientId: the web OAuth 2.0 client ID — used by backend to validate the idToken
     serverClientId: dotenv.env['GOOGLE_CLIENT_ID'],
+    // clientId: iOS-only native client ID — required for Google Sign-In on iPhone/iPad
+    clientId: dotenv.env['GOOGLE_IOS_CLIENT_ID'],
   );
 
   bool _isLoading = false;

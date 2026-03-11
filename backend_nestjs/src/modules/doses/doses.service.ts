@@ -37,9 +37,14 @@ export class DosesService {
             doses: doses.filter(d => d.timePeriod === 'MORNING').map(d => this.formatDose(d)),
           },
           {
-            period: 'DAYTIME',
+            period: 'AFTERNOON',
             color: '#2D5BFF',
-            doses: doses.filter(d => d.timePeriod === 'DAYTIME').map(d => this.formatDose(d)),
+            doses: doses.filter(d => d.timePeriod === 'AFTERNOON').map(d => this.formatDose(d)),
+          },
+          {
+            period: 'EVENING',
+            color: '#FF7043',
+            doses: doses.filter(d => d.timePeriod === 'EVENING').map(d => this.formatDose(d)),
           },
           {
             period: 'NIGHT',
@@ -143,7 +148,7 @@ export class DosesService {
       id: dose.id,
       medicationName: dose.medication.medicineName,
       medicationNameKhmer: dose.medication.medicineNameKhmer,
-      dosage: dose.medication.morningDosage || dose.medication.daytimeDosage || dose.medication.nightDosage,
+      dosage: dose.medication.morningDosage || dose.medication.afternoonDosage || dose.medication.eveningDosage || dose.medication.nightDosage,
       scheduledTime: dose.scheduledTime,
       timePeriod: dose.timePeriod,
       prescriptionId: dose.prescriptionId,
@@ -289,10 +294,16 @@ export class DosesService {
     if (period === 'MORNING') {
       return medication.morningDosage;
     }
+    if (period === 'AFTERNOON') {
+      return medication.afternoonDosage;
+    }
+    if (period === 'EVENING') {
+      return medication.eveningDosage;
+    }
     if (period === 'NIGHT') {
       return medication.nightDosage;
     }
-    return medication.daytimeDosage || medication.morningDosage;
+    return medication.morningDosage;
   }
 
   private async calculateDailyProgress(patientId: string, date: Date): Promise<number> {
