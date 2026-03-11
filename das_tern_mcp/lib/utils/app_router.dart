@@ -93,7 +93,8 @@ class AppRouter {
   static const String patientCreateBatch = '/patient/create-batch';
   static const String batchDetail = '/patient/batch-detail';
   static const String ocrPreview = '/patient/ocr-preview';
-  static const String patientPrescriptionWizard = '/patient/prescription-wizard';
+  static const String patientPrescriptionWizard =
+      '/patient/prescription-wizard';
   static const String prescriptionSuccess = '/patient/prescription-success';
 
   // Health monitoring routes
@@ -210,8 +211,8 @@ class AppRouter {
             prescriptionName: args['prescriptionName'] as String? ?? '',
             dateRange: args['dateRange'] as String? ?? '',
             doctorName: args['doctorName'] as String?,
-            medicines: (args['medicines'] as List?)
-                    ?.cast<Map<String, dynamic>>() ??
+            medicines:
+                (args['medicines'] as List?)?.cast<Map<String, dynamic>>() ??
                 [],
           ),
         );

@@ -75,10 +75,10 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
     final doctorUserId =
         context.read<AuthProvider>().user?['id'] as String? ?? '';
     final isInitiator = patient.initiatorId == doctorUserId;
-    final patientData =
-        isInitiator ? patient.recipient : patient.initiator;
-    final patientActualId =
-        isInitiator ? patient.recipientId : patient.initiatorId;
+    final patientData = isInitiator ? patient.recipient : patient.initiator;
+    final patientActualId = isInitiator
+        ? patient.recipientId
+        : patient.initiatorId;
 
     final patientName = patientData != null
         ? '${patientData['firstName'] ?? ''} ${patientData['lastName'] ?? ''}'
@@ -249,8 +249,7 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
               final doctorUserId =
                   context.read<AuthProvider>().user?['id'] as String? ?? '';
               final isInitiator = conn.initiatorId == doctorUserId;
-              final patientData =
-                  isInitiator ? conn.recipient : conn.initiator;
+              final patientData = isInitiator ? conn.recipient : conn.initiator;
               final name = patientData != null
                   ? '${patientData['firstName'] ?? ''} ${patientData['lastName'] ?? ''}'
                         .trim()

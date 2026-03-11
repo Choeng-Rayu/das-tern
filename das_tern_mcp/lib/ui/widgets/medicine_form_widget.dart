@@ -70,7 +70,9 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
           ? MedicineUnit.fromJson(d['unit'])
           : MedicineUnit.tablet;
       _morning = d['morningDosage'] != null ? true : (d['morning'] ?? true);
-      _afternoon = d['afternoonDosage'] != null ? true : (d['afternoon'] ?? false);
+      _afternoon = d['afternoonDosage'] != null
+          ? true
+          : (d['afternoon'] ?? false);
       _evening = d['eveningDosage'] != null ? true : (d['evening'] ?? false);
       _night = d['nightDosage'] != null ? true : (d['night'] ?? false);
       _beforeMeal = d['beforeMeal'] ?? false;

@@ -601,7 +601,11 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             onPressed: () {
               Navigator.pop(dialogContext);
               auth.logout();
-              Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (_) => false,
+              );
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.statusError),
             child: Text(l10n.logout),
