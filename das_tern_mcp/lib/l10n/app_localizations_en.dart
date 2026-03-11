@@ -48,20 +48,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeMessage => 'Your medication reminder companion';
 
   @override
-  String get welcomeScreenSubtitle =>
-      'Your health, our priority. Manage your medical records with ease.';
-
-  @override
-  String get emergencyAccess => 'Emergency Access';
-
-  @override
-  String get doctorStep1PersonalInfo => 'Step 1 of 2 - Personal Information';
-
-  @override
-  String get doctorStep2ProfessionalInfo =>
-      'Step 2 of 2 - Professional & Security';
-
-  @override
   String get selectRoleTitle => 'I am...';
 
   @override
@@ -1083,10 +1069,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openInBankingApp => 'Open in Banking App';
 
   @override
-  String get bankAmountPreFilled =>
-      'Bakong: payment pre-loaded · Others: open app and scan the QR above';
-
-  @override
   String get orOpenDirectly => 'Or tap to open your banking app directly:';
 
   @override
@@ -1166,7 +1148,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get familyPlanFeature => 'Family Plan';
 
   @override
-  String get premiumTrialActive => '🎉 Premium Trial Active';
+  String get premiumTrialActive => 'Premium Trial Active';
 
   @override
   String get dayRemaining => 'day remaining';
@@ -1840,11 +1822,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String shareQrAndCodeMessage(String token) {
-    return 'Here is my DasTern connection code: $token\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.';
-  }
-
-  @override
   String get generateNewCode => 'Generate New Code';
 
   @override
@@ -2434,54 +2411,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectionRequestSent => 'Connection request sent';
 
   @override
-  String get connectionRequestFailed => 'Connection request failed';
+  String get connectionRequestFailed => 'Failed to send connection request';
 
   @override
   String get sendConnectionRequest => 'Send Connection Request';
 
   @override
-  String get connectionApproved => 'Connection approved';
+  String get doctorStep1PersonalInfo => 'Step 1 of 2 - Personal Info';
 
   @override
-  String get connectionRejected => 'Connection rejected';
+  String get doctorStep2ProfessionalInfo => 'Step 2 of 2 - Professional Info';
 
   @override
-  String get approveConnection => 'Approve Connection';
+  String get welcomeScreenSubtitle => 'Your trusted medication companion';
 
   @override
-  String get rejectConnection => 'Reject Connection';
+  String get emergencyAccess => 'Emergency Access';
+
+  @override
+  String get connectionApproved => 'Connection Approved';
+
+  @override
+  String get connectionRejected => 'Connection Rejected';
 
   @override
   String get removeNotification => 'Remove Notification';
 
   @override
-  String get removeNotificationConfirm => 'Remove notification?';
+  String get removeNotificationConfirm =>
+      'Are you sure you want to remove this notification?';
 
   @override
   String get remove => 'Remove';
 
   @override
-  String get prescriptionConfirmed => 'Prescription confirmed';
-
-  @override
-  String get prescriptionRejected => 'Prescription rejected';
-
-  @override
-  String get rejectPrescription => 'Reject Prescription';
-
-  @override
-  String get confirmPrescription => 'Confirm Prescription';
-
-  @override
-  String prescriptionFromDoctor(String doctor) {
-    return 'Prescription from $doctor';
+  String shareQrAndCodeMessage(String token) {
+    return 'DasTern QR & Connection Code: $token';
   }
 
   @override
-  String get pendingPrescriptions => 'Pending Prescriptions';
+  String get rejectConnection => 'Reject';
 
   @override
-  String get missedDoseBanner => 'You missed a dose';
+  String get approveConnection => 'Approve';
 
   @override
   String get ocrOutpatient => 'Outpatient';
@@ -2496,48 +2468,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrFacilityClinic => 'Clinic';
 
   @override
-  String get ocrNotAvailable => 'Not available';
-
-  @override
-  String get ocrNeedsReviewYes => 'Yes, needs review';
+  String get ocrNeedsReviewYes => 'Needs Review';
 
   @override
   String get ocrAiEnhanced => 'AI Enhanced';
 
   @override
-  String get ocrAiUnavailable => 'OCR Only';
+  String get ocrAiUnavailable => 'AI Unavailable';
 
   @override
-  String get ocrPatientInfoSection => 'Patient Information';
+  String get bankAmountPreFilled => 'Amount pre-filled by bank';
 
   @override
-  String get ocrPatientId => 'Patient ID';
-
-  @override
-  String get ocrPatientName => 'Patient Name';
-
-  @override
-  String get ocrPatientKhmerName => 'Patient Name (Khmer)';
-
-  @override
-  String get ocrPatientAge => 'Age';
-
-  @override
-  String ocrYearsOld(String age) {
-    return '$age years old';
+  String ocrConfidencePercent(String percent) {
+    return '$percent% confidence';
   }
 
   @override
-  String get ocrPatientGender => 'Gender';
+  String get ocrNotAvailable => 'N/A';
 
   @override
-  String get ocrPrescriberSection => 'Prescriber Information';
+  String get ocrScanInfoSection => 'Scan Information';
+
+  @override
+  String get ocrPrescriberSection => 'Prescriber';
 
   @override
   String get ocrPrescriberName => 'Prescriber Name';
 
   @override
-  String get ocrFacilitySection => 'Facility Information';
+  String get ocrFacilitySection => 'Facility';
 
   @override
   String get ocrFacilityName => 'Facility Name';
@@ -2546,21 +2506,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrFacilityType => 'Facility Type';
 
   @override
-  String get ocrClinicalSection => 'Clinical Information';
+  String get ocrValidated => 'Validated';
 
   @override
-  String get ocrDiagnosis => 'Diagnosis';
-
-  @override
-  String get ocrMetadataSection => 'Metadata';
+  String get ocrMetadataSection => 'OCR Metadata';
 
   @override
   String get ocrConfidenceScore => 'Confidence Score';
-
-  @override
-  String ocrConfidencePercent(String confidence) {
-    return '$confidence%';
-  }
 
   @override
   String get ocrEngine => 'OCR Engine';
@@ -2583,181 +2535,221 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrValidationStatus => 'Validation Status';
 
   @override
-  String get ocrValidated => 'Validated';
+  String get rejectPrescription => 'Reject Prescription';
 
   @override
-  String get ocrScanInfoSection => 'Scan Information';
+  String get prescriptionRejected => 'Prescription rejected';
 
   @override
-  String get timeAgoJustNow => 'now';
+  String get prescriptionConfirmed => 'Prescription confirmed';
 
   @override
-  String timeAgoMinutes(int count) {
-    return '${count}m';
+  String get confirmPrescription => 'Confirm Prescription';
+
+  @override
+  String get pendingPrescriptions => 'Pending Prescriptions';
+
+  @override
+  String prescriptionFromDoctor(String name) {
+    return 'From Dr. $name';
   }
 
   @override
-  String timeAgoHours(int count) {
-    return '${count}h';
-  }
+  String get missedDoseBanner => 'You have missed doses today';
 
   @override
-  String timeAgoDays(int count) {
-    return '${count}d';
-  }
+  String get familyFunctionTitle => 'Family & Caregivers';
 
   @override
-  String get wizardStepPrescription => 'Prescription';
+  String get familyIntroDescription =>
+      'Connect with family members or caregivers to share your medication schedule.';
 
   @override
-  String get wizardStepMedicines => 'Medicines';
+  String get familyBulletSender =>
+      'Share your schedule with family to let them monitor your medication adherence';
 
   @override
-  String get wizardStepReview => 'Review';
+  String get familyBulletReceiver =>
+      'Scan a patient\'s QR code to start monitoring their medication intake';
 
   @override
-  String get prescriptionName => 'Prescription Name';
+  String get familyIntroFooter =>
+      'Connections require patient approval and can be revoked at any time.';
 
   @override
-  String get prescriptionNameHint => 'e.g., Flu Treatment';
+  String get startUsing => 'Get Started';
 
   @override
-  String get doctorNameOptional => 'Doctor Name (optional)';
+  String get learnMore => 'Learn More';
 
   @override
-  String get doctorNameHint => 'e.g., Dr. Sok';
+  String get appearance => 'Appearance';
 
   @override
-  String get startDate => 'Start Date';
+  String get notificationPermission => 'Notification Permission';
 
   @override
-  String get endDate => 'End Date';
+  String get permissionGranted => 'Granted';
 
   @override
-  String get addMedicineStep => 'Add Medicine';
+  String get rateAppSubtitle => 'Share your feedback on the App Store';
 
   @override
-  String get medicineNameLabel => 'Medicine Name';
+  String get contactSupportSubtitle => 'Get help from our support team';
 
   @override
-  String get dosageLabel => 'Dosage';
+  String get termsOfServiceSubtitle => 'Read our terms and conditions';
 
   @override
-  String get dosageHint => 'e.g., 500 mg';
+  String get privacyPolicySubtitle => 'Read our privacy policy';
 
   @override
-  String get quantityPerTime => 'Quantity per time';
+  String get tosLastUpdated => 'Last updated: March 1, 2026';
 
   @override
-  String get quantityHint => 'e.g., 1 tablet';
+  String get tosContactFooter => 'Questions? Contact us at support@dastern.com';
 
   @override
-  String get frequencyLabel => 'Frequency';
+  String get tosSection1Title => 'Acceptance of Terms';
 
   @override
-  String get oncePerDay => 'Once per day';
+  String get tosSection1Body =>
+      'By accessing or using DasTern, you agree to be bound by these Terms of Service. If you do not agree, please do not use the application.';
 
   @override
-  String get twicePerDay => 'Twice per day';
+  String get tosSection2Title => 'Description of Service';
 
   @override
-  String get threeTimesPerDay => 'Three times per day';
+  String get tosSection2Body =>
+      'DasTern provides medication management, health tracking, and telemedicine features. The app is not a substitute for professional medical advice, diagnosis, or treatment.';
 
   @override
-  String get customFrequency => 'Custom';
+  String get tosSection3Title => 'User Accounts';
 
   @override
-  String get takingTime => 'Taking Time';
+  String get tosSection3Body =>
+      'You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate information and to update it as necessary.';
 
   @override
-  String get mealInstruction => 'Meal Instruction';
+  String get tosSection4Title => 'Subscription & Payments';
 
   @override
-  String get beforeMealOption => 'Before Meal';
+  String get tosSection4Body =>
+      'Some features require a paid subscription. Prices are displayed before purchase. You may cancel at any time; access continues until the end of the billing period.';
 
   @override
-  String get afterMealOption => 'After Meal';
+  String get tosSection5Title => 'Intellectual Property';
 
   @override
-  String get anytimeOption => 'Anytime';
+  String get tosSection5Body =>
+      'All content, trademarks, and software in DasTern are owned by or licensed to us. You may not copy, modify, or distribute any part without written permission.';
 
   @override
-  String get addAnotherMedicine => '+ Add Another Medicine';
+  String get tosSection6Title => 'Limitation of Liability';
 
   @override
-  String get finishPrescription => 'Finish Prescription';
+  String get tosSection6Body =>
+      'DasTern is provided as is. We are not liable for any indirect, incidental, or consequential damages arising from your use of the service.';
 
   @override
-  String get reviewPrescription => 'Review Prescription';
+  String get tosSection7Title => 'Changes to Terms';
 
   @override
-  String get schedulePreview => 'Schedule Preview';
+  String get tosSection7Body =>
+      'We reserve the right to modify these terms at any time. Continued use after changes constitutes acceptance of the new terms.';
 
   @override
-  String get prescriptionCreatedSuccess => 'Prescription created successfully!';
+  String get ppLastUpdated => 'Last updated: March 1, 2026';
 
   @override
-  String get yourScheduleReady => 'Your medication schedule is ready';
+  String get ppHighlightBanner =>
+      'Your health data is encrypted end-to-end and never shared without consent.';
 
   @override
-  String get viewSchedule => 'View Schedule';
+  String get ppContactFooter => 'Questions? Contact privacy@dastern.com';
 
   @override
-  String get goHome => 'Go Home';
+  String get ppSection1Title => 'Information We Collect';
 
   @override
-  String get noMedicinesAdded => 'No medicines added yet';
+  String get ppSection1Body =>
+      'We collect personal information you provide (name, email, health data) and automatically gathered data (device info, usage patterns) to deliver and improve our services.';
 
   @override
-  String get addYourFirstMedicine =>
-      'Tap the button below to add your first medicine';
+  String get ppSection2Title => 'Health Data';
 
   @override
-  String medicinesCount(int count) {
-    return '$count medicine(s) added';
-  }
+  String get ppSection2Body =>
+      'Medication records, vital signs, and health notes are stored securely. We never sell health data. Access is limited to you, your care team (with your consent), and authorized staff for service delivery.';
 
   @override
-  String get createPrescriptionManual => 'Create Prescription';
+  String get ppSection3Title => 'Data Security';
 
   @override
-  String get createPrescriptionManualDesc =>
-      'Add medicines manually and set schedule';
+  String get ppSection3Body =>
+      'We use industry-standard encryption (AES-256) for data at rest and TLS 1.3 for data in transit. Access is controlled with role-based permissions and regular security audits.';
 
   @override
-  String get scanPrescriptionOption => 'Scan Prescription';
+  String get ppSection4Title => 'Sharing & Disclosure';
 
   @override
-  String get scanPrescriptionOptionDesc =>
-      'Scan doctor\'s prescription with camera';
+  String get ppSection4Body =>
+      'We do not sell your data. We may share information with healthcare providers you authorize, service partners under strict agreements, or when required by law.';
 
   @override
-  String get quickAddMedicine => 'Quick Add Medicine';
+  String get ppSection5Title => 'Cookies & Analytics';
 
   @override
-  String get quickAddMedicineDesc => 'Add a single medicine quickly';
+  String get ppSection5Body =>
+      'We use minimal analytics to understand app usage and improve features. No third-party advertising trackers are used in DasTern.';
 
   @override
-  String prescriptionDuration(int days) {
-    return '$days days';
-  }
+  String get ppSection6Title => 'Your Rights';
 
   @override
-  String get savePrescription => 'Save Prescription';
+  String get ppSection6Body =>
+      'You can access, correct, export, or delete your personal data at any time from your profile settings. You may also withdraw consent for optional data processing.';
 
   @override
-  String get deleteMedicine => 'Delete Medicine';
+  String get ppSection7Title => 'Policy Changes';
 
   @override
-  String get morningTime => '08:00';
+  String get ppSection7Body =>
+      'We will notify you of significant changes via in-app notification or email. Continued use after changes constitutes acceptance.';
 
   @override
-  String get afternoonTime => '13:00';
+  String get csHowCanWeHelp => 'How can we help?';
 
   @override
-  String get nightTime => '20:00';
+  String get csChooseOption => 'Choose an option below to get in touch';
 
   @override
-  String get scheduleAutoGenerated =>
-      'Schedule auto-generated from your medicines';
+  String get csEmailUs => 'Email Us';
+
+  @override
+  String get csSend => 'Send';
+
+  @override
+  String get csCallUs => 'Call Us';
+
+  @override
+  String get csCall => 'Call';
+
+  @override
+  String get csOfficeHours => 'Office Hours';
+
+  @override
+  String get csOfficeHoursValue => 'Mon – Fri, 8 AM – 6 PM (ICT)';
+
+  @override
+  String get csResponseTime => 'We usually respond within 24 hours.';
+
+  @override
+  String get termsSubtitle => 'Read our terms & conditions';
+
+  @override
+  String get privacySubtitle => 'How we protect your data';
+
+  @override
+  String get helpImprove => 'Help us improve DasTern';
 }

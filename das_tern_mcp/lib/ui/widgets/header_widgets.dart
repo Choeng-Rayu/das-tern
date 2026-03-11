@@ -18,12 +18,12 @@ class PatientHeader extends StatelessWidget {
     super.key,
     this.onNotificationTap,
     this.unreadCount = 0,
-    this.roleLabel = 'Patient',
   });
 
   final VoidCallback? onNotificationTap;
   final int unreadCount;
-  final String roleLabel;
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
   String _greeting(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -35,7 +35,10 @@ class PatientHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<AuthProvider>();
+    final user = context.watch<AuthProvider>().user;
+    final firstName = (user?['firstName'] ?? '') as String;
+    final lastName = (user?['lastName'] ?? '') as String;
+    final fullName = '$firstName $lastName'.trim();
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
@@ -89,24 +92,52 @@ class PatientHeader extends StatelessWidget {
                     ),
                   ),
 
-                  // Bottom: large greeting + user name
-                  Builder(
-                    builder: (context) {
-                      final firstName = (user?['firstName'] ?? '') as String;
-                      final lastName = (user?['lastName'] ?? '') as String;
-                      final fullName = ('$firstName $lastName').trim();
-
-                      return Text(
-                        '${_greeting(context)} ${fullName.isEmpty ? 'Patient' : fullName}!',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 26,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.2,
-                          height: 1.2,
+                  // ── Greeting message ───────────────────────────────────
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _greeting(context),
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Stay on track with your medicine',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
                         ),
-                      );
-                    },
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          roleLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
