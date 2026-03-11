@@ -2510,6 +2510,30 @@ abstract class AppLocalizations {
   /// **'1-month free trial for new users!'**
   String get freeTrialOffer;
 
+  /// No description provided for @claimYourFreeTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Your Free Trial'**
+  String get claimYourFreeTrial;
+
+  /// No description provided for @getOneMonthFreePremiumAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Get 1 month free premium access'**
+  String get getOneMonthFreePremiumAccess;
+
+  /// No description provided for @claimTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Trial'**
+  String get claimTrial;
+
+  /// No description provided for @trialDaysRemainingBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {days} days remaining'**
+  String trialDaysRemainingBanner(int days);
+
   /// No description provided for @yourTrialPeriod.
   ///
   /// In en, this message translates to:
@@ -4981,30 +5005,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scan Information'**
   String get ocrScanInfoSection;
-
-  /// No description provided for @claimYourFreeTrial.
-  ///
-  /// In en, this message translates to:
-  /// **'Claim Your Free Trial'**
-  String get claimYourFreeTrial;
-
-  /// No description provided for @getOneMonthFreePremiumAccess.
-  ///
-  /// In en, this message translates to:
-  /// **'Get 1 month free premium access'**
-  String get getOneMonthFreePremiumAccess;
-
-  /// No description provided for @claimTrial.
-  ///
-  /// In en, this message translates to:
-  /// **'Claim Trial'**
-  String get claimTrial;
-
-  /// No description provided for @trialDaysRemainingBanner.
-  ///
-  /// In en, this message translates to:
-  /// **'You have {days} days remaining'**
-  String trialDaysRemainingBanner(int days);
 
   /// No description provided for @timeAgoJustNow.
   ///
