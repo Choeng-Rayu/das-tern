@@ -34,7 +34,7 @@ export class DosesService {
           {
             period: 'MORNING',
             color: '#FFA726',
-            doses: doses.filter(d => d.timePeriod === 'MORNING').map(d => this.formatDose(d)),
+            doses: doses.filter(d => this.isTimePeriod(d.timePeriod, 'MORNING')).map(d => this.formatDose(d)),
           },
           {
             period: 'AFTERNOON',
@@ -49,7 +49,7 @@ export class DosesService {
           {
             period: 'NIGHT',
             color: '#6B4AA3',
-            doses: doses.filter(d => d.timePeriod === 'NIGHT').map(d => this.formatDose(d)),
+            doses: doses.filter(d => this.isTimePeriod(d.timePeriod, 'NIGHT')).map(d => this.formatDose(d)),
           },
         ],
       };
@@ -290,8 +290,12 @@ export class DosesService {
     return results;
   }
 
+  private isTimePeriod(value: unknown, expected: 'MORNING' | 'DAYTIME' | 'NIGHT'): boolean {
+    return String(value).toUpperCase() === expected;
+  }
+
   private getDosageForTimePeriod(medication: any, period: string): any {
-    if (period === 'MORNING') {
+    if (this.isTimePeriod(period, 'MORNING')) {
       return medication.morningDosage;
     }
     if (period === 'AFTERNOON') {

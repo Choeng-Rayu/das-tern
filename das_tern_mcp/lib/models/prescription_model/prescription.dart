@@ -182,7 +182,7 @@ class PrescriptionMedication {
       prescriptionId: json['prescriptionId'] as String?,
       rowNumber: json['rowNumber'] as int,
       medicineName: json['medicineName'] as String,
-      medicineNameKhmer: json['medicineNameKhmer'] as String,
+      medicineNameKhmer: (json['medicineNameKhmer'] as String?) ?? '',
       imageUrl: json['imageUrl'] as String?,
       morningDosage: json['morningDosage'] is Map
           ? Map<String, dynamic>.from(json['morningDosage'])
@@ -202,10 +202,10 @@ class PrescriptionMedication {
       nightDosage: json['nightDosage'] is Map
           ? Map<String, dynamic>.from(json['nightDosage'])
           : (json['nightDosage'] is num
-                ? {'amount': (json['nightDosage'] as num).toDouble()}
-                : null),
-      frequency: json['frequency'] as String,
-      timing: json['timing'] as String,
+              ? {'amount': (json['nightDosage'] as num).toDouble()}
+              : null),
+      frequency: (json['frequency'] as String?) ?? '',
+      timing: (json['timing'] as String?) ?? '',
       medicationData: json['medication'] is Map
           ? Map<String, dynamic>.from(json['medication'])
           : null,

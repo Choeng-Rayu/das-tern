@@ -65,7 +65,7 @@ export class PrescriptionsService {
           create: dto.medications.map(med => ({
             rowNumber: med.rowNumber,
             medicineName: med.medicineName,
-            medicineNameKhmer: med.medicineNameKhmer,
+            medicineNameKhmer: med.medicineNameKhmer || '',
             medicineType: med.medicineType || 'ORAL',
             unit: med.unit || 'TABLET',
             dosageAmount: med.dosageAmount || 1,

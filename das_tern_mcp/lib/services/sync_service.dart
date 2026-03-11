@@ -72,7 +72,10 @@ class SyncService extends ChangeNotifier {
       }
     });
 
-    await _refreshPendingCount();
+    // Skip database operations on web
+    if (!kIsWeb) {
+      await _refreshPendingCount();
+    }
     notifyListeners();
   }
 
