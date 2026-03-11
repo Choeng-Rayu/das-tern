@@ -12,42 +12,78 @@ class MedicationChoiceScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.addMedicine)),
+      backgroundColor: const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        title: Text(l10n.addMedicine),
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.textPrimary,
+        elevation: 0,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: AppSpacing.xl),
+            const SizedBox(height: AppSpacing.md),
+            // Header icon
+            Center(
+              child: Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(
+                  Icons.medical_services_outlined,
+                  size: 36,
+                  color: AppColors.primaryBlue,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
             Text(
               l10n.chooseCreationMethod,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xl),
 
-            // Single Medicine
+            // Create Prescription (Wizard) — primary option
             _ChoiceCard(
-              icon: Icons.medication_outlined,
-              title: l10n.singleMedicine,
-              description: l10n.singleMedicineDescription,
+              icon: Icons.description_outlined,
+              title: l10n.createPrescriptionManual,
+              description: l10n.createPrescriptionManualDesc,
               color: AppColors.primaryBlue,
+              isPrimary: true,
+              onTap: () => Navigator.pushNamed(
+                context,
+                AppRouter.patientPrescriptionWizard,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Scan Prescription
+            _ChoiceCard(
+              icon: Icons.document_scanner_outlined,
+              title: l10n.scanPrescriptionOption,
+              description: l10n.scanPrescriptionOptionDesc,
+              color: AppColors.successGreen,
               onTap: () =>
                   Navigator.pushNamed(context, AppRouter.patientCreateMedicine),
             ),
             const SizedBox(height: AppSpacing.md),
 
-            // Batch Group
+            // Quick Add (Single Medicine)
             _ChoiceCard(
-              icon: Icons.medication_liquid_outlined,
-              title: l10n.createBatchGroup,
-              description: l10n.batchGroupDescription,
-              color: AppColors.successGreen,
+              icon: Icons.medication_outlined,
+              title: l10n.quickAddMedicine,
+              description: l10n.quickAddMedicineDesc,
+              color: const Color(0xFF7E57C2),
               onTap: () =>
-                  Navigator.pushNamed(context, AppRouter.patientCreateBatch),
+                  Navigator.pushNamed(context, AppRouter.patientCreateMedicine),
             ),
           ],
         ),
@@ -62,6 +98,7 @@ class _ChoiceCard extends StatelessWidget {
   final String description;
   final Color color;
   final VoidCallback onTap;
+  final bool isPrimary;
 
   const _ChoiceCard({
     required this.icon,
@@ -69,15 +106,19 @@ class _ChoiceCard extends StatelessWidget {
     required this.description,
     required this.color,
     required this.onTap,
+    this.isPrimary = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      elevation: isPrimary ? 3 : 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: color.withValues(alpha: 0.3)),
+        side: BorderSide(
+          color: isPrimary ? color : color.withValues(alpha: 0.3),
+          width: isPrimary ? 2 : 1,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -90,8 +131,10 @@ class _ChoiceCard extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: isPrimary
+                      ? color.withValues(alpha: 0.15)
+                      : color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(icon, size: 28, color: color),
               ),
@@ -102,23 +145,21 @@ class _ChoiceCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: AppColors.textSecondary),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: AppColors.textSecondary),
+              Icon(Icons.chevron_right, color: color),
             ],
           ),
         ),

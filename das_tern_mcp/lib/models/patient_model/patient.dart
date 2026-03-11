@@ -52,9 +52,11 @@ class Patient {
           : null,
       idCardNumber: json['idCardNumber'],
       createdAt: DateTime.parse(
-          json['createdAt'] ?? DateTime.now().toIso8601String()),
+        json['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
       updatedAt: DateTime.parse(
-          json['updatedAt'] ?? DateTime.now().toIso8601String()),
+        json['updatedAt'] ?? DateTime.now().toIso8601String(),
+      ),
       dailyProgress: json['dailyProgress'],
       activePrescriptions: json['activePrescriptions'] ?? 0,
       subscriptionTier: json['subscriptionTier'],
@@ -62,13 +64,13 @@ class Patient {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'firstName': firstName,
-        'lastName': lastName,
-        'phoneNumber': phoneNumber,
-        'email': email,
-        'gender': gender != null ? genderToString(gender!) : null,
-        'dateOfBirth': dateOfBirth?.toIso8601String(),
-        'idCardNumber': idCardNumber,
-      };
+    'id': id,
+    'firstName': firstName,
+    'lastName': lastName,
+    'phoneNumber': phoneNumber,
+    'email': email,
+    'gender': gender != null ? genderToString(gender!) : null,
+    'dateOfBirth': dateOfBirth?.toIso8601String(),
+    'idCardNumber': idCardNumber,
+  };
 }

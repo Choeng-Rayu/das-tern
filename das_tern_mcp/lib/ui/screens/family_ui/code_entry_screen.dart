@@ -46,10 +46,7 @@ class _CodeEntryScreenState extends State<CodeEntryScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.enterCodeTitle),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.enterCodeTitle), centerTitle: true),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -78,16 +75,16 @@ class _CodeEntryScreenState extends State<CodeEntryScreen> {
 
                 Text(
                   l10n.enterConnectionCode,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   l10n.enterEightDigitFromPatient,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
 
@@ -96,22 +93,23 @@ class _CodeEntryScreenState extends State<CodeEntryScreen> {
                   controller: _codeController,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 6,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 6,
+                  ),
                   maxLength: 8,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(
-                        RegExp(r'[a-zA-Z0-9_\-]')),
+                      RegExp(r'[a-zA-Z0-9_\-]'),
+                    ),
                     UpperCaseTextFormatter(),
                   ],
                   decoration: InputDecoration(
                     hintText: l10n.codeHintPlaceholder,
-                    hintStyle:
-                        Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: AppColors.neutral300,
-                              letterSpacing: 6,
-                            ),
+                    hintStyle: Theme.of(context).textTheme.headlineMedium
+                        ?.copyWith(
+                          color: AppColors.neutral300,
+                          letterSpacing: 6,
+                        ),
                     counterText: '',
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.lg,
@@ -185,8 +183,6 @@ class UpperCaseTextFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    return newValue.copyWith(
-      text: newValue.text.toUpperCase(),
-    );
+    return newValue.copyWith(text: newValue.text.toUpperCase());
   }
 }

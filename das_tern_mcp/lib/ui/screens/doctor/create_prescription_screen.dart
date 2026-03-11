@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/prescription_provider.dart';
 import '../../../providers/connection_provider.dart';
 import '../../theme/app_colors.dart';
@@ -46,41 +47,46 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
     final connProvider = context.read<ConnectionProvider>();
     final patients = _getPatients(connProvider);
 
-    if (_selectedPatientIndex < 0 ||
-        _selectedPatientIndex >= patients.length) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.selectPatient)),
-      );
+    if (_selectedPatientIndex < 0 || _selectedPatientIndex >= patients.length) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.selectPatient)));
       return;
     }
 
     if (_diagnosisCtrl.text.trim().isEmpty ||
         _symptomsCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.diagnosisRequired)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.diagnosisRequired)));
       return;
     }
 
     if (_medicines.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.medicines)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.medicines)));
       return;
     }
 
     setState(() => _isSubmitting = true);
 
     final patient = patients[_selectedPatientIndex];
-    final patientData = patient.recipient ?? patient.initiator;
+    final doctorUserId =
+        context.read<AuthProvider>().user?['id'] as String? ?? '';
+    final isInitiator = patient.initiatorId == doctorUserId;
+    final patientData =
+        isInitiator ? patient.recipient : patient.initiator;
+    final patientActualId =
+        isInitiator ? patient.recipientId : patient.initiatorId;
 
     final patientName = patientData != null
         ? '${patientData['firstName'] ?? ''} ${patientData['lastName'] ?? ''}'
-            .trim()
+              .trim()
         : l10n.unknown;
 
     final data = <String, dynamic>{
-      'patientId': patient.recipientId,
+      'patientId': patientActualId,
       'patientName': patientName,
       'patientGender': patientData?['gender'] ?? 'OTHER',
       'patientAge': _calculateAge(patientData?['dateOfBirth']),
@@ -93,15 +99,13 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
       'medications': _medicines
           .asMap()
           .entries
-          .map((e) => {
-                'rowNumber': e.key + 1,
-                ...e.value,
-              })
+          .map((e) => {'rowNumber': e.key + 1, ...e.value})
           .toList(),
     };
 
-    final success =
-        await context.read<PrescriptionProvider>().createPrescription(data);
+    final success = await context
+        .read<PrescriptionProvider>()
+        .createPrescription(data);
 
     if (mounted) {
       setState(() => _isSubmitting = false);
@@ -224,16 +228,17 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Text(
                 l10n.noConnectedPatients,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
           )
         else
           DropdownButtonFormField<int>(
-            value: _selectedPatientIndex >= 0 ? _selectedPatientIndex : null,
+            initialValue: _selectedPatientIndex >= 0
+                ? _selectedPatientIndex
+                : null,
             decoration: InputDecoration(
               labelText: l10n.selectPatient,
               border: const OutlineInputBorder(),
@@ -241,15 +246,16 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
             ),
             items: patients.asMap().entries.map((entry) {
               final conn = entry.value;
-              final patientData = conn.recipient ?? conn.initiator;
+              final doctorUserId =
+                  context.read<AuthProvider>().user?['id'] as String? ?? '';
+              final isInitiator = conn.initiatorId == doctorUserId;
+              final patientData =
+                  isInitiator ? conn.recipient : conn.initiator;
               final name = patientData != null
                   ? '${patientData['firstName'] ?? ''} ${patientData['lastName'] ?? ''}'
-                      .trim()
+                        .trim()
                   : l10n.unknown;
-              return DropdownMenuItem(
-                value: entry.key,
-                child: Text(name),
-              );
+              return DropdownMenuItem(value: entry.key, child: Text(name));
             }).toList(),
             onChanged: (val) {
               if (val != null) setState(() => _selectedPatientIndex = val);
@@ -263,10 +269,7 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primaryBlue,
             side: BorderSide(color: AppColors.primaryBlue),
-            padding: const EdgeInsets.symmetric(
-              vertical: 12,
-              horizontal: 16,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           ),
         ),
       ],
@@ -343,9 +346,7 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                         });
                         final result = await context
                             .read<ConnectionProvider>()
-                            .searchPatientByContact(
-                              searchCtrl.text.trim(),
-                            );
+                            .searchPatientByContact(searchCtrl.text.trim());
                         setDialogState(() {
                           searching = false;
                           foundPatient = result;
@@ -373,9 +374,7 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                           title: Text(
                             '${foundPatient!['firstName'] ?? ''} ${foundPatient!['lastName'] ?? ''}'
                                 .trim(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           subtitle: Text(
                             foundPatient!['phoneNumber'] ??
@@ -401,27 +400,22 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                             setDialogState(() => sending = true);
                             final success = await context
                                 .read<ConnectionProvider>()
-                                .requestPatientConnection(
-                                  foundPatient!['id'],
-                                );
+                                .requestPatientConnection(foundPatient!['id']);
                             setDialogState(() => sending = false);
                             if (success && ctx.mounted) {
                               Navigator.pop(ctx);
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content:
-                                        Text(l10n.connectionRequestSent),
-                                    backgroundColor:
-                                        AppColors.successGreen,
+                                    content: Text(l10n.connectionRequestSent),
+                                    backgroundColor: AppColors.successGreen,
                                   ),
                                 );
                               }
                             } else {
                               setDialogState(() {
-                                dialogError = context
-                                        .read<ConnectionProvider>()
-                                        .error ??
+                                dialogError =
+                                    context.read<ConnectionProvider>().error ??
                                     l10n.connectionRequestFailed;
                               });
                             }
@@ -455,10 +449,9 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
           children: [
             Text(
               l10n.diagnosis,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.sm),
             TextField(
@@ -490,10 +483,13 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
             const SizedBox(height: AppSpacing.sm),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(_followUpDate != null
-                  ? l10n.followUpDateValue(
-                      '${_followUpDate!.day}/${_followUpDate!.month}/${_followUpDate!.year}')
-                  : l10n.setFollowUpDate),
+              title: Text(
+                _followUpDate != null
+                    ? l10n.followUpDateValue(
+                        '${_followUpDate!.day}/${_followUpDate!.month}/${_followUpDate!.year}',
+                      )
+                    : l10n.setFollowUpDate,
+              ),
               trailing: const Icon(Icons.calendar_today),
               onTap: () async {
                 final d = await showDatePicker(
@@ -524,17 +520,16 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
               children: [
                 Text(
                   l10n.medicationTableTitle,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 Text(
                   '${_medicines.length}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.primaryBlue,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: AppColors.primaryBlue,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -591,8 +586,7 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                               size: 20,
                             ),
                             onPressed: () => setState(() {
-                              _expandedMedicineIndex =
-                                  isExpanded ? null : idx;
+                              _expandedMedicineIndex = isExpanded ? null : idx;
                             }),
                           ),
                           IconButton(
@@ -641,10 +635,9 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
             // Add new medicine form
             Text(
               l10n.addRow,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.sm),
             MedicineFormWidget(
@@ -670,7 +663,7 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
       final patientData = conn.recipient ?? conn.initiator;
       patientName = patientData != null
           ? '${patientData['firstName'] ?? ''} ${patientData['lastName'] ?? ''}'
-              .trim()
+                .trim()
           : '-';
     }
 
@@ -683,10 +676,9 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
           children: [
             Text(
               l10n.prescriptionSummary,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.sm),
             _summaryRow(l10n.patient, patientName),
@@ -694,13 +686,15 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
             _summaryRow(l10n.symptomsLabel, _symptomsCtrl.text),
             _summaryRow(l10n.medicines, '${_medicines.length}'),
             const Divider(),
-            ..._medicines.map((m) => Padding(
-                  padding: const EdgeInsets.only(left: AppSpacing.sm),
-                  child: Text(
-                    '- ${m['medicineName']}',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                )),
+            ..._medicines.map(
+              (m) => Padding(
+                padding: const EdgeInsets.only(left: AppSpacing.sm),
+                child: Text(
+                  '- ${m['medicineName']}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ),
           ],
         ),
       ),

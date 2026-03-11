@@ -25,9 +25,11 @@ class DoctorNote {
       patientId: json['patientId'] ?? '',
       content: json['content'] ?? '',
       createdAt: DateTime.parse(
-          json['createdAt'] ?? DateTime.now().toIso8601String()),
+        json['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
       updatedAt: DateTime.parse(
-          json['updatedAt'] ?? DateTime.now().toIso8601String()),
+        json['updatedAt'] ?? DateTime.now().toIso8601String(),
+      ),
       doctor: json['doctor'] != null
           ? DoctorNoteAuthor.fromJson(Map<String, dynamic>.from(json['doctor']))
           : null,
@@ -35,14 +37,14 @@ class DoctorNote {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'doctorId': doctorId,
-        'patientId': patientId,
-        'content': content,
-        'createdAt': createdAt.toIso8601String(),
-        'updatedAt': updatedAt.toIso8601String(),
-        'doctor': doctor?.toJson(),
-      };
+    'id': id,
+    'doctorId': doctorId,
+    'patientId': patientId,
+    'content': content,
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
+    'doctor': doctor?.toJson(),
+  };
 
   String get formattedDate {
     return '${createdAt.day}/${createdAt.month}/${createdAt.year} '
@@ -59,14 +61,8 @@ class DoctorNoteAuthor {
   DoctorNoteAuthor({required this.id, this.fullName});
 
   factory DoctorNoteAuthor.fromJson(Map<String, dynamic> json) {
-    return DoctorNoteAuthor(
-      id: json['id'] ?? '',
-      fullName: json['fullName'],
-    );
+    return DoctorNoteAuthor(id: json['id'] ?? '', fullName: json['fullName']);
   }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'fullName': fullName,
-      };
+  Map<String, dynamic> toJson() => {'id': id, 'fullName': fullName};
 }

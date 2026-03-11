@@ -65,7 +65,7 @@ export class PrescriptionsService {
           create: dto.medications.map(med => ({
             rowNumber: med.rowNumber,
             medicineName: med.medicineName,
-            medicineNameKhmer: med.medicineNameKhmer,
+            medicineNameKhmer: med.medicineNameKhmer || '',
             medicineType: med.medicineType || 'ORAL',
             unit: med.unit || 'TABLET',
             dosageAmount: med.dosageAmount || 1,
@@ -73,7 +73,8 @@ export class PrescriptionsService {
             additionalNote: med.additionalNote,
             createdBy: doctorId,
             morningDosage: med.morningDosage as any,
-            daytimeDosage: med.daytimeDosage as any,
+            afternoonDosage: med.afternoonDosage as any,
+            eveningDosage: med.eveningDosage as any,
             nightDosage: med.nightDosage as any,
             imageUrl: med.imageUrl,
             frequency: med.frequency || this.calculateFrequency(med),
@@ -197,7 +198,8 @@ export class PrescriptionsService {
           additionalNote: med.additionalNote,
           createdBy: doctorId,
           morningDosage: med.morningDosage as any,
-          daytimeDosage: med.daytimeDosage as any,
+          afternoonDosage: med.afternoonDosage as any,
+          eveningDosage: med.eveningDosage as any,
           nightDosage: med.nightDosage as any,
           imageUrl: med.imageUrl,
           frequency: med.frequency || this.calculateFrequency(med),
@@ -367,9 +369,10 @@ export class PrescriptionsService {
               beforeMeal: med.beforeMeal || false,
             };
 
-            // Map scheduleTimes to morning/daytime/night dosages
+            // Map scheduleTimes to morning/afternoon/evening/night dosages
             let morningDosage: any = null;
-            let daytimeDosage: any = null;
+            let afternoonDosage: any = null;
+            let eveningDosage: any = null;
             let nightDosage: any = null;
 
             if (med.scheduleTimes && med.scheduleTimes.length > 0) {
@@ -378,8 +381,10 @@ export class PrescriptionsService {
                 if (period === 'morning' || period === 'breakfast') {
                   morningDosage = { ...dosageInfo, time: schedule.time };
                 } else if (period === 'afternoon' || period === 'daytime' || period === 'lunch') {
-                  daytimeDosage = { ...dosageInfo, time: schedule.time };
-                } else if (period === 'evening' || period === 'night' || period === 'dinner') {
+                  afternoonDosage = { ...dosageInfo, time: schedule.time };
+                } else if (period === 'evening' || period === 'dinner') {
+                  eveningDosage = { ...dosageInfo, time: schedule.time };
+                } else if (period === 'night' || period === 'bedtime') {
                   nightDosage = { ...dosageInfo, time: schedule.time };
                 }
               }
@@ -399,7 +404,8 @@ export class PrescriptionsService {
               additionalNote: med.additionalNote,
               createdBy: patientId,
               morningDosage,
-              daytimeDosage,
+              afternoonDosage,
+              eveningDosage,
               nightDosage,
               imageUrl: med.imageUrl,
               frequency: med.frequency,
@@ -602,6 +608,8 @@ export class PrescriptionsService {
     const morningMin = mealPref?.morningMeal ? parseInt(mealPref.morningMeal.split(':')[1]) : 0;
     const afternoonHour = mealPref?.afternoonMeal ? parseInt(mealPref.afternoonMeal.split(':')[0]) : 12;
     const afternoonMin = mealPref?.afternoonMeal ? parseInt(mealPref.afternoonMeal.split(':')[1]) : 0;
+    const eveningHour = mealPref?.eveningMeal ? parseInt(mealPref.eveningMeal.split(':')[0]) : 17;
+    const eveningMin = mealPref?.eveningMeal ? parseInt(mealPref.eveningMeal.split(':')[1]) : 0;
     const nightHour = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[0]) : 20;
     const nightMin = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[1]) : 0;
 
@@ -622,13 +630,13 @@ export class PrescriptionsService {
             medicationId: medication.id,
             patientId: prescription.patientId,
             scheduledTime,
-            timePeriod: 'DAYTIME' as const,
+            timePeriod: 'MORNING' as const,
             status: 'DUE' as const,
             reminderTime: `${String(morningHour).padStart(2, '0')}:${String(morningMin).padStart(2, '0')}`,
           });
         }
 
-        if (medication.daytimeDosage) {
+        if (medication.afternoonDosage) {
           const scheduledTime = new Date(date);
           scheduledTime.setHours(afternoonHour, afternoonMin, 0, 0);
           events.push({
@@ -636,9 +644,23 @@ export class PrescriptionsService {
             medicationId: medication.id,
             patientId: prescription.patientId,
             scheduledTime,
-            timePeriod: 'DAYTIME' as const,
+            timePeriod: 'AFTERNOON' as const,
             status: 'DUE' as const,
             reminderTime: `${String(afternoonHour).padStart(2, '0')}:${String(afternoonMin).padStart(2, '0')}`,
+          });
+        }
+
+        if (medication.eveningDosage) {
+          const scheduledTime = new Date(date);
+          scheduledTime.setHours(eveningHour, eveningMin, 0, 0);
+          events.push({
+            prescriptionId: prescription.id,
+            medicationId: medication.id,
+            patientId: prescription.patientId,
+            scheduledTime,
+            timePeriod: 'EVENING' as const,
+            status: 'DUE' as const,
+            reminderTime: `${String(eveningHour).padStart(2, '0')}:${String(eveningMin).padStart(2, '0')}`,
           });
         }
 
@@ -664,12 +686,12 @@ export class PrescriptionsService {
   }
 
   private calculateFrequency(med: any): string {
-    const count = [med.morningDosage, med.daytimeDosage, med.nightDosage].filter(Boolean).length;
+    const count = [med.morningDosage, med.afternoonDosage, med.eveningDosage, med.nightDosage].filter(Boolean).length;
     return `${count}ដង/១ថ្ងៃ`;
   }
 
   private determineTiming(med: any): string {
-    const hasBeforeMeal = med.beforeMeal || [med.morningDosage, med.daytimeDosage, med.nightDosage]
+    const hasBeforeMeal = med.beforeMeal || [med.morningDosage, med.afternoonDosage, med.eveningDosage, med.nightDosage]
       .some(d => d?.beforeMeal);
     return hasBeforeMeal ? 'មុនអាហារ' : 'បន្ទាប់ពីអាហារ';
   }

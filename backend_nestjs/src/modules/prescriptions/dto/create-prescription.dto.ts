@@ -67,7 +67,12 @@ export class MedicationDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => DosageDto)
-  daytimeDosage?: DosageDto;
+  afternoonDosage?: DosageDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => DosageDto)
+  eveningDosage?: DosageDto;
 
   @IsOptional()
   @ValidateNested()

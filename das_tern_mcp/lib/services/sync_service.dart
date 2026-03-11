@@ -47,13 +47,22 @@ class SyncService extends ChangeNotifier {
     // Check initial state
     final result = await _connectivity.checkConnectivity();
     _isOnline = _isConnected(result);
-    _log.info('SyncService', 'Initial connectivity state', {'online': _isOnline, 'type': result.name});
+    _log.info('SyncService', 'Initial connectivity state', {
+      'online': _isOnline,
+      'type': result.name,
+    });
 
-    _connectivitySub =
-        _connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
+    _connectivitySub = _connectivity.onConnectivityChanged.listen((
+      ConnectivityResult result,
+    ) {
       final wasOnline = _isOnline;
       _isOnline = _isConnected(result);
-      _log.stateChange('SyncService', wasOnline ? 'online' : 'offline', _isOnline ? 'online' : 'offline', result.name);
+      _log.stateChange(
+        'SyncService',
+        wasOnline ? 'online' : 'offline',
+        _isOnline ? 'online' : 'offline',
+        result.name,
+      );
       notifyListeners();
 
       // Just came back online → trigger sync
@@ -63,7 +72,10 @@ class SyncService extends ChangeNotifier {
       }
     });
 
-    await _refreshPendingCount();
+    // Skip database operations on web
+    if (!kIsWeb) {
+      await _refreshPendingCount();
+    }
     notifyListeners();
   }
 
@@ -157,12 +169,14 @@ class SyncService extends ChangeNotifier {
 
         switch (method) {
           case 'PATCH':
-            res = await http.patch(uri,
-                headers: headers, body: bodyStr ?? '{}');
+            res = await http.patch(
+              uri,
+              headers: headers,
+              body: bodyStr ?? '{}',
+            );
             break;
           case 'POST':
-            res = await http.post(uri,
-                headers: headers, body: bodyStr ?? '{}');
+            res = await http.post(uri, headers: headers, body: bodyStr ?? '{}');
             break;
           case 'DELETE':
             res = await http.delete(uri, headers: headers);
@@ -175,7 +189,9 @@ class SyncService extends ChangeNotifier {
           await _db.removeSyncQueueItem(item['id'] as int);
         } else {
           await _db.recordSyncError(
-              item['id'] as int, 'HTTP ${res.statusCode}');
+            item['id'] as int,
+            'HTTP ${res.statusCode}',
+          );
         }
       } catch (e) {
         await _db.recordSyncError(item['id'] as int, e.toString());
@@ -248,8 +264,9 @@ class SyncService extends ChangeNotifier {
     try {
       final headers = await _authHeaders();
       final today = DateTime.now().toIso8601String().split('T')[0];
-      final uri = Uri.parse('$_baseUrl/doses/schedule')
-          .replace(queryParameters: {'date': today, 'groupBy': 'timePeriod'});
+      final uri = Uri.parse(
+        '$_baseUrl/doses/schedule',
+      ).replace(queryParameters: {'date': today, 'groupBy': 'timePeriod'});
 
       final res = await http.get(uri, headers: headers);
       if (res.statusCode >= 200 && res.statusCode < 300) {
@@ -280,8 +297,7 @@ class SyncService extends ChangeNotifier {
       if (res.statusCode >= 200 && res.statusCode < 300) {
         final data = jsonDecode(res.body);
         if (data is List) {
-          await _db.cachePrescriptions(
-              List<Map<String, dynamic>>.from(data));
+          await _db.cachePrescriptions(List<Map<String, dynamic>>.from(data));
         }
       }
     } catch (e) {

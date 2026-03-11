@@ -1,8 +1,5 @@
 // Legacy enum kept for backward compatibility with local Medication model
-enum MedicationType {
-  regular,
-  prn,
-}
+enum MedicationType { regular, prn }
 
 extension MedicationTypeExtension on MedicationType {
   String toJson() => name;

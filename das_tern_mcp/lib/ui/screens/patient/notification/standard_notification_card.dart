@@ -27,8 +27,7 @@ class StandardNotificationCard extends StatelessWidget {
               : AppColors.primaryBlue.withValues(alpha: 0.1),
           child: Icon(
             iconForNotificationType(notif.type),
-            color:
-                notif.isRead ? AppColors.neutral400 : AppColors.primaryBlue,
+            color: notif.isRead ? AppColors.neutral400 : AppColors.primaryBlue,
             size: 20,
           ),
         ),
@@ -44,10 +43,10 @@ class StandardNotificationCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: Text(
-          timeAgo(notif.createdAt),
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
-              ),
+          timeAgo(notif.createdAt, context),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
         ),
         onTap: () {
           if (!notif.isRead) {

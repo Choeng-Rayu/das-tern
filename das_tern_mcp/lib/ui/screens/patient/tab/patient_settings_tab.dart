@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -13,9 +13,6 @@ import '../../../theme/theme_provider.dart';
 import '../../../widgets/common_widgets.dart';
 import '../../../widgets/language_switcher.dart';
 
-/// Settings tab for patient – clean professional UI matching design standard.
-/// Sections: Appearance, Notification Permission, Account (with Security),
-/// Subscription, Rate App, Support.
 class PatientSettingsTab extends StatefulWidget {
   const PatientSettingsTab({super.key});
 
@@ -24,16 +21,6 @@ class PatientSettingsTab extends StatefulWidget {
 }
 
 class _PatientSettingsTabState extends State<PatientSettingsTab> {
-  final _oldPasswordController = TextEditingController();
-  final _newPasswordController = TextEditingController();
-
-  @override
-  void dispose() {
-    _oldPasswordController.dispose();
-    _newPasswordController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -66,37 +53,113 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
-                ],
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: AppColors.primaryBlue.withValues(
-                      alpha: 0.12,
-                    ),
-                    child: const Icon(
-                      Icons.person_outline,
-                      color: AppColors.primaryBlue,
-                      size: 26,
-                    ),
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 28,
+                        backgroundColor: AppColors.primaryBlue.withValues(
+                          alpha: 0.12,
+                        ),
+                        child: const Icon(
+                          Icons.person_outline,
+                          color: AppColors.primaryBlue,
+                          size: 26,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _patientName(auth.user),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              l10n.patientRole,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _sectionLabel('REPORTS'),
+                _buildGroupCard(isDark, [
+                  _buildNavRow(
+                    context,
+                    icon: Icons.bar_chart_outlined,
+                    label: l10n.activityReport,
+                    isLast: true,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const ActivityReportScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ]),
+                const SizedBox(height: AppSpacing.md),
+                _sectionLabel('APPEARANCE'),
+                _buildGroupCard(isDark, [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          _patientName(auth.user),
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                        Row(
+                          children: [
+                            const Icon(Icons.brightness_6_outlined, size: 20),
+                            const SizedBox(width: 12),
+                            Text(
+                              l10n.theme,
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          l10n.patientRole,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: AppColors.textSecondary),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            _ThemeOptionCard(
+                              icon: Icons.phone_android_rounded,
+                              label: 'System',
+                              isSelected:
+                                  themeProvider.themeMode == ThemeMode.system,
+                              isDark: isDark,
+                              onTap: () =>
+                                  themeProvider.setThemeMode(ThemeMode.system),
+                            ),
+                            const SizedBox(width: 10),
+                            _ThemeOptionCard(
+                              icon: Icons.light_mode_rounded,
+                              label: 'Light',
+                              isSelected:
+                                  themeProvider.themeMode == ThemeMode.light,
+                              isDark: isDark,
+                              onTap: () =>
+                                  themeProvider.setThemeMode(ThemeMode.light),
+                            ),
+                            const SizedBox(width: 10),
+                            _ThemeOptionCard(
+                              icon: Icons.dark_mode_rounded,
+                              label: 'Dark',
+                              isSelected:
+                                  themeProvider.themeMode == ThemeMode.dark,
+                              isDark: isDark,
+                              onTap: () =>
+                                  themeProvider.setThemeMode(ThemeMode.dark),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -249,24 +312,17 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                         size: 20,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
                         Text(
                           l10n.notificationPermission,
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
-                        const SizedBox(height: 2),
-                        Row(
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
-                              Icons.check_circle,
-                              color: AppColors.statusSuccess,
-                              size: 13,
-                            ),
-                            const SizedBox(width: 4),
                             Text(
                               l10n.permissionGranted,
                               style: Theme.of(context).textTheme.bodySmall
@@ -317,22 +373,58 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                     horizontal: 16,
                     vertical: 14,
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.logout,
-                        color: AppColors.statusError,
-                        size: 20,
+                ]),
+                const SizedBox(height: AppSpacing.md),
+                _sectionLabel('ACCOUNT'),
+                _buildGroupCard(isDark, [
+                  _buildNavRow(
+                    context,
+                    icon: Icons.person_outline,
+                    label: l10n.editProfile,
+                    onTap: () {
+                      Navigator.pushNamed(context, '/patient/edit-profile');
+                    },
+                  ),
+                  _divider(isDark),
+                  _buildNavRow(
+                    context,
+                    icon: Icons.lock_outline,
+                    label: l10n.changePassword,
+                    onTap: () {
+                      Navigator.pushNamed(context, '/patient/change-password');
+                    },
+                  ),
+                  _divider(isDark),
+                  InkWell(
+                    onTap: () => _confirmLogout(context, auth),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(14),
+                      bottomRight: Radius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
                       ),
-                      const SizedBox(width: 12),
-                      Text(
-                        l10n.logout,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.statusError,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.logout,
+                            color: AppColors.statusError,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            l10n.logout,
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(
+                                  color: AppColors.statusError,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -428,17 +520,18 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             const SizedBox(height: AppSpacing.xl),
           ],
         ),
-      ),
+      ],
     );
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
-
   String _patientName(Map<String, dynamic>? user) {
     if (user == null) return 'Patient';
+
     final first = user['firstName'] ?? '';
     final last = user['lastName'] ?? '';
-    return '$first $last'.trim().isEmpty ? 'Patient' : '$first $last'.trim();
+    final fullName = '$first $last'.trim();
+
+    return fullName.isEmpty ? 'Patient' : fullName;
   }
 
   Widget _sectionLabel(String label) {
@@ -605,66 +698,43 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.neutral400,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: iconBg.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(10),
               ),
+              child: Icon(icon, size: 20, color: iconBg),
             ),
-            const SizedBox(height: 20),
-            Text(
-              l10n.changePassword,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _oldPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: l10n.oldPasswordHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                prefixIcon: const Icon(Icons.lock_outline),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _newPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: l10n.newPasswordHint,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                prefixIcon: const Icon(Icons.lock_reset),
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  // TODO: Implement change password API call
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.passwordChangeComingSoon)),
-                  );
-                },
-                child: Text(l10n.changePassword),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.62)
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: AppColors.textSecondary,
             ),
           ],
         ),
@@ -672,28 +742,36 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     );
   }
 
+  Widget _divider(bool isDark) {
+    return Divider(
+      height: 1,
+      thickness: 0.5,
+      indent: 48,
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.08)
+          : Colors.black.withValues(alpha: 0.08),
+    );
+  }
+
   void _confirmLogout(BuildContext context, AuthProvider auth) {
     final l10n = AppLocalizations.of(context)!;
-    showDialog(
+
+    showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(l10n.logout),
         content: Text(l10n.logoutConfirmation),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(dialogContext);
               auth.logout();
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/login',
-                (_) => false,
-              );
+              Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.statusError),
             child: Text(l10n.logout),

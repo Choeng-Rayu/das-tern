@@ -35,7 +35,12 @@ class LoggerService {
   }
 
   /// Log an error message (always logged).
-  void error(String source, String message, Object error, [StackTrace? stackTrace]) {
+  void error(
+    String source,
+    String message,
+    Object error, [
+    StackTrace? stackTrace,
+  ]) {
     _log('ERROR', _red, source, message, error);
     if (stackTrace != null && kDebugMode) {
       debugPrint('$_red[STACK] $stackTrace$_reset');
@@ -53,7 +58,12 @@ class LoggerService {
   }
 
   /// Log an API response.
-  void apiResponse(String method, String endpoint, int statusCode, [Object? data]) {
+  void apiResponse(
+    String method,
+    String endpoint,
+    int statusCode, [
+    Object? data,
+  ]) {
     final color = statusCode >= 200 && statusCode < 300 ? _green : _red;
     _log('API←', color, 'ApiService', '$method $endpoint [$statusCode]', data);
   }
@@ -79,7 +89,13 @@ class LoggerService {
     _log('NOTIF', _yellow, 'NotificationService', operation, details);
   }
 
-  void _log(String level, String color, String source, String message, Object? data) {
+  void _log(
+    String level,
+    String color,
+    String source,
+    String message,
+    Object? data,
+  ) {
     final timestamp = _dateFormat.format(DateTime.now());
     final prefix = '$color[$timestamp][$level][$source]$_reset';
     debugPrint('$prefix $message');
@@ -89,6 +105,8 @@ class LoggerService {
   }
 
   String _truncate(String text, int maxLength) {
-    return text.length <= maxLength ? text : '${text.substring(0, maxLength)}...';
+    return text.length <= maxLength
+        ? text
+        : '${text.substring(0, maxLength)}...';
   }
 }

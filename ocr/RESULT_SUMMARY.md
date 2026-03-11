@@ -1,12 +1,12 @@
 # OCR Test Result Summary
 
 ## Test Image
-- **Path**: `/home/rayu/das-tern/ocr/images_for_test/image1.png`
+- **Path**: `ocr/images_for_test/image1.png`
 - **Size**: 1.8 MB
 - **Format**: PNG
 
 ## Output File
-- **Path**: `/home/rayu/das-tern/ocr/result_test.json`
+- **Path**: `ocr/result_test.json`
 - **Size**: 18 KB
 - **Format**: JSON (cambodia-prescription-universal-v2.0 schema)
 
@@ -72,4 +72,4 @@ The extraction used the **layered Kiri-OCR pipeline**:
 
 - The Omeprazzole morning dose shows as "4" which appears to be an OCR misread of "1" in the source image
 - The parser is designed to be generalizable across different Cambodian prescription formats, not overfitted to this single image
-- Full JSON output is available in `/home/rayu/das-tern/ocr/result_test.json`
+- Full JSON output is available in `ocr/result_test.json`

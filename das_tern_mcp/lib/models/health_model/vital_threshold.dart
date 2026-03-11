@@ -26,10 +26,12 @@ class VitalThreshold {
       id: json['id'] as String,
       patientId: json['patientId'] as String,
       vitalType: VitalType.fromJson(json['vitalType'] as String),
-      minValue:
-          json['minValue'] != null ? (json['minValue'] as num).toDouble() : null,
-      maxValue:
-          json['maxValue'] != null ? (json['maxValue'] as num).toDouble() : null,
+      minValue: json['minValue'] != null
+          ? (json['minValue'] as num).toDouble()
+          : null,
+      maxValue: json['maxValue'] != null
+          ? (json['maxValue'] as num).toDouble()
+          : null,
       minSecondary: json['minSecondary'] != null
           ? (json['minSecondary'] as num).toDouble()
           : null,

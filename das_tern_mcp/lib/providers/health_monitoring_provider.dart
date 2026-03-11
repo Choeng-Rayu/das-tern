@@ -23,8 +23,7 @@ class HealthMonitoringProvider extends ChangeNotifier {
   List<VitalThreshold> get thresholds => _thresholds;
   List<HealthAlert> get alerts => _alerts;
 
-  int get unresolvedAlertCount =>
-      _alerts.where((a) => !a.isResolved).length;
+  int get unresolvedAlertCount => _alerts.where((a) => !a.isResolved).length;
 
   void clearError() {
     _error = null;
@@ -37,8 +36,7 @@ class HealthMonitoringProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await _api.getLatestVitals();
-      _latestVitals =
-          result.map((v) => HealthVital.fromJson(v)).toList();
+      _latestVitals = result.map((v) => HealthVital.fromJson(v)).toList();
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
     } finally {
@@ -131,8 +129,7 @@ class HealthMonitoringProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await _api.getVitalThresholds();
-      _thresholds =
-          result.map((t) => VitalThreshold.fromJson(t)).toList();
+      _thresholds = result.map((t) => VitalThreshold.fromJson(t)).toList();
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
     } finally {

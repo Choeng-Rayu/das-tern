@@ -853,6 +853,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknown => 'Unknown';
 
   @override
+  String get familyFunctionTitle => 'Family Features';
+
+  @override
+  String get familyIntroDescription =>
+      'Allow family members to track your daily medication intake and receive Notifications when:';
+
+  @override
+  String get familyBulletSender => 'You take medication';
+
+  @override
+  String get familyBulletReceiver => 'You miss a dose';
+
+  @override
+  String get familyIntroFooter =>
+      'Manage your family to receive updates and detailed monitoring information etc.';
+
+  @override
+  String get startUsing => 'Start Using';
+
+  @override
+  String get learnMore => 'Learn More';
+
+  @override
   String get scanPrescriptionTitle => 'Scan Prescription';
 
   @override
@@ -1219,6 +1242,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get freeTrialOffer => '1-month free trial for new users!';
 
   @override
+  String get claimYourFreeTrial => 'Claim Your Free Trial';
+
+  @override
+  String get getOneMonthFreePremiumAccess => 'Get 1 month free premium access';
+
+  @override
+  String get claimTrial => 'Claim Trial';
+
+  @override
+  String trialDaysRemainingBanner(int days) {
+    return 'You have $days days remaining';
+  }
+
+  @override
   String get yourTrialPeriod => 'Your Trial Period';
 
   @override
@@ -1256,7 +1293,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continuePremium => 'Continue with Premium';
 
   @override
-  String get addAtLeastOneMedicine => 'Add at least one medicine';
+  String get addAtLeastOneMedicine => 'Please add at least one medicine';
 
   @override
   String get selfPrescribed => 'Self-prescribed';
