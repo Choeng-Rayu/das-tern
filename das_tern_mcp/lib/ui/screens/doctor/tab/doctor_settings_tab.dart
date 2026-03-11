@@ -11,6 +11,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/theme_provider.dart';
 import '../../../widgets/common_widgets.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// Settings tab for doctor - clean professional UI matching design standard.
 class DoctorSettingsTab extends StatefulWidget {
@@ -40,7 +41,15 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppHeader(title: l10n.settings),
+      appBar: AppHeader(
+        title: l10n.settings,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: LanguageSwitcherButton(lightBackground: true),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
@@ -101,7 +110,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             const SizedBox(height: AppSpacing.md),
 
             // APPEARANCE
-            _sectionLabel('APPEARANCE'),
+            _sectionLabel(l10n.appearance.toUpperCase()),
             _buildGroupCard(isDark, [
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -126,7 +135,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                       children: [
                         _ThemeOptionCard(
                           icon: Icons.phone_android_rounded,
-                          label: 'System',
+                          label: l10n.systemTheme,
                           isSelected:
                               themeProvider.themeMode == ThemeMode.system,
                           isDark: isDark,
@@ -136,7 +145,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                         const SizedBox(width: 10),
                         _ThemeOptionCard(
                           icon: Icons.light_mode_rounded,
-                          label: 'Light',
+                          label: l10n.lightTheme,
                           isSelected:
                               themeProvider.themeMode == ThemeMode.light,
                           isDark: isDark,
@@ -146,7 +155,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                         const SizedBox(width: 10),
                         _ThemeOptionCard(
                           icon: Icons.dark_mode_rounded,
-                          label: 'Dark',
+                          label: l10n.darkTheme,
                           isSelected: themeProvider.themeMode == ThemeMode.dark,
                           isDark: isDark,
                           onTap: () =>
@@ -221,7 +230,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Notification Permission',
+                          l10n.notificationPermission,
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
@@ -235,7 +244,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Granted',
+                              l10n.permissionGranted,
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     color: AppColors.statusSuccess,
@@ -253,7 +262,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             const SizedBox(height: AppSpacing.md),
 
             // ACCOUNT (Edit Profile + Security + Logout)
-            _sectionLabel('ACCOUNT'),
+            _sectionLabel(l10n.account.toUpperCase()),
             _buildGroupCard(isDark, [
               _buildNavRow(
                 context,
@@ -311,22 +320,9 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 context,
                 icon: Icons.workspace_premium_outlined,
                 label: l10n.manageSubscriptions,
-                onTap: () {
-                  Navigator.pushNamed(context, '/subscription/upgrade');
-                },
-              ),
-              _divider(isDark),
-              _buildNavRow(
-                context,
-                icon: Icons.restore_rounded,
-                label: l10n.restoreSubscription,
                 isLast: true,
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Restoring subscription\u2026'),
-                    ),
-                  );
+                  Navigator.pushNamed(context, '/subscription/upgrade');
                 },
               ),
             ]),
@@ -341,7 +337,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 icon: Icons.star_rounded,
                 iconBg: const Color(0xFFFF9500),
                 label: l10n.rateApp,
-                subtitle: 'Help us improve DasTern',
+                subtitle: l10n.helpImprove,
                 onTap: () async {
                   // TODO: Replace with actual app store URL
                   final uri = Uri.parse('https://play.google.com/store');
@@ -357,7 +353,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 icon: Icons.headset_mic_rounded,
                 iconBg: const Color(0xFF007AFF),
                 label: l10n.contactSupport,
-                subtitle: 'Get help from our team',
+                subtitle: l10n.contactSupportSubtitle,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -374,7 +370,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 icon: Icons.article_rounded,
                 iconBg: const Color(0xFF34C759),
                 label: l10n.termsOfService,
-                subtitle: 'Read our terms & conditions',
+                subtitle: l10n.termsSubtitle,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -391,7 +387,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 icon: Icons.shield_rounded,
                 iconBg: const Color(0xFFAF52DE),
                 label: l10n.privacyPolicy,
-                subtitle: 'How we protect your data',
+                subtitle: l10n.privacySubtitle,
                 isLast: true,
                 onTap: () {
                   Navigator.push(

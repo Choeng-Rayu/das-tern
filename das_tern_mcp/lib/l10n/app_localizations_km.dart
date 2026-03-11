@@ -48,20 +48,6 @@ class AppLocalizationsKm extends AppLocalizations {
   String get welcomeMessage => 'ដៃគូរំលឹកការប្រើប្រាស់ថ្នាំរបស់អ្នក';
 
   @override
-  String get welcomeScreenSubtitle =>
-      'សុខភាពរបស់អ្នក គឺជាអាទិភាពរបស់យើង។ គ្រប់គ្រងកំណត់ត្រាវេជ្ជសាស្ត្ររបស់អ្នកដោយភាពងាយស្រួល។';
-
-  @override
-  String get emergencyAccess => 'ការចូលប្រើប្រព័ន្ធបន្ទាន់';
-
-  @override
-  String get doctorStep1PersonalInfo => 'ជំហានទី ១ នៃ ២ - ព័ត៌មានផ្ទាល់ខ្លួន';
-
-  @override
-  String get doctorStep2ProfessionalInfo =>
-      'ជំហានទី ២ នៃ ២ - ព័ត៌មានវិជ្ជាជីវៈ និងសន្តិសុខ';
-
-  @override
   String get selectRoleTitle => 'ខ្ញុំជា...';
 
   @override
@@ -1085,10 +1071,6 @@ class AppLocalizationsKm extends AppLocalizations {
   String get openInBankingApp => 'បើកកម្មវិធីធនាគារ';
 
   @override
-  String get bankAmountPreFilled =>
-      'បាកុង: ទូទាត់ត្រូវបានដំឡើងរួច · ធ.ផ្សេង: បើក និងស្កែន QR ខាងលើ';
-
-  @override
   String get orOpenDirectly => 'ឬចុចបើកកម្មវិធីធនាគាររបស់អ្នកផ្ទាល់:';
 
   @override
@@ -1166,7 +1148,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get familyPlanFeature => 'គម្រោងគ្រួសារ';
 
   @override
-  String get premiumTrialActive => '🎉 ការសាកល្បង Premium សកម្ម';
+  String get premiumTrialActive => 'ការសាកល្បង Premium សកម្ម';
 
   @override
   String get dayRemaining => 'ថ្ងៃនៅសល់';
@@ -1842,11 +1824,6 @@ class AppLocalizationsKm extends AppLocalizations {
   }
 
   @override
-  String shareQrAndCodeMessage(String token) {
-    return 'នេះជាកូដតភ្ជាប់ DasTern របស់ខ្ញុំ: $token\n\nស្កេនរូបភាព QR ឬបញ្ចូលកូដដោយដៃនៅក្នុងកម្មវិធី DasTern ដើម្បីភ្ជាប់ជាមួយខ្ញុំ។';
-  }
-
-  @override
   String get generateNewCode => 'បង្កើតកូដថ្មី';
 
   @override
@@ -2420,152 +2397,126 @@ class AppLocalizationsKm extends AppLocalizations {
   }
 
   @override
-  String get connectNewPatient => 'ភ្ជាប់ផ្នែកថ្មីនៃអ្នកជំងឺ';
+  String get connectNewPatient => 'ភ្ជាប់អ្នកជំងឺថ្មី';
 
   @override
-  String get enterPhoneOrEmail => 'បញ្ចូលលេខទូរស័ព្ទឬសារឡើងលេខ';
+  String get enterPhoneOrEmail => 'បំពេញលេខទូរស័ព្ទ ឬអ៊ីមែល';
 
   @override
-  String get noPatientFound => 'រកមិនឃើញអ្នកជំងឺដោយទំនាក់ទំនងនោះ';
+  String get noPatientFound => 'រកមិនឃើញអ្នកជំងឺ';
 
   @override
-  String get connectionRequestSent => 'បានផ្ញើសំណើភ្ជាប់ដោយជោគជ័យ';
+  String get connectionRequestSent => 'បានផ្ញើសំណើភ្ជាប់';
 
   @override
-  String get connectionRequestFailed => 'សំណើភ្ជាប់បរាជ័យ';
+  String get connectionRequestFailed => 'មិនអាចផ្ញើសំណើភ្ជាប់';
 
   @override
   String get sendConnectionRequest => 'ផ្ញើសំណើភ្ជាប់';
 
   @override
-  String get connectionApproved => 'បានយល់ព្រមការភ្ជាប់';
+  String get doctorStep1PersonalInfo => 'ជំហានទី ១ នៃ ២ - ព័ត៌មានផ្ទាល់ខ្លួន';
 
   @override
-  String get connectionRejected => 'បានបដិសេធការភ្ជាប់';
+  String get doctorStep2ProfessionalInfo =>
+      'ជំហានទី ២ នៃ ២ - ព័ត៌មានវិជ្ជាជីវៈ';
 
   @override
-  String get approveConnection => 'យល់ព្រម';
+  String get welcomeScreenSubtitle => 'ដៃគូគ្រប់គ្រងថ្នាំដែលអ្នកទុកចិត្ត';
 
   @override
-  String get rejectConnection => 'បដិសេធ';
+  String get emergencyAccess => 'ការចូលប្រើអាសន្ន';
+
+  @override
+  String get connectionApproved => 'ការភ្ជាប់ត្រូវបានអនុម័ត';
+
+  @override
+  String get connectionRejected => 'ការភ្ជាប់ត្រូវបានបដិសេធ';
 
   @override
   String get removeNotification => 'លុបការជូនដំណឹង';
 
   @override
-  String get removeNotificationConfirm =>
-      'តើអ្នកប្រាកដថាចង់លុបការជូនដំណឹងនេះមែនទេ?';
+  String get removeNotificationConfirm => 'តើអ្នកប្រាកដថាចង់លុបការជូនដំណឹងនេះ?';
 
   @override
   String get remove => 'លុប';
 
   @override
-  String get prescriptionConfirmed => 'វេជ្ជបញ្ជាត្រូវបានបញ្ជាក់';
-
-  @override
-  String get prescriptionRejected => 'វេជ្ជបញ្ជាត្រូវបានបដិសេធ';
-
-  @override
-  String get rejectPrescription => 'បដិសេធ';
-
-  @override
-  String get confirmPrescription => 'បញ្ជាក់';
-
-  @override
-  String prescriptionFromDoctor(String doctor) {
-    return 'ពីវេជ្ជបណ្ឌិត $doctor';
+  String shareQrAndCodeMessage(String token) {
+    return 'DasTern QR & លេខកូដ: $token';
   }
 
   @override
-  String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
+  String get rejectConnection => 'បដិសេធ';
 
   @override
-  String get missedDoseBanner => 'អ្នកមានដូសដែលខ្លាចថ្ងៃនេះ';
+  String get approveConnection => 'អនុម័ត';
 
   @override
-  String get ocrOutpatient => 'អ្នកជំងឺទូលទាត់';
+  String get ocrOutpatient => 'អ្នកជំងឺក្រៅ';
 
   @override
-  String get ocrInpatient => 'អ្នកជំងឺស្នាក់នៅ';
+  String get ocrInpatient => 'អ្នកជំងឺក្នុង';
 
   @override
   String get ocrFacilityHospital => 'មន្ទីរពេទ្យ';
 
   @override
-  String get ocrFacilityClinic => 'ឯកសារ';
+  String get ocrFacilityClinic => 'គ្លីនិក';
+
+  @override
+  String get ocrNeedsReviewYes => 'ត្រូវពិនិត្យឡើងវិញ';
+
+  @override
+  String get ocrAiEnhanced => 'AI Enhanced';
+
+  @override
+  String get ocrAiUnavailable => 'AI មិនអាចប្រើបាន';
+
+  @override
+  String get bankAmountPreFilled => 'ចំនួនទឹកប្រាក់បានបំពេញដោយធនាគារ';
+
+  @override
+  String ocrConfidencePercent(String percent) {
+    return '$percent% ភាពជឿជាក់';
+  }
 
   @override
   String get ocrNotAvailable => 'មិនមាន';
 
   @override
-  String get ocrNeedsReviewYes => 'ដាច់ដោយឡែក សូមពិនិត្យ';
+  String get ocrScanInfoSection => 'ព័ត៌មានស្កែន';
 
   @override
-  String get ocrAiEnhanced => 'AI បានកែលម្អ';
+  String get ocrPrescriberSection => 'អ្នកចេញវេជ្ជបញ្ជា';
 
   @override
-  String get ocrAiUnavailable => 'OCR ប៉ុណ្ណោះ';
+  String get ocrPrescriberName => 'ឈ្មោះអ្នកចេញវេជ្ជបញ្ជា';
 
   @override
-  String get ocrPatientInfoSection => 'ព័ត៌មានអ្នកជំងឺ';
+  String get ocrFacilitySection => 'គ្រឹះស្ថាន';
 
   @override
-  String get ocrPatientId => 'លេខសម្គាល់អ្នកជំងឺ';
+  String get ocrFacilityName => 'ឈ្មោះគ្រឹះស្ថាន';
 
   @override
-  String get ocrPatientName => 'ឈ្មោះអ្នកជំងឺ';
+  String get ocrFacilityType => 'ប្រភេទគ្រឹះស្ថាន';
 
   @override
-  String get ocrPatientKhmerName => 'ឈ្មោះអ្នកជំងឺ (ខ្មែរ)';
+  String get ocrValidated => 'ផ្ទៀងផ្ទាត់ហើយ';
 
   @override
-  String get ocrPatientAge => 'ក្ដីឈរឈរលេង';
+  String get ocrMetadataSection => 'ទិន្នន័យ OCR';
 
   @override
-  String ocrYearsOld(String age) {
-    return '$age ឆ្នាំចាស់';
-  }
+  String get ocrConfidenceScore => 'ពិន្ទុភាពជឿជាក់';
 
   @override
-  String get ocrPatientGender => 'ភេទ';
+  String get ocrEngine => 'ម៉ាស៊ីន OCR';
 
   @override
-  String get ocrPrescriberSection => 'ព័ត៌មានលម្អិត';
-
-  @override
-  String get ocrPrescriberName => 'ឈ្មោះបែបលម្អិត';
-
-  @override
-  String get ocrFacilitySection => 'ព័ត៌មានលម្អិតមន្ទីរ';
-
-  @override
-  String get ocrFacilityName => 'ឈ្មោះមន្ទីរ';
-
-  @override
-  String get ocrFacilityType => 'ប្រភេទមន្ទីរ';
-
-  @override
-  String get ocrClinicalSection => 'ព័ត៌មានលម្អិតឆ្នាំ';
-
-  @override
-  String get ocrDiagnosis => 'ការបង្ហាញលក្ខណៈរោគ';
-
-  @override
-  String get ocrMetadataSection => 'ទិន្នន័យលម្អិត';
-
-  @override
-  String get ocrConfidenceScore => 'ពិន្ទុសុវត្ថិភាព';
-
-  @override
-  String ocrConfidencePercent(String confidence) {
-    return '$confidence%';
-  }
-
-  @override
-  String get ocrEngine => 'ម៉ាស៊ីនស្កេន';
-
-  @override
-  String get ocrProcessingTime => 'ពេលវេលាដែលប្រើប្រាស់';
+  String get ocrProcessingTime => 'ពេលវេលាដំណើរការ';
 
   @override
   String ocrMilliseconds(String ms) {
@@ -2576,216 +2527,227 @@ class AppLocalizationsKm extends AppLocalizations {
   String get ocrPrescriptionType => 'ប្រភេទវេជ្ជបញ្ជា';
 
   @override
-  String get ocrLanguagesDetected => 'ភាសាដែលរកឃើញ';
+  String get ocrLanguagesDetected => 'ភាសាដែលបានរកឃើញ';
 
   @override
   String get ocrValidationStatus => 'ស្ថានភាពផ្ទៀងផ្ទាត់';
 
   @override
-  String get ocrValidated => 'ផ្ទៀងផ្ទាត់រួច';
+  String get rejectPrescription => 'បដិសេធវេជ្ជបញ្ជា';
 
   @override
-  String get ocrScanInfoSection => 'ព័ត៌មានលម្អិតស្កេន';
+  String get prescriptionRejected => 'វេជ្ជបញ្ជាបានបដិសេធ';
 
   @override
-  String get activityReport => 'របាយការណ៍សកម្មភាព';
+  String get prescriptionConfirmed => 'វេជ្ជបញ្ជាបានបញ្ជាក់';
 
   @override
-  String get adherenceSummary => 'សង្ខេបការប្រើថ្នាំ';
+  String get confirmPrescription => 'បញ្ជាក់វេជ្ជបញ្ជា';
 
   @override
-  String get weeklyAdherence => 'សប្តាហ៍នេះ';
+  String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
 
   @override
-  String get monthlyAdherence => 'ខែនេះ';
-
-  @override
-  String get onTime => 'ទាន់ពេល';
-
-  @override
-  String get totalDoses => 'ថ្នាំសរុប';
-
-  @override
-  String get doseHistory => 'ប្រវត្តិថ្នាំ';
-
-  @override
-  String get reportPeriod => 'រយៈពេលរបាយការណ៍';
-
-  @override
-  String get last7Days => '៧ ថ្ងៃចុងក្រោយ';
-
-  @override
-  String get last30Days => '៣០ ថ្ងៃចុងក្រោយ';
-
-  @override
-  String get timeAgoJustNow => 'ឥឡូវ';
-
-  @override
-  String timeAgoMinutes(int count) {
-    return '$countនាទី';
+  String prescriptionFromDoctor(String name) {
+    return 'ពីគ្រូពេទ្យ $name';
   }
 
   @override
-  String timeAgoHours(int count) {
-    return '$countម';
-  }
+  String get missedDoseBanner => 'អ្នកបានខកខានការប្រើប្រាស់ថ្នាំថ្ងៃនេះ';
 
   @override
-  String timeAgoDays(int count) {
-    return '$countថ';
-  }
+  String get familyFunctionTitle => 'គ្រួសារ និងអ្នកថែទាំ';
 
   @override
-  String get wizardStepPrescription => 'វេជ្ជបញ្ជា';
+  String get familyIntroDescription =>
+      'ភ្ជាប់ជាមួយសមាជិកគ្រួសារ ឬអ្នកថែទាំ ដើម្បីចែករំលែកកាលវិភាគថ្នាំ។';
 
   @override
-  String get wizardStepMedicines => 'ថ្នាំ';
+  String get familyBulletSender =>
+      'ចែករំលែកកាលវិភាគរបស់អ្នកជាមួយគ្រួសារ ដើម្បីឱ្យពួកគេតាមដាន';
 
   @override
-  String get wizardStepReview => 'ពិនិត្យ';
+  String get familyBulletReceiver =>
+      'ស្កែន QR កូដរបស់អ្នកជំងឺ ដើម្បីចាប់ផ្តើមតាមដាន';
 
   @override
-  String get prescriptionName => 'ឈ្មោះវេជ្ជបញ្ជា';
+  String get familyIntroFooter =>
+      'ការភ្ជាប់ទាមទារការអនុម័តពីអ្នកជំងឺ ហើយអាចដកបានគ្រប់ពេល។';
 
   @override
-  String get prescriptionNameHint => 'ឧ. ព្យាបាលផ្ដាសាយ';
+  String get startUsing => 'ចាប់ផ្តើម';
 
   @override
-  String get doctorNameOptional => 'ឈ្មោះវេជ្ជបណ្ឌិត (ជម្រើស)';
+  String get learnMore => 'ស្វែងយល់បន្ថែម';
 
   @override
-  String get doctorNameHint => 'ឧ. វេជ្ជបណ្ឌិត សុខ';
+  String get appearance => 'រូបរាង';
 
   @override
-  String get startDate => 'ថ្ងៃចាប់ផ្ដើម';
+  String get notificationPermission => 'ការអនុញ្ញាតជូនដំណឹង';
 
   @override
-  String get endDate => 'ថ្ងៃបញ្ចប់';
+  String get permissionGranted => 'បានអនុញ្ញាត';
 
   @override
-  String get addMedicineStep => 'បន្ថែមថ្នាំ';
+  String get rateAppSubtitle => 'ចែករំលែកមតិរបស់អ្នកនៅ App Store';
 
   @override
-  String get medicineNameLabel => 'ឈ្មោះថ្នាំ';
+  String get contactSupportSubtitle => 'ទទួលជំនួយពីក្រុមជំនួយ';
 
   @override
-  String get dosageLabel => 'កម្រិតថ្នាំ';
+  String get termsOfServiceSubtitle => 'អានលក្ខខណ្ឌប្រើប្រាស់';
 
   @override
-  String get dosageHint => 'ឧ​. ៥០០ មីលីក្រាម';
+  String get privacyPolicySubtitle => 'អាននយោបាយឯកជនភាព';
 
   @override
-  String get quantityPerTime => 'ចំនួនក្នុងមួយដង';
+  String get tosLastUpdated => 'ធ្វើបច្ចុប្បន្នភាព: ០១ មីនា ២០២៦';
 
   @override
-  String get quantityHint => 'ឧ. ១ គ្រាប់';
+  String get tosContactFooter => 'មានសំណួរ? ទាក់ទងយើងតាម support@dastern.com';
 
   @override
-  String get frequencyLabel => 'ប្រេកង់';
+  String get tosSection1Title => 'ការទទួលយកលក្ខខណ្ឌ';
 
   @override
-  String get oncePerDay => 'មួយដងក្នុងមួយថ្ងៃ';
+  String get tosSection1Body =>
+      'តាមរយៈការចូលប្រើ ឬប្រើប្រាស់ DasTern អ្នកយល់ព្រមនឹងលក្ខខណ្ឌប្រើប្រាស់ទាំងនេះ។ ប្រសិនបើអ្នកមិនយល់ព្រម សូមមិនប្រើប្រាស់កម្មវិធីនេះ។';
 
   @override
-  String get twicePerDay => 'ពីរដងក្នុងមួយថ្ងៃ';
+  String get tosSection2Title => 'ការពណ៌នាអំពីសេវាកម្ម';
 
   @override
-  String get threeTimesPerDay => 'បីដងក្នុងមួយថ្ងៃ';
+  String get tosSection2Body =>
+      'DasTern ផ្តល់លក្ខណៈពិសេសសម្រាប់គ្រប់គ្រងថ្នាំ តាមដានសុខភាព និងវេជ្ជសាស្ត្រពីចម្ងាយ។ កម្មវិធីនេះមិនអាចជំនួសសេវាវេជ្ជសាស្ត្រ ការធ្វើរោគវិនិច្ឆ័យ ឬការព្យាបាលដោយបានទេ។';
 
   @override
-  String get customFrequency => 'ផ្សេងៗ';
+  String get tosSection3Title => 'គណនីអ្នកប្រើប្រាស់';
 
   @override
-  String get takingTime => 'ពេលវេលាញ៉ាំ';
+  String get tosSection3Body =>
+      'អ្នកទទួលខុសត្រូវក្នុងការរក្សាការសម្ងាត់នៃពត៌មានបញ្ជាក់អត្តសញ្ញាណគណនីរបស់អ្នក។ អ្នកយល់ព្រមផ្តល់ពត៌មានត្រឹមត្រូវ និងធ្វើបច្ចុប្បន្នភាពតាមករណីចាំបាច់។';
 
   @override
-  String get mealInstruction => 'ការណែនាំអាហារ';
+  String get tosSection4Title => 'ការជាវ និងការទូទាត់';
 
   @override
-  String get beforeMealOption => 'មុនអាហារ';
+  String get tosSection4Body =>
+      'មុខងារខ្លះទាមទារការជាវដែលមានការបង់ប្រាក់។ តម្លៃត្រូវបានបង្ហាញមុនពេលទិញ។ អ្នកអាចលុបចោលបានគ្រប់ពេល ហើយការចូលប្រើនឹងបន្តរហូតដល់ចុងបញ្ចប់នៃរយៈពេលបង់ប្រាក់។';
 
   @override
-  String get afterMealOption => 'ក្រោយអាហារ';
+  String get tosSection5Title => 'កម្មសិទ្ធិបញ្ញា';
 
   @override
-  String get anytimeOption => 'ពេលណាក៏បាន';
+  String get tosSection5Body =>
+      'មាតិកា ពាណិជ្ជសញ្ញា និងកម្មវិធីទាំងអស់ក្នុង DasTern ជាកម្មសិទ្ធិ ឬបានទទួលអាជ្ញាបណ្ណដោយយើង។ អ្នកមិនអាចចម្លង កែប្រែ ឬចែកចាយណាមួយដោយគ្មានការអនុញ្ញាតជាលាយលក្ខណ៍អក្សរ។';
 
   @override
-  String get addAnotherMedicine => '+ បន្ថែមថ្នាំមួយទៀត';
+  String get tosSection6Title => 'ការកំណត់ទំនួលខុសត្រូវ';
 
   @override
-  String get finishPrescription => 'បញ្ចប់វេជ្ជបញ្ជា';
+  String get tosSection6Body =>
+      'DasTern ត្រូវបានផ្តល់ដូចដែលវាជា។ យើងមិនទទួលខុសត្រូវចំពោះការខូចខាតដោយប្រយោល ចៃដន្យ ឬជាផលវិបាកដែលបណ្តាលមកពីការប្រើប្រាស់សេវាកម្មរបស់អ្នក។';
 
   @override
-  String get reviewPrescription => 'ពិនិត្យវេជ្ជបញ្ជា';
+  String get tosSection7Title => 'ការផ្លាស់ប្តូរលក្ខខណ្ឌ';
 
   @override
-  String get schedulePreview => 'មើលកាលវិភាគជាមុន';
+  String get tosSection7Body =>
+      'យើងរក្សាសិទ្ធិក្នុងការកែប្រែលក្ខខណ្ឌទាំងនេះគ្រប់ពេលវេលា។ ការបន្តប្រើប្រាស់ក្រោយផ្លាស់ប្តូរ សម្ដែងនូវការទទួលយកលក្ខខណ្ឌថ្មី។';
 
   @override
-  String get prescriptionCreatedSuccess => 'វេជ្ជបញ្ជាត្រូវបានបង្កើតជោគជ័យ!';
+  String get ppLastUpdated => 'ធ្វើបច្ចុប្បន្នភាព: ០១ មីនា ២០២៦';
 
   @override
-  String get yourScheduleReady => 'កាលវិភាគថ្នាំរបស់អ្នកត្រៀមរួចហើយ';
+  String get ppHighlightBanner =>
+      'ទិន្នន័យសុខភាពរបស់អ្នកត្រូវបានអ៊ិនគ្រីបពីចុងដល់ចុង ហើយមិនត្រូវបានចែករំលែកដោយគ្មានការយល់ព្រម។';
 
   @override
-  String get viewSchedule => 'មើលកាលវិភាគ';
+  String get ppContactFooter => 'មានសំណួរ? ទាក់ទង privacy@dastern.com';
 
   @override
-  String get goHome => 'ទៅទំព័រដើម';
+  String get ppSection1Title => 'ព័ត៌មានដែលយើងប្រមូល';
 
   @override
-  String get noMedicinesAdded => 'មិនទាន់បន្ថែមថ្នាំទេ';
+  String get ppSection1Body =>
+      'យើងប្រមូលព័ត៌មានផ្ទាល់ខ្លួនដែលអ្នកផ្តល់ (ឈ្មោះ អ៊ីមែល ទិន្នន័យសុខភាព) និងទិន្នន័យដែលប្រមូលដោយស្វ័យប្រវត្តិ (ព័ត៌មានឧបករណ៍ គំរូនៃការប្រើប្រាស់) ដើម្បីផ្តល់ និងកែលម្អសេវាកម្ម។';
 
   @override
-  String get addYourFirstMedicine => 'ចុចប៊ូតុងខាងក្រោមដើម្បីបន្ថែមថ្នាំដំបូង';
+  String get ppSection2Title => 'ទិន្នន័យសុខភាព';
 
   @override
-  String medicinesCount(int count) {
-    return 'បានបន្ថែមថ្នាំ $count មុខ';
-  }
+  String get ppSection2Body =>
+      'កំណត់ត្រាថ្នាំ សញ្ញាសុខភាព និងកំណត់ចំណាំសុខភាពត្រូវបានរក្សាទុកដោយសុវត្ថិភាព។ យើងមិនលក់ទិន្នន័យសុខភាពទេ។ ការចូលប្រើមានកម្រិតចំពោះអ្នក ក្រុមថែទាំរបស់អ្នក និងបុគ្គលិកដែលមានសិទ្ធិ។';
 
   @override
-  String get createPrescriptionManual => 'បង្កើតវេជ្ជបញ្ជា';
+  String get ppSection3Title => 'សុវត្ថិភាពទិន្នន័យ';
 
   @override
-  String get createPrescriptionManualDesc =>
-      'បន្ថែមថ្នាំដោយផ្ទាល់ និងកំណត់កាលវិភាគ';
+  String get ppSection3Body =>
+      'យើងប្រើការអ៊ិនគ្រីបស្តង់ដារឧស្សាហកម្ម (AES-256) សម្រាប់ទិន្នន័យនៅទំនេរ និង TLS 1.3 សម្រាប់ទិន្នន័យដែលកំពុងបញ្ជូន។ ការចូលប្រើត្រូវបានគ្រប់គ្រងដោយការអនុញ្ញាតតាមតួនាទី។';
 
   @override
-  String get scanPrescriptionOption => 'ស្កេនវេជ្ជបញ្ជា';
+  String get ppSection4Title => 'ការចែករំលែក និងការបង្ហាញ';
 
   @override
-  String get scanPrescriptionOptionDesc =>
-      'ស្កេនវេជ្ជបញ្ជាពីវេជ្ជបណ្ឌិតដោយកាមេរ៉ា';
+  String get ppSection4Body =>
+      'យើងមិនលក់ទិន្នន័យរបស់អ្នកទេ។ យើងអាចចែករំលែកព័ត៌មានជាមួយអ្នកផ្តល់សេវាសុខភាពដែលអ្នកអនុញ្ញាត ដៃគូសេវា ឬតាមច្បាប់។';
 
   @override
-  String get quickAddMedicine => 'បន្ថែមថ្នាំរហ័ស';
+  String get ppSection5Title => 'ខូគី និងការវិភាគ';
 
   @override
-  String get quickAddMedicineDesc => 'បន្ថែមថ្នាំមួយមុខយ៉ាងរហ័ស';
+  String get ppSection5Body =>
+      'យើងប្រើការវិភាគអប្បបរមា ដើម្បីយល់ពីការប្រើប្រាស់កម្មវិធី និងកែលម្អលក្ខណៈពិសេស។ គ្មានឧបករណ៍តាមដានផ្សាយពាណិជ្ជកម្មភាគីទីបីត្រូវបានប្រើក្នុង DasTern ទេ។';
 
   @override
-  String prescriptionDuration(int days) {
-    return '$days ថ្ងៃ';
-  }
+  String get ppSection6Title => 'សិទ្ធិរបស់អ្នក';
 
   @override
-  String get savePrescription => 'រក្សាទុកវេជ្ជបញ្ជា';
+  String get ppSection6Body =>
+      'អ្នកអាចចូលប្រើ កែតម្រូវ នាំចេញ ឬលុបទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នកបានគ្រប់ពេលពីការកំណត់ប្រវត្តិរូប។ អ្នកក៏អាចដកការយល់ព្រមសម្រាប់ការដំណើរការទិន្នន័យស្រេចចិត្តផងដែរ។';
 
   @override
-  String get deleteMedicine => 'លុបថ្នាំ';
+  String get ppSection7Title => 'ការផ្លាស់ប្តូរគោលការណ៍';
 
   @override
-  String get morningTime => '08:00';
+  String get ppSection7Body =>
+      'យើងនឹងជូនដំណឹងអំពីការផ្លាស់ប្តូរសំខាន់តាមរយៈការជូនដំណឹងក្នុងកម្មវិធី ឬអ៊ីមែល។ ការបន្តប្រើប្រាស់ក្រោយផ្លាស់ប្តូរ សម្ដែងនូវការទទួលយក។';
 
   @override
-  String get afternoonTime => '13:00';
+  String get csHowCanWeHelp => 'តើយើងអាចជួយអ្វីបាន?';
 
   @override
-  String get nightTime => '20:00';
+  String get csChooseOption => 'ជ្រើសរើសជម្រើសខាងក្រោមដើម្បីទាក់ទង';
 
   @override
-  String get scheduleAutoGenerated =>
-      'កាលវិភាគបង្កើតដោយស្វ័យប្រវត្តិពីថ្នាំរបស់អ្នក';
+  String get csEmailUs => 'ផ្ញើអ៊ីមែល';
+
+  @override
+  String get csSend => 'ផ្ញើ';
+
+  @override
+  String get csCallUs => 'ហៅទូរស័ព្ទ';
+
+  @override
+  String get csCall => 'ហៅ';
+
+  @override
+  String get csOfficeHours => 'ម៉ោងការិយាល័យ';
+
+  @override
+  String get csOfficeHoursValue => 'ច័ន្ទ – សុក្រ, ៨ ព្រឹក – ៦ ល្ងាច (ICT)';
+
+  @override
+  String get csResponseTime => 'ជាធម្មតายើងឆ្លើយតបក្នុងរយៈពេល ២៤ ម៉ោង។';
+
+  @override
+  String get termsSubtitle => 'សូមអានលក្ខខណ្ឌនៃការប្រើប្រាស់';
+
+  @override
+  String get privacySubtitle => 'របៀបដែលយើងការពារទិន្នន័យរបស់អ្នក';
+
+  @override
+  String get helpImprove => 'ជួយយើងកែលម្អ DasTern';
 }
