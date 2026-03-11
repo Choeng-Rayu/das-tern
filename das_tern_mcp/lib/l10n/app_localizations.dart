@@ -176,30 +176,6 @@ abstract class AppLocalizations {
   /// **'Your medication reminder companion'**
   String get welcomeMessage;
 
-  /// No description provided for @welcomeScreenSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Your health, our priority. Manage your medical records with ease.'**
-  String get welcomeScreenSubtitle;
-
-  /// No description provided for @emergencyAccess.
-  ///
-  /// In en, this message translates to:
-  /// **'Emergency Access'**
-  String get emergencyAccess;
-
-  /// No description provided for @doctorStep1PersonalInfo.
-  ///
-  /// In en, this message translates to:
-  /// **'Step 1 of 2 - Personal Information'**
-  String get doctorStep1PersonalInfo;
-
-  /// No description provided for @doctorStep2ProfessionalInfo.
-  ///
-  /// In en, this message translates to:
-  /// **'Step 2 of 2 - Professional & Security'**
-  String get doctorStep2ProfessionalInfo;
-
   /// No description provided for @selectRoleTitle.
   ///
   /// In en, this message translates to:
@@ -1766,48 +1742,6 @@ abstract class AppLocalizations {
   /// **'Unknown'**
   String get unknown;
 
-  /// No description provided for @familyFunctionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Family Features'**
-  String get familyFunctionTitle;
-
-  /// No description provided for @familyIntroDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Allow family members to track your daily medication intake and receive Notifications when:'**
-  String get familyIntroDescription;
-
-  /// No description provided for @familyBulletSender.
-  ///
-  /// In en, this message translates to:
-  /// **'You take medication'**
-  String get familyBulletSender;
-
-  /// No description provided for @familyBulletReceiver.
-  ///
-  /// In en, this message translates to:
-  /// **'You miss a dose'**
-  String get familyBulletReceiver;
-
-  /// No description provided for @familyIntroFooter.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage your family to receive updates and detailed monitoring information etc.'**
-  String get familyIntroFooter;
-
-  /// No description provided for @startUsing.
-  ///
-  /// In en, this message translates to:
-  /// **'Start Using'**
-  String get startUsing;
-
-  /// No description provided for @learnMore.
-  ///
-  /// In en, this message translates to:
-  /// **'Learn More'**
-  String get learnMore;
-
   /// No description provided for @scanPrescriptionTitle.
   ///
   /// In en, this message translates to:
@@ -2174,12 +2108,6 @@ abstract class AppLocalizations {
   /// **'Open in Banking App'**
   String get openInBankingApp;
 
-  /// No description provided for @bankAmountPreFilled.
-  ///
-  /// In en, this message translates to:
-  /// **'Bakong: payment pre-loaded · Others: open app and scan the QR above'**
-  String get bankAmountPreFilled;
-
   /// No description provided for @orOpenDirectly.
   ///
   /// In en, this message translates to:
@@ -2333,7 +2261,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumTrialActive.
   ///
   /// In en, this message translates to:
-  /// **'🎉 Premium Trial Active'**
+  /// **'Premium Trial Active'**
   String get premiumTrialActive;
 
   /// No description provided for @dayRemaining.
@@ -3572,12 +3500,6 @@ abstract class AppLocalizations {
   /// **'DasTern connection code: {token}'**
   String shareCodeMessage(String token);
 
-  /// No description provided for @shareQrAndCodeMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Here is my DasTern connection code: {token}\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.'**
-  String shareQrAndCodeMessage(String token);
-
   /// No description provided for @generateNewCode.
   ///
   /// In en, this message translates to:
@@ -4640,54 +4562,6 @@ abstract class AppLocalizations {
   /// **'Support'**
   String get support;
 
-  /// No description provided for @appearance.
-  ///
-  /// In en, this message translates to:
-  /// **'Appearance'**
-  String get appearance;
-
-  /// No description provided for @notificationPermission.
-  ///
-  /// In en, this message translates to:
-  /// **'Notification Permission'**
-  String get notificationPermission;
-
-  /// No description provided for @permissionGranted.
-  ///
-  /// In en, this message translates to:
-  /// **'Granted'**
-  String get permissionGranted;
-
-  /// No description provided for @rateAppSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Help us improve DasTern'**
-  String get rateAppSubtitle;
-
-  /// No description provided for @contactSupportSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Get help from our team'**
-  String get contactSupportSubtitle;
-
-  /// No description provided for @termsOfServiceSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Read our terms & conditions'**
-  String get termsOfServiceSubtitle;
-
-  /// No description provided for @privacyPolicySubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'How we protect your data'**
-  String get privacyPolicySubtitle;
-
-  /// No description provided for @restoringSubscription.
-  ///
-  /// In en, this message translates to:
-  /// **'Restoring subscription…'**
-  String get restoringSubscription;
-
   /// No description provided for @currentPassword.
   ///
   /// In en, this message translates to:
@@ -4739,7 +4613,7 @@ abstract class AppLocalizations {
   /// No description provided for @connectionRequestFailed.
   ///
   /// In en, this message translates to:
-  /// **'Connection request failed'**
+  /// **'Failed to send connection request'**
   String get connectionRequestFailed;
 
   /// No description provided for @sendConnectionRequest.
@@ -4748,29 +4622,41 @@ abstract class AppLocalizations {
   /// **'Send Connection Request'**
   String get sendConnectionRequest;
 
+  /// No description provided for @doctorStep1PersonalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1 of 2 - Personal Info'**
+  String get doctorStep1PersonalInfo;
+
+  /// No description provided for @doctorStep2ProfessionalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2 of 2 - Professional Info'**
+  String get doctorStep2ProfessionalInfo;
+
+  /// No description provided for @welcomeScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trusted medication companion'**
+  String get welcomeScreenSubtitle;
+
+  /// No description provided for @emergencyAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Access'**
+  String get emergencyAccess;
+
   /// No description provided for @connectionApproved.
   ///
   /// In en, this message translates to:
-  /// **'Connection approved'**
+  /// **'Connection Approved'**
   String get connectionApproved;
 
   /// No description provided for @connectionRejected.
   ///
   /// In en, this message translates to:
-  /// **'Connection rejected'**
+  /// **'Connection Rejected'**
   String get connectionRejected;
-
-  /// No description provided for @approveConnection.
-  ///
-  /// In en, this message translates to:
-  /// **'Approve Connection'**
-  String get approveConnection;
-
-  /// No description provided for @rejectConnection.
-  ///
-  /// In en, this message translates to:
-  /// **'Reject Connection'**
-  String get rejectConnection;
 
   /// No description provided for @removeNotification.
   ///
@@ -4781,7 +4667,7 @@ abstract class AppLocalizations {
   /// No description provided for @removeNotificationConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Remove notification?'**
+  /// **'Are you sure you want to remove this notification?'**
   String get removeNotificationConfirm;
 
   /// No description provided for @remove.
@@ -4790,47 +4676,23 @@ abstract class AppLocalizations {
   /// **'Remove'**
   String get remove;
 
-  /// No description provided for @prescriptionConfirmed.
+  /// No description provided for @shareQrAndCodeMessage.
   ///
   /// In en, this message translates to:
-  /// **'Prescription confirmed'**
-  String get prescriptionConfirmed;
+  /// **'DasTern QR & Connection Code: {token}'**
+  String shareQrAndCodeMessage(String token);
 
-  /// No description provided for @prescriptionRejected.
+  /// No description provided for @rejectConnection.
   ///
   /// In en, this message translates to:
-  /// **'Prescription rejected'**
-  String get prescriptionRejected;
+  /// **'Reject'**
+  String get rejectConnection;
 
-  /// No description provided for @rejectPrescription.
+  /// No description provided for @approveConnection.
   ///
   /// In en, this message translates to:
-  /// **'Reject Prescription'**
-  String get rejectPrescription;
-
-  /// No description provided for @confirmPrescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm Prescription'**
-  String get confirmPrescription;
-
-  /// No description provided for @prescriptionFromDoctor.
-  ///
-  /// In en, this message translates to:
-  /// **'Prescription from {doctor}'**
-  String prescriptionFromDoctor(String doctor);
-
-  /// No description provided for @pendingPrescriptions.
-  ///
-  /// In en, this message translates to:
-  /// **'Pending Prescriptions'**
-  String get pendingPrescriptions;
-
-  /// No description provided for @missedDoseBanner.
-  ///
-  /// In en, this message translates to:
-  /// **'You missed a dose'**
-  String get missedDoseBanner;
+  /// **'Approve'**
+  String get approveConnection;
 
   /// No description provided for @ocrOutpatient.
   ///
@@ -4856,16 +4718,10 @@ abstract class AppLocalizations {
   /// **'Clinic'**
   String get ocrFacilityClinic;
 
-  /// No description provided for @ocrNotAvailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Not available'**
-  String get ocrNotAvailable;
-
   /// No description provided for @ocrNeedsReviewYes.
   ///
   /// In en, this message translates to:
-  /// **'Yes, needs review'**
+  /// **'Needs Review'**
   String get ocrNeedsReviewYes;
 
   /// No description provided for @ocrAiEnhanced.
@@ -4877,55 +4733,37 @@ abstract class AppLocalizations {
   /// No description provided for @ocrAiUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'OCR Only'**
+  /// **'AI Unavailable'**
   String get ocrAiUnavailable;
 
-  /// No description provided for @ocrPatientInfoSection.
+  /// No description provided for @bankAmountPreFilled.
   ///
   /// In en, this message translates to:
-  /// **'Patient Information'**
-  String get ocrPatientInfoSection;
+  /// **'Amount pre-filled by bank'**
+  String get bankAmountPreFilled;
 
-  /// No description provided for @ocrPatientId.
+  /// No description provided for @ocrConfidencePercent.
   ///
   /// In en, this message translates to:
-  /// **'Patient ID'**
-  String get ocrPatientId;
+  /// **'{percent}% confidence'**
+  String ocrConfidencePercent(String percent);
 
-  /// No description provided for @ocrPatientName.
+  /// No description provided for @ocrNotAvailable.
   ///
   /// In en, this message translates to:
-  /// **'Patient Name'**
-  String get ocrPatientName;
+  /// **'N/A'**
+  String get ocrNotAvailable;
 
-  /// No description provided for @ocrPatientKhmerName.
+  /// No description provided for @ocrScanInfoSection.
   ///
   /// In en, this message translates to:
-  /// **'Patient Name (Khmer)'**
-  String get ocrPatientKhmerName;
-
-  /// No description provided for @ocrPatientAge.
-  ///
-  /// In en, this message translates to:
-  /// **'Age'**
-  String get ocrPatientAge;
-
-  /// No description provided for @ocrYearsOld.
-  ///
-  /// In en, this message translates to:
-  /// **'{age} years old'**
-  String ocrYearsOld(String age);
-
-  /// No description provided for @ocrPatientGender.
-  ///
-  /// In en, this message translates to:
-  /// **'Gender'**
-  String get ocrPatientGender;
+  /// **'Scan Information'**
+  String get ocrScanInfoSection;
 
   /// No description provided for @ocrPrescriberSection.
   ///
   /// In en, this message translates to:
-  /// **'Prescriber Information'**
+  /// **'Prescriber'**
   String get ocrPrescriberSection;
 
   /// No description provided for @ocrPrescriberName.
@@ -4937,7 +4775,7 @@ abstract class AppLocalizations {
   /// No description provided for @ocrFacilitySection.
   ///
   /// In en, this message translates to:
-  /// **'Facility Information'**
+  /// **'Facility'**
   String get ocrFacilitySection;
 
   /// No description provided for @ocrFacilityName.
@@ -4952,22 +4790,16 @@ abstract class AppLocalizations {
   /// **'Facility Type'**
   String get ocrFacilityType;
 
-  /// No description provided for @ocrClinicalSection.
+  /// No description provided for @ocrValidated.
   ///
   /// In en, this message translates to:
-  /// **'Clinical Information'**
-  String get ocrClinicalSection;
-
-  /// No description provided for @ocrDiagnosis.
-  ///
-  /// In en, this message translates to:
-  /// **'Diagnosis'**
-  String get ocrDiagnosis;
+  /// **'Validated'**
+  String get ocrValidated;
 
   /// No description provided for @ocrMetadataSection.
   ///
   /// In en, this message translates to:
-  /// **'Metadata'**
+  /// **'OCR Metadata'**
   String get ocrMetadataSection;
 
   /// No description provided for @ocrConfidenceScore.
@@ -4975,12 +4807,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confidence Score'**
   String get ocrConfidenceScore;
-
-  /// No description provided for @ocrConfidencePercent.
-  ///
-  /// In en, this message translates to:
-  /// **'{confidence}%'**
-  String ocrConfidencePercent(String confidence);
 
   /// No description provided for @ocrEngine.
   ///
@@ -5018,17 +4844,401 @@ abstract class AppLocalizations {
   /// **'Validation Status'**
   String get ocrValidationStatus;
 
-  /// No description provided for @ocrValidated.
+  /// No description provided for @rejectPrescription.
   ///
   /// In en, this message translates to:
-  /// **'Validated'**
-  String get ocrValidated;
+  /// **'Reject Prescription'**
+  String get rejectPrescription;
 
-  /// No description provided for @ocrScanInfoSection.
+  /// No description provided for @prescriptionRejected.
   ///
   /// In en, this message translates to:
-  /// **'Scan Information'**
-  String get ocrScanInfoSection;
+  /// **'Prescription rejected'**
+  String get prescriptionRejected;
+
+  /// No description provided for @prescriptionConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription confirmed'**
+  String get prescriptionConfirmed;
+
+  /// No description provided for @confirmPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Prescription'**
+  String get confirmPrescription;
+
+  /// No description provided for @pendingPrescriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Prescriptions'**
+  String get pendingPrescriptions;
+
+  /// No description provided for @prescriptionFromDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'From Dr. {name}'**
+  String prescriptionFromDoctor(String name);
+
+  /// No description provided for @missedDoseBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You have missed doses today'**
+  String get missedDoseBanner;
+
+  /// No description provided for @familyFunctionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Family & Caregivers'**
+  String get familyFunctionTitle;
+
+  /// No description provided for @familyIntroDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect with family members or caregivers to share your medication schedule.'**
+  String get familyIntroDescription;
+
+  /// No description provided for @familyBulletSender.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your schedule with family to let them monitor your medication adherence'**
+  String get familyBulletSender;
+
+  /// No description provided for @familyBulletReceiver.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a patient\'s QR code to start monitoring their medication intake'**
+  String get familyBulletReceiver;
+
+  /// No description provided for @familyIntroFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Connections require patient approval and can be revoked at any time.'**
+  String get familyIntroFooter;
+
+  /// No description provided for @startUsing.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get startUsing;
+
+  /// No description provided for @learnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn More'**
+  String get learnMore;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @notificationPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Permission'**
+  String get notificationPermission;
+
+  /// No description provided for @permissionGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'Granted'**
+  String get permissionGranted;
+
+  /// No description provided for @rateAppSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your feedback on the App Store'**
+  String get rateAppSubtitle;
+
+  /// No description provided for @contactSupportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get help from our support team'**
+  String get contactSupportSubtitle;
+
+  /// No description provided for @termsOfServiceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read our terms and conditions'**
+  String get termsOfServiceSubtitle;
+
+  /// No description provided for @privacyPolicySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read our privacy policy'**
+  String get privacyPolicySubtitle;
+
+  /// No description provided for @tosLastUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: March 1, 2026'**
+  String get tosLastUpdated;
+
+  /// No description provided for @tosContactFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions? Contact us at support@dastern.com'**
+  String get tosContactFooter;
+
+  /// No description provided for @tosSection1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Acceptance of Terms'**
+  String get tosSection1Title;
+
+  /// No description provided for @tosSection1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'By accessing or using DasTern, you agree to be bound by these Terms of Service. If you do not agree, please do not use the application.'**
+  String get tosSection1Body;
+
+  /// No description provided for @tosSection2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Description of Service'**
+  String get tosSection2Title;
+
+  /// No description provided for @tosSection2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'DasTern provides medication management, health tracking, and telemedicine features. The app is not a substitute for professional medical advice, diagnosis, or treatment.'**
+  String get tosSection2Body;
+
+  /// No description provided for @tosSection3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'User Accounts'**
+  String get tosSection3Title;
+
+  /// No description provided for @tosSection3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate information and to update it as necessary.'**
+  String get tosSection3Body;
+
+  /// No description provided for @tosSection4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription & Payments'**
+  String get tosSection4Title;
+
+  /// No description provided for @tosSection4Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Some features require a paid subscription. Prices are displayed before purchase. You may cancel at any time; access continues until the end of the billing period.'**
+  String get tosSection4Body;
+
+  /// No description provided for @tosSection5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Intellectual Property'**
+  String get tosSection5Title;
+
+  /// No description provided for @tosSection5Body.
+  ///
+  /// In en, this message translates to:
+  /// **'All content, trademarks, and software in DasTern are owned by or licensed to us. You may not copy, modify, or distribute any part without written permission.'**
+  String get tosSection5Body;
+
+  /// No description provided for @tosSection6Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Limitation of Liability'**
+  String get tosSection6Title;
+
+  /// No description provided for @tosSection6Body.
+  ///
+  /// In en, this message translates to:
+  /// **'DasTern is provided as is. We are not liable for any indirect, incidental, or consequential damages arising from your use of the service.'**
+  String get tosSection6Body;
+
+  /// No description provided for @tosSection7Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes to Terms'**
+  String get tosSection7Title;
+
+  /// No description provided for @tosSection7Body.
+  ///
+  /// In en, this message translates to:
+  /// **'We reserve the right to modify these terms at any time. Continued use after changes constitutes acceptance of the new terms.'**
+  String get tosSection7Body;
+
+  /// No description provided for @ppLastUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: March 1, 2026'**
+  String get ppLastUpdated;
+
+  /// No description provided for @ppHighlightBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Your health data is encrypted end-to-end and never shared without consent.'**
+  String get ppHighlightBanner;
+
+  /// No description provided for @ppContactFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions? Contact privacy@dastern.com'**
+  String get ppContactFooter;
+
+  /// No description provided for @ppSection1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Information We Collect'**
+  String get ppSection1Title;
+
+  /// No description provided for @ppSection1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'We collect personal information you provide (name, email, health data) and automatically gathered data (device info, usage patterns) to deliver and improve our services.'**
+  String get ppSection1Body;
+
+  /// No description provided for @ppSection2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Data'**
+  String get ppSection2Title;
+
+  /// No description provided for @ppSection2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Medication records, vital signs, and health notes are stored securely. We never sell health data. Access is limited to you, your care team (with your consent), and authorized staff for service delivery.'**
+  String get ppSection2Body;
+
+  /// No description provided for @ppSection3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Security'**
+  String get ppSection3Title;
+
+  /// No description provided for @ppSection3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'We use industry-standard encryption (AES-256) for data at rest and TLS 1.3 for data in transit. Access is controlled with role-based permissions and regular security audits.'**
+  String get ppSection3Body;
+
+  /// No description provided for @ppSection4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing & Disclosure'**
+  String get ppSection4Title;
+
+  /// No description provided for @ppSection4Body.
+  ///
+  /// In en, this message translates to:
+  /// **'We do not sell your data. We may share information with healthcare providers you authorize, service partners under strict agreements, or when required by law.'**
+  String get ppSection4Body;
+
+  /// No description provided for @ppSection5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cookies & Analytics'**
+  String get ppSection5Title;
+
+  /// No description provided for @ppSection5Body.
+  ///
+  /// In en, this message translates to:
+  /// **'We use minimal analytics to understand app usage and improve features. No third-party advertising trackers are used in DasTern.'**
+  String get ppSection5Body;
+
+  /// No description provided for @ppSection6Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Rights'**
+  String get ppSection6Title;
+
+  /// No description provided for @ppSection6Body.
+  ///
+  /// In en, this message translates to:
+  /// **'You can access, correct, export, or delete your personal data at any time from your profile settings. You may also withdraw consent for optional data processing.'**
+  String get ppSection6Body;
+
+  /// No description provided for @ppSection7Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Policy Changes'**
+  String get ppSection7Title;
+
+  /// No description provided for @ppSection7Body.
+  ///
+  /// In en, this message translates to:
+  /// **'We will notify you of significant changes via in-app notification or email. Continued use after changes constitutes acceptance.'**
+  String get ppSection7Body;
+
+  /// No description provided for @csHowCanWeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How can we help?'**
+  String get csHowCanWeHelp;
+
+  /// No description provided for @csChooseOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an option below to get in touch'**
+  String get csChooseOption;
+
+  /// No description provided for @csEmailUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Us'**
+  String get csEmailUs;
+
+  /// No description provided for @csSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get csSend;
+
+  /// No description provided for @csCallUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Us'**
+  String get csCallUs;
+
+  /// No description provided for @csCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get csCall;
+
+  /// No description provided for @csOfficeHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Office Hours'**
+  String get csOfficeHours;
+
+  /// No description provided for @csOfficeHoursValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon – Fri, 8 AM – 6 PM (ICT)'**
+  String get csOfficeHoursValue;
+
+  /// No description provided for @csResponseTime.
+  ///
+  /// In en, this message translates to:
+  /// **'We usually respond within 24 hours.'**
+  String get csResponseTime;
+
+  /// No description provided for @termsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read our terms & conditions'**
+  String get termsSubtitle;
+
+  /// No description provided for @privacySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How we protect your data'**
+  String get privacySubtitle;
+
+  /// No description provided for @helpImprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us improve DasTern'**
+  String get helpImprove;
 }
 
 class _AppLocalizationsDelegate
