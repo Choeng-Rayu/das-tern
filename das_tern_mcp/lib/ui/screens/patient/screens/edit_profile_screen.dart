@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
@@ -22,10 +25,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _lastNameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
-  late TextEditingController _idCardController;
   String _gender = 'MALE';
   DateTime? _dateOfBirth;
   bool _hasChanges = false;
+  File? _pickedImage;
+  String? _existingProfilePictureUrl;
 
   @override
   void initState() {
@@ -38,9 +42,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _lastNameController = TextEditingController(text: user?['lastName'] ?? '');
     _emailController = TextEditingController(text: user?['email'] ?? '');
     _phoneController = TextEditingController(text: user?['phoneNumber'] ?? '');
-    _idCardController = TextEditingController(
-      text: user?['idCardNumber'] ?? '',
-    );
+    _existingProfilePictureUrl = user?['profilePictureUrl'];
     _gender = user?['gender'] ?? 'MALE';
 
     if (user?['dateOfBirth'] != null) {
@@ -52,11 +54,64 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _lastNameController.addListener(_onFieldChanged);
     _emailController.addListener(_onFieldChanged);
     _phoneController.addListener(_onFieldChanged);
-    _idCardController.addListener(_onFieldChanged);
   }
 
   void _onFieldChanged() {
     if (!_hasChanges) setState(() => _hasChanges = true);
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Take a photo'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Choose from gallery'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+
+    if (source == null) return;
+
+    final picked = await picker.pickImage(
+      source: source,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 75,
+    );
+
+    if (picked != null) {
+      setState(() {
+        _pickedImage = File(picked.path);
+        _hasChanges = true;
+      });
+    }
   }
 
   @override
@@ -65,7 +120,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _idCardController.dispose();
     super.dispose();
   }
 
@@ -95,6 +149,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     final email = _emailController.text.trim();
     if (email.isNotEmpty) data['email'] = email;
+
+    final phone = _phoneController.text.trim();
+    if (phone.isNotEmpty) data['phoneNumber'] = phone;
+
+    if (_pickedImage != null) {
+      final bytes = await _pickedImage!.readAsBytes();
+      final base64Image = base64Encode(bytes);
+      final ext = _pickedImage!.path.split('.').last.toLowerCase();
+      final mime = ext == 'png' ? 'image/png' : 'image/jpeg';
+      data['profilePictureUrl'] = 'data:$mime;base64,$base64Image';
+    }
 
     final success = await auth.updateUserProfile(data);
 
@@ -157,43 +222,71 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               // ── Profile Avatar ──
               const SizedBox(height: AppSpacing.sm),
               Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: AppColors.primaryBlue.withValues(
-                        alpha: 0.12,
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 54,
+                        backgroundColor: AppColors.primaryBlue.withValues(
+                          alpha: 0.12,
+                        ),
+                        backgroundImage: _pickedImage != null
+                            ? FileImage(_pickedImage!) as ImageProvider
+                            : (_existingProfilePictureUrl != null &&
+                                  _existingProfilePictureUrl!.startsWith(
+                                    'data:',
+                                  ))
+                            ? MemoryImage(
+                                base64Decode(
+                                  _existingProfilePictureUrl!.split(',').last,
+                                ),
+                              )
+                            : (_existingProfilePictureUrl != null &&
+                                  _existingProfilePictureUrl!.isNotEmpty)
+                            ? NetworkImage(_existingProfilePictureUrl!)
+                            : null,
+                        child:
+                            (_pickedImage == null &&
+                                (_existingProfilePictureUrl == null ||
+                                    _existingProfilePictureUrl!.isEmpty))
+                            ? const Icon(
+                                Icons.person,
+                                color: AppColors.primaryBlue,
+                                size: 52,
+                              )
+                            : null,
                       ),
-                      child: const Icon(
-                        Icons.person,
-                        color: AppColors.primaryBlue,
-                        size: 48,
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryBlue,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isDark
-                                ? const Color(0xFF1E1E2E)
-                                : Colors.white,
-                            width: 2,
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryBlue,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isDark
+                                  ? const Color(0xFF1E1E2E)
+                                  : Colors.white,
+                              width: 2.5,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 18,
                           ),
                         ),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                          size: 16,
-                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Tap to change photo',
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
               const SizedBox(height: AppSpacing.xl),
 
@@ -330,22 +423,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
 
-              // ── Phone Number (read-only display) ──
+              // ── Phone Number ──
               _buildField(
                 label: l10n.phoneNumber,
                 controller: _phoneController,
                 icon: Icons.phone_outlined,
-                readOnly: true,
                 keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: AppSpacing.md),
-
-              // ── ID Card Number (read-only display) ──
-              _buildField(
-                label: '${l10n.idCardNumber} ${l10n.idCardOptional}',
-                controller: _idCardController,
-                icon: Icons.badge_outlined,
-                readOnly: true,
               ),
               const SizedBox(height: AppSpacing.xxl),
             ],
@@ -383,44 +466,72 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     bool readOnly = false,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final focusColor = AppColors.primaryBlue;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLabel(label),
-        const SizedBox(height: 6),
-        _buildGroupCard(isDark, [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-            child: Row(
-              children: [
-                Icon(icon, size: 20, color: AppColors.textSecondary),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: controller,
-                    readOnly: readOnly,
-                    keyboardType: keyboardType,
-                    validator: validator,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: readOnly ? AppColors.textSecondary : null,
-                    ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-                if (readOnly)
-                  Icon(
-                    Icons.lock_outline,
-                    size: 16,
-                    color: AppColors.textSecondary.withValues(alpha: 0.5),
-                  ),
-              ],
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : const Color(0xFFE0E0E0),
+              width: 1.2,
             ),
           ),
-        ]),
+          child: TextFormField(
+            controller: controller,
+            readOnly: readOnly,
+            keyboardType: keyboardType,
+            validator: validator,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: readOnly ? AppColors.textSecondary : null,
+              fontWeight: FontWeight.w500,
+            ),
+            decoration: InputDecoration(
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(left: 14, right: 10),
+                child: Icon(icon, size: 20, color: AppColors.textSecondary),
+              ),
+              prefixIconConstraints: const BoxConstraints(minWidth: 44),
+              suffixIcon: readOnly
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: 14),
+                      child: Icon(
+                        Icons.lock_outline,
+                        size: 16,
+                        color: AppColors.textSecondary.withValues(alpha: 0.5),
+                      ),
+                    )
+                  : null,
+              suffixIconConstraints: const BoxConstraints(minWidth: 40),
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: focusColor, width: 1.8),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.alertRed, width: 1.5),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.alertRed, width: 1.8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+              errorStyle: TextStyle(fontSize: 12, color: AppColors.alertRed),
+            ),
+          ),
+        ),
       ],
     );
   }
