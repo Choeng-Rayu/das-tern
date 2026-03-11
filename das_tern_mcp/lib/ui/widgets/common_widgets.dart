@@ -69,12 +69,7 @@ class AppCard extends StatelessWidget {
   final VoidCallback? onTap;
   final EdgeInsets? padding;
 
-  const AppCard({
-    super.key,
-    required this.child,
-    this.onTap,
-    this.padding,
-  });
+  const AppCard({super.key, required this.child, this.onTap, this.padding});
 
   @override
   Widget build(BuildContext context) {
@@ -114,8 +109,7 @@ class StatusBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius:
-            BorderRadius.circular(borderRadius ?? AppRadius.sm),
+        borderRadius: BorderRadius.circular(borderRadius ?? AppRadius.sm),
       ),
       child: Text(
         label,
@@ -165,8 +159,7 @@ class AppSelectableChip extends StatelessWidget {
 
     switch (variant) {
       case ChipVariant.filled:
-        backgroundColor =
-            selected ? color : Colors.grey.shade200;
+        backgroundColor = selected ? color : Colors.grey.shade200;
         textColor = selected ? Colors.white : AppColors.textPrimary;
         border = null;
       case ChipVariant.outlined:
@@ -174,9 +167,7 @@ class AppSelectableChip extends StatelessWidget {
             ? color.withValues(alpha: 0.15)
             : Colors.transparent;
         textColor = selected ? color : AppColors.textSecondary;
-        border = Border.all(
-          color: selected ? color : AppColors.neutral300,
-        );
+        border = Border.all(color: selected ? color : AppColors.neutral300);
     }
 
     return GestureDetector(
@@ -231,17 +222,15 @@ class StatCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               Text(
                 value,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
                 label,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: AppColors.textSecondary),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -258,11 +247,7 @@ class SectionGroup extends StatelessWidget {
   final String title;
   final List<Widget> children;
 
-  const SectionGroup({
-    super.key,
-    required this.title,
-    required this.children,
-  });
+  const SectionGroup({super.key, required this.title, required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -274,14 +259,12 @@ class SectionGroup extends StatelessWidget {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-        Card(
-          child: Column(children: children),
-        ),
+        Card(child: Column(children: children)),
       ],
     );
   }
@@ -399,7 +382,8 @@ class AppGradientHeader extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: gradientColors,
         ),
-        borderRadius: borderRadius ??
+        borderRadius:
+            borderRadius ??
             const BorderRadius.only(
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
@@ -408,7 +392,8 @@ class AppGradientHeader extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: padding ??
+          padding:
+              padding ??
               const EdgeInsets.fromLTRB(
                 AppSpacing.md,
                 AppSpacing.sm,
@@ -536,11 +521,13 @@ class AppBottomNavBar extends StatelessWidget {
       selectedFontSize: selectedFontSize,
       unselectedFontSize: unselectedFontSize,
       items: items
-          .map((item) => BottomNavigationBarItem(
-                icon: Icon(item.icon),
-                activeIcon: Icon(item.activeIcon),
-                label: item.label,
-              ))
+          .map(
+            (item) => BottomNavigationBarItem(
+              icon: Icon(item.icon),
+              activeIcon: Icon(item.activeIcon),
+              label: item.label,
+            ),
+          )
           .toList(),
     );
   }
@@ -625,7 +612,11 @@ class AppBottomNavBarWithFab extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: Icon(centerIcon, color: Colors.white, size: 28),
+                          child: Icon(
+                            centerIcon,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                         ),
                       ),
                     ],

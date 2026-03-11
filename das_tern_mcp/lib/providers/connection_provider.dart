@@ -63,7 +63,10 @@ class ConnectionProvider extends ChangeNotifier {
   }
 
   /// Accept a connection (doctor accepting patient request).
-  Future<bool> acceptConnection(String id, Map<String, dynamic> permissions) async {
+  Future<bool> acceptConnection(
+    String id,
+    Map<String, dynamic> permissions,
+  ) async {
     try {
       await _api.acceptConnection(id, permissions);
       await fetchConnections();
@@ -154,8 +157,7 @@ class ConnectionProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await _api.getConnectedPatients();
-      _connectedPatients =
-          result.map((c) => Connection.fromJson(c)).toList();
+      _connectedPatients = result.map((c) => Connection.fromJson(c)).toList();
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
     } finally {

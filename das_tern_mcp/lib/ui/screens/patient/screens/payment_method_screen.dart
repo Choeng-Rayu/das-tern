@@ -12,17 +12,15 @@ class PaymentMethodScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
+        {};
     final planType = args['planType'] as String? ?? 'PREMIUM';
     final plan = args['plan'] as Map<String, dynamic>? ?? {};
     final planName = plan['name'] ?? planType.replaceAll('_', ' ');
     final price = plan['price'] ?? (planType == 'PREMIUM' ? 0.50 : 1.00);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.paymentMethod),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.paymentMethod), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
@@ -34,9 +32,9 @@ class PaymentMethodScreen extends StatelessWidget {
 
             Text(
               l10n.selectPaymentMethod,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppSpacing.md),
 
@@ -52,10 +50,7 @@ class PaymentMethodScreen extends StatelessWidget {
                 Navigator.pushNamed(
                   context,
                   '/subscription/bakong-payment',
-                  arguments: {
-                    'planType': planType,
-                    'plan': plan,
-                  },
+                  arguments: {'planType': planType, 'plan': plan},
                 );
               },
             ),
@@ -94,7 +89,9 @@ class _OrderSummaryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.primaryBlue.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.15)),
+        border: Border.all(
+          color: AppColors.primaryBlue.withValues(alpha: 0.15),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,9 +99,9 @@ class _OrderSummaryCard extends StatelessWidget {
           Text(
             l10n.orderSummary,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 12),
           Row(
@@ -112,16 +109,16 @@ class _OrderSummaryCard extends StatelessWidget {
             children: [
               Text(
                 '$planName Plan',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
                 '\$$price/month',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primaryBlue,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryBlue,
+                ),
               ),
             ],
           ),
@@ -192,17 +189,20 @@ class _PaymentMethodCard extends StatelessWidget {
                             children: [
                               Text(
                                 title,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
                               ),
                               if (!isAvailable) ...[
                                 const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 2),
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.warningOrange.withValues(alpha: 0.15),
+                                    color: AppColors.warningOrange.withValues(
+                                      alpha: 0.15,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -220,23 +220,25 @@ class _PaymentMethodCard extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             subtitle,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppColors.textSecondary),
                           ),
                         ],
                       ),
                     ),
                     if (isAvailable)
-                      const Icon(Icons.chevron_right, color: AppColors.primaryBlue),
+                      const Icon(
+                        Icons.chevron_right,
+                        color: AppColors.primaryBlue,
+                      ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
                   description,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),

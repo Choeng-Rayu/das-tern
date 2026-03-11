@@ -45,6 +45,26 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Google Sign-In: iOS client ID (from Google Cloud Console → OAuth 2.0 → iOS client) -->
+	<!-- REPLACE the placeholder below with your actual iOS client ID -->
+	<key>GIDClientID</key>
+	<string>265372630808-rhs5d9r2v8c7nh688o2p8vg8givtqujo.apps.googleusercontent.com</string>
+
+	<!-- Google Sign-In: reversed client ID URL scheme -->
+	<!-- REPLACE the placeholder below with your REVERSED_CLIENT_ID from the iOS OAuth client -->
+	<!-- Format: com.googleusercontent.apps.YOUR_CLIENT_ID_WITHOUT_APPS_SUFFIX -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.265372630808-rhs5d9r2v8c7nh688o2p8vg8givtqujo</string>
+			</array>
+		</dict>
+	</array>
+
 	<!-- Allow canLaunchUrl checks for Cambodian banking app URL schemes -->
 	<key>LSApplicationQueriesSchemes</key>
 	<array>

@@ -867,6 +867,29 @@ class AppLocalizationsKm extends AppLocalizations {
   String get unknown => 'មិនស្គាល់';
 
   @override
+  String get familyFunctionTitle => 'មុខងារគ្រួសារ';
+
+  @override
+  String get familyIntroDescription =>
+      'អនុញ្ញាតសមាជិកគ្រួសារ ភ្ជាប់គណនីរបស់អ្នកដឹ អាច មើលស្ថានភាពទទួលថ្នាំប្រចាំថ្ងៃ ទទួល ការជូនដំណឹង (Notification) ពេល';
+
+  @override
+  String get familyBulletSender => 'អ្នកដឹង ទទួលថ្នាំ';
+
+  @override
+  String get familyBulletReceiver => 'អ្នកដឹង ខកខានទទួលថ្នាំ';
+
+  @override
+  String get familyIntroFooter =>
+      'ផ្ដួយគ្រួសារ ចូលមុខងារត្រេ និងតាមដានការព្យាបាល កាន់តែល្អ។';
+
+  @override
+  String get startUsing => 'ចូលប្រើប្រាស់';
+
+  @override
+  String get learnMore => 'យល់ដឹងបន្ថែម';
+
+  @override
   String get scanPrescriptionTitle => 'ស្កេនវេជ្ជបញ្ជា';
 
   @override
@@ -1238,6 +1261,21 @@ class AppLocalizationsKm extends AppLocalizations {
   @override
   String get freeTrialOffer =>
       'ការសាកល្បង ១ ខែឥតគិតថ្លៃសម្រាប់អ្នកប្រើប្រាស់ថ្មី!';
+
+  @override
+  String get claimYourFreeTrial => 'ទាមទារការសាកល្បងឥតគិតថ្លៃ';
+
+  @override
+  String get getOneMonthFreePremiumAccess =>
+      'ទទួលបានការប្រើប្រាស់ Premium ឥតគិតថ្លៃ ១ ខែ';
+
+  @override
+  String get claimTrial => 'ទាមទារការសាកល្បង';
+
+  @override
+  String trialDaysRemainingBanner(int days) {
+    return 'អ្នកនៅសល់ $days ថ្ងៃ';
+  }
 
   @override
   String get yourTrialPeriod => 'រយៈពេលសាកល្បងរបស់អ្នក';
@@ -2442,7 +2480,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
 
   @override
-  String get missedDoseBanner => 'អ្នកបងាVerified្រ់ឈានទៅលើដូស';
+  String get missedDoseBanner => 'អ្នកមានដូសដែលខ្លាចថ្ងៃនេះ';
 
   @override
   String get ocrOutpatient => 'អ្នកជំងឺទូលទាត់';
@@ -2578,4 +2616,174 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get last30Days => '៣០ ថ្ងៃចុងក្រោយ';
+  String get timeAgoJustNow => 'ឥឡូវ';
+
+  @override
+  String timeAgoMinutes(int count) {
+    return '$countនាទី';
+  }
+
+  @override
+  String timeAgoHours(int count) {
+    return '$countម';
+  }
+
+  @override
+  String timeAgoDays(int count) {
+    return '$countថ';
+  }
+
+  @override
+  String get wizardStepPrescription => 'វេជ្ជបញ្ជា';
+
+  @override
+  String get wizardStepMedicines => 'ថ្នាំ';
+
+  @override
+  String get wizardStepReview => 'ពិនិត្យ';
+
+  @override
+  String get prescriptionName => 'ឈ្មោះវេជ្ជបញ្ជា';
+
+  @override
+  String get prescriptionNameHint => 'ឧ. ព្យាបាលផ្ដាសាយ';
+
+  @override
+  String get doctorNameOptional => 'ឈ្មោះវេជ្ជបណ្ឌិត (ជម្រើស)';
+
+  @override
+  String get doctorNameHint => 'ឧ. វេជ្ជបណ្ឌិត សុខ';
+
+  @override
+  String get startDate => 'ថ្ងៃចាប់ផ្ដើម';
+
+  @override
+  String get endDate => 'ថ្ងៃបញ្ចប់';
+
+  @override
+  String get addMedicineStep => 'បន្ថែមថ្នាំ';
+
+  @override
+  String get medicineNameLabel => 'ឈ្មោះថ្នាំ';
+
+  @override
+  String get dosageLabel => 'កម្រិតថ្នាំ';
+
+  @override
+  String get dosageHint => 'ឧ​. ៥០០ មីលីក្រាម';
+
+  @override
+  String get quantityPerTime => 'ចំនួនក្នុងមួយដង';
+
+  @override
+  String get quantityHint => 'ឧ. ១ គ្រាប់';
+
+  @override
+  String get frequencyLabel => 'ប្រេកង់';
+
+  @override
+  String get oncePerDay => 'មួយដងក្នុងមួយថ្ងៃ';
+
+  @override
+  String get twicePerDay => 'ពីរដងក្នុងមួយថ្ងៃ';
+
+  @override
+  String get threeTimesPerDay => 'បីដងក្នុងមួយថ្ងៃ';
+
+  @override
+  String get customFrequency => 'ផ្សេងៗ';
+
+  @override
+  String get takingTime => 'ពេលវេលាញ៉ាំ';
+
+  @override
+  String get mealInstruction => 'ការណែនាំអាហារ';
+
+  @override
+  String get beforeMealOption => 'មុនអាហារ';
+
+  @override
+  String get afterMealOption => 'ក្រោយអាហារ';
+
+  @override
+  String get anytimeOption => 'ពេលណាក៏បាន';
+
+  @override
+  String get addAnotherMedicine => '+ បន្ថែមថ្នាំមួយទៀត';
+
+  @override
+  String get finishPrescription => 'បញ្ចប់វេជ្ជបញ្ជា';
+
+  @override
+  String get reviewPrescription => 'ពិនិត្យវេជ្ជបញ្ជា';
+
+  @override
+  String get schedulePreview => 'មើលកាលវិភាគជាមុន';
+
+  @override
+  String get prescriptionCreatedSuccess => 'វេជ្ជបញ្ជាត្រូវបានបង្កើតជោគជ័យ!';
+
+  @override
+  String get yourScheduleReady => 'កាលវិភាគថ្នាំរបស់អ្នកត្រៀមរួចហើយ';
+
+  @override
+  String get viewSchedule => 'មើលកាលវិភាគ';
+
+  @override
+  String get goHome => 'ទៅទំព័រដើម';
+
+  @override
+  String get noMedicinesAdded => 'មិនទាន់បន្ថែមថ្នាំទេ';
+
+  @override
+  String get addYourFirstMedicine => 'ចុចប៊ូតុងខាងក្រោមដើម្បីបន្ថែមថ្នាំដំបូង';
+
+  @override
+  String medicinesCount(int count) {
+    return 'បានបន្ថែមថ្នាំ $count មុខ';
+  }
+
+  @override
+  String get createPrescriptionManual => 'បង្កើតវេជ្ជបញ្ជា';
+
+  @override
+  String get createPrescriptionManualDesc =>
+      'បន្ថែមថ្នាំដោយផ្ទាល់ និងកំណត់កាលវិភាគ';
+
+  @override
+  String get scanPrescriptionOption => 'ស្កេនវេជ្ជបញ្ជា';
+
+  @override
+  String get scanPrescriptionOptionDesc =>
+      'ស្កេនវេជ្ជបញ្ជាពីវេជ្ជបណ្ឌិតដោយកាមេរ៉ា';
+
+  @override
+  String get quickAddMedicine => 'បន្ថែមថ្នាំរហ័ស';
+
+  @override
+  String get quickAddMedicineDesc => 'បន្ថែមថ្នាំមួយមុខយ៉ាងរហ័ស';
+
+  @override
+  String prescriptionDuration(int days) {
+    return '$days ថ្ងៃ';
+  }
+
+  @override
+  String get savePrescription => 'រក្សាទុកវេជ្ជបញ្ជា';
+
+  @override
+  String get deleteMedicine => 'លុបថ្នាំ';
+
+  @override
+  String get morningTime => '08:00';
+
+  @override
+  String get afternoonTime => '13:00';
+
+  @override
+  String get nightTime => '20:00';
+
+  @override
+  String get scheduleAutoGenerated =>
+      'កាលវិភាគបង្កើតដោយស្វ័យប្រវត្តិពីថ្នាំរបស់អ្នក';
 }

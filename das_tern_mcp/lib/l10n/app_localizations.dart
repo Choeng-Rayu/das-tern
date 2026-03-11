@@ -1766,6 +1766,48 @@ abstract class AppLocalizations {
   /// **'Unknown'**
   String get unknown;
 
+  /// No description provided for @familyFunctionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Family Features'**
+  String get familyFunctionTitle;
+
+  /// No description provided for @familyIntroDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow family members to track your daily medication intake and receive Notifications when:'**
+  String get familyIntroDescription;
+
+  /// No description provided for @familyBulletSender.
+  ///
+  /// In en, this message translates to:
+  /// **'You take medication'**
+  String get familyBulletSender;
+
+  /// No description provided for @familyBulletReceiver.
+  ///
+  /// In en, this message translates to:
+  /// **'You miss a dose'**
+  String get familyBulletReceiver;
+
+  /// No description provided for @familyIntroFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your family to receive updates and detailed monitoring information etc.'**
+  String get familyIntroFooter;
+
+  /// No description provided for @startUsing.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Using'**
+  String get startUsing;
+
+  /// No description provided for @learnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn More'**
+  String get learnMore;
+
   /// No description provided for @scanPrescriptionTitle.
   ///
   /// In en, this message translates to:
@@ -2468,6 +2510,30 @@ abstract class AppLocalizations {
   /// **'1-month free trial for new users!'**
   String get freeTrialOffer;
 
+  /// No description provided for @claimYourFreeTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Your Free Trial'**
+  String get claimYourFreeTrial;
+
+  /// No description provided for @getOneMonthFreePremiumAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Get 1 month free premium access'**
+  String get getOneMonthFreePremiumAccess;
+
+  /// No description provided for @claimTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Trial'**
+  String get claimTrial;
+
+  /// No description provided for @trialDaysRemainingBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {days} days remaining'**
+  String trialDaysRemainingBanner(int days);
+
   /// No description provided for @yourTrialPeriod.
   ///
   /// In en, this message translates to:
@@ -2543,7 +2609,7 @@ abstract class AppLocalizations {
   /// No description provided for @addAtLeastOneMedicine.
   ///
   /// In en, this message translates to:
-  /// **'Add at least one medicine'**
+  /// **'Please add at least one medicine'**
   String get addAtLeastOneMedicine;
 
   /// No description provided for @selfPrescribed.
@@ -4999,6 +5065,323 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last 30 Days'**
   String get last30Days;
+  /// No description provided for @timeAgoJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'now'**
+  String get timeAgoJustNow;
+
+  /// No description provided for @timeAgoMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m'**
+  String timeAgoMinutes(int count);
+
+  /// No description provided for @timeAgoHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h'**
+  String timeAgoHours(int count);
+
+  /// No description provided for @timeAgoDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d'**
+  String timeAgoDays(int count);
+
+  /// No description provided for @wizardStepPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription'**
+  String get wizardStepPrescription;
+
+  /// No description provided for @wizardStepMedicines.
+  ///
+  /// In en, this message translates to:
+  /// **'Medicines'**
+  String get wizardStepMedicines;
+
+  /// No description provided for @wizardStepReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get wizardStepReview;
+
+  /// No description provided for @prescriptionName.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription Name'**
+  String get prescriptionName;
+
+  /// No description provided for @prescriptionNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Flu Treatment'**
+  String get prescriptionNameHint;
+
+  /// No description provided for @doctorNameOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor Name (optional)'**
+  String get doctorNameOptional;
+
+  /// No description provided for @doctorNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Dr. Sok'**
+  String get doctorNameHint;
+
+  /// No description provided for @startDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Date'**
+  String get startDate;
+
+  /// No description provided for @endDate.
+  ///
+  /// In en, this message translates to:
+  /// **'End Date'**
+  String get endDate;
+
+  /// No description provided for @addMedicineStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Medicine'**
+  String get addMedicineStep;
+
+  /// No description provided for @medicineNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Medicine Name'**
+  String get medicineNameLabel;
+
+  /// No description provided for @dosageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dosage'**
+  String get dosageLabel;
+
+  /// No description provided for @dosageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 500 mg'**
+  String get dosageHint;
+
+  /// No description provided for @quantityPerTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity per time'**
+  String get quantityPerTime;
+
+  /// No description provided for @quantityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 1 tablet'**
+  String get quantityHint;
+
+  /// No description provided for @frequencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get frequencyLabel;
+
+  /// No description provided for @oncePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Once per day'**
+  String get oncePerDay;
+
+  /// No description provided for @twicePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Twice per day'**
+  String get twicePerDay;
+
+  /// No description provided for @threeTimesPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Three times per day'**
+  String get threeTimesPerDay;
+
+  /// No description provided for @customFrequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get customFrequency;
+
+  /// No description provided for @takingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Taking Time'**
+  String get takingTime;
+
+  /// No description provided for @mealInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal Instruction'**
+  String get mealInstruction;
+
+  /// No description provided for @beforeMealOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Before Meal'**
+  String get beforeMealOption;
+
+  /// No description provided for @afterMealOption.
+  ///
+  /// In en, this message translates to:
+  /// **'After Meal'**
+  String get afterMealOption;
+
+  /// No description provided for @anytimeOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Anytime'**
+  String get anytimeOption;
+
+  /// No description provided for @addAnotherMedicine.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add Another Medicine'**
+  String get addAnotherMedicine;
+
+  /// No description provided for @finishPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish Prescription'**
+  String get finishPrescription;
+
+  /// No description provided for @reviewPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Prescription'**
+  String get reviewPrescription;
+
+  /// No description provided for @schedulePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Preview'**
+  String get schedulePreview;
+
+  /// No description provided for @prescriptionCreatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription created successfully!'**
+  String get prescriptionCreatedSuccess;
+
+  /// No description provided for @yourScheduleReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Your medication schedule is ready'**
+  String get yourScheduleReady;
+
+  /// No description provided for @viewSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'View Schedule'**
+  String get viewSchedule;
+
+  /// No description provided for @goHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Home'**
+  String get goHome;
+
+  /// No description provided for @noMedicinesAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'No medicines added yet'**
+  String get noMedicinesAdded;
+
+  /// No description provided for @addYourFirstMedicine.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the button below to add your first medicine'**
+  String get addYourFirstMedicine;
+
+  /// No description provided for @medicinesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} medicine(s) added'**
+  String medicinesCount(int count);
+
+  /// No description provided for @createPrescriptionManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Prescription'**
+  String get createPrescriptionManual;
+
+  /// No description provided for @createPrescriptionManualDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Add medicines manually and set schedule'**
+  String get createPrescriptionManualDesc;
+
+  /// No description provided for @scanPrescriptionOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Prescription'**
+  String get scanPrescriptionOption;
+
+  /// No description provided for @scanPrescriptionOptionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan doctor\'s prescription with camera'**
+  String get scanPrescriptionOptionDesc;
+
+  /// No description provided for @quickAddMedicine.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Add Medicine'**
+  String get quickAddMedicine;
+
+  /// No description provided for @quickAddMedicineDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a single medicine quickly'**
+  String get quickAddMedicineDesc;
+
+  /// No description provided for @prescriptionDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days'**
+  String prescriptionDuration(int days);
+
+  /// No description provided for @savePrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Prescription'**
+  String get savePrescription;
+
+  /// No description provided for @deleteMedicine.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Medicine'**
+  String get deleteMedicine;
+
+  /// No description provided for @morningTime.
+  ///
+  /// In en, this message translates to:
+  /// **'08:00'**
+  String get morningTime;
+
+  /// No description provided for @afternoonTime.
+  ///
+  /// In en, this message translates to:
+  /// **'13:00'**
+  String get afternoonTime;
+
+  /// No description provided for @nightTime.
+  ///
+  /// In en, this message translates to:
+  /// **'20:00'**
+  String get nightTime;
+
+  /// No description provided for @scheduleAutoGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule auto-generated from your medicines'**
+  String get scheduleAutoGenerated;
 }
 
 class _AppLocalizationsDelegate

@@ -867,6 +867,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknown => 'Unknown';
 
   @override
+  String get familyFunctionTitle => 'Family Features';
+
+  @override
+  String get familyIntroDescription =>
+      'Allow family members to track your daily medication intake and receive Notifications when:';
+
+  @override
+  String get familyBulletSender => 'You take medication';
+
+  @override
+  String get familyBulletReceiver => 'You miss a dose';
+
+  @override
+  String get familyIntroFooter =>
+      'Manage your family to receive updates and detailed monitoring information etc.';
+
+  @override
+  String get startUsing => 'Start Using';
+
+  @override
+  String get learnMore => 'Learn More';
+
+  @override
   String get scanPrescriptionTitle => 'Scan Prescription';
 
   @override
@@ -1237,6 +1260,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get freeTrialOffer => '1-month free trial for new users!';
 
   @override
+  String get claimYourFreeTrial => 'Claim Your Free Trial';
+
+  @override
+  String get getOneMonthFreePremiumAccess => 'Get 1 month free premium access';
+
+  @override
+  String get claimTrial => 'Claim Trial';
+
+  @override
+  String trialDaysRemainingBanner(int days) {
+    return 'You have $days days remaining';
+  }
+
+  @override
   String get yourTrialPeriod => 'Your Trial Period';
 
   @override
@@ -1274,7 +1311,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continuePremium => 'Continue with Premium';
 
   @override
-  String get addAtLeastOneMedicine => 'Add at least one medicine';
+  String get addAtLeastOneMedicine => 'Please add at least one medicine';
 
   @override
   String get selfPrescribed => 'Self-prescribed';
@@ -2580,4 +2617,175 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get last30Days => 'Last 30 Days';
+  String get timeAgoJustNow => 'now';
+
+  @override
+  String timeAgoMinutes(int count) {
+    return '${count}m';
+  }
+
+  @override
+  String timeAgoHours(int count) {
+    return '${count}h';
+  }
+
+  @override
+  String timeAgoDays(int count) {
+    return '${count}d';
+  }
+
+  @override
+  String get wizardStepPrescription => 'Prescription';
+
+  @override
+  String get wizardStepMedicines => 'Medicines';
+
+  @override
+  String get wizardStepReview => 'Review';
+
+  @override
+  String get prescriptionName => 'Prescription Name';
+
+  @override
+  String get prescriptionNameHint => 'e.g., Flu Treatment';
+
+  @override
+  String get doctorNameOptional => 'Doctor Name (optional)';
+
+  @override
+  String get doctorNameHint => 'e.g., Dr. Sok';
+
+  @override
+  String get startDate => 'Start Date';
+
+  @override
+  String get endDate => 'End Date';
+
+  @override
+  String get addMedicineStep => 'Add Medicine';
+
+  @override
+  String get medicineNameLabel => 'Medicine Name';
+
+  @override
+  String get dosageLabel => 'Dosage';
+
+  @override
+  String get dosageHint => 'e.g., 500 mg';
+
+  @override
+  String get quantityPerTime => 'Quantity per time';
+
+  @override
+  String get quantityHint => 'e.g., 1 tablet';
+
+  @override
+  String get frequencyLabel => 'Frequency';
+
+  @override
+  String get oncePerDay => 'Once per day';
+
+  @override
+  String get twicePerDay => 'Twice per day';
+
+  @override
+  String get threeTimesPerDay => 'Three times per day';
+
+  @override
+  String get customFrequency => 'Custom';
+
+  @override
+  String get takingTime => 'Taking Time';
+
+  @override
+  String get mealInstruction => 'Meal Instruction';
+
+  @override
+  String get beforeMealOption => 'Before Meal';
+
+  @override
+  String get afterMealOption => 'After Meal';
+
+  @override
+  String get anytimeOption => 'Anytime';
+
+  @override
+  String get addAnotherMedicine => '+ Add Another Medicine';
+
+  @override
+  String get finishPrescription => 'Finish Prescription';
+
+  @override
+  String get reviewPrescription => 'Review Prescription';
+
+  @override
+  String get schedulePreview => 'Schedule Preview';
+
+  @override
+  String get prescriptionCreatedSuccess => 'Prescription created successfully!';
+
+  @override
+  String get yourScheduleReady => 'Your medication schedule is ready';
+
+  @override
+  String get viewSchedule => 'View Schedule';
+
+  @override
+  String get goHome => 'Go Home';
+
+  @override
+  String get noMedicinesAdded => 'No medicines added yet';
+
+  @override
+  String get addYourFirstMedicine =>
+      'Tap the button below to add your first medicine';
+
+  @override
+  String medicinesCount(int count) {
+    return '$count medicine(s) added';
+  }
+
+  @override
+  String get createPrescriptionManual => 'Create Prescription';
+
+  @override
+  String get createPrescriptionManualDesc =>
+      'Add medicines manually and set schedule';
+
+  @override
+  String get scanPrescriptionOption => 'Scan Prescription';
+
+  @override
+  String get scanPrescriptionOptionDesc =>
+      'Scan doctor\'s prescription with camera';
+
+  @override
+  String get quickAddMedicine => 'Quick Add Medicine';
+
+  @override
+  String get quickAddMedicineDesc => 'Add a single medicine quickly';
+
+  @override
+  String prescriptionDuration(int days) {
+    return '$days days';
+  }
+
+  @override
+  String get savePrescription => 'Save Prescription';
+
+  @override
+  String get deleteMedicine => 'Delete Medicine';
+
+  @override
+  String get morningTime => '08:00';
+
+  @override
+  String get afternoonTime => '13:00';
+
+  @override
+  String get nightTime => '20:00';
+
+  @override
+  String get scheduleAutoGenerated =>
+      'Schedule auto-generated from your medicines';
 }

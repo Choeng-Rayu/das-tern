@@ -46,12 +46,10 @@ Future<void> main() async {
     await dotenv.load(fileName: '.env');
     log.success('App', 'Environment loaded');
 
-    // Initialize offline services (not supported on web)
+    // Initialize offline services
     log.info('App', 'Initializing services');
-    if (!kIsWeb) {
-      await NotificationService.instance.init();
-      await SyncService.instance.startListening();
-    }
+    await NotificationService.instance.init();
+    await SyncService.instance.startListening();
     log.success('App', 'Services initialized');
 
     runApp(const DasTernApp());

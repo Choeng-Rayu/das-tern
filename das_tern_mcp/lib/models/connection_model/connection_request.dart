@@ -21,25 +21,32 @@ class ConnectionRequest {
     this.respondedAt,
   });
 
-  factory ConnectionRequest.fromJson(Map<String, dynamic> json) => ConnectionRequest(
+  factory ConnectionRequest.fromJson(Map<String, dynamic> json) =>
+      ConnectionRequest(
         id: json['id'],
         fromUserId: json['fromUserId'],
         toUserId: json['toUserId'],
-        status: ConnectionStatus.values.firstWhere((e) => e.name == json['status']),
+        status: ConnectionStatus.values.firstWhere(
+          (e) => e.name == json['status'],
+        ),
         permissionLevel: json['permissionLevel'] != null
-            ? PermissionLevel.values.firstWhere((e) => e.name == json['permissionLevel'])
+            ? PermissionLevel.values.firstWhere(
+                (e) => e.name == json['permissionLevel'],
+              )
             : null,
         createdAt: DateTime.parse(json['createdAt']),
-        respondedAt: json['respondedAt'] != null ? DateTime.parse(json['respondedAt']) : null,
+        respondedAt: json['respondedAt'] != null
+            ? DateTime.parse(json['respondedAt'])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'fromUserId': fromUserId,
-        'toUserId': toUserId,
-        'status': status.name,
-        'permissionLevel': permissionLevel?.name,
-        'createdAt': createdAt.toIso8601String(),
-        'respondedAt': respondedAt?.toIso8601String(),
-      };
+    'id': id,
+    'fromUserId': fromUserId,
+    'toUserId': toUserId,
+    'status': status.name,
+    'permissionLevel': permissionLevel?.name,
+    'createdAt': createdAt.toIso8601String(),
+    'respondedAt': respondedAt?.toIso8601String(),
+  };
 }

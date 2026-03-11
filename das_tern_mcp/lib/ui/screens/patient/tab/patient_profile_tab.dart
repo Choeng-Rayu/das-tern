@@ -68,30 +68,66 @@ class PatientProfileTab extends StatelessWidget {
               title: l10n.preferences,
               children: [
                 // Theme toggle
-                ListTile(
-                  leading: const Icon(Icons.brightness_6),
-                  title: Text(l10n.theme),
-                  trailing: SegmentedButton<ThemeMode>(
-                    segments: const [
-                      ButtonSegment(
-                        value: ThemeMode.light,
-                        icon: Icon(Icons.light_mode, size: 16),
-                      ),
-                      ButtonSegment(
-                        value: ThemeMode.system,
-                        icon: Icon(Icons.settings, size: 16),
-                      ),
-                      ButtonSegment(
-                        value: ThemeMode.dark,
-                        icon: Icon(Icons.dark_mode, size: 16),
-                      ),
-                    ],
-                    selected: {themeProvider.themeMode},
-                    onSelectionChanged: (v) =>
-                        themeProvider.setThemeMode(v.first),
-                    style: const ButtonStyle(
-                      visualDensity: VisualDensity.compact,
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  child: Builder(
+                    builder: (context) {
+                      final isDark =
+                          Theme.of(context).brightness == Brightness.dark;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.brightness_6, size: 20),
+                              const SizedBox(width: 12),
+                              Text(
+                                l10n.theme,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              _ThemeOptionCard(
+                                icon: Icons.phone_android_rounded,
+                                label: 'System',
+                                isSelected:
+                                    themeProvider.themeMode == ThemeMode.system,
+                                isDark: isDark,
+                                onTap: () => themeProvider.setThemeMode(
+                                  ThemeMode.system,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              _ThemeOptionCard(
+                                icon: Icons.light_mode_rounded,
+                                label: 'Light',
+                                isSelected:
+                                    themeProvider.themeMode == ThemeMode.light,
+                                isDark: isDark,
+                                onTap: () =>
+                                    themeProvider.setThemeMode(ThemeMode.light),
+                              ),
+                              const SizedBox(width: 10),
+                              _ThemeOptionCard(
+                                icon: Icons.dark_mode_rounded,
+                                label: 'Dark',
+                                isSelected:
+                                    themeProvider.themeMode == ThemeMode.dark,
+                                isDark: isDark,
+                                onTap: () =>
+                                    themeProvider.setThemeMode(ThemeMode.dark),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
                 // Language
@@ -285,6 +321,85 @@ class _SettingsSection extends StatelessWidget {
         ),
         Card(child: Column(children: children)),
       ],
+    );
+  }
+}
+
+/// Tappable theme option card with icon, label, and selected state.
+class _ThemeOptionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _ThemeOptionCard({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedBg = isDark
+        ? AppColors.primaryBlue.withValues(alpha: 0.18)
+        : AppColors.primaryBlue.withValues(alpha: 0.1);
+    final unselectedBg = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.grey.withValues(alpha: 0.08);
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: isSelected ? selectedBg : unselectedBg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? AppColors.primaryBlue : Colors.transparent,
+              width: 1.5,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 24,
+                color: isSelected
+                    ? AppColors.primaryBlue
+                    : (isDark ? Colors.white60 : Colors.grey),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected
+                      ? AppColors.primaryBlue
+                      : (isDark ? Colors.white70 : Colors.grey.shade700),
+                ),
+              ),
+              const SizedBox(height: 4),
+              AnimatedOpacity(
+                opacity: isSelected ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  size: 16,
+                  color: AppColors.primaryBlue,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

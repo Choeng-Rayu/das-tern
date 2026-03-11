@@ -26,23 +26,27 @@ class AdherenceResult {
       takenDoses: json['takenDoses'] ?? 0,
       missedDoses: json['missedDoses'] ?? 0,
       lateDoses: json['lateDoses'] ?? 0,
-      timeline: (json['timeline'] as List<dynamic>?)
-              ?.map((e) => AdherenceTimelinePoint.fromJson(
-                  Map<String, dynamic>.from(e)))
+      timeline:
+          (json['timeline'] as List<dynamic>?)
+              ?.map(
+                (e) => AdherenceTimelinePoint.fromJson(
+                  Map<String, dynamic>.from(e),
+                ),
+              )
               .toList() ??
           [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'overallPercentage': overallPercentage,
-        'level': level,
-        'totalDoses': totalDoses,
-        'takenDoses': takenDoses,
-        'missedDoses': missedDoses,
-        'lateDoses': lateDoses,
-        'timeline': timeline.map((t) => t.toJson()).toList(),
-      };
+    'overallPercentage': overallPercentage,
+    'level': level,
+    'totalDoses': totalDoses,
+    'takenDoses': takenDoses,
+    'missedDoses': missedDoses,
+    'lateDoses': lateDoses,
+    'timeline': timeline.map((t) => t.toJson()).toList(),
+  };
 
   bool get isGreen => level == 'GREEN';
   bool get isYellow => level == 'YELLOW';
@@ -73,9 +77,9 @@ class AdherenceTimelinePoint {
   }
 
   Map<String, dynamic> toJson() => {
-        'date': date,
-        'percentage': percentage,
-        'takenDoses': takenDoses,
-        'totalDoses': totalDoses,
-      };
+    'date': date,
+    'percentage': percentage,
+    'takenDoses': takenDoses,
+    'totalDoses': totalDoses,
+  };
 }

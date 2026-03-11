@@ -23,8 +23,7 @@ class DoctorNotificationsScreen extends StatefulWidget {
       _DoctorNotificationsScreenState();
 }
 
-class _DoctorNotificationsScreenState
-    extends State<DoctorNotificationsScreen> {
+class _DoctorNotificationsScreenState extends State<DoctorNotificationsScreen> {
   final Set<String> _processingIds = {};
 
   @override
@@ -71,8 +70,9 @@ class _DoctorNotificationsScreenState
     final connProv = context.read<ConnectionProvider>();
     final notifProv = context.read<NotificationProvider>();
 
-    final success =
-        await connProv.acceptConnection(id, {'permissionLevel': 'ALLOWED'});
+    final success = await connProv.acceptConnection(id, {
+      'permissionLevel': 'ALLOWED',
+    });
 
     if (!notif.isRead) await notifProv.markAsRead(notif.id);
     await notifProv.fetchNotifications();
@@ -84,9 +84,11 @@ class _DoctorNotificationsScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              success ? l10n.connectionApproved : (connProv.error ?? 'Error')),
-          backgroundColor:
-              success ? AppColors.successGreen : AppColors.alertRed,
+            success ? l10n.connectionApproved : (connProv.error ?? 'Error'),
+          ),
+          backgroundColor: success
+              ? AppColors.successGreen
+              : AppColors.alertRed,
         ),
       );
     }
@@ -111,9 +113,11 @@ class _DoctorNotificationsScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              success ? l10n.connectionRejected : (connProv.error ?? 'Error')),
-          backgroundColor:
-              success ? AppColors.textSecondary : AppColors.alertRed,
+            success ? l10n.connectionRejected : (connProv.error ?? 'Error'),
+          ),
+          backgroundColor: success
+              ? AppColors.textSecondary
+              : AppColors.alertRed,
         ),
       );
     }
@@ -136,8 +140,10 @@ class _DoctorNotificationsScreenState
               padding: const EdgeInsets.only(right: AppSpacing.md),
               child: Center(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.alertRed,
                     borderRadius: BorderRadius.circular(12),
@@ -170,7 +176,9 @@ class _DoctorNotificationsScreenState
   }
 
   List<Widget> _buildSlivers(
-      NotificationProvider provider, AppLocalizations l10n) {
+    NotificationProvider provider,
+    AppLocalizations l10n,
+  ) {
     if (provider.isLoading && !provider.hasFetched) {
       return [
         const SliverFillRemaining(
@@ -188,16 +196,18 @@ class _DoctorNotificationsScreenState
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline,
-                    size: 64, color: AppColors.alertRed),
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: AppColors.alertRed,
+                ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
                   provider.error!,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: AppColors.alertRed),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: AppColors.alertRed),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 ElevatedButton(
@@ -222,11 +232,16 @@ class _DoctorNotificationsScreenState
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.notifications_off_outlined,
-                    size: 64, color: AppColors.neutral300),
+                Icon(
+                  Icons.notifications_off_outlined,
+                  size: 64,
+                  color: AppColors.neutral300,
+                ),
                 const SizedBox(height: AppSpacing.md),
-                Text(l10n.noNotifications,
-                    style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  l10n.noNotifications,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ],
             ),
           ),
@@ -238,19 +253,16 @@ class _DoctorNotificationsScreenState
       SliverPadding(
         padding: const EdgeInsets.all(AppSpacing.md),
         sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final notif = provider.notifications[index];
-              final child = notif.type == 'CONNECTION_REQUEST'
-                  ? _connectionCard(notif)
-                  : StandardNotificationCard(notif: notif);
-              return Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: _dismissible(notif, child),
-              );
-            },
-            childCount: provider.notifications.length,
-          ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final notif = provider.notifications[index];
+            final child = notif.type == 'CONNECTION_REQUEST'
+                ? _connectionCard(notif)
+                : StandardNotificationCard(notif: notif);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: _dismissible(notif, child),
+            );
+          }, childCount: provider.notifications.length),
         ),
       ),
     ];
@@ -301,8 +313,10 @@ class _DoctorNotificationsScreenState
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: Text(l10n.remove,
-                    style: const TextStyle(color: AppColors.alertRed)),
+                child: Text(
+                  l10n.remove,
+                  style: const TextStyle(color: AppColors.alertRed),
+                ),
               ),
             ],
           ),

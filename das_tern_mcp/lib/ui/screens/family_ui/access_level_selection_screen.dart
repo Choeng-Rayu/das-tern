@@ -47,10 +47,7 @@ class _AccessLevelSelectionScreenState
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.accessLevelTitle),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.accessLevelTitle), centerTitle: true),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -60,51 +57,51 @@ class _AccessLevelSelectionScreenState
               if (v != null) setState(() => _selectedLevel = v);
             },
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.selectAccessLevel,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                l10n.accessLevelChangeableLater,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-
-              // Permission level options
-              ...List.generate(levels.length, (index) {
-                final option = levels[index];
-                final isSelected = _selectedLevel == option.level;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  child: _buildLevelCard(context, option, isSelected),
-                );
-              }),
-
-              const Spacer(),
-
-              // Continue button
-              PrimaryButton(
-                text: l10n.continueButton,
-                onPressed: () {
-                  Navigator.pushNamed(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.selectAccessLevel,
+                  style: Theme.of(
                     context,
-                    '/family/token-display',
-                    arguments: {
-                      'permissionLevel': _selectedLevel.name.toUpperCase(),
-                    },
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  l10n.accessLevelChangeableLater,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+
+                // Permission level options
+                ...List.generate(levels.length, (index) {
+                  final option = levels[index];
+                  final isSelected = _selectedLevel == option.level;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: _buildLevelCard(context, option, isSelected),
                   );
-                },
-              ),
-              const SizedBox(height: AppSpacing.md),
-            ],
-          ),
+                }),
+
+                const Spacer(),
+
+                // Continue button
+                PrimaryButton(
+                  text: l10n.continueButton,
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/family/token-display',
+                      arguments: {
+                        'permissionLevel': _selectedLevel.name.toUpperCase(),
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
+            ),
           ),
         ),
       ),
@@ -150,15 +147,15 @@ class _AccessLevelSelectionScreenState
                   Text(
                     option.title,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     option.description,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),

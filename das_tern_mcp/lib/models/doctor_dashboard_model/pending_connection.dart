@@ -28,22 +28,24 @@ class PendingConnection {
       recipientId: json['recipientId'] ?? '',
       status: json['status'] ?? 'PENDING',
       requestedAt: DateTime.parse(
-          json['requestedAt'] ?? DateTime.now().toIso8601String()),
+        json['requestedAt'] ?? DateTime.now().toIso8601String(),
+      ),
       initiator: json['initiator'] != null
           ? PendingConnectionPatient.fromJson(
-              Map<String, dynamic>.from(json['initiator']))
+              Map<String, dynamic>.from(json['initiator']),
+            )
           : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'initiatorId': initiatorId,
-        'recipientId': recipientId,
-        'status': status,
-        'requestedAt': requestedAt.toIso8601String(),
-        'initiator': initiator?.toJson(),
-      };
+    'id': id,
+    'initiatorId': initiatorId,
+    'recipientId': recipientId,
+    'status': status,
+    'requestedAt': requestedAt.toIso8601String(),
+    'initiator': initiator?.toJson(),
+  };
 }
 
 /// Patient info within a pending connection.
@@ -86,12 +88,12 @@ class PendingConnectionPatient {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'firstName': firstName,
-        'lastName': lastName,
-        'fullName': fullName,
-        'phoneNumber': phoneNumber,
-        'gender': gender,
-        'dateOfBirth': dateOfBirth,
-      };
+    'id': id,
+    'firstName': firstName,
+    'lastName': lastName,
+    'fullName': fullName,
+    'phoneNumber': phoneNumber,
+    'gender': gender,
+    'dateOfBirth': dateOfBirth,
+  };
 }

@@ -119,18 +119,15 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.connectionTitle),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.connectionTitle), centerTitle: true),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : _error != null
-                  ? _buildErrorState(context)
-                  : _buildPreview(context),
+              ? _buildErrorState(context)
+              : _buildPreview(context),
         ),
       ),
     );
@@ -158,17 +155,17 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
           const SizedBox(height: AppSpacing.lg),
           Text(
             l10n.codeInvalid,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             _error!,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
           PrimaryButton(
@@ -214,9 +211,9 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
         Text(
           l10n.codeValidTitle,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.successGreen,
-              ),
+            fontWeight: FontWeight.bold,
+            color: AppColors.successGreen,
+          ),
         ),
         const SizedBox(height: AppSpacing.xl),
 
@@ -226,26 +223,26 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
             children: [
               CircleAvatar(
                 radius: 32,
-                backgroundColor:
-                    AppColors.primaryBlue.withValues(alpha: 0.1),
-                child: const Icon(Icons.person,
-                    size: 32, color: AppColors.primaryBlue),
+                backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
+                child: const Icon(
+                  Icons.person,
+                  size: 32,
+                  color: AppColors.primaryBlue,
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
                 patientName.isEmpty ? l10n.patient : patientName,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: AppSpacing.sm),
               _buildInfoRow(
                 context,
                 Icons.shield_outlined,
                 l10n.accessLevelTitle,
-                Connection.permissionLevelToDisplay(
-                  _permFromString(permLevel),
-                ),
+                Connection.permissionLevelToDisplay(_permFromString(permLevel)),
               ),
               if (expiresAt != null)
                 _buildInfoRow(
@@ -272,15 +269,18 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.info_outline,
-                  size: 20, color: AppColors.warningOrange),
+              const Icon(
+                Icons.info_outline,
+                size: 20,
+                color: AppColors.warningOrange,
+              ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
                   l10n.connectionRequiresApproval,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.warningOrange,
-                      ),
+                    color: AppColors.warningOrange,
+                  ),
                 ),
               ),
             ],
@@ -320,15 +320,15 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
           const SizedBox(width: AppSpacing.sm),
           Text(
             '$label: ',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
           Text(
             value,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),

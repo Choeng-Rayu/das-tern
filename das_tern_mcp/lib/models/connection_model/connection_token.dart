@@ -26,10 +26,15 @@ class ConnectionToken {
       patientId: json['patientId'] ?? '',
       token: json['token'] ?? '',
       permissionLevel: json['permissionLevel'] ?? 'ALLOWED',
-      expiresAt: DateTime.parse(json['expiresAt'] ?? DateTime.now().add(const Duration(hours: 24)).toIso8601String()),
+      expiresAt: DateTime.parse(
+        json['expiresAt'] ??
+            DateTime.now().add(const Duration(hours: 24)).toIso8601String(),
+      ),
       usedAt: json['usedAt'] != null ? DateTime.parse(json['usedAt']) : null,
       usedById: json['usedById'],
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        json['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
     );
   }
 
