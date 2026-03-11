@@ -853,27 +853,29 @@ class AppLocalizationsKm extends AppLocalizations {
   String get unknown => 'មិនស្គាល់';
 
   @override
-  String get familyFunctionTitle => 'មុខងារគ្រួសារ';
+  String get familyFunctionTitle => 'គ្រួសារ និងអ្នកថែទាំ';
 
   @override
   String get familyIntroDescription =>
-      'អនុញ្ញាតសមាជិកគ្រួសារ ភ្ជាប់គណនីរបស់អ្នកដឹ អាច មើលស្ថានភាពទទួលថ្នាំប្រចាំថ្ងៃ ទទួល ការជូនដំណឹង (Notification) ពេល';
+      'ភ្ជាប់ជាមួយសមាជិកគ្រួសារ ឬអ្នកថែទាំ ដើម្បីចែករំលែកកាលវិភាគថ្នាំ។';
 
   @override
-  String get familyBulletSender => 'អ្នកដឹង ទទួលថ្នាំ';
+  String get familyBulletSender =>
+      'ចែករំលែកកាលវិភាគរបស់អ្នកជាមួយគ្រួសារ ដើម្បីឱ្យពួកគេតាមដាន';
 
   @override
-  String get familyBulletReceiver => 'អ្នកដឹង ខកខានទទួលថ្នាំ';
+  String get familyBulletReceiver =>
+      'ស្កែន QR កូដរបស់អ្នកជំងឺ ដើម្បីចាប់ផ្តើមតាមដាន';
 
   @override
   String get familyIntroFooter =>
-      'ផ្ដួយគ្រួសារ ចូលមុខងារត្រេ និងតាមដានការព្យាបាល កាន់តែល្អ។';
+      'ការភ្ជាប់ទាមទារការអនុម័តពីអ្នកជំងឺ ហើយអាចដកបានគ្រប់ពេល។';
 
   @override
-  String get startUsing => 'ចូលប្រើប្រាស់';
+  String get startUsing => 'ចាប់ផ្តើម';
 
   @override
-  String get learnMore => 'យល់ដឹងបន្ថែម';
+  String get learnMore => 'ស្វែងយល់បន្ថែម';
 
   @override
   String get scanPrescriptionTitle => 'ស្កេនវេជ្ជបញ្ជា';
@@ -1598,7 +1600,7 @@ class AppLocalizationsKm extends AppLocalizations {
   }
 
   @override
-  String get noAdherenceData => 'មិនមានទិន្នន័យការប្រើថ្នាំ';
+  String get noAdherenceData => 'គ្មានទិន្នន័យការប្រតិបត្តិតាម';
 
   @override
   String get dailyAdherenceLast30 =>
@@ -2554,31 +2556,6 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get missedDoseBanner => 'អ្នកបានខកខានការប្រើប្រាស់ថ្នាំថ្ងៃនេះ';
-
-  @override
-  String get familyFunctionTitle => 'គ្រួសារ និងអ្នកថែទាំ';
-
-  @override
-  String get familyIntroDescription =>
-      'ភ្ជាប់ជាមួយសមាជិកគ្រួសារ ឬអ្នកថែទាំ ដើម្បីចែករំលែកកាលវិភាគថ្នាំ។';
-
-  @override
-  String get familyBulletSender =>
-      'ចែករំលែកកាលវិភាគរបស់អ្នកជាមួយគ្រួសារ ដើម្បីឱ្យពួកគេតាមដាន';
-
-  @override
-  String get familyBulletReceiver =>
-      'ស្កែន QR កូដរបស់អ្នកជំងឺ ដើម្បីចាប់ផ្តើមតាមដាន';
-
-  @override
-  String get familyIntroFooter =>
-      'ការភ្ជាប់ទាមទារការអនុម័តពីអ្នកជំងឺ ហើយអាចដកបានគ្រប់ពេល។';
-
-  @override
-  String get startUsing => 'ចាប់ផ្តើម';
-
-  @override
-  String get learnMore => 'ស្វែងយល់បន្ថែម';
 
   @override
   String get appearance => 'រូបរាង';
