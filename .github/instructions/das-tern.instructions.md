@@ -4,263 +4,157 @@ applyTo: '**'
 
 # AI AGENT RULES – DASTERN ARCHITECTURE & WORKFLOW
 
+## Architecture
 
-# Architecture Overview
+### Services
 
-## System Components
-
-### 1. backend (NestJS)
+1. **Backend (NestJS)**
 - Main business logic
-- Handles authentication, medication, users, prescription processing, and payment
-- Communicates with Bakong Service
-- Communicates with OCR service and AI LLM service
-- Connects to PostgreSQL and Redis (via Docker)
+- Handles authentication, medication, prescription, and payment
+- Communicates with **Bakong Service**, **OCR Service**, and **AI LLM Service**
+- Connects to **PostgreSQL and Redis (Docker)**
 
-### 2. bakong_service (Separate VPS)
+2. **Bakong Service (Separate VPS)**
 - Handles Bakong payment integration
-- Receives encrypted payload from backend
-- Generates QR code via Bakong API
-- Receives payment notification from Bakong
-- Sends payment success callback to main backend
-- Does **NOT** connect to the main PostgreSQL/Redis Docker
-- Stores only minimal payment-related data
+- Generates QR code and receives payment notification
+- Sends payment confirmation to backend
+- Stores minimal payment data
+- **Does NOT connect to main database**
 
-### 3. OCR Service
-- Responsible for scanning and extracting text from prescription images
-- Receives image from backend
-- Processes OCR extraction
-- Returns structured OCR result to backend
-- Does **NOT** directly communicate with the frontend
+3. **OCR Service**
+- Extracts text from prescription images
+- Returns OCR result to backend
+- **No direct communication with frontend**
 
-### 4. AI LLM Service
-- Responsible for improving or interpreting OCR results
+4. **AI LLM Service**
+- Improves OCR results
 - Receives OCR output from backend
-- Analyzes medication names, dosage, and prescription structure
-- Returns refined or structured prescription data
-- If the AI service fails or does not respond, backend must fallback to OCR result
+- Returns refined prescription data
 
-### 5. frontend: das_tern_mcp (Flutter)
-- Mobile application
-- Communicates **only with backend**
-- NEVER communicates directly with OCR, AI LLM, or Bakong services
+5. **Frontend – das_tern_mcp (Flutter)**
+- Mobile app
+- Communicates **ONLY with backend**
 - Must support **English and Khmer**
-
-Localization rules:
-- Check existing localization files in  
+- Use localization files in  
 `/home/rayu/das-tern/das_tern_mcp/lib/l10n`
-- Follow the same pattern when adding new strings
 
-Flutter quality rules:
+Flutter rules:
 - Always run `flutter analyze`
-- Fix ALL issues until **ZERO issues**
-- Only test when analysis is clean
+- Must have **0 issues before testing**
+- Widgets must be **reusable and scalable**
 
-Widget rules:
-- Widgets must be scalable and reusable
-- Build base widgets with configurable parameters
-- Specialized widgets must extend or compose base widgets
-- Always integrate with theme and localization
+6. **Database**
+- PostgreSQL (Docker)
+- Redis (Docker)
+- Docker is used **ONLY for database services**
 
-### 6. Database
-- PostgreSQL (Docker only)
-- Redis (Docker only)
-- Docker is used **ONLY** for PostgreSQL and Redis
-
+---
 
 # System Flow
 
 ## Payment Flow
 
-1. Flutter app sends payment request to backend (NestJS)
-2. Backend encrypts payload and sends request to `bakong_service`
-3. bakong_service calls Bakong API and generates QR code
-4. bakong_service returns QR code to backend
-5. Backend sends QR code to Flutter
-6. User pays via Bakong
-7. Bakong sends payment notification to `bakong_service`
-8. bakong_service validates payment
-9. bakong_service sends payment confirmation to backend
-10. Backend updates payment status in PostgreSQL
-11. Backend confirms payment success to frontend
+1. Flutter → Backend (payment request)
+2. Backend → Bakong Service (encrypted payload)
+3. Bakong Service → Bakong API (generate QR)
+4. Bakong Service → Backend (QR response)
+5. Backend → Flutter (show QR)
+6. User pays
+7. Bakong → Bakong Service (payment notification)
+8. Bakong Service → Backend (payment confirmation)
+9. Backend → PostgreSQL (update status)
+10. Backend → Flutter (payment success)
 
-Important rules:
-- Flutter NEVER talks to bakong_service
-- bakong_service NEVER connects to main database
+Rules:
+- Flutter **never talks to Bakong Service**
 - Only backend updates database
 
+---
 
-# Prescription OCR & AI Flow
+## OCR + AI Flow
 
-1. User scans prescription in Flutter
-2. Flutter uploads image to backend
-3. Backend sends image to **OCR Service**
-4. OCR Service extracts prescription text
-5. OCR result is returned to backend
-6. Backend sends OCR result to **AI LLM Service**
-7. AI analyzes and improves the prescription structure
+1. Flutter scans prescription
+2. Flutter uploads image → Backend
+3. Backend → OCR Service
+4. OCR Service → Backend (OCR result)
+5. Backend → AI LLM Service
+6. AI returns improved prescription
 
-### AI Response Handling Rule
+### AI Fallback Rule
 
-If AI responds successfully:
-- Backend uses **AI improved result**
-- Backend sends refined prescription to frontend
+If AI responds:
+- Backend returns **AI improved result** to frontend
 
-If AI fails or does not respond:
-- Backend MUST fallback to **original OCR result**
-- Backend sends OCR result directly to frontend
-- The system must continue working without blocking the user
+If AI fails:
+- Backend returns **OCR result** to frontend
 
-**AI service failure must NEVER break the prescription flow.**
+System **must never block user** if AI fails.
 
-Frontend must always receive a result:
-- AI enhanced result OR
-- Raw OCR result
+Frontend must always receive:
+- AI result **OR**
+- OCR result
 
+---
 
 # Agent Execution Rules
 
+## Main Agent Responsibility
 
-# 1. Sub-Agent Task Delegation
+The **Main Agent must NOT implement features directly.**
 
-## Core Principle
-Sub-agents handle **small atomic tasks only**.
+The Main Agent must:
+1. Create a **Todo task list**
+2. Break features into **small atomic tasks**
+3. Assign tasks to **Sub-Agents**
 
-Never assign:
-- Full feature implementation
-- Backend + frontend in the same task
-- Large or unclear tasks
+---
 
-## Task Size Rule
+## Sub-Agent Rules
 
-Bad tasks:
+Sub-agents handle **small single tasks only**.
+
+Bad example:
 - Implement prescription feature
-- Implement medication system
 
-Good tasks:
+Good examples:
 
-Backend tasks
+Backend sub-agent tasks:
 - Create Prescription entity
-- Create CreatePrescription DTO
-- Implement POST /prescriptions endpoint
-- Add OCR integration service
+- Create DTO
+- Implement API endpoint
+- Add OCR service integration
 - Add AI service client
 
-Frontend tasks
+Frontend sub-agent tasks:
 - Create ScanPrescription screen
 - Implement image upload
 - Display OCR result
 - Display AI improved result
 
-Integration tasks
-- Verify OCR response structure
-- Verify AI fallback logic
-- Verify API response to Flutter
+Integration sub-agent tasks:
+- Verify API response structure
+- Test OCR → AI fallback
+- Verify frontend API connection
 
-## Delegation Rule
+Rule:
+- **1 sub-agent = 1 responsibility**
 
-Each sub-agent must have:
+---
 
-- Task type (Backend / Frontend / Integration / Database)
-- Clear objective
-- Expected output
-- Verification step
-
-One sub-agent = one responsibility.
-
-
-# 2. Frontend UI Validation Rule
+## UI Implementation Rule
 
 When implementing Flutter UI:
 
-- MUST use sub-agent with MCP server
-- MUST check Figma design
-- UI must match spacing, layout, and components from Figma
+Main agent must assign a **UI sub-agent** to:
+- Check Figma using MCP server
+- Implement UI based on design
+- Ensure layout and spacing match design
 
+---
 
-# 3. Flutter Code Quality Rule
+## Code Quality Rule (Flutter)
 
 Before testing:
 
-All issues MUST be fixed until **0 issues remain**.
-
-Testing workflow:
-
-1. Implement feature
-2. Run `flutter analyze`
-3. Fix issues
-4. Confirm 0 issues
-5. Run tests
-6. Fix issues discovered during testing
-7. Run analysis again
-8. Confirm 0 issues before completion
-
-Never test with existing analyzer issues.
-
-
-# 4. Todo List Requirement
-
-Before implementing any feature:
-
-Agent MUST create a detailed Todo list including:
-
-- Backend tasks
-- Frontend tasks
-- Integration tasks
-- Testing tasks
-
-Implementation must follow the Todo plan.
-
-
-# 5. Sensitive Value Change Rule
-
-Sensitive values include:
-
-- `.env` variables
-- Database schema
-- API routes
-- DTO fields
-- Encryption keys
-- Redis keys
-- Payment status enums
-
-When these change, the agent must update:
-
-- Backend logic
-- DTO validation
-- Database schema
-- Frontend API calls
-- Documentation
-
-No partial updates allowed.
-
-
-# 6. Backend Responsibility Rule
-
-- Only backend (NestJS) modifies PostgreSQL
-- bakong_service cannot modify main database
-- OCR and AI services also cannot modify the main database
-
-
-# 7. Separation of Concerns
-
-System responsibility separation:
-
-Flutter → UI only  
-Backend → Business logic + database  
-OCR service → text extraction only  
-AI LLM service → prescription interpretation only  
-bakong_service → payment gateway communication  
-Docker → PostgreSQL and Redis only
-
-
-# Expected Agent Behavior
-
-The agent must:
-
-- Think in system architecture, not isolated code
-- Maintain strict separation of services
-- Validate backend ↔ frontend API contracts
-- Ensure payment flow reliability
-- Ensure OCR → AI fallback reliability
-- Always delegate tasks into small sub-agent tasks
-- Maintain scalable Flutter widget design
+```bash
+flutter analyze

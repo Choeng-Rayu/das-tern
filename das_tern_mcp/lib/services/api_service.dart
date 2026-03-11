@@ -139,12 +139,13 @@ class ApiService {
         return true;
       }
       _log.warning('ApiService', 'Token refresh failed [${res.statusCode}]');
-      await _clearTokens();
+      if (res.statusCode == 401 || res.statusCode == 403) {
+        await _clearTokens();
+      }
       _refreshCompleter!.complete(false);
       return false;
     } catch (e) {
       _log.error('ApiService', 'Token refresh exception', e);
-      await _clearTokens();
       _refreshCompleter!.complete(false);
       return false;
     } finally {
