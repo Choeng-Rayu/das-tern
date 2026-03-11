@@ -93,24 +93,14 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
-    final unitStr = _unit.toJson().toLowerCase();
-    final scheduleTimes = <Map<String, String>>[
-      if (_morning) {'timePeriod': 'morning', 'time': '07:00'},
-      if (_daytime) {'timePeriod': 'daytime', 'time': '12:00'},
-      if (_night) {'timePeriod': 'night', 'time': '20:00'},
-    ];
-
     widget.onSave({
       'medicineName': _nameController.text.trim(),
       'medicineNameKhmer': _nameKhmerController.text.trim(),
       'medicineType': _medicineType.toJson(),
       'unit': _unit.toJson(),
-      'dosageUnit': unitStr,
-      'form': unitStr,
       'dosageAmount': double.tryParse(_dosageController.text) ?? 1,
       'frequency': _frequencyController.text.trim(),
       'durationDays': int.tryParse(_durationController.text) ?? 30,
-      'scheduleTimes': scheduleTimes,
       if (_morning)
         'morningDosage': {
           'amount': (_dosageController.text.trim().isEmpty
@@ -247,7 +237,6 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
                   _ScheduleChip(
                     label: l10n.morning,
                     icon: Icons.wb_sunny_rounded,
-                    color: const Color(0xFFFFA726),
                     selected: _morning,
                     onTap: () => setState(() => _morning = !_morning),
                   ),
@@ -255,7 +244,6 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
                   _ScheduleChip(
                     label: l10n.daytime,
                     icon: Icons.wb_twilight,
-                    color: const Color(0xFF26C6DA),
                     selected: _daytime,
                     onTap: () => setState(() => _daytime = !_daytime),
                   ),
@@ -263,7 +251,6 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
                   _ScheduleChip(
                     label: l10n.night,
                     icon: Icons.nightlight_round,
-                    color: const Color(0xFF7E57C2),
                     selected: _night,
                     onTap: () => setState(() => _night = !_night),
                   ),
@@ -377,25 +364,34 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
   }
 
   InputDecoration _inputDecoration({required String label, String? hint}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InputDecoration(
       labelText: label,
       hintText: hint,
       filled: true,
-      fillColor: const Color(0xFFF8FAFF),
+      fillColor: isDark ? Colors.grey[900] : const Color(0xFFF8FAFF),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: const BorderSide(color: Color(0xFFDDE3F0)),
+        borderSide: BorderSide(
+          color: isDark ? Colors.grey[700]! : const Color(0xFFDDE3F0),
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: const BorderSide(color: Color(0xFFDDE3F0)),
+        borderSide: BorderSide(
+          color: isDark ? Colors.grey[700]! : const Color(0xFFDDE3F0),
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadius.md),
         borderSide: BorderSide(color: AppColors.primaryBlue, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      labelStyle: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+      labelStyle: TextStyle(
+        fontSize: 13,
+        color: isDark ? Colors.grey[400] : AppColors.textSecondary,
+      ),
+      hintStyle: TextStyle(color: isDark ? Colors.grey[600] : Colors.grey[400]),
     );
   }
 }
@@ -418,13 +414,14 @@ class _FormSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -450,16 +447,21 @@ class _FormSection extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: isDark ? Colors.white : AppColors.textPrimary,
                   ),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, indent: 14, endIndent: 14),
+          Divider(
+            height: 1,
+            indent: 14,
+            endIndent: 14,
+            color: isDark ? Colors.grey[700] : null,
+          ),
           Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
@@ -473,24 +475,26 @@ class _FormSection extends StatelessWidget {
   }
 }
 
-/// Pill-shaped schedule chip with icon and accent color per time slot.
+/// Pill-shaped schedule chip with icon and minimalist design.
 class _ScheduleChip extends StatelessWidget {
   const _ScheduleChip({
     required this.label,
     required this.icon,
-    required this.color,
     required this.selected,
     required this.onTap,
   });
 
   final String label;
   final IconData icon;
-  final Color color;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accentColor = AppColors.primaryBlue;
+    final unselectedColor = isDark ? Colors.grey[600]! : Colors.grey[300]!;
+
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -499,23 +503,33 @@ class _ScheduleChip extends StatelessWidget {
           curve: Curves.easeInOut,
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? color : color.withValues(alpha: 0.08),
+            color: selected
+                ? accentColor.withValues(alpha: 0.12)
+                : unselectedColor.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(AppRadius.md),
             border: Border.all(
-              color: selected ? color : color.withValues(alpha: 0.25),
+              color: selected ? accentColor : unselectedColor,
               width: 1.5,
             ),
           ),
           child: Column(
             children: [
-              Icon(icon, size: 20, color: selected ? Colors.white : color),
+              Icon(
+                icon,
+                size: 20,
+                color: selected
+                    ? accentColor
+                    : (isDark ? Colors.grey[400] : Colors.grey[600]),
+              ),
               const SizedBox(height: 4),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: selected ? Colors.white : color,
+                  color: selected
+                      ? accentColor
+                      : (isDark ? Colors.grey[400] : Colors.grey[600]),
                 ),
               ),
             ],

@@ -5,6 +5,7 @@ import '../../../models/prescription_model/prescription.dart';
 import '../../../providers/prescription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
+import '../../../utils/app_router.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Prescription History tab – matches Figma tab: ប្រវិត្តវេជ្ជបញ្ជារ
@@ -91,7 +92,14 @@ class _DoctorPrescriptionHistoryTabState
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: AppCard(
         onTap: () {
-          // TODO: Navigate to prescription detail
+          // Navigate to prescription detail
+          if (rx.id != null) {
+            Navigator.pushNamed(
+              context,
+              AppRouter.prescriptionDetail,
+              arguments: {'prescriptionId': rx.id},
+            );
+          }
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

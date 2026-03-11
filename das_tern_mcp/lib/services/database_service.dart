@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 import 'logger_service.dart';
@@ -14,8 +15,22 @@ class DatabaseService {
   static const String _dbName = 'das_tern.db';
 
   Future<Database> get database async {
-    _database ??= await _initDatabase();
+    if (kIsWeb) {
+      _database ??= await _initInMemoryDatabase();
+    } else {
+      _database ??= await _initDatabase();
+    }
     return _database!;
+  }
+
+  Future<Database> _initInMemoryDatabase() async {
+    _log.info('DatabaseService', 'Initializing in-memory database for web');
+    return openDatabase(
+      ':memory:',
+      version: _dbVersion,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
   }
 
   Future<Database> _initDatabase() async {

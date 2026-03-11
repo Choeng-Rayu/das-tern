@@ -119,9 +119,9 @@ class DashboardPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 6),
-                ],
+                // boxShadow: const [
+                //   BoxShadow(color: Colors.black12, blurRadius: 6),
+                // ],
               ),
               child: Column(
                 children: [
