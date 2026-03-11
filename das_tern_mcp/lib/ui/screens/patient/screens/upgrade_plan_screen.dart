@@ -343,7 +343,7 @@ class _TrialCTA extends StatefulWidget {
 }
 
 class _TrialCTAState extends State<_TrialCTA> {
-  bool _busy = false;
+  final bool _busy = false;
 
   Future<void> _claim() async {
     if (_busy) return;
