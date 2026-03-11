@@ -34,14 +34,13 @@ class NotificationDataService {
     final data = await _api.getNotifications(unreadOnly: true);
     final list = data['notifications'];
     if (list is List) {
-      for (final item in list) {
-        if (item is Map<String, dynamic>) {
-          final id = item['id']?.toString();
-          if (id != null && id.isNotEmpty) {
-            await _api.markNotificationRead(id);
-          }
-        }
-      }
+      final ids = list
+          .whereType<Map<String, dynamic>>()
+          .map((item) => item['id']?.toString())
+          .where((id) => id != null && id.isNotEmpty)
+          .cast<String>()
+          .toList();
+      await Future.wait(ids.map((id) => _api.markNotificationRead(id)));
     }
   }
 
