@@ -3,10 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/subscription_provider.dart';
 import '../../../theme/app_colors.dart';
-import '../../../theme/app_spacing.dart';
 
-/// Upgrade plan selection screen.
-/// Shows current plan, feature comparison, and upgrade options.
 class UpgradePlanScreen extends StatefulWidget {
   const UpgradePlanScreen({super.key});
 
@@ -14,35 +11,15 @@ class UpgradePlanScreen extends StatefulWidget {
   State<UpgradePlanScreen> createState() => _UpgradePlanScreenState();
 }
 
-class _UpgradePlanScreenState extends State<UpgradePlanScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
+class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
+  bool _trialClaimed = false;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-    _animationController.forward();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<SubscriptionProvider>().loadSubscription();
-      }
+      if (mounted) context.read<SubscriptionProvider>().loadSubscription();
     });
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 
   @override
@@ -52,769 +29,282 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasPlans = sub.plans != null && sub.plans!.isNotEmpty;
 
+    final bg = isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF5F5F7);
+    final card = isDark ? const Color(0xFF1C1C1E) : Colors.white;
+    final border = isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA);
+    final muted = isDark ? const Color(0xFF8E8E93) : const Color(0xFF8E8E93);
+
     return Scaffold(
-      backgroundColor: isDark
-          ? const Color(0xFF121212)
-          : const Color(0xFFF8F9FD),
+      backgroundColor: bg,
       appBar: AppBar(
-        title: Text(
-          l10n.upgradePlan,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
+        title: Text(l10n.upgradePlan),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: bg,
+        surfaceTintColor: Colors.transparent,
       ),
       body: Column(
         children: [
-          // ── Error banner (non-blocking) ─────────────────────────────────
           if (sub.errorMessage != null && !sub.isLoading)
-            Material(
-              color: isDark ? const Color(0xFF2A1F1F) : const Color(0xFFFFF3F3),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.wifi_off,
-                      size: 18,
-                      color: Color(0xFFE53935),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        sub.errorMessage!,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.alertRed,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    TextButton.icon(
-                      onPressed: () => context
-                          .read<SubscriptionProvider>()
-                          .loadSubscription(),
-                      icon: sub.isLoading
-                          ? const SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.refresh, size: 16),
-                      label: Text(
-                        l10n.retry,
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                      style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFFE53935),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            _ErrorBanner(
+              message: sub.errorMessage!,
+              isLoading: sub.isLoading,
+              onRetry: () =>
+                  context.read<SubscriptionProvider>().loadSubscription(),
             ),
-
-          // ── Loading indicator (thin bar, non-blocking) ──────────────────
           if (sub.isLoading) const LinearProgressIndicator(minHeight: 2),
-
-          // ── Main scrollable content ─────────────────────────────────────
           Expanded(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.lg,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Current plan card
-                    _CurrentPlanCard(tier: sub.currentTier, isDark: isDark),
-                    const SizedBox(height: AppSpacing.md),
-
-                    // Claim Free Trial button (only for Freemium users)
-                    if (sub.canClaimTrial)
-                      _ClaimFreeTrialButton(isDark: isDark),
-
-                    const SizedBox(height: AppSpacing.xl),
-
-                    // Section title
-                    Text(
-                      l10n.choosePlan,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    // Plan cards – from backend or static fallback
-                    if (hasPlans)
-                      ...sub.plans!.map(
-                        (plan) => _PlanCard(
-                          plan: plan,
-                          isCurrentPlan: sub.currentTier == plan['id'],
-                          isRecommended: false,
-                          isDark: isDark,
-                          onUpgrade: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/subscription/payment-method',
-                              arguments: {'planType': plan['id'], 'plan': plan},
-                            );
-                          },
-                        ),
-                      )
-                    else
-                      ..._defaultPlanCards(sub.currentTier, isDark),
-
-                    const SizedBox(height: AppSpacing.xl),
-
-                    // Feature comparison
-                    _FeatureComparisonSection(
-                      currentTier: sub.currentTier,
-                      isDark: isDark,
-                    ),
-
-                    const SizedBox(height: AppSpacing.xxl),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _defaultPlanCards(String currentTier, bool isDark) {
-    return [
-      _PlanCard(
-        plan: const {
-          'id': 'PREMIUM',
-          'name': 'Premium',
-          'price': 0.5,
-          'currency': 'USD',
-          'period': 'month',
-          'priceOptions': [
-            {'price': 0.5, 'period': 'month', 'display': '\$0.5/month'},
-            {'price': 1.0, 'period': '3months', 'display': '\$1/3 months'},
-          ],
-          'features': [
-            'Unlimited manual prescriptions',
-            'Unlimited OCR scanning',
-            'Connect up to 5 family members',
-            '20 GB storage',
-            'Priority support',
-            '1-month free trial',
-          ],
-        },
-        isCurrentPlan: currentTier == 'PREMIUM',
-        isRecommended: true,
-        isDark: isDark,
-        onUpgrade: () {
-          Navigator.pushNamed(
-            context,
-            '/subscription/payment-method',
-            arguments: {
-              'planType': 'PREMIUM',
-              'plan': {
-                'id': 'PREMIUM',
-                'name': 'Premium',
-                'price': 0.5,
-                'currency': 'USD',
-                'period': 'month',
-                'priceOptions': [
-                  {'price': 0.5, 'period': 'month', 'display': '\$0.5/month'},
-                  {
-                    'price': 1.0,
-                    'period': '3months',
-                    'display': '\$1/3 months',
-                  },
-                ],
-              },
-            },
-          );
-        },
-      ),
-    ];
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// ─── Claim Free Trial Button ────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════
-class _ClaimFreeTrialButton extends StatelessWidget {
-  final bool isDark;
-
-  const _ClaimFreeTrialButton({required this.isDark});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF667EEA).withValues(alpha: 0.35),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showTrialConfirmSheet(context),
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.card_giftcard_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                _StatusCard(
+                  tier: _trialClaimed ? 'PREMIUM' : sub.currentTier,
+                  isDark: isDark,
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.claimFreeTrial,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
+                const SizedBox(height: 16),
+
+                if (!_trialClaimed && !sub.isPremium)
+                  _TrialCTA(
+                    isDark: isDark,
+                    card: card,
+                    border: border,
+                    onClaimed: () => setState(() => _trialClaimed = true),
+                  ),
+
+                if (_trialClaimed || sub.isPremium || sub.isOnTrial) ...[
+                  const SizedBox(height: 8),
+                  _TrialCountdown(
+                    daysRemaining: _trialClaimed ? 30 : sub.trialDaysRemaining,
+                    expiresAt: _trialClaimed
+                        ? DateTime.now().add(const Duration(days: 30))
+                        : sub.trialExpiresAt!,
+                    isDark: isDark,
+                    card: card,
+                    border: border,
+                    muted: muted,
+                  ),
+                ] else ...[
+                  const SizedBox(height: 28),
+                  Text(
+                    l10n.choosePlan,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.4,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.unlockPremiumFeatures,
+                    style: TextStyle(color: muted, fontSize: 14, height: 1.4),
+                  ),
+                  const SizedBox(height: 20),
+                  if (hasPlans)
+                    ...sub.plans!.map(
+                      (plan) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _PlanTile(
+                          plan: plan,
+                          isCurrent: sub.currentTier == plan['id'],
+                          isDark: isDark,
+                          card: card,
+                          border: border,
+                          muted: muted,
+                          onUpgrade: () => Navigator.pushNamed(
+                            context,
+                            '/subscription/payment-method',
+                            arguments: {'planType': plan['id'], 'plan': plan},
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        l10n.freeTrialOffer,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                        ),
+                    )
+                  else
+                    _PlanTile(
+                      plan: const {
+                        'id': 'PREMIUM',
+                        'name': 'Premium',
+                        'price': 0.5,
+                        'currency': 'USD',
+                        'period': 'month',
+                        'priceOptions': [
+                          {
+                            'price': 0.5,
+                            'period': 'month',
+                            'display': '\$0.5/mo',
+                          },
+                          {
+                            'price': 1.0,
+                            'period': '3months',
+                            'display': '\$1/3mo',
+                          },
+                        ],
+                        'features': [
+                          'Unlimited manual prescriptions',
+                          'Unlimited OCR scanning',
+                          'Connect up to 5 family members',
+                          '20 GB storage',
+                          'Priority support',
+                          '1-month free trial',
+                        ],
+                      },
+                      isCurrent: sub.currentTier == 'PREMIUM',
+                      isDark: isDark,
+                      card: card,
+                      border: border,
+                      muted: muted,
+                      onUpgrade: () => Navigator.pushNamed(
+                        context,
+                        '/subscription/payment-method',
+                        arguments: {
+                          'planType': 'PREMIUM',
+                          'plan': {
+                            'id': 'PREMIUM',
+                            'name': 'Premium',
+                            'price': 0.5,
+                            'currency': 'USD',
+                            'period': 'month',
+                          },
+                        },
                       ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: Colors.white,
-                  size: 16,
+                    ),
+                ],
+
+                const SizedBox(height: 32),
+                _ComparisonTable(
+                  currentTier: sub.currentTier,
+                  isDark: isDark,
+                  card: card,
+                  border: border,
+                  muted: muted,
                 ),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  /// Shows the trial confirmation as a modal bottom sheet popup.
-  void _showTrialConfirmSheet(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final sub = context.read<SubscriptionProvider>();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => ChangeNotifierProvider.value(
-        value: sub,
-        child: _TrialConfirmSheet(isDark: isDark),
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// ─── Trial Confirm Bottom Sheet ─────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════
-class _TrialConfirmSheet extends StatelessWidget {
-  final bool isDark;
-
-  const _TrialConfirmSheet({required this.isDark});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final sub = context.watch<SubscriptionProvider>();
-    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
-
-    // Dark style inspired by the reference design
-    const sheetBg = Color(0xFF1A1A2E);
-    const dividerColor = Color(0xFF2E2E48);
-    final mutedText = Colors.white.withValues(alpha: 0.55);
-
-    return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.88,
-      ),
-      decoration: const BoxDecoration(
-        color: sheetBg,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ── Drag handle ──
-          const SizedBox(height: 12),
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // ── Scrollable content ──
-          Flexible(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ── Plan name ──
-                  Text(
-                    l10n.premiumTrial,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // ── Top Features label ──
-                  Text(
-                    l10n.topFeatures,
-                    style: TextStyle(
-                      color: mutedText,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-
-                  // ── Feature list ──
-                  _featureItem(
-                    Icons.check,
-                    l10n.cancelAnytime,
-                    const Color(0xFF8B8B8B),
-                  ),
-                  const SizedBox(height: 14),
-                  _featureItem(
-                    Icons.access_time_rounded,
-                    l10n.trialReminderNote,
-                    const Color(0xFF9B8AFF),
-                  ),
-                  const SizedBox(height: 14),
-                  _featureItem(
-                    Icons.description_outlined,
-                    'Unlimited prescriptions & OCR scanning',
-                    const Color(0xFF66B2FF),
-                  ),
-                  const SizedBox(height: 14),
-                  _featureItem(
-                    Icons.cloud_outlined,
-                    '20 GB storage',
-                    const Color(0xFF70D4A6),
-                  ),
-                  const SizedBox(height: 14),
-                  _featureItem(
-                    Icons.family_restroom_outlined,
-                    'Up to 5 family connections',
-                    const Color(0xFFE8A0FF),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  // ── Pricing breakdown ──
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(color: dividerColor, width: 1),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 16),
-                        _priceRow(
-                          'Monthly subscription',
-                          '\$0.50',
-                          mutedText,
-                          Colors.white.withValues(alpha: 0.8),
-                        ),
-                        const SizedBox(height: 12),
-                        _priceRow(
-                          'Promotion',
-                          '-\$0.50',
-                          mutedText,
-                          const Color(0xFF9B8AFF),
-                          subtitle: '100% off for a month',
-                        ),
-                        const SizedBox(height: 12),
-                        _priceRow(
-                          'VAT (0%)',
-                          '\$0.00',
-                          mutedText,
-                          Colors.white.withValues(alpha: 0.8),
-                        ),
-                        const SizedBox(height: 14),
-                        Container(height: 1, color: dividerColor),
-                        const SizedBox(height: 14),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Due today',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const Text(
-                              '\$0.00',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // ── Subscribe button (pinned at bottom) ──
-          Container(
-            padding: EdgeInsets.fromLTRB(24, 12, 24, 14 + bottomPad),
-            color: sheetBg,
-            child: SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: sub.isLoading ? null : () => _handleConfirm(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  disabledBackgroundColor: Colors.white.withValues(alpha: 0.4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(26),
-                  ),
-                  elevation: 0,
-                ),
-                child: sub.isLoading
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: Colors.black,
-                        ),
-                      )
-                    : const Text(
-                        'Subscribe',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
-
-  Future<void> _handleConfirm(BuildContext context) async {
-    final sub = context.read<SubscriptionProvider>();
-    final success = await sub.claimFreeTrial();
-
-    if (!context.mounted) return;
-    final l10n = AppLocalizations.of(context)!;
-
-    if (success) {
-      Navigator.pop(context); // close bottom sheet
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.trialClaimedSuccess),
-          backgroundColor: AppColors.statusSuccess,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(sub.errorMessage ?? l10n.trialClaimFailed),
-          backgroundColor: AppColors.statusError,
-        ),
-      );
-    }
-  }
-
-  // ── Sheet helper widgets ──
-
-  static Widget _featureItem(IconData icon, String text, Color iconColor) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: iconColor),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              height: 1.35,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  static Widget _priceRow(
-    String label,
-    String value,
-    Color labelColor,
-    Color valueColor, {
-    String? subtitle,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: labelColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: labelColor.withValues(alpha: 0.7),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ],
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            color: valueColor,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// ─── Current Plan Card ──────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════
-class _CurrentPlanCard extends StatelessWidget {
+// ── Status Card ─────────────────────────────────────────────────────
+class _StatusCard extends StatelessWidget {
   final String tier;
   final bool isDark;
-
-  const _CurrentPlanCard({required this.tier, required this.isDark});
+  const _StatusCard({required this.tier, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isPremium = tier == 'PREMIUM' || tier == 'FAMILY_PREMIUM';
 
+    // ── Luxury palette (soft, not bold) ──
+    final gradStart = isDark
+        ? const Color(0xFF1C2A4A) // soft slate navy
+        : const Color(0xFF5B7FFF); // muted periwinkle blue
+    final gradEnd = isDark
+        ? const Color(0xFF131E35) // subtle dark ink
+        : const Color(0xFF3D5EE8); // quiet indigo
+    final iconBg = isPremium
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.white.withValues(alpha: 0.10);
+    final iconColor = isPremium
+        ? const Color(0xFFE8C547) // warm gold
+        : Colors.white.withValues(alpha: 0.85);
+
     return Container(
-      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
-          colors: isPremium
-              ? [const Color(0xFF667EEA), const Color(0xFF764BA2)]
-              : [const Color(0xFF2D5BFF), const Color(0xFF1E3A8A)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
+          colors: [gradStart, gradEnd],
         ),
-        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color:
-                (isPremium ? const Color(0xFF764BA2) : const Color(0xFF2D5BFF))
-                    .withValues(alpha: 0.35),
-            blurRadius: 20,
+            color: AppColors.primaryBlue.withValues(
+              alpha: isDark ? 0.25 : 0.18,
+            ),
+            blurRadius: 24,
             offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Stack(
+      child: Row(
         children: [
-          // Decorative circles
-          Positioned(
-            right: -25,
-            top: -25,
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.07),
-              ),
+          // ── Icon ──
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: iconBg,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+            ),
+            child: Icon(
+              isPremium
+                  ? Icons.workspace_premium_rounded
+                  : Icons.layers_rounded,
+              color: iconColor,
+              size: 26,
             ),
           ),
-          Positioned(
-            left: -15,
-            bottom: -15,
-            child: Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-
-          // Content
-          Padding(
-            padding: const EdgeInsets.all(22),
-            child: Row(
+          const SizedBox(width: 18),
+          // ── Text ──
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Plan icon
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(15),
+                Text(
+                  l10n.currentPlan.toUpperCase(),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.55),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
                   ),
-                  child: Icon(
-                    isPremium
-                        ? Icons.workspace_premium
-                        : Icons.star_outline_rounded,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _displayName(tier),
+                  style: const TextStyle(
                     color: Colors.white,
-                    size: 28,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                    height: 1.1,
                   ),
                 ),
-                const SizedBox(width: 16),
-
-                // Plan info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.currentPlan,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        tier.replaceAll('_', ' '),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      if (!isPremium) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          l10n.upgradeToUnlock,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.6),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-
-                // Tier badge
+              ],
+            ),
+          ),
+          // ── Status badge ──
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 5,
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF5EE077), // bright green dot
+                    shape: BoxShape.circle,
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.25),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        isPremium ? Icons.verified : Icons.info_outline,
-                        size: 13,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        isPremium ? 'Active' : 'Free',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'ACTIVE',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.8,
                   ),
                 ),
               ],
@@ -824,23 +314,384 @@ class _CurrentPlanCard extends StatelessWidget {
       ),
     );
   }
+
+  String _displayName(String tier) {
+    return tier
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
+        .join(' ');
+  }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// ─── Plan Card ──────────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════
-class _PlanCard extends StatelessWidget {
-  final Map<String, dynamic> plan;
-  final bool isCurrentPlan;
-  final bool isRecommended;
+// ── Trial CTA ───────────────────────────────────────────────────────
+class _TrialCTA extends StatefulWidget {
   final bool isDark;
+  final Color card;
+  final Color border;
+  final VoidCallback? onClaimed;
+
+  const _TrialCTA({
+    required this.isDark,
+    required this.card,
+    required this.border,
+    this.onClaimed,
+  });
+
+  @override
+  State<_TrialCTA> createState() => _TrialCTAState();
+}
+
+class _TrialCTAState extends State<_TrialCTA> {
+  bool _busy = false;
+
+  Future<void> _claim() async {
+    if (_busy) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => const _TrialConfirmDialog(),
+    );
+    if (confirmed != true || !mounted) return;
+
+    widget.onClaimed?.call();
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.trialClaimedSuccess),
+        backgroundColor: AppColors.successGreen,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return GestureDetector(
+      onTap: _busy ? null : _claim,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: widget.card,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: widget.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFF34C759).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.bolt_rounded,
+                color: Color(0xFF34C759),
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.claimFreeTrial,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.freeTrialOffer,
+                    style: TextStyle(
+                      color: widget.isDark
+                          ? Colors.white54
+                          : const Color(0xFF8E8E93),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (_busy)
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              Icon(
+                Icons.chevron_right,
+                color: widget.isDark ? Colors.white30 : const Color(0xFFC7C7CC),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Trial Countdown ─────────────────────────────────────────────────
+class _TrialCountdown extends StatelessWidget {
+  final int daysRemaining;
+  final DateTime expiresAt;
+  final bool isDark;
+  final Color card;
+  final Color border;
+  final Color muted;
+
+  const _TrialCountdown({
+    required this.daysRemaining,
+    required this.expiresAt,
+    required this.isDark,
+    required this.card,
+    required this.border,
+    required this.muted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final progress = daysRemaining / 30;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Countdown card
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: card,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: border),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    l10n.yourTrialPeriod,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF34C759).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      l10n.premiumTrialActive,
+                      style: const TextStyle(
+                        color: Color(0xFF34C759),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    '$daysRemaining',
+                    style: const TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -2,
+                      height: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    daysRemaining == 1 ? l10n.dayLeft : l10n.daysLeft,
+                    style: TextStyle(
+                      color: muted,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 6,
+                  backgroundColor: isDark
+                      ? const Color(0xFF2C2C2E)
+                      : const Color(0xFFE5E5EA),
+                  color: progress > 0.3
+                      ? const Color(0xFF34C759)
+                      : const Color(0xFFFF3B30),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${l10n.trialExpiresOn} ${_fmtDate(expiresAt)}',
+                    style: TextStyle(color: muted, fontSize: 12),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // After trial info
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1C1C1E) : const Color(0xFFFFFBEB),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE5D68A),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 18,
+                color: isDark
+                    ? const Color(0xFFFFD60A)
+                    : const Color(0xFFC49000),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  l10n.autoRevertToFree,
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.4,
+                    color: isDark ? Colors.white70 : const Color(0xFF6B5900),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Included features
+        Text(
+          l10n.whatYouGet,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 12),
+        _miniFeature(Icons.camera_alt_outlined, l10n.unlimitedOcrScanning),
+        _miniFeature(Icons.people_outline, l10n.connectFamilyMembers),
+        _miniFeature(Icons.cloud_outlined, l10n.twentyGBStorage),
+        _miniFeature(Icons.headset_mic_outlined, l10n.prioritySupport),
+        const SizedBox(height: 20),
+
+        // Continue premium
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: FilledButton(
+            onPressed: () => Navigator.pushNamed(
+              context,
+              '/subscription/payment-method',
+              arguments: {
+                'planType': 'PREMIUM',
+                'plan': {
+                  'id': 'PREMIUM',
+                  'name': 'Premium',
+                  'price': 0.5,
+                  'currency': 'USD',
+                  'period': 'month',
+                },
+              },
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF007AFF),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              l10n.continuePremium,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _miniFeature(IconData icon, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: const Color(0xFF007AFF)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _fmtDate(DateTime d) {
+    const m = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${m[d.month - 1]} ${d.day}, ${d.year}';
+  }
+}
+
+// ── Plan Tile ───────────────────────────────────────────────────────
+class _PlanTile extends StatelessWidget {
+  final Map<String, dynamic> plan;
+  final bool isCurrent;
+  final bool isDark;
+  final Color card;
+  final Color border;
+  final Color muted;
   final VoidCallback onUpgrade;
 
-  const _PlanCard({
+  const _PlanTile({
     required this.plan,
-    required this.isCurrentPlan,
-    required this.isRecommended,
+    required this.isCurrent,
     required this.isDark,
+    required this.card,
+    required this.border,
+    required this.muted,
     required this.onUpgrade,
   });
 
@@ -848,103 +699,184 @@ class _PlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final features = (plan['features'] as List?)?.cast<String>() ?? [];
+    final name = plan['name'] ?? '';
+    final priceOptions = plan['priceOptions'] as List?;
     final price = plan['price'] ?? 0;
+    final accent = const Color(0xFF007AFF);
 
-    return Card(
-      elevation: isCurrentPlan ? 0 : 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: isCurrentPlan
-            ? const BorderSide(color: AppColors.successGreen, width: 2)
-            : BorderSide.none,
+    return Container(
+      decoration: BoxDecoration(
+        color: card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isCurrent ? const Color(0xFF34C759) : border,
+          width: isCurrent ? 1.5 : 1,
+        ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Row(
               children: [
-                Text(
-                  plan['name'] ?? '',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                      if (priceOptions != null && priceOptions.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              '\$${_fmtPrice(priceOptions[0]['price'])}',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w800,
+                                color: accent,
+                                letterSpacing: -1,
+                                height: 1,
+                              ),
+                            ),
+                            Text(
+                              '/${priceOptions[0]['period'] ?? 'mo'}',
+                              style: TextStyle(
+                                color: muted,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (priceOptions.length > 1)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              'or ${priceOptions[1]['display']}',
+                              style: TextStyle(color: muted, fontSize: 12),
+                            ),
+                          ),
+                      ] else ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              '\$${_fmtPrice(price)}',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w800,
+                                color: accent,
+                                letterSpacing: -1,
+                                height: 1,
+                              ),
+                            ),
+                            Text(
+                              '/${plan['period'] ?? 'mo'}',
+                              style: TextStyle(
+                                color: muted,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-                if (isCurrentPlan)
+                if (isCurrent)
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
+                      horizontal: 8,
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.successGreen.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
+                      color: const Color(0xFF34C759).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      l10n.currentLabel,
+                      l10n.currentLabel.toUpperCase(),
                       style: const TextStyle(
-                        color: AppColors.successGreen,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
+                        color: Color(0xFF34C759),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
               ],
             ),
-            const SizedBox(height: 8),
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: '\$$price',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primaryBlue,
-                    ),
-                  ),
-                  TextSpan(
-                    text: ' /${plan['period'] ?? 'month'}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            ...features.map(
-              (f) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.check_circle,
-                      color: AppColors.successGreen,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        f,
-                        style: Theme.of(context).textTheme.bodyMedium,
+          ),
+
+          // Divider
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Divider(height: 1, color: border),
+          ),
+
+          // Features
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: features
+                  .map(
+                    (f) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF34C759),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              f,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF3C3C43),
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
+                  )
+                  .toList(),
             ),
-            const SizedBox(height: 16),
-            if (!isCurrentPlan)
-              SizedBox(
+          ),
+
+          // Button
+          if (!isCurrent)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              child: SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                height: 46,
+                child: FilledButton(
                   onPressed: onUpgrade,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryBlue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: accent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -952,29 +884,42 @@ class _PlanCard extends StatelessWidget {
                   child: Text(
                     l10n.upgradeNow,
                     style: const TextStyle(
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      fontSize: 16,
                     ),
                   ),
                 ),
               ),
-          ],
-        ),
+            )
+          else
+            const SizedBox(height: 20),
+        ],
       ),
     );
   }
+
+  String _fmtPrice(dynamic p) {
+    final n = (p as num).toDouble();
+    return n == n.truncateToDouble()
+        ? n.toInt().toString()
+        : n.toStringAsFixed(2);
+  }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// ─── Feature Comparison Section ────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════
-class _FeatureComparisonSection extends StatelessWidget {
+// ── Comparison Table ────────────────────────────────────────────────
+class _ComparisonTable extends StatelessWidget {
   final String currentTier;
   final bool isDark;
+  final Color card;
+  final Color border;
+  final Color muted;
 
-  const _FeatureComparisonSection({
+  const _ComparisonTable({
     required this.currentTier,
     required this.isDark,
+    required this.card,
+    required this.border,
+    required this.muted,
   });
 
   @override
@@ -986,40 +931,99 @@ class _FeatureComparisonSection extends StatelessWidget {
       children: [
         Text(
           l10n.featureComparison,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.3,
+          ),
         ),
-        const SizedBox(height: AppSpacing.sm),
-        Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        const SizedBox(height: 14),
+        Container(
+          decoration: BoxDecoration(
+            color: card,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: border),
           ),
           child: Column(
             children: [
-              _comparisonRow(context, 'Prescriptions', '1', '\u221e', '\u221e'),
-              const Divider(height: 1),
-              _comparisonRow(context, 'Medicines', '3', '\u221e', '\u221e'),
-              const Divider(height: 1),
-              _comparisonRow(context, 'Family Links', '1', '5', '5'),
-              const Divider(height: 1),
-              _comparisonRow(context, 'Storage', '5 GB', '20 GB', '20 GB'),
-              const Divider(height: 1),
-              _comparisonRow(
-                context,
-                l10n.prioritySupportFeature,
-                '\u2715',
-                '\u2713',
-                '\u2713',
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF2C2C2E)
+                      : const Color(0xFFF5F5F7),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(13),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Expanded(
+                      flex: 3,
+                      child: Text(
+                        'FEATURE',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.8,
+                          color: Color(0xFF8E8E93),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: Text(
+                          'FREE',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: currentTier == 'FREEMIUM'
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                            letterSpacing: 0.8,
+                            color: currentTier == 'FREEMIUM'
+                                ? const Color(0xFF007AFF)
+                                : const Color(0xFF8E8E93),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: Text(
+                          'PREMIUM',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: currentTier == 'PREMIUM'
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                            letterSpacing: 0.8,
+                            color: currentTier == 'PREMIUM'
+                                ? const Color(0xFF007AFF)
+                                : const Color(0xFF8E8E93),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const Divider(height: 1),
-              _comparisonRow(
-                context,
-                l10n.familyPlanFeature,
-                '\u2715',
-                '\u2715',
-                '\u2713 (3)',
-              ),
+              _row(context, 'Manual Input', true, true),
+              _div(),
+              _row(context, 'OCR Scanning', null, '\u221e'),
+              _div(),
+              _row(context, 'Reminders', true, true),
+              _div(),
+              _row(context, l10n.familyLinksFeature, null, '5'),
+              _div(),
+              _row(context, l10n.storageFeature, '5 GB', '20 GB'),
+              _div(),
+              _row(context, l10n.prioritySupportFeature, null, true),
             ],
           ),
         ),
@@ -1027,112 +1031,109 @@ class _FeatureComparisonSection extends StatelessWidget {
     );
   }
 
-  Widget _tierHeaderBadge(BuildContext context, String text, bool isActive) {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: isActive
-              ? AppColors.primaryBlue.withOpacity(0.15)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: isActive
-              ? Border.all(color: AppColors.primaryBlue, width: 1.5)
-              : null,
-        ),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
-            letterSpacing: 0.8,
-            color: isActive ? AppColors.primaryBlue : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _div() => Divider(
+    height: 1,
+    indent: 16,
+    endIndent: 16,
+    color: border.withValues(alpha: 0.6),
+  );
 
-  Widget _divider() {
-    return Container(
-      height: 1,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            (isDark ? Colors.white : Colors.black).withOpacity(0),
-            (isDark ? Colors.white : Colors.black).withOpacity(0.08),
-            (isDark ? Colors.white : Colors.black).withOpacity(0),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _comparisonRow(
-    BuildContext context,
-    String feature,
-    String free,
-    String premium,
-    String family,
-  ) {
+  Widget _row(BuildContext ctx, String label, dynamic free, dynamic premium) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           Expanded(
             flex: 3,
             child: Text(
-              feature,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+              label,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
+          Expanded(flex: 2, child: _val(free)),
+          Expanded(flex: 2, child: _val(premium)),
+        ],
+      ),
+    );
+  }
+
+  Widget _val(dynamic v) {
+    if (v == null || v == false) {
+      return Center(
+        child: Text(
+          '—',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: border.withValues(alpha: 0.9),
+          ),
+        ),
+      );
+    }
+    if (v == true) {
+      return Center(
+        child: Container(
+          width: 7,
+          height: 7,
+          decoration: const BoxDecoration(
+            color: Color(0xFF34C759),
+            shape: BoxShape.circle,
+          ),
+        ),
+      );
+    }
+    return Center(
+      child: Text(
+        v.toString(),
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+      ),
+    );
+  }
+}
+
+// ── Error Banner ────────────────────────────────────────────────────
+class _ErrorBanner extends StatelessWidget {
+  final String message;
+  final bool isLoading;
+  final VoidCallback onRetry;
+
+  const _ErrorBanner({
+    required this.message,
+    required this.isLoading,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      color: const Color(0xFFFFF3F3),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, size: 18, color: Color(0xFFFF3B30)),
+          const SizedBox(width: 10),
           Expanded(
-            flex: 2,
             child: Text(
-              free,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: currentTier == 'FREEMIUM'
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-                color: currentTier == 'FREEMIUM' ? AppColors.primaryBlue : null,
-              ),
+              message,
+              style: const TextStyle(fontSize: 13, color: Color(0xFFFF3B30)),
             ),
           ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              premium,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: currentTier == 'PREMIUM'
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-                color: currentTier == 'PREMIUM' ? AppColors.primaryBlue : null,
-              ),
+          TextButton(
+            onPressed: onRetry,
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFFF3B30),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              family,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: currentTier == 'FAMILY_PREMIUM'
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-                color: currentTier == 'FAMILY_PREMIUM'
-                    ? AppColors.primaryBlue
-                    : null,
-              ),
-            ),
+            child: isLoading
+                ? const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.retry, style: const TextStyle(fontSize: 13)),
           ),
         ],
       ),
@@ -1140,52 +1141,165 @@ class _FeatureComparisonSection extends StatelessWidget {
   }
 }
 
-/// Widget for displaying trial banner
-class _TrialBanner extends StatelessWidget {
-  final int daysRemaining;
-  final DateTime expiresAt;
-  final bool isDark;
-
-  const _TrialBanner({
-    required this.daysRemaining,
-    required this.expiresAt,
-    required this.isDark,
-  });
+// ── Trial Confirm Dialog ────────────────────────────────────────────
+class _TrialConfirmDialog extends StatelessWidget {
+  const _TrialConfirmDialog();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primaryBlue.withOpacity(0.2),
-            AppColors.primaryBlue.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.celebration, color: AppColors.primaryBlue),
-              const SizedBox(width: 8),
-              Text(
-                'Premium Trial Active',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryBlue,
+    final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final card = isDark ? const Color(0xFF1C1C1E) : Colors.white;
+
+    return Dialog(
+      backgroundColor: card,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.premiumTrial,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.3,
+              ),
+            ),
+            const SizedBox(height: 20),
+            _dialogRow(Icons.check_circle_outline, l10n.cancelAnytime),
+            _dialogRow(Icons.schedule_outlined, l10n.trialReminderNote),
+            _dialogRow(Icons.camera_alt_outlined, l10n.expandedOcrFeature),
+            _dialogRow(Icons.people_outline, l10n.familyConnectionsFeature),
+            _dialogRow(Icons.cloud_outlined, l10n.expandedStorageFeature),
+            const SizedBox(height: 20),
+            Divider(
+              color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA),
+            ),
+            const SizedBox(height: 16),
+            // Pricing
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.trialPeriod,
+                  style: TextStyle(
+                    color: isDark ? Colors.white70 : const Color(0xFF8E8E93),
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  l10n.oneMonthFree,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.afterTrial,
+                  style: TextStyle(
+                    color: isDark ? Colors.white70 : const Color(0xFF8E8E93),
+                    fontSize: 14,
+                  ),
+                ),
+                const Text(
+                  '\$0.50/mo',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF2C2C2E)
+                    : const Color(0xFFF5F5F7),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${l10n.dueToday}: ',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Text(
+                    '\$0.00',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF34C759),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF007AFF),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  l10n.confirm,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'You have $daysRemaining days remaining',
-            style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(
+                  l10n.cancel,
+                  style: TextStyle(
+                    color: isDark ? Colors.white54 : const Color(0xFF8E8E93),
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _dialogRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: const Color(0xFF007AFF)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 14, height: 1.4),
+            ),
           ),
         ],
       ),
