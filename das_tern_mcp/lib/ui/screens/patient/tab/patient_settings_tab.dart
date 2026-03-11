@@ -155,45 +155,11 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            // ACTIVITY REPORT
-            _sectionLabel('REPORTS'),
-            _buildGroupCard(isDark, [
-              _buildNavRow(
-                context,
-                icon: Icons.bar_chart_outlined,
-                label: l10n.activityReport,
-                isLast: true,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const ActivityReportScreen(),
-                    ),
-                  );
-                },
-              ),
-            ]),
-            const SizedBox(height: AppSpacing.md),
-
-            // APPEARANCE
-            _sectionLabel('APPEARANCE'),
-            _buildGroupCard(isDark, [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.brightness_6_outlined, size: 20),
-                    const SizedBox(width: 12),
-                    Text(
-                      l10n.theme,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                  _divider(isDark),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
                     ),
                     child: Row(
                       children: [
@@ -227,6 +193,26 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                         ),
                       ],
                     ),
+                  ),
+                ],
+              ),
+                const SizedBox(height: AppSpacing.md),
+
+                // ACTIVITY REPORT
+                _sectionLabel('REPORTS'),
+                _buildGroupCard(isDark, [
+                  _buildNavRow(
+                    context,
+                    icon: Icons.bar_chart_outlined,
+                    label: l10n.activityReport,
+                    isLast: true,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const ActivityReportScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ]),
                 const SizedBox(height: AppSpacing.md),
@@ -572,6 +558,66 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             child: Text(l10n.logout),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSupportRow(
+    BuildContext context, {
+    required bool isDark,
+    required IconData icon,
+    required Color iconBg,
+    required String label,
+    required String subtitle,
+    required VoidCallback onTap,
+    bool isLast = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: isLast
+          ? const BorderRadius.only(
+              bottomLeft: Radius.circular(14),
+              bottomRight: Radius.circular(14),
+            )
+          : BorderRadius.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
+          ],
+        ),
       ),
     );
   }
