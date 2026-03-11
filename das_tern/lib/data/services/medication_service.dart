@@ -1,0 +1,30 @@
+import 'dart:async';
+
+import 'package:das_tern/data/models/medication.dart';
+
+abstract class MedicationService {
+  Future<List<Medication>> fetchMedications();
+}
+
+class MockMedicationService implements MedicationService {
+  @override
+  Future<List<Medication>> fetchMedications() async {
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    return const [
+      Medication(
+        id: 'med-1',
+        name: 'Metformin',
+        dosage: 500,
+        unit: 'mg',
+        frequency: '2 times/day',
+      ),
+      Medication(
+        id: 'med-2',
+        name: 'Amlodipine',
+        dosage: 5,
+        unit: 'mg',
+        frequency: '1 time/day',
+      ),
+    ];
+  }
+}
