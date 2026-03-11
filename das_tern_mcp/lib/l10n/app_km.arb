@@ -312,13 +312,6 @@
   "waitingStatus": "រង់ចាំ",
   "gracePeriodSettings": "ការកំណត់ពេលវេលា",
   "unknown": "មិនស្គាល់",
-  "familyFunctionTitle": "មុខងារគ្រួសារ",
-  "familyIntroDescription": "អនុញ្ញាតសមាជិកគ្រួសារ ភ្ជាប់គណនីរបស់អ្នកដឹ អាច មើលស្ថានភាពទទួលថ្នាំប្រចាំថ្ងៃ ទទួល ការជូនដំណឹង (Notification) ពេល",
-  "familyBulletSender": "អ្នកដឹង ទទួលថ្នាំ",
-  "familyBulletReceiver": "អ្នកដឹង ខកខានទទួលថ្នាំ",
-  "familyIntroFooter": "ផ្ដួយគ្រួសារ ចូលមុខងារត្រេ និងតាមដានការព្យាបាល កាន់តែល្អ។",
-  "startUsing": "ចូលប្រើប្រាស់",
-  "learnMore": "យល់ដឹងបន្ថែម",
 
   "scanPrescriptionTitle": "ស្កេនវេជ្ជបញ្ជា",
   "scanPrescriptionDescription": "ប្រើកាមេរ៉ារបស់អ្នកដើម្បីស្កេនវេជ្ជបញ្ជា\nពីវេជ្ជបណ្ឌិតរបស់អ្នក។",
@@ -418,7 +411,7 @@
   "familyPlanFeature": "គម្រោងគ្រួសារ",
 
   "unlockPremiumFeatures": "ដោះសោមុខងារពិសេស និងទទួលបានច្រើនបំផុតពី DasTern",
-  "premiumTrialActive": "🎉 ការសាកល្បង Premium សកម្ម",
+  "premiumTrialActive": "ការសាកល្បង Premium សកម្ម",
   "dayRemaining": "ថ្ងៃនៅសល់",
   "daysRemaining": "ថ្ងៃនៅសល់",
   "expiresToday": "ផុតកំណត់ថ្ងៃនេះ",
@@ -882,5 +875,150 @@
     "placeholders": {
       "percentage": {"type": "String"}
     }
-  }
+  },
+
+  "connectNewPatient": "ភ្ជាប់អ្នកជំងឺថ្មី",
+  "enterPhoneOrEmail": "បំពេញលេខទូរស័ព្ទ ឬអ៊ីមែល",
+  "noPatientFound": "រកមិនឃើញអ្នកជំងឺ",
+  "connectionRequestSent": "បានផ្ញើសំណើភ្ជាប់",
+  "connectionRequestFailed": "មិនអាចផ្ញើសំណើភ្ជាប់",
+  "sendConnectionRequest": "ផ្ញើសំណើភ្ជាប់",
+
+  "doctorStep1PersonalInfo": "ជំហានទី ១ នៃ ២ - ព័ត៌មានផ្ទាល់ខ្លួន",
+  "doctorStep2ProfessionalInfo": "ជំហានទី ២ នៃ ២ - ព័ត៌មានវិជ្ជាជីវៈ",
+
+  "welcomeScreenSubtitle": "ដៃគូគ្រប់គ្រងថ្នាំដែលអ្នកទុកចិត្ត",
+  "emergencyAccess": "ការចូលប្រើអាសន្ន",
+
+  "connectionApproved": "ការភ្ជាប់ត្រូវបានអនុម័ត",
+  "connectionRejected": "ការភ្ជាប់ត្រូវបានបដិសេធ",
+
+  "removeNotification": "លុបការជូនដំណឹង",
+  "removeNotificationConfirm": "តើអ្នកប្រាកដថាចង់លុបការជូនដំណឹងនេះ?",
+  "remove": "លុប",
+
+  "shareQrAndCodeMessage": "DasTern QR & លេខកូដ: {token}",
+  "@shareQrAndCodeMessage": {
+    "placeholders": {
+      "token": {"type": "String"}
+    }
+  },
+
+  "rejectConnection": "បដិសេធ",
+  "approveConnection": "អនុម័ត",
+
+  "ocrOutpatient": "អ្នកជំងឺក្រៅ",
+  "ocrInpatient": "អ្នកជំងឺក្នុង",
+  "ocrFacilityHospital": "មន្ទីរពេទ្យ",
+  "ocrFacilityClinic": "គ្លីនិក",
+  "ocrNeedsReviewYes": "ត្រូវពិនិត្យឡើងវិញ",
+  "ocrAiEnhanced": "AI Enhanced",
+  "ocrAiUnavailable": "AI មិនអាចប្រើបាន",
+
+  "bankAmountPreFilled": "ចំនួនទឹកប្រាក់បានបំពេញដោយធនាគារ",
+
+  "ocrConfidencePercent": "{percent}% ភាពជឿជាក់",
+  "@ocrConfidencePercent": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+  "ocrNotAvailable": "មិនមាន",
+  "ocrScanInfoSection": "ព័ត៌មានស្កែន",
+  "ocrPrescriberSection": "អ្នកចេញវេជ្ជបញ្ជា",
+  "ocrPrescriberName": "ឈ្មោះអ្នកចេញវេជ្ជបញ្ជា",
+  "ocrFacilitySection": "គ្រឹះស្ថាន",
+  "ocrFacilityName": "ឈ្មោះគ្រឹះស្ថាន",
+  "ocrFacilityType": "ប្រភេទគ្រឹះស្ថាន",
+  "ocrValidated": "ផ្ទៀងផ្ទាត់ហើយ",
+  "ocrMetadataSection": "ទិន្នន័យ OCR",
+  "ocrConfidenceScore": "ពិន្ទុភាពជឿជាក់",
+  "ocrEngine": "ម៉ាស៊ីន OCR",
+  "ocrProcessingTime": "ពេលវេលាដំណើរការ",
+  "ocrMilliseconds": "{ms}ms",
+  "@ocrMilliseconds": {
+    "placeholders": {
+      "ms": {"type": "String"}
+    }
+  },
+  "ocrPrescriptionType": "ប្រភេទវេជ្ជបញ្ជា",
+  "ocrLanguagesDetected": "ភាសាដែលបានរកឃើញ",
+  "ocrValidationStatus": "ស្ថានភាពផ្ទៀងផ្ទាត់",
+
+  "rejectPrescription": "បដិសេធវេជ្ជបញ្ជា",
+  "prescriptionRejected": "វេជ្ជបញ្ជាបានបដិសេធ",
+  "prescriptionConfirmed": "វេជ្ជបញ្ជាបានបញ្ជាក់",
+  "confirmPrescription": "បញ្ជាក់វេជ្ជបញ្ជា",
+  "pendingPrescriptions": "វេជ្ជបញ្ជារង់ចាំ",
+  "prescriptionFromDoctor": "ពីគ្រូពេទ្យ {name}",
+  "@prescriptionFromDoctor": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "missedDoseBanner": "អ្នកបានខកខានការប្រើប្រាស់ថ្នាំថ្ងៃនេះ",
+
+  "familyFunctionTitle": "គ្រួសារ និងអ្នកថែទាំ",
+  "familyIntroDescription": "ភ្ជាប់ជាមួយសមាជិកគ្រួសារ ឬអ្នកថែទាំ ដើម្បីចែករំលែកកាលវិភាគថ្នាំ។",
+  "familyBulletSender": "ចែករំលែកកាលវិភាគរបស់អ្នកជាមួយគ្រួសារ ដើម្បីឱ្យពួកគេតាមដាន",
+  "familyBulletReceiver": "ស្កែន QR កូដរបស់អ្នកជំងឺ ដើម្បីចាប់ផ្តើមតាមដាន",
+  "familyIntroFooter": "ការភ្ជាប់ទាមទារការអនុម័តពីអ្នកជំងឺ ហើយអាចដកបានគ្រប់ពេល។",
+  "startUsing": "ចាប់ផ្តើម",
+  "learnMore": "ស្វែងយល់បន្ថែម",
+
+  "appearance": "រូបរាង",
+  "notificationPermission": "ការអនុញ្ញាតជូនដំណឹង",
+  "permissionGranted": "បានអនុញ្ញាត",
+  "rateAppSubtitle": "ចែករំលែកមតិរបស់អ្នកនៅ App Store",
+  "contactSupportSubtitle": "ទទួលជំនួយពីក្រុមជំនួយ",
+  "termsOfServiceSubtitle": "អានលក្ខខណ្ឌប្រើប្រាស់",
+  "privacyPolicySubtitle": "អាននយោបាយឯកជនភាព",
+  "tosLastUpdated": "ធ្វើបច្ចុប្បន្នភាព: ០១ មីនា ២០២៦",
+  "tosContactFooter": "មានសំណួរ? ទាក់ទងយើងតាម support@dastern.com",
+  "tosSection1Title": "ការទទួលយកលក្ខខណ្ឌ",
+  "tosSection1Body": "តាមរយៈការចូលប្រើ ឬប្រើប្រាស់ DasTern អ្នកយល់ព្រមនឹងលក្ខខណ្ឌប្រើប្រាស់ទាំងនេះ។ ប្រសិនបើអ្នកមិនយល់ព្រម សូមមិនប្រើប្រាស់កម្មវិធីនេះ។",
+  "tosSection2Title": "ការពណ៌នាអំពីសេវាកម្ម",
+  "tosSection2Body": "DasTern ផ្តល់លក្ខណៈពិសេសសម្រាប់គ្រប់គ្រងថ្នាំ តាមដានសុខភាព និងវេជ្ជសាស្ត្រពីចម្ងាយ។ កម្មវិធីនេះមិនអាចជំនួសសេវាវេជ្ជសាស្ត្រ ការធ្វើរោគវិនិច្ឆ័យ ឬការព្យាបាលដោយបានទេ។",
+  "tosSection3Title": "គណនីអ្នកប្រើប្រាស់",
+  "tosSection3Body": "អ្នកទទួលខុសត្រូវក្នុងការរក្សាការសម្ងាត់នៃពត៌មានបញ្ជាក់អត្តសញ្ញាណគណនីរបស់អ្នក។ អ្នកយល់ព្រមផ្តល់ពត៌មានត្រឹមត្រូវ និងធ្វើបច្ចុប្បន្នភាពតាមករណីចាំបាច់។",
+  "tosSection4Title": "ការជាវ និងការទូទាត់",
+  "tosSection4Body": "មុខងារខ្លះទាមទារការជាវដែលមានការបង់ប្រាក់។ តម្លៃត្រូវបានបង្ហាញមុនពេលទិញ។ អ្នកអាចលុបចោលបានគ្រប់ពេល ហើយការចូលប្រើនឹងបន្តរហូតដល់ចុងបញ្ចប់នៃរយៈពេលបង់ប្រាក់។",
+  "tosSection5Title": "កម្មសិទ្ធិបញ្ញា",
+  "tosSection5Body": "មាតិកា ពាណិជ្ជសញ្ញា និងកម្មវិធីទាំងអស់ក្នុង DasTern ជាកម្មសិទ្ធិ ឬបានទទួលអាជ្ញាបណ្ណដោយយើង។ អ្នកមិនអាចចម្លង កែប្រែ ឬចែកចាយណាមួយដោយគ្មានការអនុញ្ញាតជាលាយលក្ខណ៍អក្សរ។",
+  "tosSection6Title": "ការកំណត់ទំនួលខុសត្រូវ",
+  "tosSection6Body": "DasTern ត្រូវបានផ្តល់ដូចដែលវាជា។ យើងមិនទទួលខុសត្រូវចំពោះការខូចខាតដោយប្រយោល ចៃដន្យ ឬជាផលវិបាកដែលបណ្តាលមកពីការប្រើប្រាស់សេវាកម្មរបស់អ្នក។",
+  "tosSection7Title": "ការផ្លាស់ប្តូរលក្ខខណ្ឌ",
+  "tosSection7Body": "យើងរក្សាសិទ្ធិក្នុងការកែប្រែលក្ខខណ្ឌទាំងនេះគ្រប់ពេលវេលា។ ការបន្តប្រើប្រាស់ក្រោយផ្លាស់ប្តូរ សម្ដែងនូវការទទួលយកលក្ខខណ្ឌថ្មី។",
+
+  "ppLastUpdated": "ធ្វើបច្ចុប្បន្នភាព: ០១ មីនា ២០២៦",
+  "ppHighlightBanner": "ទិន្នន័យសុខភាពរបស់អ្នកត្រូវបានអ៊ិនគ្រីបពីចុងដល់ចុង ហើយមិនត្រូវបានចែករំលែកដោយគ្មានការយល់ព្រម។",
+  "ppContactFooter": "មានសំណួរ? ទាក់ទង privacy@dastern.com",
+  "ppSection1Title": "ព័ត៌មានដែលយើងប្រមូល",
+  "ppSection1Body": "យើងប្រមូលព័ត៌មានផ្ទាល់ខ្លួនដែលអ្នកផ្តល់ (ឈ្មោះ អ៊ីមែល ទិន្នន័យសុខភាព) និងទិន្នន័យដែលប្រមូលដោយស្វ័យប្រវត្តិ (ព័ត៌មានឧបករណ៍ គំរូនៃការប្រើប្រាស់) ដើម្បីផ្តល់ និងកែលម្អសេវាកម្ម។",
+  "ppSection2Title": "ទិន្នន័យសុខភាព",
+  "ppSection2Body": "កំណត់ត្រាថ្នាំ សញ្ញាសុខភាព និងកំណត់ចំណាំសុខភាពត្រូវបានរក្សាទុកដោយសុវត្ថិភាព។ យើងមិនលក់ទិន្នន័យសុខភាពទេ។ ការចូលប្រើមានកម្រិតចំពោះអ្នក ក្រុមថែទាំរបស់អ្នក និងបុគ្គលិកដែលមានសិទ្ធិ។",
+  "ppSection3Title": "សុវត្ថិភាពទិន្នន័យ",
+  "ppSection3Body": "យើងប្រើការអ៊ិនគ្រីបស្តង់ដារឧស្សាហកម្ម (AES-256) សម្រាប់ទិន្នន័យនៅទំនេរ និង TLS 1.3 សម្រាប់ទិន្នន័យដែលកំពុងបញ្ជូន។ ការចូលប្រើត្រូវបានគ្រប់គ្រងដោយការអនុញ្ញាតតាមតួនាទី។",
+  "ppSection4Title": "ការចែករំលែក និងការបង្ហាញ",
+  "ppSection4Body": "យើងមិនលក់ទិន្នន័យរបស់អ្នកទេ។ យើងអាចចែករំលែកព័ត៌មានជាមួយអ្នកផ្តល់សេវាសុខភាពដែលអ្នកអនុញ្ញាត ដៃគូសេវា ឬតាមច្បាប់។",
+  "ppSection5Title": "ខូគី និងការវិភាគ",
+  "ppSection5Body": "យើងប្រើការវិភាគអប្បបរមា ដើម្បីយល់ពីការប្រើប្រាស់កម្មវិធី និងកែលម្អលក្ខណៈពិសេស។ គ្មានឧបករណ៍តាមដានផ្សាយពាណិជ្ជកម្មភាគីទីបីត្រូវបានប្រើក្នុង DasTern ទេ។",
+  "ppSection6Title": "សិទ្ធិរបស់អ្នក",
+  "ppSection6Body": "អ្នកអាចចូលប្រើ កែតម្រូវ នាំចេញ ឬលុបទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នកបានគ្រប់ពេលពីការកំណត់ប្រវត្តិរូប។ អ្នកក៏អាចដកការយល់ព្រមសម្រាប់ការដំណើរការទិន្នន័យស្រេចចិត្តផងដែរ។",
+  "ppSection7Title": "ការផ្លាស់ប្តូរគោលការណ៍",
+  "ppSection7Body": "យើងនឹងជូនដំណឹងអំពីការផ្លាស់ប្តូរសំខាន់តាមរយៈការជូនដំណឹងក្នុងកម្មវិធី ឬអ៊ីមែល។ ការបន្តប្រើប្រាស់ក្រោយផ្លាស់ប្តូរ សម្ដែងនូវការទទួលយក។",
+
+  "csHowCanWeHelp": "តើយើងអាចជួយអ្វីបាន?",
+  "csChooseOption": "ជ្រើសរើសជម្រើសខាងក្រោមដើម្បីទាក់ទង",
+  "csEmailUs": "ផ្ញើអ៊ីមែល",
+  "csSend": "ផ្ញើ",
+  "csCallUs": "ហៅទូរស័ព្ទ",
+  "csCall": "ហៅ",
+  "csOfficeHours": "ម៉ោងការិយាល័យ",
+  "csOfficeHoursValue": "ច័ន្ទ – សុក្រ, ៨ ព្រឹក – ៦ ល្ងាច (ICT)",
+  "csResponseTime": "ជាធម្មតายើងឆ្លើយតបក្នុងរយៈពេល ២៤ ម៉ោង។",
+  "termsSubtitle": "សូមអានលក្ខខណ្ឌនៃការប្រើប្រាស់",
+  "privacySubtitle": "របៀបដែលយើងការពារទិន្នន័យរបស់អ្នក",
+  "helpImprove": "ជួយយើងកែលម្អ DasTern"
 }

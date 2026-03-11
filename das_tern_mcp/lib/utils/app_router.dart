@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../ui/screens/auth/login_screen.dart';
+import '../ui/screens/auth/welcome_screen.dart';
 import '../ui/screens/auth/register_role_screen.dart';
 import '../ui/screens/auth/register_patient_screen.dart';
 import '../ui/screens/auth/register_doctor_screen.dart';
@@ -40,11 +41,14 @@ import '../ui/screens/patient/screens/vital_thresholds_screen.dart';
 import '../ui/screens/patient/screens/emergency_screen.dart';
 import '../ui/screens/patient/screens/edit_profile_screen.dart';
 import '../ui/screens/patient/screens/change_password_screen.dart';
+import '../ui/screens/patient/notification/patient_notifications_screen.dart';
+import '../ui/screens/doctor/notification/doctor_notifications_screen.dart';
 import '../models/enums_model/medication_type.dart';
 
 /// Centralized route definitions.
 class AppRouter {
   static const String splash = '/';
+  static const String welcome = '/welcome';
   static const String login = '/login';
   static const String registerRole = '/register-role';
   static const String registerPatient = '/register/patient';
@@ -94,18 +98,17 @@ class AppRouter {
   static const String patientVitalThresholds = '/patient/vitals/thresholds';
   static const String patientEmergency = '/patient/emergency';
 
-  // Account routes
+  static const String patientNotifications = '/patient/notifications';
+  static const String doctorNotifications = '/doctor/notifications';
   static const String patientEditProfile = '/patient/edit-profile';
   static const String patientChangePassword = '/patient/change-password';
-
-  static String? patientNotifications;
-
-  // static String get patientNotifications => null;
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
         return _buildRoute(const SplashScreen());
+      case welcome:
+        return _buildRoute(const WelcomeScreen());
       case login:
         return _buildRoute(const LoginScreen());
       case registerRole:
@@ -216,6 +219,10 @@ class AppRouter {
         return _buildRoute(const VitalThresholdsScreen());
       case patientEmergency:
         return _buildRoute(const EmergencyScreen());
+      case patientNotifications:
+        return _buildRoute(const PatientNotificationsScreen());
+      case doctorNotifications:
+        return _buildRoute(const DoctorNotificationsScreen());
 
       // Account routes
       case patientEditProfile:

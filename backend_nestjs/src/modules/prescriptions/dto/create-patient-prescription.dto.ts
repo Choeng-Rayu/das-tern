@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsDateString, IsArray, ValidateNested, IsNumber, IsBoolean, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsDateString, IsArray, ValidateNested, IsNumber, IsBoolean, IsEnum, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MedicineType, MedicineUnit } from '@prisma/client';
 
@@ -95,4 +95,8 @@ export class CreatePatientPrescriptionDto {
   @ValidateNested({ each: true })
   @Type(() => PatientMedicationDto)
   medicines: PatientMedicationDto[];
+
+  @IsOptional()
+  @IsObject()
+  ocrMetadata?: Record<string, any>;
 }

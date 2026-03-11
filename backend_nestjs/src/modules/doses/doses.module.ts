@@ -5,11 +5,12 @@ import { DosesController } from './doses.controller';
 import { MissedDoseJob } from './missed-dose.job';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AuditModule } from '../audit/audit.module';
+import { PrismaService } from '../../database/prisma.service';
 
 @Module({
   imports: [ScheduleModule.forRoot(), NotificationsModule, AuditModule],
   controllers: [DosesController],
-  providers: [DosesService, MissedDoseJob],
+  providers: [DosesService, MissedDoseJob, PrismaService],
   exports: [DosesService],
 })
 export class DosesModule {}

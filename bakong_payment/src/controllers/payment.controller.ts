@@ -107,6 +107,7 @@ export class PaymentController {
                     transactionId: payment.id,
                     md5Hash: payment.md5Hash,
                     status: payment.status,
+                    planType: payment.planType,
                     amount: payment.amount,
                     currency: payment.currency,
                     paidAt: payment.paidAt,

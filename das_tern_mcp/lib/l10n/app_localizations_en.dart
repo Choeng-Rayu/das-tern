@@ -853,29 +853,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknown => 'Unknown';
 
   @override
-  String get familyFunctionTitle => 'Family Features';
-
-  @override
-  String get familyIntroDescription =>
-      'Allow family members to track your daily medication intake and receive Notifications when:';
-
-  @override
-  String get familyBulletSender => 'You take medication';
-
-  @override
-  String get familyBulletReceiver => 'You miss a dose';
-
-  @override
-  String get familyIntroFooter =>
-      'Manage your family to receive updates and detailed monitoring information etc.';
-
-  @override
-  String get startUsing => 'Start Using';
-
-  @override
-  String get learnMore => 'Learn More';
-
-  @override
   String get scanPrescriptionTitle => 'Scan Prescription';
 
   @override
@@ -1148,7 +1125,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get familyPlanFeature => 'Family Plan';
 
   @override
-  String get premiumTrialActive => '🎉 Premium Trial Active';
+  String get premiumTrialActive => 'Premium Trial Active';
 
   @override
   String get dayRemaining => 'day remaining';
@@ -2383,4 +2360,359 @@ class AppLocalizationsEn extends AppLocalizations {
   String adherencePercentage(String percentage) {
     return '$percentage%';
   }
+
+  @override
+  String get connectNewPatient => 'Connect New Patient';
+
+  @override
+  String get enterPhoneOrEmail => 'Enter phone number or email';
+
+  @override
+  String get noPatientFound => 'No patient found';
+
+  @override
+  String get connectionRequestSent => 'Connection request sent';
+
+  @override
+  String get connectionRequestFailed => 'Failed to send connection request';
+
+  @override
+  String get sendConnectionRequest => 'Send Connection Request';
+
+  @override
+  String get doctorStep1PersonalInfo => 'Step 1 of 2 - Personal Info';
+
+  @override
+  String get doctorStep2ProfessionalInfo => 'Step 2 of 2 - Professional Info';
+
+  @override
+  String get welcomeScreenSubtitle => 'Your trusted medication companion';
+
+  @override
+  String get emergencyAccess => 'Emergency Access';
+
+  @override
+  String get connectionApproved => 'Connection Approved';
+
+  @override
+  String get connectionRejected => 'Connection Rejected';
+
+  @override
+  String get removeNotification => 'Remove Notification';
+
+  @override
+  String get removeNotificationConfirm =>
+      'Are you sure you want to remove this notification?';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String shareQrAndCodeMessage(String token) {
+    return 'DasTern QR & Connection Code: $token';
+  }
+
+  @override
+  String get rejectConnection => 'Reject';
+
+  @override
+  String get approveConnection => 'Approve';
+
+  @override
+  String get ocrOutpatient => 'Outpatient';
+
+  @override
+  String get ocrInpatient => 'Inpatient';
+
+  @override
+  String get ocrFacilityHospital => 'Hospital';
+
+  @override
+  String get ocrFacilityClinic => 'Clinic';
+
+  @override
+  String get ocrNeedsReviewYes => 'Needs Review';
+
+  @override
+  String get ocrAiEnhanced => 'AI Enhanced';
+
+  @override
+  String get ocrAiUnavailable => 'AI Unavailable';
+
+  @override
+  String get bankAmountPreFilled => 'Amount pre-filled by bank';
+
+  @override
+  String ocrConfidencePercent(String percent) {
+    return '$percent% confidence';
+  }
+
+  @override
+  String get ocrNotAvailable => 'N/A';
+
+  @override
+  String get ocrScanInfoSection => 'Scan Information';
+
+  @override
+  String get ocrPrescriberSection => 'Prescriber';
+
+  @override
+  String get ocrPrescriberName => 'Prescriber Name';
+
+  @override
+  String get ocrFacilitySection => 'Facility';
+
+  @override
+  String get ocrFacilityName => 'Facility Name';
+
+  @override
+  String get ocrFacilityType => 'Facility Type';
+
+  @override
+  String get ocrValidated => 'Validated';
+
+  @override
+  String get ocrMetadataSection => 'OCR Metadata';
+
+  @override
+  String get ocrConfidenceScore => 'Confidence Score';
+
+  @override
+  String get ocrEngine => 'OCR Engine';
+
+  @override
+  String get ocrProcessingTime => 'Processing Time';
+
+  @override
+  String ocrMilliseconds(String ms) {
+    return '${ms}ms';
+  }
+
+  @override
+  String get ocrPrescriptionType => 'Prescription Type';
+
+  @override
+  String get ocrLanguagesDetected => 'Languages Detected';
+
+  @override
+  String get ocrValidationStatus => 'Validation Status';
+
+  @override
+  String get rejectPrescription => 'Reject Prescription';
+
+  @override
+  String get prescriptionRejected => 'Prescription rejected';
+
+  @override
+  String get prescriptionConfirmed => 'Prescription confirmed';
+
+  @override
+  String get confirmPrescription => 'Confirm Prescription';
+
+  @override
+  String get pendingPrescriptions => 'Pending Prescriptions';
+
+  @override
+  String prescriptionFromDoctor(String name) {
+    return 'From Dr. $name';
+  }
+
+  @override
+  String get missedDoseBanner => 'You have missed doses today';
+
+  @override
+  String get familyFunctionTitle => 'Family & Caregivers';
+
+  @override
+  String get familyIntroDescription =>
+      'Connect with family members or caregivers to share your medication schedule.';
+
+  @override
+  String get familyBulletSender =>
+      'Share your schedule with family to let them monitor your medication adherence';
+
+  @override
+  String get familyBulletReceiver =>
+      'Scan a patient\'s QR code to start monitoring their medication intake';
+
+  @override
+  String get familyIntroFooter =>
+      'Connections require patient approval and can be revoked at any time.';
+
+  @override
+  String get startUsing => 'Get Started';
+
+  @override
+  String get learnMore => 'Learn More';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get notificationPermission => 'Notification Permission';
+
+  @override
+  String get permissionGranted => 'Granted';
+
+  @override
+  String get rateAppSubtitle => 'Share your feedback on the App Store';
+
+  @override
+  String get contactSupportSubtitle => 'Get help from our support team';
+
+  @override
+  String get termsOfServiceSubtitle => 'Read our terms and conditions';
+
+  @override
+  String get privacyPolicySubtitle => 'Read our privacy policy';
+
+  @override
+  String get tosLastUpdated => 'Last updated: March 1, 2026';
+
+  @override
+  String get tosContactFooter => 'Questions? Contact us at support@dastern.com';
+
+  @override
+  String get tosSection1Title => 'Acceptance of Terms';
+
+  @override
+  String get tosSection1Body =>
+      'By accessing or using DasTern, you agree to be bound by these Terms of Service. If you do not agree, please do not use the application.';
+
+  @override
+  String get tosSection2Title => 'Description of Service';
+
+  @override
+  String get tosSection2Body =>
+      'DasTern provides medication management, health tracking, and telemedicine features. The app is not a substitute for professional medical advice, diagnosis, or treatment.';
+
+  @override
+  String get tosSection3Title => 'User Accounts';
+
+  @override
+  String get tosSection3Body =>
+      'You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate information and to update it as necessary.';
+
+  @override
+  String get tosSection4Title => 'Subscription & Payments';
+
+  @override
+  String get tosSection4Body =>
+      'Some features require a paid subscription. Prices are displayed before purchase. You may cancel at any time; access continues until the end of the billing period.';
+
+  @override
+  String get tosSection5Title => 'Intellectual Property';
+
+  @override
+  String get tosSection5Body =>
+      'All content, trademarks, and software in DasTern are owned by or licensed to us. You may not copy, modify, or distribute any part without written permission.';
+
+  @override
+  String get tosSection6Title => 'Limitation of Liability';
+
+  @override
+  String get tosSection6Body =>
+      'DasTern is provided as is. We are not liable for any indirect, incidental, or consequential damages arising from your use of the service.';
+
+  @override
+  String get tosSection7Title => 'Changes to Terms';
+
+  @override
+  String get tosSection7Body =>
+      'We reserve the right to modify these terms at any time. Continued use after changes constitutes acceptance of the new terms.';
+
+  @override
+  String get ppLastUpdated => 'Last updated: March 1, 2026';
+
+  @override
+  String get ppHighlightBanner =>
+      'Your health data is encrypted end-to-end and never shared without consent.';
+
+  @override
+  String get ppContactFooter => 'Questions? Contact privacy@dastern.com';
+
+  @override
+  String get ppSection1Title => 'Information We Collect';
+
+  @override
+  String get ppSection1Body =>
+      'We collect personal information you provide (name, email, health data) and automatically gathered data (device info, usage patterns) to deliver and improve our services.';
+
+  @override
+  String get ppSection2Title => 'Health Data';
+
+  @override
+  String get ppSection2Body =>
+      'Medication records, vital signs, and health notes are stored securely. We never sell health data. Access is limited to you, your care team (with your consent), and authorized staff for service delivery.';
+
+  @override
+  String get ppSection3Title => 'Data Security';
+
+  @override
+  String get ppSection3Body =>
+      'We use industry-standard encryption (AES-256) for data at rest and TLS 1.3 for data in transit. Access is controlled with role-based permissions and regular security audits.';
+
+  @override
+  String get ppSection4Title => 'Sharing & Disclosure';
+
+  @override
+  String get ppSection4Body =>
+      'We do not sell your data. We may share information with healthcare providers you authorize, service partners under strict agreements, or when required by law.';
+
+  @override
+  String get ppSection5Title => 'Cookies & Analytics';
+
+  @override
+  String get ppSection5Body =>
+      'We use minimal analytics to understand app usage and improve features. No third-party advertising trackers are used in DasTern.';
+
+  @override
+  String get ppSection6Title => 'Your Rights';
+
+  @override
+  String get ppSection6Body =>
+      'You can access, correct, export, or delete your personal data at any time from your profile settings. You may also withdraw consent for optional data processing.';
+
+  @override
+  String get ppSection7Title => 'Policy Changes';
+
+  @override
+  String get ppSection7Body =>
+      'We will notify you of significant changes via in-app notification or email. Continued use after changes constitutes acceptance.';
+
+  @override
+  String get csHowCanWeHelp => 'How can we help?';
+
+  @override
+  String get csChooseOption => 'Choose an option below to get in touch';
+
+  @override
+  String get csEmailUs => 'Email Us';
+
+  @override
+  String get csSend => 'Send';
+
+  @override
+  String get csCallUs => 'Call Us';
+
+  @override
+  String get csCall => 'Call';
+
+  @override
+  String get csOfficeHours => 'Office Hours';
+
+  @override
+  String get csOfficeHoursValue => 'Mon – Fri, 8 AM – 6 PM (ICT)';
+
+  @override
+  String get csResponseTime => 'We usually respond within 24 hours.';
+
+  @override
+  String get termsSubtitle => 'Read our terms & conditions';
+
+  @override
+  String get privacySubtitle => 'How we protect your data';
+
+  @override
+  String get helpImprove => 'Help us improve DasTern';
 }

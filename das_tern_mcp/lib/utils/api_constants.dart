@@ -6,7 +6,7 @@ class ApiConstants {
   // For Android emulator: 10.0.2.2
   // For physical device on WiFi: your computer's IP (e.g., 192.168.0.189)
   static const String hostIpAddress =
-      '172.20.10.2'; // Current machine Wi-Fi IP (hotspot: 172.20.10.2)
+      '192.168.0.101'; // Current machine Wi-Fi IP
 
   // Toggle emulator host via --dart-define=USE_ANDROID_EMULATOR=true
   static const bool useAndroidEmulator = bool.fromEnvironment(
@@ -23,9 +23,15 @@ class ApiConstants {
   static const String apiPrefix = 'api/v1';
 
   static String get baseHost {
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      final host = useAndroidEmulator ? androidEmulatorHost : hostIpAddress;
-      return 'http://$host';
+    if (!kIsWeb) {
+      // Physical Android/iOS devices need the host machine's network IP
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        final host = useAndroidEmulator ? androidEmulatorHost : hostIpAddress;
+        return 'http://$host';
+      }
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        return 'http://$hostIpAddress';
+      }
     }
     return 'http://127.0.0.1';
   }

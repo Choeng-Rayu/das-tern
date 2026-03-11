@@ -2,10 +2,14 @@ import { Injectable, ConflictException, NotFoundException, ForbiddenException, B
 import { PrismaService } from '../../database/prisma.service';
 import { CreateConnectionDto, AcceptConnectionDto } from './dto';
 import { PermissionLevel } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ConnectionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(initiatorId: string, dto: CreateConnectionDto) {
     // Check if connection already exists
@@ -19,20 +23,63 @@ export class ConnectionsService {
     });
 
     if (existing) {
-      throw new ConflictException('Connection already exists');
+      if (existing.status === 'ACCEPTED') {
+        throw new ConflictException('Connection already accepted');
+      }
+      if (existing.status === 'PENDING') {
+        throw new ConflictException('Connection request already pending');
+      }
+      // REVOKED: allow re-requesting by resetting the existing connection
+      const connection = await this.prisma.connection.update({
+        where: { id: existing.id },
+        data: {
+          initiatorId,
+          recipientId: dto.targetUserId,
+          status: 'PENDING',
+          acceptedAt: null,
+          revokedAt: null,
+        },
+        include: {
+          initiator: { select: { id: true, fullName: true, firstName: true, role: true } },
+          recipient: { select: { id: true, fullName: true, role: true } },
+        },
+      });
+
+      const initiatorName = connection.initiator.fullName || connection.initiator.firstName || 'A user';
+      await this.notificationsService.send(
+        dto.targetUserId,
+        'CONNECTION_REQUEST',
+        'Connection Request',
+        `${initiatorName} wants to connect with you.`,
+        { connectionId: connection.id, initiatorId },
+      );
+
+      return connection;
     }
 
-    return this.prisma.connection.create({
+    const connection = await this.prisma.connection.create({
       data: {
         initiatorId,
         recipientId: dto.targetUserId,
         status: 'PENDING',
       },
       include: {
-        initiator: { select: { id: true, fullName: true, role: true } },
+        initiator: { select: { id: true, fullName: true, firstName: true, role: true } },
         recipient: { select: { id: true, fullName: true, role: true } },
       },
     });
+
+    // Notify the recipient about the connection request
+    const initiatorName = connection.initiator.fullName || connection.initiator.firstName || 'A user';
+    await this.notificationsService.send(
+      dto.targetUserId,
+      'CONNECTION_REQUEST',
+      'Connection Request',
+      `${initiatorName} wants to connect with you.`,
+      { connectionId: connection.id, initiatorId },
+    );
+
+    return connection;
   }
 
   async findAll(userId: string, status?: string) {
@@ -60,14 +107,29 @@ export class ConnectionsService {
       throw new ForbiddenException('Only recipient can accept connection');
     }
 
-    return this.prisma.connection.update({
+    const updated = await this.prisma.connection.update({
       where: { id },
       data: {
         status: 'ACCEPTED',
         acceptedAt: new Date(),
         permissionLevel: dto.permissionLevel || 'ALLOWED',
       },
+      include: {
+        recipient: { select: { id: true, fullName: true, firstName: true } },
+      },
     });
+
+    // Notify the initiator (doctor) that the connection was accepted
+    const recipientName = updated.recipient.fullName || updated.recipient.firstName || 'A user';
+    await this.notificationsService.send(
+      connection.initiatorId,
+      'CONNECTION_REQUEST',
+      'Connection Accepted',
+      `${recipientName} has accepted your connection request.`,
+      { connectionId: id },
+    );
+
+    return updated;
   }
 
   async revoke(id: string, userId: string) {
@@ -81,10 +143,30 @@ export class ConnectionsService {
       throw new ForbiddenException('Access denied');
     }
 
-    return this.prisma.connection.update({
+    const updated = await this.prisma.connection.update({
       where: { id },
       data: { status: 'REVOKED', revokedAt: new Date() },
+      include: {
+        initiator: { select: { id: true, fullName: true, firstName: true } },
+        recipient: { select: { id: true, fullName: true, firstName: true } },
+      },
     });
+
+    // Notify the other party about the revocation
+    const isInitiator = connection.initiatorId === userId;
+    const otherUserId = isInitiator ? connection.recipientId : connection.initiatorId;
+    const revokerName = isInitiator
+      ? (updated.initiator.fullName || updated.initiator.firstName || 'A user')
+      : (updated.recipient.fullName || updated.recipient.firstName || 'A user');
+    await this.notificationsService.send(
+      otherUserId,
+      'CONNECTION_REQUEST',
+      'Connection Revoked',
+      `${revokerName} has declined the connection request.`,
+      { connectionId: id },
+    );
+
+    return updated;
   }
 
   async updatePermission(id: string, patientId: string, permissionLevel: PermissionLevel) {
@@ -388,5 +470,44 @@ export class ConnectionsService {
         createdAt: conn.createdAt,
       };
     });
+  }
+
+  // ============================
+  // Patient Search (for Doctors)
+  // ============================
+
+  async searchPatients(query: string) {
+    if (!query || query.trim().length < 3) {
+      throw new BadRequestException('Search query must be at least 3 characters');
+    }
+
+    const trimmed = query.trim();
+
+    const patient = await this.prisma.user.findFirst({
+      where: {
+        role: 'PATIENT',
+        OR: [
+          { phoneNumber: trimmed },
+          { phoneNumber: trimmed.startsWith('+') ? trimmed : `+${trimmed}` },
+          { email: { equals: trimmed, mode: 'insensitive' } },
+          { email: { contains: trimmed, mode: 'insensitive' } },
+        ],
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        fullName: true,
+        phoneNumber: true,
+        email: true,
+        gender: true,
+      },
+    });
+
+    if (!patient) {
+      throw new NotFoundException('No patient found with that phone number or email');
+    }
+
+    return patient;
   }
 }

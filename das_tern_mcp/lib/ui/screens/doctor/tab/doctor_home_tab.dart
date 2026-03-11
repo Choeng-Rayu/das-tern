@@ -1,13 +1,14 @@
-﻿import 'dart:math' as math;
-import 'package:fl_chart/fl_chart.dart';
+﻿import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../providers/auth_provider.dart';
 import '../../../../providers/doctor_dashboard_provider.dart';
+import '../../../../providers/notification_provider.dart';
+import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/common_widgets.dart';
+import '../../../widgets/header_widgets.dart';
 
 /// Doctor home tab  redesigned to match reference DoctorScreen design.
 class DoctorHomeTab extends StatefulWidget {
@@ -28,259 +29,210 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
       final provider = context.read<DoctorDashboardProvider>();
       provider.fetchDashboardOverview();
       provider.fetchPendingConnections();
+      provider.fetchGraphData();
+      context.read<NotificationProvider>().fetchNotifications();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final auth = context.watch<AuthProvider>();
     final dashboard = context.watch<DoctorDashboardProvider>();
-    final user = auth.user;
+    final notifProvider = context.watch<NotificationProvider>();
     final overview = dashboard.dashboardOverview;
 
-    final String doctorName =
-        user?['fullName'] ?? user?['firstName'] ?? l10n.doctorRole;
-
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.blue.shade400, Colors.blue.shade50],
-            stops: const [0.0, 0.28],
-          ),
-        ),
-        child: SafeArea(
-          child: RefreshIndicator(
-            onRefresh: () async {
-              await dashboard.fetchDashboardOverview();
-              await dashboard.fetchPendingConnections();
-            },
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _DoctorHeader(
-                    greeting: _greeting(context),
-                    doctorName: doctorName,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await dashboard.fetchDashboardOverview();
+          await dashboard.fetchPendingConnections();
+          await dashboard.fetchGraphData();
+          if (context.mounted) {
+            await context.read<NotificationProvider>().fetchNotifications();
+          }
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Reusable header with notification bell ──
+              PatientHeader(
+                unreadCount: notifProvider.unreadCount,
+                onNotificationTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRouter.doctorNotifications,
+                  ).then((_) {
+                    if (!mounted) return;
+                    context.read<NotificationProvider>().fetchNotifications();
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+              if (dashboard.dashboardLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(AppSpacing.lg),
+                    child: CircularProgressIndicator(),
                   ),
-                  const SizedBox(height: 20),
-                  if (dashboard.dashboardLoading)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(AppSpacing.lg),
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  else ...[
-                    _StatisticsRow(
-                      receivedCount: '${overview?.totalPatients ?? 0}',
-                      pendingCount:
-                          '${overview?.patientsNeedingAttention ?? 0}',
-                      receivedLabel: l10n.patientsInTreatment,
-                      pendingLabel: l10n.patientsPendingMeds,
-                      onReceivedTap: () =>
-                          Navigator.pushNamed(context, '/doctor/med-patients'),
-                      onPendingTap: () => Navigator.pushNamed(
-                        context,
-                        '/doctor/pending-patients',
-                      ),
+                )
+              else ...[
+                _StatisticsRow(
+                  receivedCount: '${overview?.totalPatients ?? 0}',
+                  pendingCount: '${overview?.patientsNeedingAttention ?? 0}',
+                  receivedLabel: l10n.patientsInTreatment,
+                  pendingLabel: l10n.patientsPendingMeds,
+                  onReceivedTap: () =>
+                      Navigator.pushNamed(context, '/doctor/med-patients'),
+                  onPendingTap: () =>
+                      Navigator.pushNamed(context, '/doctor/pending-patients'),
+                ),
+                const SizedBox(height: 20),
+                _ReminderSection(
+                  reminders: (overview?.todayAlerts ?? [])
+                      .map(
+                        (a) => _ReminderData(
+                          name: a.patientName,
+                          description: l10n.consecutiveMissedDoses(
+                            a.consecutiveMissed,
+                          ),
+                          missedCount: a.consecutiveMissed,
+                          alertType: a.type,
+                          patientId: a.patientId,
+                        ),
+                      )
+                      .toList(),
+                  onItemTap: (patientId) => Navigator.pushNamed(
+                    context,
+                    '/doctor/patient-detail',
+                    arguments: {'patientId': patientId},
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (dashboard.pendingConnections.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _SectionHeader(
+                      icon: Icons.person_add_outlined,
+                      iconColor: AppColors.warningOrange,
+                      title: l10n.pendingConnectionRequests,
+                      badgeCount: dashboard.pendingConnections.length,
+                      badgeSuffix: l10n.alertsLabel,
                     ),
-                    const SizedBox(height: 20),
-                    _ReminderSection(
-                      reminders: (overview?.todayAlerts ?? [])
-                          .map(
-                            (a) => _ReminderData(
-                              name: a.patientName,
-                              description: l10n.consecutiveMissedDoses(
-                                a.consecutiveMissed,
+                  ),
+                  const SizedBox(height: 8),
+                  ...dashboard.pendingConnections.map(
+                    (conn) => Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: AppCard(
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: AppColors.warningOrange
+                                  .withValues(alpha: 0.12),
+                              child: const Icon(
+                                Icons.person_add,
+                                color: AppColors.warningOrange,
                               ),
-                              missedCount: a.consecutiveMissed,
-                              alertType: a.type,
-                              patientId: a.patientId,
                             ),
-                          )
-                          .toList(),
-                      onItemTap: (patientId) => Navigator.pushNamed(
-                        context,
-                        '/doctor/patient-detail',
-                        arguments: {'patientId': patientId},
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    if (dashboard.pendingConnections.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: _SectionHeader(
-                          icon: Icons.person_add_outlined,
-                          iconColor: AppColors.warningOrange,
-                          title: l10n.pendingConnectionRequests,
-                          badgeCount: dashboard.pendingConnections.length,
-                          badgeSuffix: l10n.alertsLabel,
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    conn.patientName,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  Text(
+                                    conn.initiator?.phoneNumber ??
+                                        l10n.connectionRequest,
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.check_circle,
+                                color: AppColors.successGreen,
+                              ),
+                              onPressed: () async =>
+                                  dashboard.acceptConnection(conn.id),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.cancel,
+                                color: AppColors.alertRed,
+                              ),
+                              onPressed: () async =>
+                                  dashboard.rejectConnection(conn.id),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      ...dashboard.pendingConnections.map(
-                        (conn) => Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                          child: AppCard(
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: AppColors.warningOrange
-                                      .withValues(alpha: 0.12),
-                                  child: const Icon(
-                                    Icons.person_add,
-                                    color: AppColors.warningOrange,
-                                  ),
-                                ),
-                                const SizedBox(width: AppSpacing.md),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        conn.patientName,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                      ),
-                                      Text(
-                                        conn.initiator?.phoneNumber ??
-                                            l10n.connectionRequest,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color: AppColors.textSecondary,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.check_circle,
-                                    color: AppColors.successGreen,
-                                  ),
-                                  onPressed: () async =>
-                                      dashboard.acceptConnection(conn.id),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.cancel,
-                                    color: AppColors.alertRed,
-                                  ),
-                                  onPressed: () async =>
-                                      dashboard.rejectConnection(conn.id),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    _ChartSection(
-                      totalPatients: overview?.totalPatients ?? 0,
-                      patientsNeedingAttention:
-                          overview?.patientsNeedingAttention ?? 0,
-                      showMonthly: _showMonthly,
-                      onDayTap: () => setState(() => _showMonthly = false),
-                      onMonthTap: () => setState(() => _showMonthly = true),
                     ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        l10n.quickActions,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: _ActionCard(
-                              icon: Icons.description_outlined,
-                              label: l10n.newPrescription,
-                              onTap: () => widget.onSwitchTab?.call(2),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _ActionCard(
-                              icon: Icons.search,
-                              label: l10n.findPatient,
-                              onTap: () => widget.onSwitchTab?.call(1),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
+                  ),
+                  const SizedBox(height: 12),
                 ],
-              ),
-            ),
+                _ChartSection(
+                  graphData: dashboard.graphData,
+                  graphLoading: dashboard.graphLoading,
+                  showMonthly: _showMonthly,
+                  onDayTap: () {
+                    setState(() => _showMonthly = false);
+                    dashboard.setGraphPeriod('week');
+                  },
+                  onMonthTap: () {
+                    setState(() => _showMonthly = true);
+                    dashboard.setGraphPeriod('month');
+                  },
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    l10n.quickActions,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _ActionCard(
+                          icon: Icons.description_outlined,
+                          label: l10n.newPrescription,
+                          onTap: () => widget.onSwitchTab?.call(2),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _ActionCard(
+                          icon: Icons.search,
+                          label: l10n.findPatient,
+                          onTap: () => widget.onSwitchTab?.call(1),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ],
           ),
         ),
-      ),
-    );
-  }
-
-  String _greeting(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final hour = DateTime.now().hour;
-    if (hour < 12) return l10n.goodMorning;
-    if (hour < 17) return l10n.goodAfternoon;
-    return l10n.goodEvening;
-  }
-}
-
-class _DoctorHeader extends StatelessWidget {
-  final String greeting;
-  final String doctorName;
-
-  const _DoctorHeader({required this.greeting, required this.doctorName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: Colors.white,
-            child: Icon(Icons.person, color: Colors.blue.shade400, size: 24),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              '$greeting $doctorName !',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
       ),
     );
   }
@@ -662,37 +614,30 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _ChartSection extends StatelessWidget {
-  final int totalPatients;
-  final int patientsNeedingAttention;
+  final List<Map<String, dynamic>> graphData;
+  final bool graphLoading;
   final bool showMonthly;
   final VoidCallback onDayTap;
   final VoidCallback onMonthTap;
 
   const _ChartSection({
-    required this.totalPatients,
-    required this.patientsNeedingAttention,
+    required this.graphData,
+    required this.graphLoading,
     required this.showMonthly,
     required this.onDayTap,
     required this.onMonthTap,
   });
 
-  List<BarChartGroupData> _buildGroups(List<String> labels, int seed) {
-    final rng = math.Random(seed);
-    return List.generate(labels.length, (i) {
-      final received = math.max(
-        1.0,
-        (totalPatients * (0.4 + rng.nextDouble() * 0.6)).roundToDouble(),
-      );
-      final missed = math.max(
-        0.0,
-        (patientsNeedingAttention * (0.2 + rng.nextDouble() * 0.8))
-            .roundToDouble(),
-      );
+  List<BarChartGroupData> _buildGroups() {
+    return List.generate(graphData.length, (i) {
+      final item = graphData[i];
+      final taken = (item['taken'] as num?)?.toDouble() ?? 0;
+      final missed = (item['missed'] as num?)?.toDouble() ?? 0;
       return BarChartGroupData(
         x: i,
         barRods: [
           BarChartRodData(
-            toY: received,
+            toY: taken,
             color: Colors.blue.shade400,
             width: 10,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
@@ -712,27 +657,8 @@ class _ChartSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final dayLabels = [
-      l10n.dayMon,
-      l10n.dayTue,
-      l10n.dayWed,
-      l10n.dayThu,
-      l10n.dayFri,
-      l10n.daySat,
-      l10n.daySun,
-    ];
-    final monthLabels = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-    ];
-    final labels = showMonthly ? monthLabels : dayLabels;
-    final groups = _buildGroups(labels, showMonthly ? 99 : 42);
+    final labels = graphData.map((d) => (d['label'] as String?) ?? '').toList();
+    final groups = _buildGroups();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -802,60 +728,76 @@ class _ChartSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            height: 150,
-            child: BarChart(
-              BarChartData(
-                barGroups: groups,
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (_) =>
-                      FlLine(color: Colors.grey.shade200, strokeWidth: 1),
+          if (graphLoading)
+            const SizedBox(
+              height: 150,
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (graphData.isEmpty)
+            SizedBox(
+              height: 150,
+              child: Center(
+                child: Text(
+                  l10n.noAlerts,
+                  style: TextStyle(color: Colors.grey.shade500),
                 ),
-                borderData: FlBorderData(show: false),
-                titlesData: FlTitlesData(
-                  leftTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+              ),
+            )
+          else
+            SizedBox(
+              height: 150,
+              child: BarChart(
+                BarChartData(
+                  barGroups: groups,
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (_) =>
+                        FlLine(color: Colors.grey.shade200, strokeWidth: 1),
                   ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 24,
-                      getTitlesWidget: (value, meta) {
-                        final idx = value.toInt();
-                        if (idx < 0 || idx >= labels.length) {
-                          return const SizedBox();
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 6),
-                          child: Text(
-                            labels[idx],
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey.shade600,
+                  borderData: FlBorderData(show: false),
+                  titlesData: FlTitlesData(
+                    leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 24,
+                        getTitlesWidget: (value, meta) {
+                          final idx = value.toInt();
+                          if (idx < 0 || idx >= labels.length) {
+                            return const SizedBox();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Text(
+                              labels[idx],
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.shade600,
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-                barTouchData: BarTouchData(
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => Colors.blueGrey.shade700,
-                    tooltipRoundedRadius: 8,
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (_) => Colors.blueGrey.shade700,
+                      tooltipRoundedRadius: 8,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

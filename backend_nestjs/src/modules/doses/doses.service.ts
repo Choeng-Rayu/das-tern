@@ -26,7 +26,7 @@ export class DosesService {
 
     const dailyProgress = await this.calculateDailyProgress(patientId, targetDate);
 
-    if (groupBy === 'TIME_PERIOD') {
+    if (groupBy?.toUpperCase() === 'TIME_PERIOD' || groupBy === 'timePeriod') {
       return {
         date: targetDate.toISOString(),
         dailyProgress,
@@ -34,18 +34,18 @@ export class DosesService {
           {
             period: 'DAYTIME',
             color: '#2D5BFF',
-            doses: doses.filter(d => d.timePeriod === 'DAYTIME').map(this.formatDose),
+            doses: doses.filter(d => d.timePeriod === 'DAYTIME').map(d => this.formatDose(d)),
           },
           {
             period: 'NIGHT',
             color: '#6B4AA3',
-            doses: doses.filter(d => d.timePeriod === 'NIGHT').map(this.formatDose),
+            doses: doses.filter(d => d.timePeriod === 'NIGHT').map(d => this.formatDose(d)),
           },
         ],
       };
     }
 
-    return { date: targetDate.toISOString(), dailyProgress, doses: doses.map(this.formatDose) };
+    return { date: targetDate.toISOString(), dailyProgress, doses: doses.map(d => this.formatDose(d)) };
   }
 
   async markTaken(id: string, patientId: string, takenAt?: string, offline = false) {
@@ -332,24 +332,37 @@ export class DosesService {
   }
 
   private formatDose(dose: any) {
+    // Reconstruct full ISO reminderTime from scheduledTime date + reminderTime "HH:MM"
+    let reminderTimeISO: string | null = null;
+    if (dose.reminderTime) {
+      const parts = dose.reminderTime.split(':').map(Number);
+      const hours = parts[0] ?? 0;
+      const minutes = parts[1] ?? 0;
+      const dt = new Date(dose.scheduledTime);
+      dt.setHours(hours, minutes, 0, 0);
+      reminderTimeISO = dt.toISOString();
+    }
+
     return {
       id: dose.id,
+      prescriptionId: dose.prescriptionId,
+      medicationId: dose.medicationId,
+      patientId: dose.patientId,
       medicationName: dose.medication.medicineName,
       medicationNameKhmer: dose.medication.medicineNameKhmer,
-      dosage: this.getDosageForPeriod(dose.medication, dose.timePeriod),
+      dosage: this.getDosageForTimePeriod(dose.medication, dose.timePeriod),
       imageUrl: dose.medication.imageUrl,
       scheduledTime: dose.scheduledTime,
+      timePeriod: dose.timePeriod,
       status: dose.status,
+      takenAt: dose.takenAt,
+      skipReason: dose.skipReason,
+      wasOffline: dose.wasOffline,
       frequency: dose.medication.frequency,
       timing: dose.medication.timing,
-      reminderTime: dose.reminderTime,
+      reminderTime: reminderTimeISO,
+      createdAt: dose.createdAt,
+      updatedAt: dose.updatedAt,
     };
-  }
-
-  private getDosageForPeriod(medication: any, period: string): string {
-    if (period === 'DAYTIME') {
-      return medication.morningDosage?.amount || medication.daytimeDosage?.amount || '';
-    }
-    return medication.nightDosage?.amount || '';
   }
 }

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
-/// Gradient background scaffold used across all auth screens.
+/// Light background scaffold used across all auth screens.
 class AuthGradientScaffold extends StatelessWidget {
   final Widget child;
 
@@ -12,28 +11,14 @@ class AuthGradientScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF2B7A9E),
-              Color(0xFF1A5276),
-              Color(0xFF154360),
-            ],
-          ),
-        ),
-        child: SafeArea(child: child),
-      ),
+      backgroundColor: const Color(0xFFF7F9FC),
+      body: SafeArea(child: child),
     );
   }
 }
 
 /// App logo + name row used in auth screen headers.
-/// [trailing] is reserved for the language switcher (Phase 2).
+/// [trailing] is reserved for the language switcher.
 class AuthHeader extends StatelessWidget {
   final Widget? trailing;
   final bool showBackButton;
@@ -56,34 +41,53 @@ class AuthHeader extends StatelessWidget {
       child: Row(
         children: [
           if (showBackButton) ...[
-            IconButton(
-              onPressed: onBack ?? () => Navigator.of(context).pop(),
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
+            GestureDetector(
+              onTap: onBack ?? () => Navigator.of(context).pop(),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFE0E0E0)),
+                ),
+                child: const Icon(
+                  Icons.arrow_back,
+                  color: Color(0xFF333333),
+                  size: 16,
+                ),
+              ),
             ),
             const SizedBox(width: AppSpacing.sm),
           ],
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.medical_services,
-              color: Colors.white,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Text(
-            AppLocalizations.of(context)?.appTitle ?? 'DasTern',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          GestureDetector(
+            onTap: () => Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/welcome', (route) => false),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/doctorLogo.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  AppLocalizations.of(context)?.appTitle ?? 'DasTern',
+                  style: const TextStyle(
+                    color: Color(0xFF111111),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
           const Spacer(),
@@ -94,7 +98,7 @@ class AuthHeader extends StatelessWidget {
   }
 }
 
-/// White label above form fields on gradient backgrounds.
+/// Dark label above form fields.
 class AuthFieldLabel extends StatelessWidget {
   final String text;
   final String? suffix;
@@ -108,8 +112,8 @@ class AuthFieldLabel extends StatelessWidget {
         Text(
           text,
           style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
+            color: Color(0xFF666666),
+            fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -117,7 +121,7 @@ class AuthFieldLabel extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             suffix!,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: const TextStyle(color: Color(0xFFBBBBBB), fontSize: 12),
           ),
         ],
       ],
@@ -125,7 +129,7 @@ class AuthFieldLabel extends StatelessWidget {
   }
 }
 
-/// Themed text field for auth screens with white fill, no border.
+/// Themed text field for auth screens — white fill with light border.
 class AuthTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
@@ -153,21 +157,35 @@ class AuthTextField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       maxLength: maxLength,
-      style: const TextStyle(color: AppColors.textPrimary),
+      style: const TextStyle(color: Color(0xFF333333), fontSize: 13),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(
-          color: AppColors.textSecondary.withValues(alpha: 0.6),
-        ),
+        hintStyle: const TextStyle(color: Color(0xFFBBBBBB), fontSize: 13),
         counterText: '',
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE8EAF0), width: 1.5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE8EAF0), width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF2196F3), width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
+          horizontal: 14,
           vertical: 14,
         ),
         suffixIcon: suffixIcon,
@@ -177,7 +195,7 @@ class AuthTextField extends StatelessWidget {
   }
 }
 
-/// Primary action button for auth screens (#29B6F6 background).
+/// Primary action button for auth screens — blue gradient pill.
 class AuthPrimaryButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isLoading;
@@ -192,36 +210,49 @@ class AuthPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDisabled = isLoading || onPressed == null;
     return SizedBox(
       width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF29B6F6),
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: const Color(0xFF29B6F6).withValues(alpha: 0.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.xl),
-          ),
-          elevation: 0,
+      height: 48,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: isDisabled
+              ? null
+              : const LinearGradient(
+                  colors: [Color(0xFF2196F3), Color(0xFF1976D2)],
+                ),
+          color: isDisabled ? const Color(0xFF90CAF9) : null,
+          borderRadius: BorderRadius.circular(28),
         ),
-        child: isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
+        child: ElevatedButton(
+          onPressed: isLoading ? null : onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            disabledBackgroundColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(28),
+            ),
+            elevation: 0,
+          ),
+          child: isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
-              )
-            : Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+        ),
       ),
     );
   }
@@ -247,7 +278,7 @@ class AuthLinkRow extends StatelessWidget {
       children: [
         Text(
           message,
-          style: const TextStyle(color: Colors.white70, fontSize: 14),
+          style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
         ),
         TextButton(
           onPressed: onTap,
@@ -259,9 +290,9 @@ class AuthLinkRow extends StatelessWidget {
           child: Text(
             actionText,
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+              color: Color(0xFF2196F3),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -281,17 +312,18 @@ class AuthErrorBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: AppColors.alertRed.withValues(alpha: 0.15),
+        color: const Color(0xFFFFEBEE),
         borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: const Color(0xFFEF9A9A)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: Colors.white, size: 18),
+          const Icon(Icons.error_outline, color: Color(0xFFE53935), size: 18),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: const TextStyle(color: Color(0xFFE53935), fontSize: 13),
             ),
           ),
         ],
@@ -319,7 +351,11 @@ class AuthStepIndicator extends StatelessWidget {
       children: [
         Text(
           stepLabel,
-          style: const TextStyle(color: Colors.white70, fontSize: 13),
+          style: const TextStyle(
+            color: Color(0xFF888888),
+            fontSize: 11,
+            letterSpacing: 0.5,
+          ),
         ),
         const SizedBox(height: AppSpacing.sm),
         Row(
@@ -331,8 +367,8 @@ class AuthStepIndicator extends StatelessWidget {
                 margin: EdgeInsets.only(right: i < totalSteps - 1 ? 6 : 0),
                 decoration: BoxDecoration(
                   color: isActive
-                      ? const Color(0xFF29B6F6)
-                      : Colors.white.withValues(alpha: 0.2),
+                      ? const Color(0xFF2196F3)
+                      : const Color(0xFFE0E0E0),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

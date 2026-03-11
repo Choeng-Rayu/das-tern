@@ -159,8 +159,10 @@ class _PaymentQrScreenState extends State<PaymentQrScreen>
                         context: context,
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
-                        builder: (_) =>
-                            _BankChooserSheet(deepLink: sub.deepLink!),
+                        builder: (_) => _BankChooserSheet(
+                          deepLink: sub.deepLink!,
+                          qrCode: sub.qrCode ?? '',
+                        ),
                       );
                     },
                   ),
@@ -438,13 +440,23 @@ class _BankChip extends StatelessWidget {
 ///   screen with the bank's built-in QR scanner.
 class _KhBankInfo {
   final String name;
+
+  /// Verified Android package name for this bank's app.
   final String packageAndroid;
   final Color color;
   final String initial;
 
-  /// When true the Bakong deep-link URL is used (pre-loaded payment).
-  /// When false the app is opened by its Android package (user scans QR).
+  /// When true the Bakong App-Link deeplink from the backend is used —
+  /// the Bakong wallet opens with the payment already loaded (user enters PIN).
+  /// When false the app is opened to its home screen and the user scans the
+  /// KHQR code visible on the payment screen.
   final bool usesBakongDeepLink;
+
+  /// Custom URL scheme registered by this bank app (e.g. `abamobilebank`).
+  /// When set, `$customScheme://` is used to open the app — more reliable
+  /// than the generic intent URI on both Android and iOS.
+  /// When null, falls back to an Android Intent launcher URI.
+  final String? customScheme;
 
   const _KhBankInfo({
     required this.name,
@@ -452,15 +464,18 @@ class _KhBankInfo {
     required this.color,
     required this.initial,
     this.usesBakongDeepLink = false,
+    this.customScheme,
   });
 }
 
 const List<_KhBankInfo> _khBanks = [
+  // ABA Mobile — package: com.paygo24.ibank, scheme: abamobilebank (PayWay docs)
   _KhBankInfo(
     name: 'ABA Bank',
-    packageAndroid: 'com.ababank.abaapp',
+    packageAndroid: 'com.paygo24.ibank',
     color: Color(0xFF003D99),
     initial: 'A',
+    customScheme: 'abamobilebank',
   ),
   _KhBankInfo(
     name: 'ACLEDA Bank',
@@ -474,6 +489,7 @@ const List<_KhBankInfo> _khBanks = [
     color: Color(0xFFE5242B),
     initial: 'W',
   ),
+  // NBC Bakong — backend returns an App-Link for this bank only
   _KhBankInfo(
     name: 'NBC Bakong',
     packageAndroid: 'kh.gov.nbc.bakong',
@@ -502,21 +518,21 @@ const List<_KhBankInfo> _khBanks = [
 ];
 
 // ─── Bank Chooser Bottom Sheet ───
-/// Bottom sheet listing KHQR-compatible banks.
+/// Grid-style bottom sheet for selecting a KHQR-compatible bank.
 ///
-/// Tapping **NBC Bakong** launches the verified Bakong deep-link — the Bakong
-/// wallet opens with the payment pre-loaded (user just enters PIN).
+/// **NBC Bakong**: Backend returns an App-Link deeplink — Bakong opens with
+/// the payment already loaded (user enters PIN only).
 ///
-/// Tapping any other bank opens that bank's app directly by Android package
-/// intent.  Because `bakong-deeplink.nbc.gov.kh` is an App-Link registered
-/// exclusively to the NBC Bakong wallet, routing other banks through that URL
-/// would always open Bakong regardless of what the user tapped.  Opening by
-/// package is the correct alternative: the user sees their chosen bank's home
-/// screen and can scan the KHQR already displayed on this screen.
+/// **All other banks**: An Android Intent launcher URI opens the bank app to
+/// its home screen.  The user then uses the bank app's built-in QR scanner to
+/// scan the KHQR code still visible on the payment screen behind this sheet.
 class _BankChooserSheet extends StatefulWidget {
   final String deepLink;
 
-  const _BankChooserSheet({required this.deepLink});
+  /// KHQR string (kept for potential future use / iOS fallback).
+  final String qrCode;
+
+  const _BankChooserSheet({required this.deepLink, required this.qrCode});
 
   @override
   State<_BankChooserSheet> createState() => _BankChooserSheetState();
@@ -531,14 +547,26 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
     try {
       final Uri uri;
       if (bank.usesBakongDeepLink) {
-        // NBC Bakong: App-Link verified for bakong-deeplink.nbc.gov.kh
-        // Opens the Bakong wallet with the payment already set up.
+        // NBC Bakong: use the App-Link returned by the backend.
+        // The Bakong wallet opens with the payment already set up.
         uri = Uri.parse(widget.deepLink);
+      } else if (bank.customScheme != null) {
+        // Bank with a known registered URL scheme (e.g. ABA → abamobilebank://).
+        // Using the app's own scheme is more reliable than an intent URI and
+        // works on both Android and iOS.
+        uri = Uri.parse('${bank.customScheme}://');
       } else {
-        // All other banks: open the app by its Android package ID.
-        // The bank's home screen appears; the user scans the KHQR on
-        // this screen using the bank's own QR scanner.
-        uri = Uri.parse('intent:#Intent;package=${bank.packageAndroid};end');
+        // Remaining KHQR-compatible banks: open the bank app's main launcher
+        // screen via Android Intent URI.  The user then scans the KHQR code
+        // visible on the payment screen with the bank app's built-in scanner.
+        uri = Uri.parse(
+          'intent://open'
+          '#Intent'
+          ';action=android.intent.action.MAIN'
+          ';category=android.intent.category.LAUNCHER'
+          ';package=${bank.packageAndroid}'
+          ';end',
+        );
       }
 
       final launched = await launchUrl(
@@ -570,54 +598,65 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
       ),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.lg + bottomPadding,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle
+          // ── Drag handle ──────────────────────────────────────────────────
           Center(
             child: Container(
               width: 40,
               height: 4,
               decoration: BoxDecoration(
                 color: AppColors.neutral300,
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(AppRadius.full),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.md),
 
-          // Title
+          // ── Title ────────────────────────────────────────────────────────
           Text(
             l10n.selectYourBank,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
-            l10n.openInBankingApp,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+            l10n.bankAmountPreFilled,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.lg),
 
-          // Bank list
-          ListView.separated(
+          // ── Bank grid ────────────────────────────────────────────────────
+          GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: AppSpacing.md,
+              crossAxisSpacing: AppSpacing.sm,
+              childAspectRatio: 0.82,
+            ),
             itemCount: _khBanks.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
             itemBuilder: (_, i) {
               final bank = _khBanks[i];
-              return _BankTile(
+              return _BankGridItem(
                 bank: bank,
                 isLoading: _loadingBank == bank.name,
                 disabled: _loadingBank != null && _loadingBank != bank.name,
@@ -631,14 +670,14 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
   }
 }
 
-// ─── Bank Tile ───
-class _BankTile extends StatelessWidget {
+// ─── Bank Grid Item ───
+class _BankGridItem extends StatelessWidget {
   final _KhBankInfo bank;
   final bool isLoading;
   final bool disabled;
   final VoidCallback onTap;
 
-  const _BankTile({
+  const _BankGridItem({
     required this.bank,
     required this.isLoading,
     required this.disabled,
@@ -647,55 +686,65 @@ class _BankTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return GestureDetector(
       onTap: disabled ? null : onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      leading: Container(
-        width: 46,
-        height: 46,
-        decoration: BoxDecoration(
-          color: bank.color,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          bank.initial,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
-          ),
-        ),
-      ),
-      title: Text(
-        bank.name,
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          color: disabled ? AppColors.neutralGray : AppColors.textPrimary,
-        ),
-      ),
-      subtitle: bank.usesBakongDeepLink
-          ? null
-          : Text(
-              'Scan QR to pay',
+      child: Opacity(
+        opacity: disabled ? 0.38 : 1.0,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Coloured icon ────────────────────────────────────────────
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                color: bank.color,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                boxShadow: [
+                  BoxShadow(
+                    color: bank.color.withValues(alpha: 0.28),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              alignment: Alignment.center,
+              child: isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      bank.initial,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+            ),
+            const SizedBox(height: 6),
+
+            // ── Bank name ─────────────────────────────────────────────────
+            Text(
+              bank.name,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 11,
-                color: disabled
-                    ? AppColors.neutral300
-                    : AppColors.textSecondary,
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textPrimary,
+                height: 1.3,
               ),
             ),
-      trailing: isLoading
-          ? const SizedBox(
-              width: 22,
-              height: 22,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: disabled ? AppColors.neutral300 : AppColors.textSecondary,
-            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter/foundation.dart';
@@ -105,14 +106,26 @@ class ApiService {
   }
 
   /// Try refreshing the access token. Returns true on success.
+  /// Uses a Completer to prevent concurrent refresh attempts from
+  /// invalidating each other's tokens.
+  Completer<bool>? _refreshCompleter;
+
   Future<bool> _tryRefreshToken() async {
-    _log.info('ApiService', 'Attempting to refresh access token');
-    final rt = await _getRefreshToken();
-    if (rt == null) {
-      _log.warning('ApiService', 'No refresh token available');
-      return false;
+    // If a refresh is already in progress, wait for its result.
+    if (_refreshCompleter != null) {
+      _log.debug('ApiService', 'Token refresh already in progress, waiting…');
+      return _refreshCompleter!.future;
     }
+
+    _refreshCompleter = Completer<bool>();
     try {
+      _log.info('ApiService', 'Attempting to refresh access token');
+      final rt = await _getRefreshToken();
+      if (rt == null) {
+        _log.warning('ApiService', 'No refresh token available');
+        _refreshCompleter!.complete(false);
+        return false;
+      }
       final res = await http.post(
         Uri.parse('$baseUrl/auth/refresh'),
         headers: {'Content-Type': 'application/json'},
@@ -122,14 +135,21 @@ class ApiService {
         final data = jsonDecode(res.body);
         await _saveTokens(data['accessToken'], data['refreshToken']);
         _log.success('ApiService', 'Token refreshed successfully');
+        _refreshCompleter!.complete(true);
         return true;
       }
       _log.warning('ApiService', 'Token refresh failed [${res.statusCode}]');
+      await _clearTokens();
+      _refreshCompleter!.complete(false);
+      return false;
     } catch (e) {
       _log.error('ApiService', 'Token refresh exception', e);
+      await _clearTokens();
+      _refreshCompleter!.complete(false);
+      return false;
+    } finally {
+      _refreshCompleter = null;
     }
-    await _clearTokens();
-    return false;
   }
 
   /// Wrapper that auto-retries once on 401 after token refresh.
@@ -532,9 +552,14 @@ class ApiService {
     final uri = Uri.parse(
       '$baseUrl/doses/history',
     ).replace(queryParameters: params.isNotEmpty ? params : null);
-    return List<dynamic>.from(
-      await _authenticatedRequest((h) => http.get(uri, headers: h)),
+    final result = await _authenticatedRequest(
+      (h) => http.get(uri, headers: h),
     );
+    // Backend wraps response in { doses: [...], adherencePercentage, total }
+    if (result is Map && result['doses'] != null) {
+      return List<dynamic>.from(result['doses'] as List);
+    }
+    return List<dynamic>.from(result as List);
   }
 
   /// PATCH /doses/:id/taken
@@ -766,6 +791,16 @@ class ApiService {
     );
   }
 
+  /// GET /connections/search-patient?query= – search patient by phone/email
+  Future<Map<String, dynamic>> searchPatientByContact(String query) async {
+    final uri = Uri.parse('$baseUrl/connections/search-patient').replace(
+      queryParameters: {'query': query},
+    );
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest((h) => http.get(uri, headers: h)),
+    );
+  }
+
   // ────────────────────────────────────────────
   // Nudge endpoints
   // ────────────────────────────────────────────
@@ -824,6 +859,20 @@ class ApiService {
     );
   }
 
+  /// GET /doses/caregiver/:patientId – fetch patient doses as caregiver
+  Future<Map<String, dynamic>> getPatientDosesAsCaregiver(
+    String patientId,
+  ) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.get(
+          Uri.parse('$baseUrl/doses/caregiver/$patientId'),
+          headers: h,
+        ),
+      ),
+    );
+  }
+
   // ────────────────────────────────────────────
   // Notification endpoints
   // ────────────────────────────────────────────
@@ -832,14 +881,24 @@ class ApiService {
   Future<Map<String, dynamic>> getNotifications({
     bool unreadOnly = false,
   }) async {
-    final params = <String, String>{};
-    if (unreadOnly) params['unreadOnly'] = 'true';
-    final uri = Uri.parse(
-      '$baseUrl/notifications',
-    ).replace(queryParameters: params.isNotEmpty ? params : null);
-    return Map<String, dynamic>.from(
-      await _authenticatedRequest((h) => http.get(uri, headers: h)),
+    String url = '$baseUrl/notifications';
+    if (unreadOnly) url += '?unreadOnly=true';
+    _log.apiRequest('GET', '/notifications', {'unreadOnly': unreadOnly});
+    final result = await _authenticatedRequest(
+      (h) => http.get(Uri.parse(url), headers: h),
     );
+    // Ensure we always return a Map
+    if (result is Map) {
+      _log.debug('ApiService', 'getNotifications returned Map with ${result.length} keys');
+      return Map<String, dynamic>.from(result);
+    }
+    // If result is a List, wrap it
+    if (result is List) {
+      _log.debug('ApiService', 'getNotifications returned List with ${result.length} items');
+      return {'notifications': result, 'unreadCount': result.length};
+    }
+    _log.warning('ApiService', 'getNotifications returned unexpected type: ${result.runtimeType}');
+    return {'notifications': [], 'unreadCount': 0};
   }
 
   /// PATCH /notifications/:id/read
@@ -851,6 +910,16 @@ class ApiService {
           headers: h,
           body: jsonEncode({}),
         ),
+      ),
+    );
+  }
+
+  /// DELETE /notifications/:id
+  Future<void> deleteNotification(String id) async {
+    await _authenticatedRequest(
+      (h) => http.delete(
+        Uri.parse('$baseUrl/notifications/$id'),
+        headers: h,
       ),
     );
   }
@@ -965,6 +1034,20 @@ class ApiService {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.get(Uri.parse('$baseUrl/doctor/dashboard'), headers: h),
+      ),
+    );
+  }
+
+  /// GET /doctor/dashboard/graph – adherence graph data (week/month)
+  Future<Map<String, dynamic>> getDoctorDashboardGraph({
+    String period = 'week',
+  }) async {
+    final uri = Uri.parse('$baseUrl/doctor/dashboard/graph').replace(
+      queryParameters: {'period': period},
+    );
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.get(uri, headers: h),
       ),
     );
   }
@@ -1436,7 +1519,7 @@ class ApiService {
     );
   }
 
-  /// POST /medicines/:prescriptionId – add medicine to prescription
+  /// POST /prescriptions/:prescriptionId/medicines – add medicine to prescription
   Future<Map<String, dynamic>> addMedicine(
     String prescriptionId,
     Map<String, dynamic> data,
@@ -1444,7 +1527,7 @@ class ApiService {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.post(
-          Uri.parse('$baseUrl/medicines/$prescriptionId'),
+          Uri.parse('$baseUrl/prescriptions/$prescriptionId/medicines'),
           headers: h,
           body: jsonEncode(data),
         ),
@@ -1508,6 +1591,19 @@ class ApiService {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.delete(Uri.parse('$baseUrl/prescriptions/$id'), headers: h),
+      ),
+    );
+  }
+
+  /// POST /prescriptions/:id/reject – reject prescription
+  Future<Map<String, dynamic>> rejectPrescription(String id, {String? reason}) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.post(
+          Uri.parse('$baseUrl/prescriptions/$id/reject'),
+          headers: h,
+          body: jsonEncode(reason != null ? {'reason': reason} : {}),
+        ),
       ),
     );
   }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
-/// Reusable patient home header with background image and user greeting.
+/// Reusable home header with background image and user greeting.
+///
+/// Used by both patient and doctor home screens.
 ///
 /// Usage:
 /// ```dart
@@ -21,19 +24,20 @@ class PatientHeader extends StatelessWidget {
   final int unreadCount;
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-  /// Returns a greeting based on current hour.
-  String _greeting() {
+
+  String _greeting(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return l10n.goodMorning;
+    if (hour < 17) return l10n.goodAfternoon;
+    return l10n.goodEvening;
   }
 
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
-    final firstName = user?['firstName'] as String? ?? '';
-    final lastName = user?['lastName'] as String? ?? '';
+    final firstName = (user?['firstName'] ?? '') as String;
+    final lastName = (user?['lastName'] ?? '') as String;
     final fullName = '$firstName $lastName'.trim();
 
     return ClipRRect(
@@ -62,13 +66,13 @@ class PatientHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // ── Top row: avatar + doctor name + notification bell ──
+                  // ── Top row: avatar + name + notification bell ──
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const _DoctorAvatar(),
+                      const _PatientAvatar(),
                       const SizedBox(width: AppSpacing.sm),
-                      const _DoctorName(),
+                      const _PatientName(),
                       const Spacer(),
                       _NotificationBell(
                         unreadCount: unreadCount,
@@ -90,7 +94,7 @@ class PatientHeader extends StatelessWidget {
 
                   // ── Bottom: large greeting + user name ────────────────
                   Text(
-                    '${_greeting()} $fullName!',
+                    '${_greeting(context)} $fullName!',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 26,
@@ -111,49 +115,77 @@ class PatientHeader extends StatelessWidget {
 
 // ── Sub-widgets ───────────────────────────────────────────────────────────────
 
-class _DoctorAvatar extends StatelessWidget {
-  const _DoctorAvatar();
+class _PatientAvatar extends StatelessWidget {
+  const _PatientAvatar();
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+    final firstName = (user?['firstName'] ?? '') as String;
+    final lastName = (user?['lastName'] ?? '') as String;
+    final initials =
+        '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'
+            .toUpperCase();
+
     return Container(
-      width: 40,
-      height: 40,
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.25),
+        color: Colors.white.withValues(alpha: 0.3),
         shape: BoxShape.circle,
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.6),
+          color: Colors.white.withValues(alpha: 0.5),
           width: 1.5,
         ),
       ),
-      child: ClipOval(
-        child: Image.asset('assets/doctorLogo.png', fit: BoxFit.cover),
+      child: Center(
+        child: Text(
+          initials.isEmpty ? '?' : initials,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }
 }
 
-class _DoctorName extends StatelessWidget {
-  const _DoctorName();
+class _PatientName extends StatelessWidget {
+  const _PatientName();
 
   @override
   Widget build(BuildContext context) {
-    // Replace with a dynamic value from your provider if needed
-    return const Text(
-      'Dastern',
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 15,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.2,
+    final user = context.watch<AuthProvider>().user;
+    final firstName = (user?['firstName'] ?? '') as String;
+    final lastName = (user?['lastName'] ?? '') as String;
+    final fullName = '$firstName $lastName'.trim();
+
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            fullName.isEmpty ? 'Patient' : fullName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }
 }
 
 class _NotificationBell extends StatelessWidget {
-  const _NotificationBell({required this.unreadCount, this.onTap});
+  const _NotificationBell({required this.unreadCount, required this.onTap});
 
   final int unreadCount;
   final VoidCallback? onTap;
@@ -163,11 +195,11 @@ class _NotificationBell extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Stack(
-        clipBehavior: Clip.none,
+        clipBehavior: Clip.antiAlias,
         children: [
           Container(
-            width: 38,
-            height: 38,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
               shape: BoxShape.circle,
@@ -178,39 +210,27 @@ class _NotificationBell extends StatelessWidget {
               size: 20,
             ),
           ),
-          if (unreadCount > 0) _UnreadBadge(count: unreadCount),
+          if (unreadCount > 0)
+            Positioned(
+              top: -4,
+              right: -4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                decoration: const BoxDecoration(
+                  color: AppColors.alertRed,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  unreadCount > 99 ? '99+' : '$unreadCount',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
         ],
-      ),
-    );
-  }
-}
-
-class _UnreadBadge extends StatelessWidget {
-  const _UnreadBadge({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: -2,
-      right: -2,
-      child: Container(
-        width: 17,
-        height: 17,
-        decoration: const BoxDecoration(
-          color: AppColors.alertRed,
-          shape: BoxShape.circle,
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          count > 9 ? '9+' : '$count',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 9,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
       ),
     );
   }
