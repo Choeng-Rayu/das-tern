@@ -140,6 +140,7 @@ class _PatientShellState extends State<PatientShell> {
       body: IndexedStack(index: _currentIndex, children: _tabs),
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton.extended(
+              heroTag: 'patient_shell_fab',
               onPressed: () => _showQuickAddMenu(context, l10n),
               backgroundColor: AppColors.primaryBlue,
               foregroundColor: Colors.white,

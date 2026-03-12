@@ -1262,4 +1262,11 @@
   "notifTestBody": "This is a test reminder. Action buttons work correctly.",
   "sendTestNotification": "Send Test Notification",
   "testNotificationSent": "Test notification sent!"
+  "downloadPdf": "Download PDF",
+  "premiumFeature": "Premium Feature",
+  "downloadReportDescription": "Download your activity report as a PDF. Available on Premium plans.",
+  "upgradeToPremium": "Upgrade to Premium",
+  "maybeLater": "Maybe Later",
+  "generatingPdf": "Generating PDF...",
+  "pdfReady": "Report PDF is ready"
 }

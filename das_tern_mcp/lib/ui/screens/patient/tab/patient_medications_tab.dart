@@ -7,6 +7,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../../utils/app_router.dart';
 import '../../../widgets/common_widgets.dart';
+import '../../../widgets/header_widgets.dart';
 
 /// Medications tab – lists active prescriptions, batch groups, and their medications.
 class PatientMedicationsTab extends StatefulWidget {
@@ -32,312 +33,295 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
     final provider = context.watch<PrescriptionProvider>();
     final batchProvider = context.watch<BatchProvider>();
 
-    return Column(
-      children: [
-        AppHeader(title: l10n.medications),
-        Expanded(
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    await provider.fetchPrescriptions();
-                    await batchProvider.fetchBatches();
-                  },
-                  child: provider.isLoading && batchProvider.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ListView(
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                          children: [
-                            // Pending Prescriptions Section (DRAFT from doctor)
-                            ..._buildPendingSection(context, l10n, provider),
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'medications_tab_fab',
+        onPressed: () {
+          Navigator.pushNamed(context, AppRouter.medicationChoice);
+        },
+        backgroundColor: AppColors.primaryBlue,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await provider.fetchPrescriptions();
+          await batchProvider.fetchBatches();
+        },
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            // ── Sticky header ──
+            PatientHeader(title: l10n.medications),
 
-                            // Batch Groups Section
-                            if (batchProvider.batches.isNotEmpty) ...[
-                              Text(
-                                l10n.batchGroupsTitle,
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: AppSpacing.sm),
-                              ...batchProvider.batches.map(
-                                (batch) => Padding(
-                                  padding: const EdgeInsets.only(
-                                    bottom: AppSpacing.sm,
+            // ── Content ──
+            if (provider.isLoading && batchProvider.isLoading)
+              const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Pending Prescriptions Section (DRAFT from doctor)
+                      ..._buildPendingSection(context, l10n, provider),
+
+                      // Batch Groups Section
+                      if (batchProvider.batches.isNotEmpty) ...[
+                        Text(
+                          l10n.batchGroupsTitle,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        ...batchProvider.batches.map(
+                          (batch) => Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppSpacing.sm,
+                            ),
+                            child: AppCard(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRouter.batchDetail,
+                                  arguments: {'batchId': batch.id},
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.successGreen.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                      Icons.medication_liquid_outlined,
+                                      color: AppColors.successGreen,
+                                    ),
                                   ),
-                                  child: AppCard(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        AppRouter.batchDetail,
-                                        arguments: {'batchId': batch.id},
-                                      );
-                                    },
-                                    child: Row(
+                                  const SizedBox(width: AppSpacing.md),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          width: 44,
-                                          height: 44,
-                                          decoration: BoxDecoration(
-                                            color: AppColors.successGreen
-                                                .withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                          ),
-                                          child: const Icon(
-                                            Icons.medication_liquid_outlined,
-                                            color: AppColors.successGreen,
-                                          ),
-                                        ),
-                                        const SizedBox(width: AppSpacing.md),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                batch.name,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 2),
-                                              Text(
-                                                l10n.batchScheduledTime(
-                                                  batch.scheduledTime,
-                                                ),
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall
-                                                    ?.copyWith(
-                                                      color: AppColors
-                                                          .textSecondary,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
                                         Text(
-                                          l10n.batchMedicineCount(
-                                            batch.medications.length,
+                                          batch.name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          l10n.batchScheduledTime(
+                                            batch.scheduledTime,
                                           ),
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall
                                               ?.copyWith(
-                                                color: AppColors.primaryBlue,
+                                                color: AppColors.textSecondary,
                                               ),
-                                        ),
-                                        const SizedBox(width: AppSpacing.xs),
-                                        const Icon(
-                                          Icons.chevron_right,
-                                          color: AppColors.textSecondary,
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.md),
-                            ],
-
-                            // Prescriptions Section (ACTIVE only)
-                            if (provider.prescriptions
-                                .where((p) => p.status == 'ACTIVE')
-                                .isNotEmpty) ...[
-                              Text(
-                                l10n.prescriptions,
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: AppSpacing.sm),
-                              ...provider.prescriptions
-                                  .where((p) => p.status == 'ACTIVE')
-                                  .map(
-                                    (rx) => Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: AppSpacing.sm,
-                                      ),
-                                      child: AppCard(
-                                        onTap: () {
-                                          Navigator.pushNamed(
-                                            context,
-                                            AppRouter.prescriptionDetail,
-                                            arguments: {
-                                              'prescriptionId': rx.id,
-                                            },
-                                          );
-                                        },
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal:
-                                                            AppSpacing.sm,
-                                                        vertical: 2,
-                                                      ),
-                                                  decoration: BoxDecoration(
-                                                    color: AppColors
-                                                        .successGreen
-                                                        .withValues(alpha: 0.1),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          AppRadius.sm,
-                                                        ),
-                                                  ),
-                                                  child: Text(
-                                                    rx.status.toUpperCase(),
-                                                    style: const TextStyle(
-                                                      color: AppColors
-                                                          .successGreen,
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const Spacer(),
-                                                Text(
-                                                  'v${rx.currentVersion}',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall
-                                                      ?.copyWith(
-                                                        color: AppColors
-                                                            .textSecondary,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(
-                                              height: AppSpacing.sm,
-                                            ),
-                                            Text(
-                                              l10n.medicationCountLabel(
-                                                rx.medications.length,
-                                              ),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleMedium
-                                                  ?.copyWith(
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                            ),
-                                            if (rx.notes != null) ...[
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                rx.notes!,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall
-                                                    ?.copyWith(
-                                                      color: AppColors
-                                                          .textSecondary,
-                                                    ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ],
-                                            const SizedBox(
-                                              height: AppSpacing.sm,
-                                            ),
-                                            Wrap(
-                                              spacing: 6,
-                                              runSpacing: 6,
-                                              children: rx.medications.map((m) {
-                                                final name =
-                                                    m.medicationData?['name'] ??
-                                                    m.medicineName;
-                                                return Chip(
-                                                  label: Text(
-                                                    name,
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                  materialTapTargetSize:
-                                                      MaterialTapTargetSize
-                                                          .shrinkWrap,
-                                                  visualDensity:
-                                                      VisualDensity.compact,
-                                                );
-                                              }).toList(),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                  Text(
+                                    l10n.batchMedicineCount(
+                                      batch.medications.length,
                                     ),
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: AppColors.primaryBlue,
+                                        ),
                                   ),
-                            ],
+                                  const SizedBox(width: AppSpacing.xs),
+                                  const Icon(
+                                    Icons.chevron_right,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                      ],
 
-                            // Empty state
-                            if (provider.prescriptions
-                                    .where((p) => p.status == 'ACTIVE')
-                                    .isEmpty &&
-                                provider.prescriptions
-                                    .where((p) => p.status == 'DRAFT')
-                                    .isEmpty &&
-                                batchProvider.batches.isEmpty)
-                              Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: AppSpacing.xxl,
-                                  ),
+                      // Prescriptions Section (ACTIVE only)
+                      if (provider.prescriptions
+                          .where((p) => p.status == 'ACTIVE')
+                          .isNotEmpty) ...[
+                        Text(
+                          l10n.prescriptions,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        ...provider.prescriptions
+                            .where((p) => p.status == 'ACTIVE')
+                            .map(
+                              (rx) => Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: AppSpacing.sm,
+                                ),
+                                child: AppCard(
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRouter.prescriptionDetail,
+                                      arguments: {'prescriptionId': rx.id},
+                                    );
+                                  },
                                   child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Icon(
-                                        Icons.medication_outlined,
-                                        size: 64,
-                                        color: AppColors.neutral300,
-                                      ),
-                                      const SizedBox(height: AppSpacing.md),
-                                      Text(
-                                        l10n.noActivePrescriptions,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.titleMedium,
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: AppSpacing.sm,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.successGreen
+                                                  .withValues(alpha: 0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                    AppRadius.sm,
+                                                  ),
+                                            ),
+                                            child: Text(
+                                              rx.status.toUpperCase(),
+                                              style: const TextStyle(
+                                                color: AppColors.successGreen,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          Text(
+                                            'v${rx.currentVersion}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                ),
+                                          ),
+                                        ],
                                       ),
                                       const SizedBox(height: AppSpacing.sm),
                                       Text(
-                                        l10n.prescriptionsAppearHere,
+                                        l10n.medicationCountLabel(
+                                          rx.medications.length,
+                                        ),
                                         style: Theme.of(context)
                                             .textTheme
-                                            .bodySmall
+                                            .titleMedium
                                             ?.copyWith(
-                                              color: AppColors.textSecondary,
+                                              fontWeight: FontWeight.w600,
                                             ),
-                                        textAlign: TextAlign.center,
+                                      ),
+                                      if (rx.notes != null) ...[
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          rx.notes!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: AppColors.textSecondary,
+                                              ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                      const SizedBox(height: AppSpacing.sm),
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 6,
+                                        children: rx.medications.map((m) {
+                                          final name =
+                                              m.medicationData?['name'] ??
+                                              m.medicineName;
+                                          return Chip(
+                                            label: Text(
+                                              name,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            materialTapTargetSize:
+                                                MaterialTapTargetSize
+                                                    .shrinkWrap,
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                          );
+                                        }).toList(),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
-                          ],
+                            ),
+                      ],
+
+                      // Empty state
+                      if (provider.prescriptions
+                              .where((p) => p.status == 'ACTIVE')
+                              .isEmpty &&
+                          provider.prescriptions
+                              .where((p) => p.status == 'DRAFT')
+                              .isEmpty &&
+                          batchProvider.batches.isEmpty)
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: AppSpacing.xxl),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.medication_outlined,
+                                  size: 64,
+                                  color: AppColors.neutral300,
+                                ),
+                                const SizedBox(height: AppSpacing.md),
+                                Text(
+                                  l10n.noActivePrescriptions,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+                                Text(
+                                  l10n.prescriptionsAppearHere,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
+                    ],
+                  ),
                 ),
               ),
-              Positioned(
-                right: 16,
-                bottom: 16,
-                child: FloatingActionButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, AppRouter.medicationChoice);
-                  },
-                  backgroundColor: AppColors.primaryBlue,
-                  child: const Icon(Icons.add, color: Colors.white),
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

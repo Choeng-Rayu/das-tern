@@ -5725,6 +5725,35 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Test notification sent!'**
   String get testNotificationSent;
+  /// No description provided for @downloadPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Download PDF'**
+  String get downloadPdf;
+
+  /// No description provided for @downloadReportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Download your activity report as a PDF. Available on Premium plans.'**
+  String get downloadReportDescription;
+
+  /// No description provided for @maybeLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe Later'**
+  String get maybeLater;
+
+  /// No description provided for @generatingPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating PDF...'**
+  String get generatingPdf;
+
+  /// No description provided for @pdfReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Report PDF is ready'**
+  String get pdfReady;
 }
 
 class _AppLocalizationsDelegate
