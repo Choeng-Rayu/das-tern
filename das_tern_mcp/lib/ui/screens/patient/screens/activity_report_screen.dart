@@ -47,8 +47,7 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
   // ── PDF logic ───────────────────────────────────────────────────────────────
 
   Future<void> _onDownloadTapped() async {
-    final isPremium =
-        context.read<SubscriptionProvider>().isPremium;
+    final isPremium = context.read<SubscriptionProvider>().isPremium;
     if (!isPremium) {
       _showUpgradeDialog();
       return;
@@ -75,9 +74,7 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
         content: Text(
           l10n.downloadReportDescription,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-          ),
+          style: TextStyle(color: Theme.of(ctx).colorScheme.onSurfaceVariant),
         ),
         actionsAlignment: MainAxisAlignment.center,
         actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -130,8 +127,7 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
           0.0;
       final taken = adherence.todayTaken;
       final total = adherence.todayTotal;
-      final days =
-          (adherence.weeklyAdherence?['days'] as List<dynamic>?) ?? [];
+      final days = (adherence.weeklyAdherence?['days'] as List<dynamic>?) ?? [];
 
       doc.addPage(
         pw.MultiPage(
@@ -141,10 +137,7 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
             // Header
             pw.Text(
               'DasTern – Activity Report',
-              style: pw.TextStyle(
-                fontSize: 22,
-                fontWeight: pw.FontWeight.bold,
-              ),
+              style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 4),
             pw.Text(
@@ -156,10 +149,7 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
             // Summary
             pw.Text(
               'Adherence Summary',
-              style: pw.TextStyle(
-                fontSize: 14,
-                fontWeight: pw.FontWeight.bold,
-              ),
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 8),
             pw.TableHelper.fromTextArray(
@@ -168,9 +158,7 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
                 ['Today – Taken / Total', '$taken / $total'],
                 [
                   'Today – Adherence',
-                  total > 0
-                      ? '${(taken / total * 100).round()}%'
-                      : '0%',
+                  total > 0 ? '${(taken / total * 100).round()}%' : '0%',
                 ],
                 ['Weekly Adherence', '${weekly.round()}%'],
                 ['Monthly Adherence', '${monthly.round()}%'],
@@ -573,10 +561,7 @@ class _StatBadge extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
       ],
     );
   }
@@ -585,10 +570,7 @@ class _StatBadge extends StatelessWidget {
 // ── Weekly Breakdown ──────────────────────────────────────────────────────────
 
 class _WeeklyBreakdown extends StatelessWidget {
-  const _WeeklyBreakdown({
-    required this.adherence,
-    required this.l10n,
-  });
+  const _WeeklyBreakdown({required this.adherence, required this.l10n});
 
   final AdherenceProvider adherence;
   final AppLocalizations l10n;
@@ -674,10 +656,7 @@ class _DayBar extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        Text(
-          label,
-          style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
-        ),
+        Text(label, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
       ],
     );
   }
@@ -686,10 +665,7 @@ class _DayBar extends StatelessWidget {
 // ── Dose History ──────────────────────────────────────────────────────────────
 
 class _DoseHistorySection extends StatelessWidget {
-  const _DoseHistorySection({
-    required this.dose,
-    required this.l10n,
-  });
+  const _DoseHistorySection({required this.dose, required this.l10n});
 
   final DoseProvider dose;
   final AppLocalizations l10n;
@@ -737,11 +713,8 @@ class _DoseHistorySection extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: dose.history.length,
-                  separatorBuilder: (_, _) => Divider(
-                    height: 1,
-                    indent: 60,
-                    color: cs.outlineVariant,
-                  ),
+                  separatorBuilder: (_, _) =>
+                      Divider(height: 1, indent: 60, color: cs.outlineVariant),
                   itemBuilder: (context, index) {
                     final d = dose.history[index];
                     final isTaken = d.status.contains('TAKEN');
