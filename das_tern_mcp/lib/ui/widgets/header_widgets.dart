@@ -10,10 +10,15 @@ class PatientHeader extends StatelessWidget {
     super.key,
     this.onNotificationTap,
     this.unreadCount = 0,
+    this.title,
   });
 
   final VoidCallback? onNotificationTap;
   final int unreadCount;
+
+  /// If provided, replaces the greeting text with this title
+  /// while keeping the avatar row and background image.
+  final String? title;
 
   String _greeting(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -30,6 +35,9 @@ class PatientHeader extends StatelessWidget {
     final firstName = (user?['firstName'] ?? '') as String;
     final lastName = (user?['lastName'] ?? '') as String;
     final fullName = '$firstName $lastName'.trim();
+
+    // The text shown below the divider: either the custom title or the greeting
+    final headerText = title ?? '${_greeting(context)} $fullName!';
 
     // Collapsed height = avatar row + padding
     const collapsedContentHeight = 60.0;
@@ -84,7 +92,7 @@ class PatientHeader extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      '${_greeting(context)} $fullName!',
+                      headerText,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 26,
