@@ -67,28 +67,26 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
 
     return RefreshIndicator(
       onRefresh: _onRefresh,
-      child: SingleChildScrollView(
+      child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Patient header with background image ──
-            PatientHeader(
-              onNotificationTap: () {
-                final notifProv = context.read<NotificationProvider>();
-                Navigator.pushNamed(
-                  context,
-                  AppRouter.patientNotifications,
-                ).then((_) {
+        slivers: [
+          // ── Sticky patient header ──
+          PatientHeader(
+            onNotificationTap: () {
+              final notifProv = context.read<NotificationProvider>();
+              Navigator.pushNamed(context, AppRouter.patientNotifications).then(
+                (_) {
                   if (!mounted) return;
                   notifProv.fetchNotifications();
-                });
-              },
-              unreadCount: notifProvider.unreadCount,
-            ),
+                },
+              );
+            },
+            unreadCount: notifProvider.unreadCount,
+          ),
 
-            // ── Time-period medicine section ──
-            Padding(
+          // ── Scrollable content ──
+          SliverToBoxAdapter(
+            child: Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -631,8 +629,8 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

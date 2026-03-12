@@ -5,29 +5,25 @@ import '../../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
-/// Reusable home header with background image and user greeting.
-///
-/// Used by both patient and doctor home screens.
-///
-/// Usage:
-/// ```dart
-/// PatientHeader(onNotificationTap: () { ... })
-/// ```
 class PatientHeader extends StatelessWidget {
   const PatientHeader({
     super.key,
     this.onNotificationTap,
     this.unreadCount = 0,
+    this.title,
   });
 
   final VoidCallback? onNotificationTap;
   final int unreadCount;
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  /// If provided, replaces the greeting text with this title
+  /// while keeping the avatar row and background image.
+  final String? title;
 
   String _greeting(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final hour = DateTime.now().hour;
+
     if (hour < 12) return l10n.goodMorning;
     if (hour < 17) return l10n.goodAfternoon;
     return l10n.goodEvening;
@@ -40,81 +36,86 @@ class PatientHeader extends StatelessWidget {
     final lastName = (user?['lastName'] ?? '') as String;
     final fullName = '$firstName $lastName'.trim();
 
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
-      child: Stack(
+    // The text shown below the divider: either the custom title or the greeting
+    final headerText = title ?? '${_greeting(context)} $fullName!';
+
+    // Collapsed height = avatar row + padding
+    const collapsedContentHeight = 60.0;
+
+    return SliverAppBar(
+      automaticallyImplyLeading: false,
+      pinned: true,
+      expandedHeight: 180,
+      collapsedHeight: collapsedContentHeight,
+      toolbarHeight: collapsedContentHeight,
+      backgroundColor: AppColors.primaryBlue,
+      elevation: 0,
+      // ── Always visible: avatar row ──
+      title: Row(
         children: [
-          // Background image
-          Positioned.fill(
-            child: Image.asset(
-              'assets/backgroundHeader.png',
-              fit: BoxFit.cover,
-            ),
+          const _PatientAvatar(),
+          const SizedBox(width: AppSpacing.sm),
+          const _PatientName(),
+          const Spacer(),
+          _NotificationBell(unreadCount: unreadCount, onTap: onNotificationTap),
+        ],
+      ),
+      // ── Expanded area: background image + greeting (below the avatar row) ──
+      flexibleSpace: FlexibleSpaceBar(
+        collapseMode: CollapseMode.pin,
+        background: ClipRRect(
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(28),
           ),
-
-          // Content
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.md,
-                AppSpacing.lg,
-                AppSpacing.xl,
+          child: Stack(
+            children: [
+              // Background image
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/backgroundHeader.png',
+                  fit: BoxFit.cover,
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // ── Top row: avatar + name + notification bell ──
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const _PatientAvatar(),
-                      const SizedBox(width: AppSpacing.sm),
-                      const _PatientName(),
-                      const Spacer(),
-                      _NotificationBell(
-                        unreadCount: unreadCount,
-                        onTap: onNotificationTap,
-                      ),
-                    ],
-                  ),
 
-                  // ── Divider ───────────────────────────────────────────
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.md,
-                    ),
-                    child: Divider(
+              // Greeting text – positioned below the toolbar area
+              Positioned(
+                left: AppSpacing.lg,
+                right: AppSpacing.lg,
+                bottom: AppSpacing.xl,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Divider(
                       color: Colors.white.withValues(alpha: 0.35),
                       thickness: 1,
                     ),
-                  ),
-
-                  // ── Bottom: large greeting + user name ────────────────
-                  Text(
-                    '${_greeting(context)} $fullName!',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.2,
-                      height: 1.2,
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      headerText,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.2,
+                        height: 1.2,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
+      ),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
       ),
     );
   }
 }
 
-// ── Sub-widgets ───────────────────────────────────────────────────────────────
-
+/// Avatar
 class _PatientAvatar extends StatelessWidget {
   const _PatientAvatar();
 
@@ -123,6 +124,7 @@ class _PatientAvatar extends StatelessWidget {
     final user = context.watch<AuthProvider>().user;
     final firstName = (user?['firstName'] ?? '') as String;
     final lastName = (user?['lastName'] ?? '') as String;
+
     final initials =
         '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'
             .toUpperCase();
@@ -143,7 +145,6 @@ class _PatientAvatar extends StatelessWidget {
           initials.isEmpty ? '?' : initials,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -152,6 +153,7 @@ class _PatientAvatar extends StatelessWidget {
   }
 }
 
+/// Name
 class _PatientName extends StatelessWidget {
   const _PatientName();
 
@@ -163,27 +165,21 @@ class _PatientName extends StatelessWidget {
     final fullName = '$firstName $lastName'.trim();
 
     return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            fullName.isEmpty ? 'Patient' : fullName,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.2,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+      child: Text(
+        fullName.isEmpty ? 'Patient' : fullName,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
 }
 
+/// Notification Bell
 class _NotificationBell extends StatelessWidget {
   const _NotificationBell({required this.unreadCount, required this.onTap});
 
@@ -195,7 +191,7 @@ class _NotificationBell extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Stack(
-        clipBehavior: Clip.antiAlias,
+        clipBehavior: Clip.none,
         children: [
           Container(
             width: 40,
@@ -215,7 +211,7 @@ class _NotificationBell extends StatelessWidget {
               top: -4,
               right: -4,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: const BoxDecoration(
                   color: AppColors.alertRed,
                   shape: BoxShape.circle,
