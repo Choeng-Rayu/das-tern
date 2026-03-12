@@ -649,8 +649,9 @@ class _ChartSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final labels = graphData.map((d) => (d['label'] as String?) ?? '').toList();
-    final groups = _buildGroups();
+    final groups = _buildGroups(isDark);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
