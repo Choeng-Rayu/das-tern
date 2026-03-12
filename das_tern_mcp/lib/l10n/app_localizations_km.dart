@@ -1287,7 +1287,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get keepPremiumFeatures => 'ចង់រក្សាមុខងារ Premium?';
 
   @override
-  String get upgradeToPremium => 'ដំឡើងទៅ Premium';
+  String get upgradeToPremium => 'ធ្វើឱ្យប្រសើរជា Premium';
 
   @override
   String get onlyPerMonth => 'គ្រាន់តែ \$0.50/ខែ ឬ \$1 សម្រាប់ 3 ខែ';
@@ -2888,4 +2888,20 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get goHome => 'ត្រឡប់ទៅទំព័រដើម';
+
+  @override
+  String get downloadPdf => 'ទាញយក PDF';
+
+  @override
+  String get downloadReportDescription =>
+      'ទាញយករបាយការណ៍សកម្មភាពរបស់អ្នកជា PDF។ មានតែសម្រាប់គម្រោង Premium ប៉ុណ្ណោះ។';
+
+  @override
+  String get maybeLater => 'ពេលក្រោយ';
+
+  @override
+  String get generatingPdf => 'កំពុងបង្កើត PDF...';
+
+  @override
+  String get pdfReady => 'PDF របាយការណ៍រួចរាល់';
 }

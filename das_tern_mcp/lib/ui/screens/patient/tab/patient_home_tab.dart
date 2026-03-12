@@ -9,6 +9,7 @@ import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/header_widgets.dart';
+import '../screens/activity_report_screen.dart';
 
 /// Patient home tab – daily dashboard.
 /// Sections: header · medication tracker · progress · today's doses · quick actions · vitals
@@ -358,10 +359,18 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                   Row(
                     children: [
                       Expanded(
-                        child: _QuickActionCard(
-                          icon: Icons.history,
-                          title: l10n.medicationIntakeHistory,
-                          color: const Color(0xFF0288D1),
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ActivityReportScreen(),
+                            ),
+                          ),
+                          child: _QuickActionCard(
+                            icon: Icons.history,
+                            title: l10n.medicationIntakeHistory,
+                            color: const Color(0xFF0288D1),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
