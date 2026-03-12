@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../services/api_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
@@ -16,9 +17,11 @@ class AuthProvider extends ChangeNotifier {
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
+  
   late final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
-    serverClientId: dotenv.env['GOOGLE_CLIENT_ID'],
+    clientId: kIsWeb ? dotenv.env['GOOGLE_CLIENT_ID'] : null,
+    serverClientId: kIsWeb ? null : dotenv.env['GOOGLE_CLIENT_ID'],
   );
 
   bool _isLoading = false;
