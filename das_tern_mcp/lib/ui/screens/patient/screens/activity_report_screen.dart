@@ -804,9 +804,7 @@ class _DoseHistoryCard extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(color: statusColor, width: 4),
-            ),
+            border: Border(left: BorderSide(color: statusColor, width: 4)),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
@@ -921,11 +919,7 @@ class _DetailRow extends StatelessWidget {
 // ── Dose Detail Screen ────────────────────────────────────────────────────────
 
 class DoseDetailScreen extends StatelessWidget {
-  const DoseDetailScreen({
-    super.key,
-    required this.event,
-    required this.l10n,
-  });
+  const DoseDetailScreen({super.key, required this.event, required this.l10n});
 
   final DoseEvent event;
   final AppLocalizations l10n;
@@ -1024,10 +1018,7 @@ class DoseDetailScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     _formatDateTime(d.scheduledTime),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: cs.onSurfaceVariant,
-                    ),
+                    style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -1043,10 +1034,7 @@ class DoseDetailScreen extends StatelessWidget {
                 color: cs.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(14),
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Column(
                 children: [
                   _DetailRow(
@@ -1257,8 +1245,7 @@ class AdherenceDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final days =
-        (adherenceData?['days'] as List<dynamic>?) ?? [];
+    final days = (adherenceData?['days'] as List<dynamic>?) ?? [];
     final taken = (adherenceData?['taken'] as num?)?.toInt() ?? 0;
     final total = (adherenceData?['total'] as num?)?.toInt() ?? 0;
     final missed = total - taken;
@@ -1297,7 +1284,11 @@ class AdherenceDetailScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _CircularPercent(percentage: percentage, color: color, size: 110),
+                  _CircularPercent(
+                    percentage: percentage,
+                    color: color,
+                    size: 110,
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     title,
@@ -1356,23 +1347,25 @@ class AdherenceDetailScreen extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               ...days.map((dayData) {
                 final map = dayData as Map<String, dynamic>;
-                final label = (map['dayLabel'] as String?) ??
+                final label =
+                    (map['dayLabel'] as String?) ??
                     (map['date'] as String? ?? '').split('-').last;
                 final date = map['date'] as String? ?? '';
                 final pct =
                     (map['percentage'] as num?)?.toDouble().clamp(0.0, 100.0) ??
-                        0.0;
+                    0.0;
                 final dayTaken = (map['taken'] as num?)?.toInt();
                 final dayTotal = (map['total'] as num?)?.toInt();
-                final dayMissed = (map['missed'] as num?)?.toInt() ??
+                final dayMissed =
+                    (map['missed'] as num?)?.toInt() ??
                     (dayTotal != null && dayTaken != null
                         ? dayTotal - dayTaken
                         : null);
                 final barColor = pct >= 80
                     ? AppColors.statusSuccess
                     : pct >= 50
-                        ? AppColors.statusWarning
-                        : AppColors.statusError;
+                    ? AppColors.statusWarning
+                    : AppColors.statusError;
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
@@ -1385,7 +1378,9 @@ class AdherenceDetailScreen extends StatelessWidget {
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     child: Row(
                       children: [
                         SizedBox(
@@ -1413,9 +1408,13 @@ class AdherenceDetailScreen extends StatelessWidget {
                           Container(
                             margin: const EdgeInsets.only(right: 8),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
-                              color: AppColors.statusError.withValues(alpha: 0.12),
+                              color: AppColors.statusError.withValues(
+                                alpha: 0.12,
+                              ),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
