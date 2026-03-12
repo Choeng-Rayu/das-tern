@@ -129,7 +129,9 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                               ),
                             const SizedBox(height: 4),
                             Text('${l10n.frequency}: ${med.frequency}'),
-                            Text('${l10n.timing}: ${med.timing}'),
+                            Text(
+                              '${l10n.timing}: ${med.timing == 'before' ? l10n.beforeMeal : l10n.afterMeal}',
+                            ),
                             if (med.duration != null)
                               Text(
                                 '${l10n.durationDays}: ${med.duration} ${l10n.days}',

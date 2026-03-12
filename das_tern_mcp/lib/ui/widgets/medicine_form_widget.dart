@@ -514,7 +514,7 @@ class _ScheduleChip extends StatelessWidget {
     this.color,
     required this.selected,
     required this.onTap,
-    this.color,
+   
   });
 
   final String label;
@@ -522,12 +522,11 @@ class _ScheduleChip extends StatelessWidget {
   final Color? color;
   final bool selected;
   final VoidCallback onTap;
-  final Color? color;
+
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accentColor = color ?? AppColors.primaryBlue;
     final accentColor = color ?? AppColors.primaryBlue;
     final unselectedColor = isDark ? Colors.grey[600]! : Colors.grey[300]!;
 

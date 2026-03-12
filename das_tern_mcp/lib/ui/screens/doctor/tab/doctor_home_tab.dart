@@ -314,12 +314,17 @@ class _StatCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.transparent,
+            color: Theme.of(context).cardTheme.color ?? Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-                blurRadius: 6,
+                 color:  Colors.grey.withOpacity(
+                  0.5,
+                ), // Shadow color with opacity
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: Offset(0, 2)
+                
               ),
             ],
           ),
