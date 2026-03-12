@@ -95,7 +95,6 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
-    final unitStr = _unit.toJson().toLowerCase();
     final scheduleTimes = <Map<String, String>>[
       if (_morning) {'timePeriod': 'morning', 'time': '07:00'},
       if (_afternoon) {'timePeriod': 'afternoon', 'time': '12:00'},
@@ -512,17 +511,19 @@ class _ScheduleChip extends StatelessWidget {
     required this.icon,
     required this.selected,
     required this.onTap,
+    this.color,
   });
 
   final String label;
   final IconData icon;
   final bool selected;
   final VoidCallback onTap;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accentColor = AppColors.primaryBlue;
+    final accentColor = color ?? AppColors.primaryBlue;
     final unselectedColor = isDark ? Colors.grey[600]! : Colors.grey[300]!;
 
     return Expanded(
