@@ -8,24 +8,22 @@ import '../theme/app_spacing.dart';
 /// Reusable home header with background image and user greeting.
 ///
 /// Used by both patient and doctor home screens.
-/// Pass [roleLabel] to customize the role badge (defaults to 'Patient').
 ///
 /// Usage:
 /// ```dart
 /// PatientHeader(onNotificationTap: () { ... })
-/// PatientHeader(roleLabel: 'Doctor', onNotificationTap: () { ... })
 /// ```
 class PatientHeader extends StatelessWidget {
   const PatientHeader({
     super.key,
     this.onNotificationTap,
     this.unreadCount = 0,
-    this.roleLabel = 'Patient',
   });
 
   final VoidCallback? onNotificationTap;
   final int unreadCount;
-  final String roleLabel;
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
   String _greeting(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -37,7 +35,10 @@ class PatientHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<AuthProvider>();
+    final user = context.watch<AuthProvider>().user;
+    final firstName = (user?['firstName'] ?? '') as String;
+    final lastName = (user?['lastName'] ?? '') as String;
+    final fullName = '$firstName $lastName'.trim();
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
@@ -91,52 +92,16 @@ class PatientHeader extends StatelessWidget {
                     ),
                   ),
 
-                  // ── Greeting message ───────────────────────────────────
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _greeting(context),
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Stay on track with your medicine',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          roleLabel,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
+                  // ── Bottom: large greeting + user name ────────────────
+                  Text(
+                    '${_greeting(context)} $fullName!',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.2,
+                      height: 1.2,
+                    ),
                   ),
                 ],
               ),

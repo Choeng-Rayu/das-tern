@@ -202,8 +202,8 @@ class PrescriptionMedication {
       nightDosage: json['nightDosage'] is Map
           ? Map<String, dynamic>.from(json['nightDosage'])
           : (json['nightDosage'] is num
-              ? {'amount': (json['nightDosage'] as num).toDouble()}
-              : null),
+                ? {'amount': (json['nightDosage'] as num).toDouble()}
+                : null),
       frequency: (json['frequency'] as String?) ?? '',
       timing: (json['timing'] as String?) ?? '',
       medicationData: json['medication'] is Map

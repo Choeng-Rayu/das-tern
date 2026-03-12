@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
+import '../../../screens/patient/screens/activity_report_screen.dart';
 import '../../../screens/support/contact_support_screen.dart';
-import '../../../screens/support/terms_of_service_screen.dart';
 import '../../../screens/support/privacy_policy_screen.dart';
+import '../../../screens/support/terms_of_service_screen.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/theme_provider.dart';
 import '../../../widgets/common_widgets.dart';
+import '../../../widgets/language_switcher.dart';
 
-/// Settings tab for patient – clean professional UI matching design standard.
-/// Sections: Appearance, Notification Permission, Account (with Security),
-/// Subscription, Rate App, Support.
 class PatientSettingsTab extends StatefulWidget {
   const PatientSettingsTab({super.key});
 
@@ -24,11 +24,6 @@ class PatientSettingsTab extends StatefulWidget {
 
 class _PatientSettingsTabState extends State<PatientSettingsTab> {
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final auth = context.watch<AuthProvider>();
@@ -36,404 +31,401 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     final localeProvider = context.watch<LocaleProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
-      children: [
-        AppHeader(title: l10n.settings),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.md,
+    return Scaffold(
+      appBar: AppHeader(
+        title: l10n.settings,
+        actions: const [LanguageSwitcherButton(), SizedBox(width: 12)],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildPatientCard(context, isDark: isDark, auth: auth, l10n: l10n),
+            const SizedBox(height: AppSpacing.md),
+            _sectionLabel('REPORTS'),
+            _buildGroupCard(isDark, [
+              _buildNavRow(
+                context,
+                icon: Icons.bar_chart_outlined,
+                label: l10n.activityReport,
+                isLast: true,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ActivityReportScreen(),
+                    ),
+                  );
+                },
+              ),
+            ]),
+            const SizedBox(height: AppSpacing.md),
+            _sectionLabel(l10n.appearance.toUpperCase()),
+            _buildAppearanceCard(
+              context,
+              isDark: isDark,
+              l10n: l10n,
+              themeProvider: themeProvider,
+              localeProvider: localeProvider,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Patient info card
-                Container(
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(
-                          alpha: isDark ? 0.28 : 0.06,
-                        ),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.all(16),
+            const SizedBox(height: AppSpacing.md),
+            _buildNotificationCard(context, isDark: isDark, l10n: l10n),
+            const SizedBox(height: AppSpacing.md),
+            _sectionLabel(l10n.account.toUpperCase()),
+            _buildGroupCard(isDark, [
+              _buildNavRow(
+                context,
+                icon: Icons.person_outline,
+                label: l10n.editProfile,
+                onTap: () => Navigator.pushNamed(context, '/patient/edit-profile'),
+              ),
+              _divider(isDark),
+              _buildNavRow(
+                context,
+                icon: Icons.lock_outline,
+                label: l10n.changePassword,
+                onTap: () =>
+                    Navigator.pushNamed(context, '/patient/change-password'),
+              ),
+              _divider(isDark),
+              InkWell(
+                onTap: () => _confirmLogout(context, auth),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(14),
+                  bottomRight: Radius.circular(14),
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 28,
-                        backgroundColor: AppColors.primaryBlue.withValues(
-                          alpha: 0.12,
-                        ),
-                        child: const Icon(
-                          Icons.person_outline,
-                          color: AppColors.primaryBlue,
-                          size: 26,
-                        ),
+                      const Icon(
+                        Icons.logout,
+                        color: AppColors.statusError,
+                        size: 20,
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _patientName(auth.user),
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
+                      const SizedBox(width: 12),
+                      Text(
+                        l10n.logout,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: AppColors.statusError,
+                              fontWeight: FontWeight.w500,
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              l10n.patientRole,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: AppSpacing.md),
-
-                // APPEARANCE
-                _sectionLabel('APPEARANCE'),
-                _buildGroupCard(isDark, [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.brightness_6_outlined, size: 20),
-                            const SizedBox(width: 12),
-                            Text(
-                              l10n.theme,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          children: [
-                            _ThemeOptionCard(
-                              icon: Icons.phone_android_rounded,
-                              label: 'System',
-                              isSelected:
-                                  themeProvider.themeMode == ThemeMode.system,
-                              isDark: isDark,
-                              onTap: () =>
-                                  themeProvider.setThemeMode(ThemeMode.system),
-                            ),
-                            const SizedBox(width: 10),
-                            _ThemeOptionCard(
-                              icon: Icons.light_mode_rounded,
-                              label: 'Light',
-                              isSelected:
-                                  themeProvider.themeMode == ThemeMode.light,
-                              isDark: isDark,
-                              onTap: () =>
-                                  themeProvider.setThemeMode(ThemeMode.light),
-                            ),
-                            const SizedBox(width: 10),
-                            _ThemeOptionCard(
-                              icon: Icons.dark_mode_rounded,
-                              label: 'Dark',
-                              isSelected:
-                                  themeProvider.themeMode == ThemeMode.dark,
-                              isDark: isDark,
-                              onTap: () =>
-                                  themeProvider.setThemeMode(ThemeMode.dark),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  _divider(isDark),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 4,
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.language_outlined, size: 20),
-                        const SizedBox(width: 12),
-                        Text(
-                          l10n.language,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        const Spacer(),
-                        DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: localeProvider.locale.languageCode,
-                            isDense: true,
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'en',
-                                child: Text('English'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'km',
-                                child: Text('ខ្មែរ'),
-                              ),
-                            ],
-                            onChanged: (v) {
-                              if (v != null) {
-                                localeProvider.changeLocale(Locale(v));
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: AppSpacing.md),
-
-                // NOTIFICATION PERMISSION
-                _buildGroupCard(isDark, [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: AppColors.statusSuccess.withValues(
-                              alpha: 0.12,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.notifications_outlined,
-                            color: AppColors.statusSuccess,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Notification Permission',
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 2),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.check_circle,
-                                  color: AppColors.statusSuccess,
-                                  size: 13,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Granted',
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: AppColors.statusSuccess,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: AppSpacing.md),
-
-                // ACCOUNT (Edit Profile + Security/Change Password + Logout)
-                _sectionLabel('ACCOUNT'),
-                _buildGroupCard(isDark, [
-                  _buildNavRow(
+              ),
+            ]),
+            const SizedBox(height: AppSpacing.md),
+            _sectionLabel(l10n.subscription.toUpperCase()),
+            _buildGroupCard(isDark, [
+              _buildNavRow(
+                context,
+                icon: Icons.workspace_premium_outlined,
+                label: l10n.manageSubscriptions,
+                isLast: true,
+                onTap: () => Navigator.pushNamed(context, '/subscription/upgrade'),
+              ),
+            ]),
+            const SizedBox(height: AppSpacing.md),
+            _sectionLabel(l10n.support.toUpperCase()),
+            _buildGroupCard(isDark, [
+              _buildSupportRow(
+                context,
+                icon: Icons.star_rounded,
+                iconBg: const Color(0xFFFF9500),
+                label: l10n.rateApp,
+                subtitle: l10n.rateAppSubtitle,
+                onTap: () async {
+                  final uri = Uri.parse('https://play.google.com/store');
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
+              ),
+              _divider(isDark),
+              _buildSupportRow(
+                context,
+                icon: Icons.headset_mic_rounded,
+                iconBg: const Color(0xFF007AFF),
+                label: l10n.contactSupport,
+                subtitle: l10n.contactSupportSubtitle,
+                onTap: () {
+                  Navigator.push(
                     context,
-                    icon: Icons.person_outline,
-                    label: l10n.editProfile,
-                    onTap: () {
-                      Navigator.pushNamed(context, '/patient/edit-profile');
-                    },
-                  ),
-                  _divider(isDark),
-                  _buildNavRow(
-                    context,
-                    icon: Icons.lock_outline,
-                    label: l10n.changePassword,
-                    onTap: () {
-                      Navigator.pushNamed(context, '/patient/change-password');
-                    },
-                  ),
-                  _divider(isDark),
-                  InkWell(
-                    onTap: () => _confirmLogout(context, auth),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(14),
-                      bottomRight: Radius.circular(14),
+                    MaterialPageRoute(
+                      builder: (_) => const ContactSupportScreen(),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.logout,
-                            color: AppColors.statusError,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            l10n.logout,
-                            style: Theme.of(context).textTheme.bodyLarge
-                                ?.copyWith(
-                                  color: AppColors.statusError,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                          ),
-                        ],
-                      ),
+                  );
+                },
+              ),
+              _divider(isDark),
+              _buildSupportRow(
+                context,
+                icon: Icons.article_rounded,
+                iconBg: const Color(0xFF34C759),
+                label: l10n.termsOfService,
+                subtitle: l10n.termsOfServiceSubtitle,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const TermsOfServiceScreen(),
                     ),
-                  ),
-                ]),
-                const SizedBox(height: AppSpacing.md),
-
-                // SUBSCRIPTION
-                _sectionLabel(l10n.subscription.toUpperCase()),
-                _buildGroupCard(isDark, [
-                  _buildNavRow(
+                  );
+                },
+              ),
+              _divider(isDark),
+              _buildSupportRow(
+                context,
+                icon: Icons.shield_rounded,
+                iconBg: const Color(0xFFAF52DE),
+                label: l10n.privacyPolicy,
+                subtitle: l10n.privacyPolicySubtitle,
+                isLast: true,
+                onTap: () {
+                  Navigator.push(
                     context,
-                    icon: Icons.workspace_premium_outlined,
-                    label: l10n.manageSubscriptions,
-                    onTap: () {
-                      Navigator.pushNamed(context, '/subscription/upgrade');
-                    },
-                  ),
-                  _divider(isDark),
-                  _buildNavRow(
-                    context,
-                    icon: Icons.restore_rounded,
-                    label: l10n.restoreSubscription,
-                    isLast: true,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Restoring subscription…'),
-                        ),
-                      );
-                    },
-                  ),
-                ]),
-                const SizedBox(height: AppSpacing.md),
-
-                // SUPPORT
-                _sectionLabel(l10n.support.toUpperCase()),
-                _buildGroupCard(isDark, [
-                  _buildSupportRow(
-                    context,
-                    isDark: isDark,
-                    icon: Icons.star_rounded,
-                    iconBg: const Color(0xFFFF9500),
-                    label: l10n.rateApp,
-                    subtitle: 'Help us improve DasTern',
-                    onTap: () async {
-                      // TODO: Replace with actual app store URL
-                      final uri = Uri.parse('https://play.google.com/store');
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(
-                          uri,
-                          mode: LaunchMode.externalApplication,
-                        );
-                      }
-                    },
-                  ),
-                  _divider(isDark),
-                  _buildSupportRow(
-                    context,
-                    isDark: isDark,
-                    icon: Icons.headset_mic_rounded,
-                    iconBg: const Color(0xFF007AFF),
-                    label: l10n.contactSupport,
-                    subtitle: 'Get help from our team',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ContactSupportScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _divider(isDark),
-                  _buildSupportRow(
-                    context,
-                    isDark: isDark,
-                    icon: Icons.article_rounded,
-                    iconBg: const Color(0xFF34C759),
-                    label: l10n.termsOfService,
-                    subtitle: 'Read our terms & conditions',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const TermsOfServiceScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _divider(isDark),
-                  _buildSupportRow(
-                    context,
-                    isDark: isDark,
-                    icon: Icons.shield_rounded,
-                    iconBg: const Color(0xFFAF52DE),
-                    label: l10n.privacyPolicy,
-                    subtitle: 'How we protect your data',
-                    isLast: true,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const PrivacyPolicyScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                ]),
-                const SizedBox(height: AppSpacing.xl),
-              ],
-            ),
-          ),
+                    MaterialPageRoute(
+                      builder: (_) => const PrivacyPolicyScreen(),
+                    ),
+                  );
+                },
+              ),
+            ]),
+            const SizedBox(height: AppSpacing.xl),
+          ],
         ),
-      ],
+      ),
     );
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  Widget _buildPatientCard(
+    BuildContext context, {
+    required bool isDark,
+    required AuthProvider auth,
+    required AppLocalizations l10n,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.12),
+              child: const Icon(
+                Icons.person_outline,
+                color: AppColors.primaryBlue,
+                size: 26,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _patientName(auth.user),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.patientRole,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppearanceCard(
+    BuildContext context, {
+    required bool isDark,
+    required AppLocalizations l10n,
+    required ThemeProvider themeProvider,
+    required LocaleProvider localeProvider,
+  }) {
+    return _buildGroupCard(isDark, [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.brightness_6_outlined, size: 20),
+                const SizedBox(width: 12),
+                Text(l10n.theme, style: Theme.of(context).textTheme.bodyLarge),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                _ThemeOptionCard(
+                  icon: Icons.phone_android_rounded,
+                  label: l10n.systemTheme,
+                  isSelected: themeProvider.themeMode == ThemeMode.system,
+                  isDark: isDark,
+                  onTap: () => themeProvider.setThemeMode(ThemeMode.system),
+                ),
+                const SizedBox(width: 10),
+                _ThemeOptionCard(
+                  icon: Icons.light_mode_rounded,
+                  label: l10n.lightTheme,
+                  isSelected: themeProvider.themeMode == ThemeMode.light,
+                  isDark: isDark,
+                  onTap: () => themeProvider.setThemeMode(ThemeMode.light),
+                ),
+                const SizedBox(width: 10),
+                _ThemeOptionCard(
+                  icon: Icons.dark_mode_rounded,
+                  label: l10n.darkTheme,
+                  isSelected: themeProvider.themeMode == ThemeMode.dark,
+                  isDark: isDark,
+                  onTap: () => themeProvider.setThemeMode(ThemeMode.dark),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      _divider(isDark),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            const Icon(Icons.language_outlined, size: 20),
+            const SizedBox(width: 12),
+            Text(l10n.language, style: Theme.of(context).textTheme.bodyLarge),
+            const Spacer(),
+            GestureDetector(
+              onTap: () {
+                final isKhmer = localeProvider.locale.languageCode == 'km';
+                localeProvider.changeLocale(
+                  isKhmer ? const Locale('en') : const Locale('km'),
+                );
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                  border: Border.all(
+                    color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.language,
+                      color: AppColors.primaryBlue,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      localeProvider.locale.languageCode == 'km'
+                          ? 'Khmer'
+                          : 'English',
+                      style: const TextStyle(
+                        color: AppColors.primaryBlue,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ]);
+  }
+
+  Widget _buildNotificationCard(
+    BuildContext context, {
+    required bool isDark,
+    required AppLocalizations l10n,
+  }) {
+    return _buildGroupCard(isDark, [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: AppColors.statusSuccess.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.notifications_outlined,
+                color: AppColors.statusSuccess,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.notificationPermission,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.permissionGranted,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.statusSuccess,
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ]);
+  }
 
   String _patientName(Map<String, dynamic>? user) {
     if (user == null) return 'Patient';
+
     final first = user['firstName'] ?? '';
     final last = user['lastName'] ?? '';
-    return '$first $last'.trim().isEmpty ? 'Patient' : '$first $last'.trim();
+    final fullName = '$first $last'.trim();
+
+    return fullName.isEmpty ? 'Patient' : fullName;
   }
 
   Widget _sectionLabel(String label) {
@@ -504,20 +496,8 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     );
   }
 
-  Widget _divider(bool isDark) {
-    return Divider(
-      height: 1,
-      thickness: 0.5,
-      indent: 48,
-      color: isDark
-          ? Colors.white.withValues(alpha: 0.08)
-          : Colors.black.withValues(alpha: 0.08),
-    );
-  }
-
   Widget _buildSupportRow(
     BuildContext context, {
-    required bool isDark,
     required IconData icon,
     required Color iconBg,
     required String label,
@@ -554,16 +534,16 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                   Text(
                     label,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
                   ),
                 ],
               ),
@@ -579,28 +559,36 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     );
   }
 
+  Widget _divider(bool isDark) {
+    return Divider(
+      height: 1,
+      thickness: 0.5,
+      indent: 48,
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.08)
+          : Colors.black.withValues(alpha: 0.08),
+    );
+  }
+
   void _confirmLogout(BuildContext context, AuthProvider auth) {
     final l10n = AppLocalizations.of(context)!;
-    showDialog(
+
+    showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(l10n.logout),
         content: Text(l10n.logoutConfirmation),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(dialogContext);
               auth.logout();
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/login',
-                (_) => false,
-              );
+              Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.statusError),
             child: Text(l10n.logout),
@@ -611,7 +599,6 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
   }
 }
 
-/// Tappable theme option card with icon, label, and selected state.
 class _ThemeOptionCard extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -676,7 +663,7 @@ class _ThemeOptionCard extends StatelessWidget {
               AnimatedOpacity(
                 opacity: isSelected ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 200),
-                child: Icon(
+                child: const Icon(
                   Icons.check_circle_rounded,
                   size: 16,
                   color: AppColors.primaryBlue,

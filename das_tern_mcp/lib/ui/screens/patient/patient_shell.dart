@@ -54,32 +54,47 @@ class _PatientShellState extends State<PatientShell> {
               ListTile(
                 leading: CircleAvatar(
                   backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
-                  child: const Icon(Icons.description_outlined,
-                      color: AppColors.primaryBlue),
+                  child: const Icon(
+                    Icons.description_outlined,
+                    color: AppColors.primaryBlue,
+                  ),
                 ),
-                title: Text(l10n.createPrescriptionManual,
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text(l10n.createPrescriptionManualDesc,
-                    style: const TextStyle(fontSize: 12)),
+                title: Text(
+                  l10n.createPrescriptionManual,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  l10n.createPrescriptionManualDesc,
+                  style: const TextStyle(fontSize: 12),
+                ),
                 onTap: () {
                   Navigator.pop(ctx);
                   Navigator.pushNamed(
-                      context, AppRouter.patientPrescriptionWizard);
+                    context,
+                    AppRouter.patientPrescriptionWizard,
+                  );
                 },
               ),
               const Divider(height: 1),
               // Scan Prescription
               ListTile(
                 leading: CircleAvatar(
-                  backgroundColor:
-                      AppColors.successGreen.withValues(alpha: 0.1),
-                  child: const Icon(Icons.document_scanner_outlined,
-                      color: AppColors.successGreen),
+                  backgroundColor: AppColors.successGreen.withValues(
+                    alpha: 0.1,
+                  ),
+                  child: const Icon(
+                    Icons.document_scanner_outlined,
+                    color: AppColors.successGreen,
+                  ),
                 ),
-                title: Text(l10n.scanPrescriptionOption,
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text(l10n.scanPrescriptionOptionDesc,
-                    style: const TextStyle(fontSize: 12)),
+                title: Text(
+                  l10n.scanPrescriptionOption,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  l10n.scanPrescriptionOptionDesc,
+                  style: const TextStyle(fontSize: 12),
+                ),
                 onTap: () {
                   Navigator.pop(ctx);
                   // Navigate to scan tab
@@ -90,19 +105,25 @@ class _PatientShellState extends State<PatientShell> {
               // Quick Add
               ListTile(
                 leading: CircleAvatar(
-                  backgroundColor:
-                      const Color(0xFF7E57C2).withValues(alpha: 0.1),
-                  child: const Icon(Icons.medication_outlined,
-                      color: Color(0xFF7E57C2)),
+                  backgroundColor: const Color(
+                    0xFF7E57C2,
+                  ).withValues(alpha: 0.1),
+                  child: const Icon(
+                    Icons.medication_outlined,
+                    color: Color(0xFF7E57C2),
+                  ),
                 ),
-                title: Text(l10n.quickAddMedicine,
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text(l10n.quickAddMedicineDesc,
-                    style: const TextStyle(fontSize: 12)),
+                title: Text(
+                  l10n.quickAddMedicine,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  l10n.quickAddMedicineDesc,
+                  style: const TextStyle(fontSize: 12),
+                ),
                 onTap: () {
                   Navigator.pop(ctx);
-                  Navigator.pushNamed(
-                      context, AppRouter.patientCreateMedicine);
+                  Navigator.pushNamed(context, AppRouter.patientCreateMedicine);
                 },
               ),
             ],

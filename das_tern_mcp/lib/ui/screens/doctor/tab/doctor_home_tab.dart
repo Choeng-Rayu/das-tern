@@ -59,7 +59,6 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
             children: [
               // ── Reusable header with notification bell ──
               PatientHeader(
-                roleLabel: l10n.doctorRole,
                 unreadCount: notifProvider.unreadCount,
                 onNotificationTap: () {
                   Navigator.pushNamed(
@@ -763,10 +762,8 @@ class _ChartSection extends StatelessWidget {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                    getDrawingHorizontalLine: (_) => FlLine(
-                      color: isDark ? Colors.grey[700]! : Colors.grey.shade200,
-                      strokeWidth: 1,
-                    ),
+                    getDrawingHorizontalLine: (_) =>
+                        FlLine(color: Colors.grey.shade200, strokeWidth: 1),
                   ),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
@@ -794,9 +791,7 @@ class _ChartSection extends StatelessWidget {
                               labels[idx],
                               style: TextStyle(
                                 fontSize: 10,
-                                color: isDark
-                                    ? Colors.grey[400]
-                                    : Colors.grey.shade600,
+                                color: Colors.grey.shade600,
                               ),
                             ),
                           );
@@ -806,8 +801,7 @@ class _ChartSection extends StatelessWidget {
                   ),
                   barTouchData: BarTouchData(
                     touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (_) =>
-                          isDark ? Colors.grey[800]! : Colors.blueGrey.shade700,
+                      getTooltipColor: (_) => Colors.blueGrey.shade700,
                       tooltipRoundedRadius: 8,
                     ),
                   ),

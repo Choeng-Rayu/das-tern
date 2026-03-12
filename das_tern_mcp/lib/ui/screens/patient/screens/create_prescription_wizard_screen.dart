@@ -77,9 +77,9 @@ class _CreatePrescriptionWizardScreenState
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context)!;
     if (_medicines.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.addAtLeastOneMedicine)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.addAtLeastOneMedicine)));
       return;
     }
 
@@ -112,8 +112,7 @@ class _CreatePrescriptionWizardScreenState
         'prescriptionName': _nameCtrl.text.isNotEmpty
             ? _nameCtrl.text.trim()
             : AppLocalizations.of(context)!.selfPrescribed,
-        'dateRange':
-            '${_formatDate(_startDate)} → ${_formatDate(_endDate)}',
+        'dateRange': '${_formatDate(_startDate)} → ${_formatDate(_endDate)}',
         'doctorName': _doctorCtrl.text.isNotEmpty
             ? _doctorCtrl.text.trim()
             : null,
@@ -124,8 +123,18 @@ class _CreatePrescriptionWizardScreenState
 
   String _formatDate(DateTime date) {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
@@ -134,17 +143,23 @@ class _CreatePrescriptionWizardScreenState
   Map<String, List<Map<String, dynamic>>> _computeSchedule() {
     final schedule = <String, List<Map<String, dynamic>>>{};
     for (final med in _medicines) {
-      final morning = med['morning'] == true ||
+      final morning =
+          med['morning'] == true ||
           (med['scheduleTimes'] as List?)?.any(
-                  (t) => t['timePeriod'] == 'morning') ==
+                (t) => t['timePeriod'] == 'morning',
+              ) ==
               true;
-      final daytime = med['daytime'] == true ||
+      final daytime =
+          med['daytime'] == true ||
           (med['scheduleTimes'] as List?)?.any(
-                  (t) => t['timePeriod'] == 'daytime') ==
+                (t) => t['timePeriod'] == 'daytime',
+              ) ==
               true;
-      final night = med['night'] == true ||
+      final night =
+          med['night'] == true ||
           (med['scheduleTimes'] as List?)?.any(
-                  (t) => t['timePeriod'] == 'night') ==
+                (t) => t['timePeriod'] == 'night',
+              ) ==
               true;
 
       if (morning) {
@@ -522,7 +537,9 @@ class _CreatePrescriptionWizardScreenState
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _medicines.isNotEmpty ? () => _goToStep(2) : null,
+                    onPressed: _medicines.isNotEmpty
+                        ? () => _goToStep(2)
+                        : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryBlue,
                       foregroundColor: Colors.white,
@@ -548,7 +565,6 @@ class _CreatePrescriptionWizardScreenState
       ],
     );
   }
-
 
   // ── Step 3: Review & Confirm ──
   Widget _buildStep3(AppLocalizations l10n, PrescriptionProvider provider) {
@@ -773,7 +789,6 @@ class _CreatePrescriptionWizardScreenState
   }
 }
 
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // HELPER WIDGETS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -834,7 +849,9 @@ class _StepIndicator extends StatelessWidget {
                       : Text(
                           '${stepIdx + 1}',
                           style: TextStyle(
-                            color: isActive ? Colors.white : AppColors.textSecondary,
+                            color: isActive
+                                ? Colors.white
+                                : AppColors.textSecondary,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),
@@ -1060,8 +1077,10 @@ class _MedicineCard extends StatelessWidget {
                 Wrap(
                   spacing: 4,
                   children: [
-                    if (morning) _timeBadge(l10n.morning, const Color(0xFFFFA726)),
-                    if (daytime) _timeBadge(l10n.afternoon, const Color(0xFF26C6DA)),
+                    if (morning)
+                      _timeBadge(l10n.morning, const Color(0xFFFFA726)),
+                    if (daytime)
+                      _timeBadge(l10n.afternoon, const Color(0xFF26C6DA)),
                     if (night) _timeBadge(l10n.night, const Color(0xFF7E57C2)),
                   ],
                 ),
@@ -1138,10 +1157,7 @@ class _ScheduleSlotCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-          width: 1.5,
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1195,10 +1211,7 @@ class _ScheduleSlotCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    m['name'] ?? '',
-                    style: const TextStyle(fontSize: 13),
-                  ),
+                  Text(m['name'] ?? '', style: const TextStyle(fontSize: 13)),
                   if ((m['dosage'] ?? '').toString().isNotEmpty) ...[
                     const SizedBox(width: 6),
                     Text(

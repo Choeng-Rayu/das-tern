@@ -1,26 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/language_switcher.dart';
 
 class ContactSupportScreen extends StatelessWidget {
   const ContactSupportScreen({super.key});
 
   static const _email = 'support@dastern.com';
   static const _phone = '+855 12 345 678';
-  static const _hours = 'Mon – Fri, 8 AM – 6 PM (ICT)';
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? const Color(0xFF1E1E2E) : Colors.white;
     final subtitleColor = isDark ? Colors.white70 : AppColors.textSecondary;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Contact Support'),
+        title: Text(l10n.contactSupport),
         centerTitle: true,
         elevation: 0,
         scrolledUnderElevation: 0.5,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: LanguageSwitcherButton(lightBackground: true),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -68,14 +76,14 @@ class ContactSupportScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'How can we help?',
+                  l10n.csHowCanWeHelp,
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Choose an option below to get in touch',
+                  l10n.csChooseOption,
                   style: TextStyle(color: subtitleColor, fontSize: 14),
                 ),
               ],
@@ -89,9 +97,9 @@ class ContactSupportScreen extends StatelessWidget {
             cardColor: cardColor,
             icon: Icons.email_rounded,
             iconBg: const Color(0xFF007AFF),
-            title: 'Email Us',
+            title: l10n.csEmailUs,
             subtitle: _email,
-            trailing: 'Send',
+            trailing: l10n.csSend,
             onTap: () => _launchUrl('mailto:$_email'),
           ),
           const SizedBox(height: 12),
@@ -102,9 +110,9 @@ class ContactSupportScreen extends StatelessWidget {
             cardColor: cardColor,
             icon: Icons.phone_rounded,
             iconBg: const Color(0xFF34C759),
-            title: 'Call Us',
+            title: l10n.csCallUs,
             subtitle: _phone,
-            trailing: 'Call',
+            trailing: l10n.csCall,
             onTap: () => _launchUrl('tel:${_phone.replaceAll(' ', '')}'),
           ),
           const SizedBox(height: 24),
@@ -131,14 +139,14 @@ class ContactSupportScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Office Hours',
+                        l10n.csOfficeHours,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        _hours,
+                        l10n.csOfficeHoursValue,
                         style: TextStyle(color: subtitleColor, fontSize: 13),
                       ),
                     ],
@@ -149,10 +157,10 @@ class ContactSupportScreen extends StatelessWidget {
           ),
           const SizedBox(height: 32),
 
-          // ── FAQ prompt ──
+          // ── Response time ──
           Center(
             child: Text(
-              'We usually respond within 24 hours.',
+              l10n.csResponseTime,
               style: TextStyle(color: subtitleColor, fontSize: 13),
             ),
           ),

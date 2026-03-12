@@ -70,7 +70,9 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
           ? MedicineUnit.fromJson(d['unit'])
           : MedicineUnit.tablet;
       _morning = d['morningDosage'] != null ? true : (d['morning'] ?? true);
-      _afternoon = d['afternoonDosage'] != null ? true : (d['afternoon'] ?? false);
+      _afternoon = d['afternoonDosage'] != null
+          ? true
+          : (d['afternoon'] ?? false);
       _evening = d['eveningDosage'] != null ? true : (d['evening'] ?? false);
       _night = d['nightDosage'] != null ? true : (d['night'] ?? false);
       _beforeMeal = d['beforeMeal'] ?? false;
@@ -509,6 +511,7 @@ class _ScheduleChip extends StatelessWidget {
   const _ScheduleChip({
     required this.label,
     required this.icon,
+    this.color,
     required this.selected,
     required this.onTap,
     this.color,
@@ -516,6 +519,7 @@ class _ScheduleChip extends StatelessWidget {
 
   final String label;
   final IconData icon;
+  final Color? color;
   final bool selected;
   final VoidCallback onTap;
   final Color? color;
@@ -523,6 +527,7 @@ class _ScheduleChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accentColor = color ?? AppColors.primaryBlue;
     final accentColor = color ?? AppColors.primaryBlue;
     final unselectedColor = isDark ? Colors.grey[600]! : Colors.grey[300]!;
 

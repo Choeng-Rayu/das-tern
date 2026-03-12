@@ -621,10 +621,128 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
             _buildSummaryHeader(context, l10n),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
-              child: _buildMedicationsSection(context, l10n),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildEditablePatientInfoSection(context, l10n),
+                  const SizedBox(height: AppSpacing.md),
+                  _buildMedicationsSection(context, l10n),
+                ],
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEditablePatientInfoSection(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.neutral300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: const Icon(
+                  Icons.edit_note,
+                  color: AppColors.primaryBlue,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  l10n.editExtractedData,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            l10n.ocrPatientInfoSection,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _buildEditableField(
+            label: l10n.ocrPatientName,
+            initialValue: _patientFullName,
+            onChanged: (value) => _patientFullName = value,
+          ),
+          _buildEditableField(
+            label: l10n.ocrPatientKhmerName,
+            initialValue: _patientKhmerName,
+            onChanged: (value) => _patientKhmerName = value,
+          ),
+          _buildEditableField(
+            label: l10n.ocrPatientId,
+            initialValue: _patientId,
+            onChanged: (value) => _patientId = value,
+          ),
+          _buildEditableField(
+            label: l10n.ocrPatientAge,
+            initialValue: _patientAge?.toString(),
+            keyboardType: TextInputType.number,
+            onChanged: (value) => _patientAge = int.tryParse(value),
+          ),
+          _buildEditableField(
+            label: l10n.ocrPatientGender,
+            initialValue: _patientGender,
+            onChanged: (value) => _patientGender = value,
+            isLast: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditableField({
+    required String label,
+    required ValueChanged<String> onChanged,
+    String? initialValue,
+    TextInputType? keyboardType,
+    bool isLast = false,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: isLast ? 0 : AppSpacing.sm),
+      child: TextFormField(
+        initialValue: initialValue ?? '',
+        keyboardType: keyboardType,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: AppColors.background,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        onChanged: (value) => onChanged(value.trim()),
       ),
     );
   }
