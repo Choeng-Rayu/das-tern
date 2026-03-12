@@ -140,8 +140,13 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen>
                     if (!_trialClaimed)
                       _ClaimTrialButton(
                         isDark: isDark,
-                        onClaimed: () {
-                          setState(() => _trialClaimed = true);
+                        onClaimed: () async {
+                          final success = await context
+                              .read<SubscriptionProvider>()
+                              .claimFreeTrial();
+                          if (success && mounted) {
+                            setState(() => _trialClaimed = true);
+                          }
                         },
                       ),
 
