@@ -9,6 +9,7 @@ import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/header_widgets.dart';
+import '../screens/activity_report_screen.dart';
 
 /// Patient home tab – daily dashboard.
 /// Sections: header · medication tracker · progress · today's doses · quick actions · vitals
@@ -66,28 +67,26 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
 
     return RefreshIndicator(
       onRefresh: _onRefresh,
-      child: SingleChildScrollView(
+      child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Patient header with background image ──
-            PatientHeader(
-              onNotificationTap: () {
-                final notifProv = context.read<NotificationProvider>();
-                Navigator.pushNamed(
-                  context,
-                  AppRouter.patientNotifications,
-                ).then((_) {
+        slivers: [
+          // ── Sticky patient header ──
+          PatientHeader(
+            onNotificationTap: () {
+              final notifProv = context.read<NotificationProvider>();
+              Navigator.pushNamed(context, AppRouter.patientNotifications).then(
+                (_) {
                   if (!mounted) return;
                   notifProv.fetchNotifications();
-                });
-              },
-              unreadCount: notifProvider.unreadCount,
-            ),
+                },
+              );
+            },
+            unreadCount: notifProvider.unreadCount,
+          ),
 
-            // ── Time-period medicine section ──
-            Padding(
+          // ── Scrollable content ──
+          SliverToBoxAdapter(
+            child: Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -358,10 +357,18 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                   Row(
                     children: [
                       Expanded(
-                        child: _QuickActionCard(
-                          icon: Icons.history,
-                          title: l10n.medicationIntakeHistory,
-                          color: const Color(0xFF0288D1),
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ActivityReportScreen(),
+                            ),
+                          ),
+                          child: _QuickActionCard(
+                            icon: Icons.history,
+                            title: l10n.medicationIntakeHistory,
+                            color: const Color(0xFF0288D1),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -622,8 +629,8 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
