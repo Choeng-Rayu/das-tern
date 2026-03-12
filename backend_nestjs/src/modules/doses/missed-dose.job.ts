@@ -16,7 +16,7 @@ export class MissedDoseJob {
 
   /**
    * Runs every 5 minutes to detect doses past their grace period.
-   * Updates DUE → MISSED and triggers notifications.
+   * Updates DUE -> MISSED and triggers notifications.
    */
   @Cron('*/5 * * * *')
   async execute() {
@@ -32,11 +32,22 @@ export class MissedDoseJob {
 
       this.logger.log(`Found ${missedDoses.length} missed doses`);
 
+      // Group missed doses by patient for batch caregiver notifications
+      const byPatient = new Map<string, any[]>();
+
       for (const dose of missedDoses) {
         await this.markAsMissed(dose);
         await this.notifyPatient(dose);
-        await this.triggerCaregiverAlerts(dose);
         await this.logAudit(dose);
+
+        const existing = byPatient.get(dose.patientId) || [];
+        existing.push(dose);
+        byPatient.set(dose.patientId, existing);
+      }
+
+      // Send batched caregiver alerts per patient (premium-gated)
+      for (const [patientId, doses] of byPatient) {
+        await this.triggerCaregiverAlerts(patientId, doses);
       }
     } catch (error) {
       this.logger.error('Error in missed dose detection job', error);
@@ -103,7 +114,7 @@ export class MissedDoseJob {
       dose.patientId,
       'MISSED_DOSE_ALERT',
       'Missed Dose',
-      `${patientName} missed the ${time} dose of ${medName}`,
+      `You missed the ${time} dose of ${medName}`,
       {
         doseEventId: dose.id,
         patientId: dose.patientId,
@@ -115,14 +126,39 @@ export class MissedDoseJob {
   }
 
   /**
-   * Send MISSED_DOSE_ALERT to all connected caregivers who have alerts enabled.
+   * Send REMINDER_ESCALATION to all connected caregivers — but ONLY if
+   * the patient has a PREMIUM or FAMILY_PREMIUM subscription.
+   *
+   * Batches multiple missed doses into a single notification per caregiver.
    */
-  private async triggerCaregiverAlerts(dose: any) {
+  private async triggerCaregiverAlerts(patientId: string, doses: any[]) {
+    // ── Premium gate ─────────────────────────────────────
+    const subscription = await this.prisma.subscription.findUnique({
+      where: { userId: patientId },
+    });
+
+    const tier = subscription?.tier;
+    if (!subscription || (tier !== 'PREMIUM' && tier !== 'FAMILY_PREMIUM')) {
+      this.logger.debug(
+        `Skipping caregiver alerts for patient ${patientId} (tier=${tier || 'none'})`,
+      );
+      return;
+    }
+
+    // Check if subscription hasn't expired
+    if (subscription.expiresAt && new Date() > subscription.expiresAt) {
+      this.logger.debug(
+        `Skipping caregiver alerts for patient ${patientId} (subscription expired)`,
+      );
+      return;
+    }
+
+    // ── Find connected caregivers ────────────────────────
     const connections = await this.prisma.connection.findMany({
       where: {
         OR: [
-          { initiatorId: dose.patientId },
-          { recipientId: dose.patientId },
+          { initiatorId: patientId },
+          { recipientId: patientId },
         ],
         status: 'ACCEPTED',
       },
@@ -132,16 +168,28 @@ export class MissedDoseJob {
       },
     });
 
-    const patientName = dose.patient.fullName ||
-      `${dose.patient.firstName || ''} ${dose.patient.lastName || ''}`.trim();
-    const medName = dose.medication.medicineName;
-    const time = dose.scheduledTime.toLocaleTimeString('en-US', {
-      hour: '2-digit', minute: '2-digit',
-    });
+    if (connections.length === 0) return;
 
+    // ── Build notification message ───────────────────────
+    const firstDose = doses[0];
+    const patientName = firstDose.patient.fullName ||
+      `${firstDose.patient.firstName || ''} ${firstDose.patient.lastName || ''}`.trim();
+
+    let message: string;
+    if (doses.length === 1) {
+      const medName = doses[0].medication.medicineName;
+      const time = doses[0].scheduledTime.toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit',
+      });
+      message = `${patientName} missed the ${time} dose of ${medName}`;
+    } else {
+      const medNames = doses.map(d => d.medication.medicineName).join(', ');
+      message = `${patientName} missed ${doses.length} doses: ${medNames}`;
+    }
+
+    // ── Send to each caregiver ───────────────────────────
     for (const conn of connections) {
-      // Determine caregiver (the user who is NOT the patient)
-      const caregiverId = conn.initiatorId === dose.patientId
+      const caregiverId = conn.initiatorId === patientId
         ? conn.recipientId : conn.initiatorId;
 
       // Check if alerts are enabled for this connection
@@ -152,15 +200,18 @@ export class MissedDoseJob {
 
       await this.notificationsService.send(
         caregiverId,
-        'MISSED_DOSE_ALERT',
+        'REMINDER_ESCALATION',
         'Missed Dose Alert',
-        `${patientName} missed the ${time} dose of ${medName}`,
+        message,
         {
-          doseEventId: dose.id,
-          patientId: dose.patientId,
-          prescriptionId: dose.prescriptionId,
-          medicationName: medName,
-          scheduledTime: dose.scheduledTime.toISOString(),
+          patientId,
+          patientName,
+          doseCount: doses.length,
+          doses: doses.map(d => ({
+            doseEventId: d.id,
+            medicationName: d.medication.medicineName,
+            scheduledTime: d.scheduledTime.toISOString(),
+          })),
         },
       );
     }

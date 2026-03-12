@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { DoseEventStatus } from '@prisma/client';
 
 @Injectable()
 export class DosesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async getSchedule(patientId: string, date?: string, groupBy?: string) {
     const targetDate = date ? new Date(date) : new Date();
@@ -85,6 +89,9 @@ export class DosesService {
     });
 
     const dailyProgress = await this.calculateDailyProgress(patientId, dose.scheduledTime);
+
+    // Notify connected caregivers that this dose was taken (premium-gated, non-blocking)
+    this.notificationsService.sendDoseConfirmation(patientId, id).catch(() => {});
 
     return { dose: await this.prisma.doseEvent.findUnique({ where: { id } }), dailyProgress };
   }
