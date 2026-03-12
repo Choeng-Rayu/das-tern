@@ -1,4 +1,5 @@
 import 'package:das_tern/core/utils/command.dart';
+import 'package:das_tern/data/models/app_notification.dart';
 import 'package:das_tern/data/models/user.dart';
 import 'package:das_tern/data/repositories/auth_repository.dart';
 import 'package:das_tern/data/repositories/notification_repository.dart';
@@ -24,8 +25,8 @@ class SettingsViewModel extends ChangeNotifier {
   User? _user;
   User? get user => _user;
 
-  List<String> _notifications = <String>[];
-  List<String> get notifications => _notifications;
+  List<AppNotification> _notifications = <AppNotification>[];
+  List<AppNotification> get notifications => _notifications;
 
   Future<void> _load() async {
     _isLoading = true;

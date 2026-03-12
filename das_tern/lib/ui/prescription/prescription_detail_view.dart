@@ -12,13 +12,15 @@ class PrescriptionDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String? prescriptionId = ModalRoute.of(context)?.settings.arguments as String?;
+    final String? prescriptionId =
+        ModalRoute.of(context)?.settings.arguments as String?;
     return AppScaffold(
       title: 'Prescription Detail',
       showBackButton: true,
       body: Consumer<PrescriptionDetailViewModel>(
         builder: (context, viewModel, _) {
-          if (prescriptionId != null && viewModel.prescription?.id != prescriptionId) {
+          if (prescriptionId != null &&
+              viewModel.prescription?.id != prescriptionId) {
             viewModel.setPrescriptionId(prescriptionId);
           }
 

@@ -10,6 +10,7 @@ class AppTextField extends StatelessWidget {
     this.suffix,
     this.keyboardType,
     this.maxLines = 1,
+    this.obscureText = false,
     this.onChanged,
     super.key,
   });
@@ -22,6 +23,7 @@ class AppTextField extends StatelessWidget {
   final Widget? suffix;
   final TextInputType? keyboardType;
   final int maxLines;
+  final bool obscureText;
   final ValueChanged<String>? onChanged;
 
   @override
@@ -30,7 +32,8 @@ class AppTextField extends StatelessWidget {
       controller: controller,
       validator: validator,
       keyboardType: keyboardType,
-      maxLines: maxLines,
+      maxLines: obscureText ? 1 : maxLines,
+      obscureText: obscureText,
       onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,

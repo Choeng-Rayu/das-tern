@@ -22,14 +22,12 @@ class SettingsView extends StatelessWidget {
           return ListView(
             children: [
               if (viewModel.user != null)
-                AppCard(
-                  child: Text('Signed in as ${viewModel.user!.name}'),
-                ),
+                AppCard(child: Text('Signed in as ${viewModel.user!.name}')),
               const SizedBox(height: 12),
               ...viewModel.notifications.map(
                 (item) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: AppCard(child: Text(item)),
+                  child: AppCard(child: Text(item.message)),
                 ),
               ),
             ],

@@ -10,14 +10,17 @@ class OcrReviewView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String rawText = ModalRoute.of(context)?.settings.arguments as String? ?? '';
+    final String rawText =
+        ModalRoute.of(context)?.settings.arguments as String? ?? '';
 
     return AppScaffold(
       title: 'OCR Review',
       showBackButton: true,
       body: Consumer<OcrReviewViewModel>(
         builder: (context, viewModel, _) {
-          if (rawText.isNotEmpty && viewModel.drafts.isEmpty && !viewModel.isLoading) {
+          if (rawText.isNotEmpty &&
+              viewModel.drafts.isEmpty &&
+              !viewModel.isLoading) {
             viewModel.setRawText(rawText);
           }
 

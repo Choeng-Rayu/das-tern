@@ -1,4 +1,5 @@
 import 'package:das_tern/core/utils/command.dart';
+import 'package:das_tern/data/models/enums.dart';
 import 'package:das_tern/data/models/user.dart';
 import 'package:das_tern/data/repositories/auth_repository.dart';
 import 'package:flutter/foundation.dart';
@@ -20,8 +21,18 @@ class FamilyViewModel extends ChangeNotifier {
   User? get currentUser => _currentUser;
 
   final List<User> _familyMembers = const <User>[
-    User(id: 'fam-1', name: 'Sok Lina', email: 'lina@example.com'),
-    User(id: 'fam-2', name: 'Sok Visal', email: 'visal@example.com'),
+    User(
+      id: 'fam-1',
+      name: 'Sok Lina',
+      email: 'lina@example.com',
+      role: UserRole.familyMember,
+    ),
+    User(
+      id: 'fam-2',
+      name: 'Sok Visal',
+      email: 'visal@example.com',
+      role: UserRole.familyMember,
+    ),
   ];
   List<User> get familyMembers => _familyMembers;
 

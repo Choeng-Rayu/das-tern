@@ -23,10 +23,7 @@ class ScanView extends StatelessWidget {
                 child: Text('Use mock OCR scanning for migration coverage.'),
               ),
               const SizedBox(height: 12),
-              AppButton(
-                label: 'Mock Scan',
-                onPressed: viewModel.mockScan,
-              ),
+              AppButton(label: 'Mock Scan', onPressed: viewModel.mockScan),
               const SizedBox(height: 12),
               AppButton(
                 label: 'Review OCR Result',

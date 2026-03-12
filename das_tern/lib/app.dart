@@ -1,11 +1,17 @@
 import 'package:das_tern/core/router/app_router.dart';
 import 'package:das_tern/core/theme/app_theme.dart';
 import 'package:das_tern/data/repositories/auth_repository.dart';
+import 'package:das_tern/data/repositories/connection_repository.dart';
+import 'package:das_tern/data/repositories/dose_repository.dart';
+import 'package:das_tern/data/repositories/health_repository.dart';
 import 'package:das_tern/data/repositories/medication_repository.dart';
 import 'package:das_tern/data/repositories/notification_repository.dart';
 import 'package:das_tern/data/repositories/prescription_repository.dart';
 import 'package:das_tern/data/repositories/reminder_repository.dart';
 import 'package:das_tern/data/services/auth_service.dart';
+import 'package:das_tern/data/services/connection_service.dart';
+import 'package:das_tern/data/services/dose_service.dart';
+import 'package:das_tern/data/services/health_service.dart';
 import 'package:das_tern/data/services/medication_service.dart';
 import 'package:das_tern/data/services/notification_service.dart';
 import 'package:das_tern/data/services/prescription_service.dart';
@@ -13,7 +19,10 @@ import 'package:das_tern/data/services/reminder_service.dart';
 import 'package:das_tern/domain/use_cases/generate_schedule_use_case.dart';
 import 'package:das_tern/domain/use_cases/process_ocr_result_use_case.dart';
 import 'package:das_tern/l10n/app_localizations.dart';
+import 'package:das_tern/ui/auth/auth_viewmodel.dart';
+import 'package:das_tern/ui/dose/dose_schedule_viewmodel.dart';
 import 'package:das_tern/ui/family/family_viewmodel.dart';
+import 'package:das_tern/ui/health/health_viewmodel.dart';
 import 'package:das_tern/ui/home/home_viewmodel.dart';
 import 'package:das_tern/ui/medication/medication_list_viewmodel.dart';
 import 'package:das_tern/ui/prescription/create_prescription_viewmodel.dart';
@@ -33,104 +42,122 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-<<<<<<< HEAD
+        // ── Services ──
+        Provider<AuthService>(create: (_) => MockAuthService()),
         Provider<MedicationService>(create: (_) => MockMedicationService()),
-=======
-        Provider<MedicationService>(
-          create: (_) => MockMedicationService(),
-        ),
-        Provider<AuthService>(
-          create: (_) => MockAuthService(),
-        ),
-        Provider<PrescriptionService>(
-          create: (_) => MockPrescriptionService(),
-        ),
-        Provider<ReminderService>(
-          create: (_) => MockReminderService(),
-        ),
-        Provider<NotificationService>(
-          create: (_) => MockNotificationService(),
-        ),
->>>>>>> 75e1b1e0b17b99830ebed2d7050ad626a50b04bf
-        Provider<MedicationRepository>(
-          create: (context) => MedicationRepositoryImpl(
-            service: context.read<MedicationService>(),
-          ),
-        ),
+        Provider<PrescriptionService>(create: (_) => MockPrescriptionService()),
+        Provider<ReminderService>(create: (_) => MockReminderService()),
+        Provider<NotificationService>(create: (_) => MockNotificationService()),
+        Provider<DoseService>(create: (_) => MockDoseService()),
+        Provider<HealthService>(create: (_) => MockHealthService()),
+        Provider<ConnectionService>(create: (_) => MockConnectionService()),
+
+        // ── Repositories ──
         Provider<AuthRepository>(
-          create: (context) => AuthRepositoryImpl(
-            service: context.read<AuthService>(),
-          ),
+          create: (ctx) => AuthRepositoryImpl(service: ctx.read<AuthService>()),
+        ),
+        Provider<MedicationRepository>(
+          create: (ctx) =>
+              MedicationRepositoryImpl(service: ctx.read<MedicationService>()),
         ),
         Provider<PrescriptionRepository>(
-          create: (context) => PrescriptionRepositoryImpl(
-            service: context.read<PrescriptionService>(),
+          create: (ctx) => PrescriptionRepositoryImpl(
+            service: ctx.read<PrescriptionService>(),
           ),
         ),
         Provider<ReminderRepository>(
-          create: (context) => ReminderRepositoryImpl(
-            service: context.read<ReminderService>(),
-          ),
+          create: (ctx) =>
+              ReminderRepositoryImpl(service: ctx.read<ReminderService>()),
         ),
         Provider<NotificationRepository>(
-          create: (context) => NotificationRepositoryImpl(
-            service: context.read<NotificationService>(),
+          create: (ctx) => NotificationRepositoryImpl(
+            service: ctx.read<NotificationService>(),
           ),
         ),
+        Provider<DoseRepository>(
+          create: (ctx) => DoseRepositoryImpl(service: ctx.read<DoseService>()),
+        ),
+        Provider<HealthRepository>(
+          create: (ctx) =>
+              HealthRepositoryImpl(service: ctx.read<HealthService>()),
+        ),
+        Provider<ConnectionRepository>(
+          create: (ctx) =>
+              ConnectionRepositoryImpl(service: ctx.read<ConnectionService>()),
+        ),
+
+        // ── Use Cases ──
         Provider<GenerateScheduleUseCase>(
           create: (_) => GenerateScheduleUseCase(),
         ),
         Provider<ProcessOcrResultUseCase>(
           create: (_) => ProcessOcrResultUseCase(),
         ),
+
+        // ── ViewModels ──
+        ChangeNotifierProvider<AuthViewModel>(
+          create: (ctx) =>
+              AuthViewModel(authRepository: ctx.read<AuthRepository>())
+                ..loadCurrentUser.execute(),
+        ),
         ChangeNotifierProvider<HomeViewModel>(
-          create: (context) => HomeViewModel(
-            medicationRepository: context.read<MedicationRepository>(),
+          create: (ctx) => HomeViewModel(
+            medicationRepository: ctx.read<MedicationRepository>(),
           )..load.execute(),
         ),
         ChangeNotifierProvider<MedicationListViewModel>(
-          create: (context) => MedicationListViewModel(
-            medicationRepository: context.read<MedicationRepository>(),
+          create: (ctx) => MedicationListViewModel(
+            medicationRepository: ctx.read<MedicationRepository>(),
           )..load.execute(),
         ),
         ChangeNotifierProvider<PrescriptionListViewModel>(
-          create: (context) => PrescriptionListViewModel(
-            repository: context.read<PrescriptionRepository>(),
+          create: (ctx) => PrescriptionListViewModel(
+            repository: ctx.read<PrescriptionRepository>(),
           )..load.execute(),
         ),
         ChangeNotifierProvider<PrescriptionDetailViewModel>(
-          create: (context) => PrescriptionDetailViewModel(
-            repository: context.read<PrescriptionRepository>(),
+          create: (ctx) => PrescriptionDetailViewModel(
+            repository: ctx.read<PrescriptionRepository>(),
           ),
         ),
         ChangeNotifierProvider<CreatePrescriptionViewModel>(
-          create: (context) => CreatePrescriptionViewModel(
-            repository: context.read<PrescriptionRepository>(),
+          create: (ctx) => CreatePrescriptionViewModel(
+            repository: ctx.read<PrescriptionRepository>(),
           )..load.execute(),
         ),
         ChangeNotifierProvider<ScanViewModel>(
           create: (_) => ScanViewModel()..load.execute(),
         ),
         ChangeNotifierProvider<OcrReviewViewModel>(
-          create: (context) => OcrReviewViewModel(
-            processOcrResultUseCase: context.read<ProcessOcrResultUseCase>(),
+          create: (ctx) => OcrReviewViewModel(
+            processOcrResultUseCase: ctx.read<ProcessOcrResultUseCase>(),
           ),
         ),
         ChangeNotifierProvider<ReminderScheduleViewModel>(
-          create: (context) => ReminderScheduleViewModel(
-            reminderRepository: context.read<ReminderRepository>(),
-            generateScheduleUseCase: context.read<GenerateScheduleUseCase>(),
+          create: (ctx) => ReminderScheduleViewModel(
+            reminderRepository: ctx.read<ReminderRepository>(),
+            generateScheduleUseCase: ctx.read<GenerateScheduleUseCase>(),
           )..load.execute(),
+        ),
+        ChangeNotifierProvider<DoseScheduleViewModel>(
+          create: (ctx) =>
+              DoseScheduleViewModel(doseRepository: ctx.read<DoseRepository>())
+                ..load.execute(),
+        ),
+        ChangeNotifierProvider<HealthViewModel>(
+          create: (ctx) =>
+              HealthViewModel(healthRepository: ctx.read<HealthRepository>())
+                ..load.execute(),
         ),
         ChangeNotifierProvider<FamilyViewModel>(
-          create: (context) => FamilyViewModel(
-            authRepository: context.read<AuthRepository>(),
-          )..load.execute(),
+          create: (ctx) =>
+              FamilyViewModel(authRepository: ctx.read<AuthRepository>())
+                ..load.execute(),
         ),
         ChangeNotifierProvider<SettingsViewModel>(
-          create: (context) => SettingsViewModel(
-            notificationRepository: context.read<NotificationRepository>(),
-            authRepository: context.read<AuthRepository>(),
+          create: (ctx) => SettingsViewModel(
+            notificationRepository: ctx.read<NotificationRepository>(),
+            authRepository: ctx.read<AuthRepository>(),
           )..load.execute(),
         ),
       ],

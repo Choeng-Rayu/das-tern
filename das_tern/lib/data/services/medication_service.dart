@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:das_tern/data/models/enums.dart';
 import 'package:das_tern/data/models/medication.dart';
 
 abstract class MedicationService {
@@ -17,6 +18,9 @@ class MockMedicationService implements MedicationService {
         dosage: 500,
         unit: 'mg',
         frequency: '2 times/day',
+        medicineType: MedicineType.po,
+        medicineUnit: MedicineUnit.tablet,
+        description: 'For blood sugar control',
       ),
       Medication(
         id: 'med-2',
@@ -24,6 +28,9 @@ class MockMedicationService implements MedicationService {
         dosage: 5,
         unit: 'mg',
         frequency: '1 time/day',
+        medicineType: MedicineType.oral,
+        medicineUnit: MedicineUnit.tablet,
+        description: 'For blood pressure control',
       ),
     ];
   }
