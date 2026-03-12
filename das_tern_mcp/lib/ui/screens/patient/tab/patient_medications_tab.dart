@@ -327,6 +327,7 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                 right: 16,
                 bottom: 16,
                 child: FloatingActionButton(
+                  heroTag: 'medications_tab_fab',
                   onPressed: () {
                     Navigator.pushNamed(context, AppRouter.medicationChoice);
                   },
