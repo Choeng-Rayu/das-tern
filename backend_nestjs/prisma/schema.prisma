@@ -466,6 +466,8 @@ enum NotificationType {
   FAMILY_ALERT
   VITAL_ANOMALY
   EMERGENCY_ALERT
+  REMINDER_ESCALATION
+  DOSE_CONFIRMED
 }
 
 enum AuditActionType {

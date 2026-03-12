@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../models/connection_model/connection.dart';
 import '../../../providers/connection_provider.dart';
+import '../../../providers/subscription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
+import '../../../utils/app_router.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Caregiver dashboard for monitoring a specific patient's medication.
@@ -177,6 +179,9 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Premium / trial status banner
+                    _buildPremiumBanner(context),
+
                     // Patient header
                     _buildPatientHeader(context, patientName),
                     const SizedBox(height: AppSpacing.lg),
@@ -207,6 +212,159 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                 ),
               ),
             ),
+    );
+  }
+
+  /// Returns a banner widget based on the patient's subscription tier.
+  /// - FREEMIUM (no trial): orange warning with upgrade + optional claim-trial CTA.
+  /// - FREEMIUM on active trial: green informational with days remaining.
+  /// - PREMIUM / FAMILY_PREMIUM: no banner (returns empty SizedBox).
+  Widget _buildPremiumBanner(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final sub = context.watch<SubscriptionProvider>();
+
+    // Active premium — no banner needed
+    if (sub.isPremium && !sub.isOnTrial) {
+      return const SizedBox.shrink();
+    }
+
+    // On active trial — show a calm green informational banner
+    if (sub.isOnTrial) {
+      final days = sub.trialDaysRemaining;
+      return Container(
+        margin: const EdgeInsets.only(bottom: AppSpacing.md),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.successGreen.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(
+            color: AppColors.successGreen.withValues(alpha: 0.35),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.verified_outlined,
+              color: AppColors.successGreen,
+              size: 20,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.premiumTrialActive,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.successGreen,
+                    ),
+                  ),
+                  Text(
+                    l10n.trialDaysRemainingBanner(days),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.successGreen,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // FREEMIUM — show upgrade CTA banner
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.warningOrange.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(
+          color: AppColors.warningOrange.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.lock_outline,
+                color: AppColors.warningOrange,
+                size: 18,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                l10n.premiumFeature,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.warningOrange,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            l10n.familyAlertsRequirePremium,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    AppRouter.subscriptionUpgrade,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.warningOrange,
+                    side: const BorderSide(color: AppColors.warningOrange),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.xs,
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  child: Text(l10n.upgradeToPremiumForFamilyAlerts),
+                ),
+              ),
+              if (sub.canClaimTrial) ...[
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(
+                      context,
+                      AppRouter.subscriptionUpgrade,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryBlue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.xs,
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    child: Text(l10n.claimFreeTrial),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 

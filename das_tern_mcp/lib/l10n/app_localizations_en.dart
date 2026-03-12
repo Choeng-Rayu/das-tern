@@ -2890,4 +2890,98 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goHome => 'Go Home';
+
+  @override
+  String get premiumBadge => 'Premium';
+
+  @override
+  String get familyAlertsRequirePremium =>
+      'Family alerts require a Premium plan. Upgrade to get notified when your loved ones miss a dose.';
+
+  @override
+  String get upgradeToPremiumForFamilyAlerts => 'Upgrade to Premium';
+
+  @override
+  String get notifReminderTitle => 'Medication Reminder';
+
+  @override
+  String get notifReminderRetryTag => ' (Reminder)';
+
+  @override
+  String get notifSnoozedTitle => 'Medication Reminder (Snoozed)';
+
+  @override
+  String get notifPeriodMorning => 'Morning';
+
+  @override
+  String get notifPeriodAfternoon => 'Afternoon';
+
+  @override
+  String get notifPeriodEvening => 'Evening';
+
+  @override
+  String get notifPeriodNight => 'Night';
+
+  @override
+  String get notifPeriodDose => 'Dose';
+
+  @override
+  String notifSingleBody(String name, String dosage, String period) {
+    return 'Time to take $name ($dosage) - $period';
+  }
+
+  @override
+  String notifBatchBody(String period) {
+    return '$period medicines:';
+  }
+
+  @override
+  String get notifSnoozedBodySingle =>
+      'You snoozed your medication reminder. Please take your medicine now.';
+
+  @override
+  String get notifSnoozedBodyBatch =>
+      'You snoozed your medication reminder. Please take your medicines now.';
+
+  @override
+  String get notifActionMarkTaken => 'Mark as Taken';
+
+  @override
+  String get notifActionSnooze => 'Snooze 10min';
+
+  @override
+  String get notifActionSkip => 'Skip';
+
+  @override
+  String get notifChannelDoseRemindersName => 'Dose Reminders';
+
+  @override
+  String get notifChannelDoseRemindersDesc =>
+      'Reminders to take your medication';
+
+  @override
+  String get notifChannelBatchRemindersName => 'Batch Reminders';
+
+  @override
+  String get notifChannelBatchRemindersDesc =>
+      'Reminders for medication batch groups';
+
+  @override
+  String get notifChannelGeneralName => 'General';
+
+  @override
+  String get notifChannelGeneralDesc => 'General app notifications';
+
+  @override
+  String get notifTestTitle => 'Test Notification';
+
+  @override
+  String get notifTestBody =>
+      'This is a test reminder. Action buttons work correctly.';
+
+  @override
+  String get sendTestNotification => 'Send Test Notification';
+
+  @override
+  String get testNotificationSent => 'Test notification sent!';
 }

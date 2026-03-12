@@ -1116,5 +1116,47 @@
   "prescriptionCreatedSuccess": "បានបង្កើតវេជ្ជបញ្ជាជោគជ័យ",
   "yourScheduleReady": "កាលវិភាគថ្នាំរបស់អ្នករួចរាល់",
   "viewSchedule": "មើលកាលវិភាគ",
-  "goHome": "ត្រឡប់ទៅទំព័រដើម"
+  "goHome": "ត្រឡប់ទៅទំព័រដើម",
+
+  "premiumBadge": "Premium",
+  "familyAlertsRequirePremium": "ការជូនដំណឹងគ្រួសារត្រូវការគម្រោង Premium។ ដំឡើងដើម្បីទទួលបានការជូនដំណឹងនៅពេលអ្នកជិតស្និទ្ធមិនបានផឹកថ្នាំ។",
+  "upgradeToPremiumForFamilyAlerts": "ដំឡើងទៅ Premium",
+
+  "notifReminderTitle": "ការរំលឹកថ្នាំ",
+  "notifReminderRetryTag": " (រំលឹក)",
+  "notifSnoozedTitle": "ការរំលឹកថ្នាំ (ពន្យារ)",
+  "notifPeriodMorning": "ពេលព្រឹក",
+  "notifPeriodAfternoon": "ពេលរសៀល",
+  "notifPeriodEvening": "ពេលល្ងាច",
+  "notifPeriodNight": "ពេលយប់",
+  "notifPeriodDose": "ថ្នាំ",
+  "notifSingleBody": "ដល់ពេលញ៉ាំ {name} ({dosage}) - {period}",
+  "@notifSingleBody": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "dosage": {"type": "String"},
+      "period": {"type": "String"}
+    }
+  },
+  "notifBatchBody": "ថ្នាំ{period}:",
+  "@notifBatchBody": {
+    "placeholders": {
+      "period": {"type": "String"}
+    }
+  },
+  "notifSnoozedBodySingle": "អ្នកបានពន្យារការរំលឹកថ្នាំ។ សូមផឹកថ្នាំឥឡូវនេះ។",
+  "notifSnoozedBodyBatch": "អ្នកបានពន្យារការរំលឹកថ្នាំ។ សូមផឹកថ្នាំទាំងអស់ឥឡូវនេះ។",
+  "notifActionMarkTaken": "សម្គាល់ថាបានទទួលទាន",
+  "notifActionSnooze": "ពន្យារ ១០ នាទី",
+  "notifActionSkip": "រំលង",
+  "notifChannelDoseRemindersName": "ការរំលឹកថ្នាំ",
+  "notifChannelDoseRemindersDesc": "ការរំលឹកដើម្បីផឹកថ្នាំ",
+  "notifChannelBatchRemindersName": "ការរំលឹកក្រុម",
+  "notifChannelBatchRemindersDesc": "ការរំលឹកសម្រាប់ក្រុមថ្នាំ",
+  "notifChannelGeneralName": "ទូទៅ",
+  "notifChannelGeneralDesc": "ការជូនដំណឹងទូទៅ",
+  "notifTestTitle": "ការរំលឹកសាកល្បង",
+  "notifTestBody": "នេះជាការរំលឹកសាកល្បង។ ប៊ូតុងសកម្មភាពដំណើរការបានត្រឹមត្រូវ។",
+  "sendTestNotification": "ផ្ញើការរំលឹកសាកល្បង",
+  "testNotificationSent": "បានផ្ញើការរំលឹកសាកល្បង!"
 }
