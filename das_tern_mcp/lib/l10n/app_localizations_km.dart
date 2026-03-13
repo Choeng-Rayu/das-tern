@@ -2890,6 +2890,19 @@ class AppLocalizationsKm extends AppLocalizations {
   String get goHome => 'ត្រឡប់ទៅទំព័រដើម';
 
   @override
+  String get searchHint => 'ស្វែងរក...';
+
+  @override
+  String get noResultsFound => 'រកមិនឃើញ';
+
+  @override
+  String get age => 'អាយុ';
+
+  @override
+  String get phone => 'លេខទូរសព្ទ';
+
+  @override
+  String get yearsUnit => 'ឆ្នាំ';
   String get premiumBadge => 'Premium';
 
   @override

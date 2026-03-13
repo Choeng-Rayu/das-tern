@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-dastern}
       POSTGRES_USER: ${POSTGRES_USER:-dastern_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dastern_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dastern_rayu}
       POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
       TZ: Asia/Phnom_Penh
       PGTZ: Asia/Phnom_Penh
@@ -158,7 +158,9 @@ services:
   #     retries: 5
   #     start_period: 60s
 
-  # # Kiri-OCR Service (Khmer/English prescription OCR)
+  # Kiri-OCR Service (Khmer/English prescription OCR)
+  # DISABLED: ./kiri_ocr directory does not exist and neither ocr/ nor ocr_service/ has a Dockerfile.
+  #           To re-enable, add a Dockerfile to ocr_service/ and change context to ./ocr_service
   # kiri-ocr:
   #   build:
   #     context: ./kiri_ocr

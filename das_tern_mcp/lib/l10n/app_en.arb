@@ -1221,6 +1221,11 @@
   "viewSchedule": "View Schedule",
   "goHome": "Go Home",
 
+  "searchHint": "Search...",
+  "noResultsFound": "No results found",
+  "age": "Age",
+  "phone": "Phone",
+  "yearsUnit": "years"
   "premiumBadge": "Premium",
   "familyAlertsRequirePremium": "Family alerts require a Premium plan. Upgrade to get notified when your loved ones miss a dose.",
   "upgradeToPremiumForFamilyAlerts": "Upgrade to Premium",

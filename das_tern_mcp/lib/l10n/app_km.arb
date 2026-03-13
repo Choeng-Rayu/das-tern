@@ -1118,6 +1118,11 @@
   "viewSchedule": "មើលកាលវិភាគ",
   "goHome": "ត្រឡប់ទៅទំព័រដើម",
 
+  "searchHint": "ស្វែងរក...",
+  "noResultsFound": "រកមិនឃើញ",
+  "age": "អាយុ",
+  "phone": "លេខទូរសព្ទ",
+  "yearsUnit": "ឆ្នាំ"
   "premiumBadge": "Premium",
   "familyAlertsRequirePremium": "ការជូនដំណឹងគ្រួសារត្រូវការគម្រោង Premium។ ដំឡើងដើម្បីទទួលបានការជូនដំណឹងនៅពេលអ្នកជិតស្និទ្ធមិនបានផឹកថ្នាំ។",
   "upgradeToPremiumForFamilyAlerts": "ដំឡើងទៅ Premium",

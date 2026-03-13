@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
@@ -28,8 +29,8 @@ import 'l10n/app_localizations.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
+  
   final log = LoggerService.instance;
-
   // Capture Flutter errors
   FlutterError.onError = (FlutterErrorDetails details) {
     log.error(
@@ -43,6 +44,13 @@ Future<void> main() async {
 
   log.info('App', 'Starting DAS TERN MCP App');
   WidgetsFlutterBinding.ensureInitialized();
+
+  const isWeb = bool.fromEnvironment('dart.library.js_util');
+
+  if (!isWeb) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
 
   try {
     log.debug('App', 'Loading environment variables');

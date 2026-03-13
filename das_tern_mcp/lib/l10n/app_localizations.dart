@@ -5558,6 +5558,35 @@ abstract class AppLocalizations {
   /// **'Go Home'**
   String get goHome;
 
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search...'**
+  String get searchHint;
+
+  /// No description provided for @noResultsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get noResultsFound;
+
+  /// No description provided for @age.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get age;
+
+  /// No description provided for @phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get phone;
+
+  /// No description provided for @yearsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'years'**
+  String get yearsUnit;
   /// No description provided for @premiumBadge.
   ///
   /// In en, this message translates to:
