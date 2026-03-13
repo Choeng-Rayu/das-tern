@@ -6,7 +6,7 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](VERSION)
 
 ---
-
+ 
 ## 📖 Overview
 
 Das Tern is a comprehensive medication management platform that puts patients in control of their health data while enabling seamless collaboration with doctors and family caregivers. The platform works both online and offline, ensuring medication adherence is never compromised.
