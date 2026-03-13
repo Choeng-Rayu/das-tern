@@ -2890,6 +2890,96 @@ class AppLocalizationsKm extends AppLocalizations {
   String get goHome => 'ត្រឡប់ទៅទំព័រដើម';
 
   @override
+  String get premiumBadge => 'Premium';
+
+  @override
+  String get familyAlertsRequirePremium =>
+      'ការជូនដំណឹងគ្រួសារត្រូវការគម្រោង Premium។ ដំឡើងដើម្បីទទួលបានការជូនដំណឹងនៅពេលអ្នកជិតស្និទ្ធមិនបានផឹកថ្នាំ។';
+
+  @override
+  String get upgradeToPremiumForFamilyAlerts => 'ដំឡើងទៅ Premium';
+
+  @override
+  String get notifReminderTitle => 'ការរំលឹកថ្នាំ';
+
+  @override
+  String get notifReminderRetryTag => ' (រំលឹក)';
+
+  @override
+  String get notifSnoozedTitle => 'ការរំលឹកថ្នាំ (ពន្យារ)';
+
+  @override
+  String get notifPeriodMorning => 'ពេលព្រឹក';
+
+  @override
+  String get notifPeriodAfternoon => 'ពេលរសៀល';
+
+  @override
+  String get notifPeriodEvening => 'ពេលល្ងាច';
+
+  @override
+  String get notifPeriodNight => 'ពេលយប់';
+
+  @override
+  String get notifPeriodDose => 'ថ្នាំ';
+
+  @override
+  String notifSingleBody(String name, String dosage, String period) {
+    return 'ដល់ពេលញ៉ាំ $name ($dosage) - $period';
+  }
+
+  @override
+  String notifBatchBody(String period) {
+    return 'ថ្នាំ$period:';
+  }
+
+  @override
+  String get notifSnoozedBodySingle =>
+      'អ្នកបានពន្យារការរំលឹកថ្នាំ។ សូមផឹកថ្នាំឥឡូវនេះ។';
+
+  @override
+  String get notifSnoozedBodyBatch =>
+      'អ្នកបានពន្យារការរំលឹកថ្នាំ។ សូមផឹកថ្នាំទាំងអស់ឥឡូវនេះ។';
+
+  @override
+  String get notifActionMarkTaken => 'សម្គាល់ថាបានទទួលទាន';
+
+  @override
+  String get notifActionSnooze => 'ពន្យារ ១០ នាទី';
+
+  @override
+  String get notifActionSkip => 'រំលង';
+
+  @override
+  String get notifChannelDoseRemindersName => 'ការរំលឹកថ្នាំ';
+
+  @override
+  String get notifChannelDoseRemindersDesc => 'ការរំលឹកដើម្បីផឹកថ្នាំ';
+
+  @override
+  String get notifChannelBatchRemindersName => 'ការរំលឹកក្រុម';
+
+  @override
+  String get notifChannelBatchRemindersDesc => 'ការរំលឹកសម្រាប់ក្រុមថ្នាំ';
+
+  @override
+  String get notifChannelGeneralName => 'ទូទៅ';
+
+  @override
+  String get notifChannelGeneralDesc => 'ការជូនដំណឹងទូទៅ';
+
+  @override
+  String get notifTestTitle => 'ការរំលឹកសាកល្បង';
+
+  @override
+  String get notifTestBody =>
+      'នេះជាការរំលឹកសាកល្បង។ ប៊ូតុងសកម្មភាពដំណើរការបានត្រឹមត្រូវ។';
+
+  @override
+  String get sendTestNotification => 'ផ្ញើការរំលឹកសាកល្បង';
+
+  @override
+  String get testNotificationSent => 'បានផ្ញើការរំលឹកសាកល្បង!';
   String get downloadPdf => 'ទាញយក PDF';
 
   @override

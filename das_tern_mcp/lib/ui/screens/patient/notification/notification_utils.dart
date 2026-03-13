@@ -31,8 +31,35 @@ IconData iconForNotificationType(String type) {
       return Icons.monitor_heart;
     case 'EMERGENCY_ALERT':
       return Icons.emergency;
+    case 'REMINDER_ESCALATION':
+      return Icons.notification_important;
+    case 'DOSE_CONFIRMED':
+      return Icons.check_circle;
     default:
       return Icons.notifications;
+  }
+}
+
+/// Returns a semantic color for a notification type.
+Color colorForNotificationType(String type) {
+  switch (type) {
+    case 'MISSED_DOSE_ALERT':
+    case 'EMERGENCY_ALERT':
+      return const Color(0xFFE53935); // red
+    case 'REMINDER_ESCALATION':
+      return const Color(0xFFFF9800); // orange
+    case 'DOSE_CONFIRMED':
+      return const Color(0xFF43A047); // green
+    case 'VITAL_ANOMALY':
+      return const Color(0xFFE91E63); // pink
+    case 'URGENT_PRESCRIPTION_CHANGE':
+      return const Color(0xFFFF5722); // deep orange
+    case 'PRESCRIPTION_UPDATE':
+      return AppColors.primaryBlue;
+    case 'CONNECTION_REQUEST':
+    case 'FAMILY_ALERT':
+    default:
+      return AppColors.primaryBlue;
   }
 }
 
