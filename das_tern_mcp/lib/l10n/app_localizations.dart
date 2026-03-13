@@ -5725,6 +5725,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Test notification sent!'**
   String get testNotificationSent;
+
   /// No description provided for @downloadPdf.
   ///
   /// In en, this message translates to:

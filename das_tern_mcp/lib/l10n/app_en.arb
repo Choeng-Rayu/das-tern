@@ -1224,7 +1224,6 @@
   "premiumBadge": "Premium",
   "familyAlertsRequirePremium": "Family alerts require a Premium plan. Upgrade to get notified when your loved ones miss a dose.",
   "upgradeToPremiumForFamilyAlerts": "Upgrade to Premium",
-
   "notifReminderTitle": "Medication Reminder",
   "notifReminderRetryTag": " (Reminder)",
   "notifSnoozedTitle": "Medication Reminder (Snoozed)",
@@ -1261,7 +1260,7 @@
   "notifTestTitle": "Test Notification",
   "notifTestBody": "This is a test reminder. Action buttons work correctly.",
   "sendTestNotification": "Send Test Notification",
-  "testNotificationSent": "Test notification sent!"
+  "testNotificationSent": "Test notification sent!",
   "downloadPdf": "Download PDF",
   "premiumFeature": "Premium Feature",
   "downloadReportDescription": "Download your activity report as a PDF. Available on Premium plans.",
