@@ -1,4 +1,4 @@
-# 💊 Das Tern - Manual Prescription Platform
+# 💊 Das Tern - Manual Prescription Platform (Capstone)
 
 > **A patient-centered medication management platform with offline support, family connections, and doctor collaboration.**
 
