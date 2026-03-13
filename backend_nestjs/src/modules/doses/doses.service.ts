@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { DoseEventStatus } from '@prisma/client';
 
 @Injectable()
 export class DosesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async getSchedule(patientId: string, date?: string, groupBy?: string) {
     const targetDate = date ? new Date(date) : new Date();
@@ -39,12 +43,12 @@ export class DosesService {
           {
             period: 'AFTERNOON',
             color: '#2D5BFF',
-            doses: doses.filter(d => d.timePeriod === 'AFTERNOON').map(d => this.formatDose(d)),
+            doses: doses.filter(d => String(d.timePeriod).toUpperCase() === 'AFTERNOON').map(d => this.formatDose(d)),
           },
           {
             period: 'EVENING',
             color: '#FF7043',
-            doses: doses.filter(d => d.timePeriod === 'EVENING').map(d => this.formatDose(d)),
+            doses: doses.filter(d => String(d.timePeriod).toUpperCase() === 'EVENING').map(d => this.formatDose(d)),
           },
           {
             period: 'NIGHT',
@@ -85,6 +89,9 @@ export class DosesService {
     });
 
     const dailyProgress = await this.calculateDailyProgress(patientId, dose.scheduledTime);
+
+    // Notify connected caregivers that this dose was taken (premium-gated, non-blocking)
+    this.notificationsService.sendDoseConfirmation(patientId, id).catch(() => {});
 
     return { dose: await this.prisma.doseEvent.findUnique({ where: { id } }), dailyProgress };
   }
@@ -148,7 +155,7 @@ export class DosesService {
       id: dose.id,
       medicationName: dose.medication.medicineName,
       medicationNameKhmer: dose.medication.medicineNameKhmer,
-      dosage: dose.medication.morningDosage || dose.medication.afternoonDosage || dose.medication.eveningDosage || dose.medication.nightDosage,
+      dosage: dose.medication.morningDosage || dose.medication.nightDosage,
       scheduledTime: dose.scheduledTime,
       timePeriod: dose.timePeriod,
       prescriptionId: dose.prescriptionId,

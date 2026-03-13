@@ -96,8 +96,6 @@ export class BatchMedicationService {
             createdBy: patientId,
             // All medicines in this batch share the same scheduled time
             morningDosage: hours < 12 ? dosage : Prisma.DbNull,
-            afternoonDosage: hours >= 12 && hours < 17 ? dosage : Prisma.DbNull,
-            eveningDosage: hours >= 17 && hours < 20 ? dosage : Prisma.DbNull,
             nightDosage: hours >= 20 ? dosage : Prisma.DbNull,
             timing: dto.scheduledTime,
           },
@@ -322,8 +320,6 @@ export class BatchMedicationService {
         isPRN: dto.isPRN || false,
         createdBy: patientId,
         morningDosage: hours < 12 ? dosage : Prisma.DbNull,
-        afternoonDosage: hours >= 12 && hours < 17 ? dosage : Prisma.DbNull,
-        eveningDosage: hours >= 17 && hours < 20 ? dosage : Prisma.DbNull,
         nightDosage: hours >= 20 ? dosage : Prisma.DbNull,
         timing: batch.scheduledTime,
       },

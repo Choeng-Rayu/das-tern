@@ -4,12 +4,14 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/dose_provider.dart';
 import '../../../../providers/health_monitoring_provider.dart';
 import '../../../../providers/notification_provider.dart';
+import '../../../../providers/subscription_provider.dart';
 import '../../../../models/enums_model/medication_type.dart';
 import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/header_widgets.dart';
 import 'patient_medications_tab.dart';
+import '../screens/activity_report_screen.dart';
 
 /// Patient home tab – daily dashboard.
 /// Sections: header · medication tracker · progress · today's doses · quick actions · vitals
@@ -63,6 +65,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
     final doseProvider = context.watch<DoseProvider>();
     final healthProvider = context.watch<HealthMonitoringProvider>();
     final notifProvider = context.watch<NotificationProvider>();
+    final subProvider = context.watch<SubscriptionProvider>();
     final l10n = AppLocalizations.of(context)!;
 
     return RefreshIndicator(
@@ -385,23 +388,38 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                   Row(
                     children: [
                       Expanded(
-                        child: _QuickActionCard(
-                          icon: Icons.history,
-                          title: l10n.medicationIntakeHistory,
-                          color: const Color(0xFF0288D1),
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ActivityReportScreen(),
+                            ),
+                          ),
+                          child: _QuickActionCard(
+                            icon: Icons.history,
+                            title: l10n.medicationIntakeHistory,
+                            color: const Color(0xFF0288D1),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            AppRouter.familyAccessList,
-                          ),
+                          onTap: () {
+                            if (subProvider.isPremium) {
+                              Navigator.pushNamed(
+                                context,
+                                AppRouter.familyAccessList,
+                              );
+                            } else {
+                              _showPremiumFamilyDialog(context);
+                            }
+                          },
                           child: _QuickActionCard(
                             icon: Icons.family_restroom,
                             title: l10n.familyFeatures,
                             color: const Color(0xFF29B6F6),
+                            showPremiumBadge: !subProvider.isPremium,
                           ),
                         ),
                       ),
@@ -681,6 +699,44 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
     return months[month - 1];
   }
 
+  /// Show premium upsell dialog for family alerts
+  void _showPremiumFamilyDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.lock, color: AppColors.warningOrange, size: 22),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: Text(l10n.premiumFeature)),
+          ],
+        ),
+        content: Text(l10n.familyAlertsRequirePremium),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.pushNamed(context, AppRouter.subscriptionUpgrade);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryBlue,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.upgradeNow),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Get icon for vital type
   IconData _vitalIcon(VitalType type) {
     switch (type) {
@@ -892,45 +948,75 @@ class _QuickActionCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.color,
+    this.showPremiumBadge = false,
   });
 
   final IconData icon;
   final String title;
   final Color color;
+  final bool showPremiumBadge;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.8)]),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(AppRadius.md),
-            ),
-            child: Icon(icon, color: Colors.white, size: 22),
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.8)]),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Icon(icon, color: Colors.white, size: 22),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Icon(
+                showPremiumBadge ? Icons.lock : Icons.chevron_right,
+                color: Colors.white70,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+        if (showPremiumBadge)
+          Positioned(
+            top: 6,
+            right: 6,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.warningOrange,
+                borderRadius: BorderRadius.circular(AppRadius.full),
+              ),
+              child: const Text(
+                'Premium',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
-          const Icon(Icons.chevron_right, color: Colors.white70, size: 20),
-        ],
-      ),
+      ],
     );
   }
 }
