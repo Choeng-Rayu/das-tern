@@ -5,6 +5,11 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { AppModule } from './app.module';
 
+// Enable BigInt → JSON serialisation (Prisma returns BigInt for large ints)
+(BigInt.prototype as any).toJSON = function () {
+  return Number(this);
+};
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);

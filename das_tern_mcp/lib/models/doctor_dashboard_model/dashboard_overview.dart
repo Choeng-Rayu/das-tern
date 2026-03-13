@@ -18,12 +18,15 @@ class DashboardOverview {
     return DashboardOverview(
       totalPatients: json['totalPatients'] ?? 0,
       patientsNeedingAttention: json['patientsNeedingAttention'] ?? 0,
-      todayAlerts: (json['todayAlerts'] as List<dynamic>?)
-              ?.map((e) =>
-                  MissedDoseAlert.fromJson(Map<String, dynamic>.from(e)))
+      todayAlerts:
+          (json['todayAlerts'] as List<dynamic>?)
+              ?.map(
+                (e) => MissedDoseAlert.fromJson(Map<String, dynamic>.from(e)),
+              )
               .toList() ??
           [],
-      recentActivity: (json['recentActivity'] as List<dynamic>?)
+      recentActivity:
+          (json['recentActivity'] as List<dynamic>?)
               ?.map((e) => Map<String, dynamic>.from(e))
               .toList() ??
           [],
@@ -32,12 +35,12 @@ class DashboardOverview {
   }
 
   Map<String, dynamic> toJson() => {
-        'totalPatients': totalPatients,
-        'patientsNeedingAttention': patientsNeedingAttention,
-        'todayAlerts': todayAlerts.map((a) => a.toJson()).toList(),
-        'recentActivity': recentActivity,
-        'pendingRequests': pendingRequests,
-      };
+    'totalPatients': totalPatients,
+    'patientsNeedingAttention': patientsNeedingAttention,
+    'todayAlerts': todayAlerts.map((a) => a.toJson()).toList(),
+    'recentActivity': recentActivity,
+    'pendingRequests': pendingRequests,
+  };
 }
 
 /// Alert for missed doses shown on the doctor dashboard.
@@ -69,12 +72,12 @@ class MissedDoseAlert {
   }
 
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'patientId': patientId,
-        'patientName': patientName,
-        'consecutiveMissed': consecutiveMissed,
-        'lastMissedAt': lastMissedAt?.toIso8601String(),
-      };
+    'type': type,
+    'patientId': patientId,
+    'patientName': patientName,
+    'consecutiveMissed': consecutiveMissed,
+    'lastMissedAt': lastMissedAt?.toIso8601String(),
+  };
 
   bool get isCritical => type == 'CRITICAL';
 }

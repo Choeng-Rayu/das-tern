@@ -70,9 +70,10 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> {
       return;
     }
 
-    final success = await context
-        .read<BatchProvider>()
-        .updateBatch(widget.batchId, data);
+    final success = await context.read<BatchProvider>().updateBatch(
+      widget.batchId,
+      data,
+    );
 
     if (mounted) {
       setState(() => _isEditing = false);
@@ -101,29 +102,33 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l10n.delete,
-                style: const TextStyle(color: AppColors.alertRed)),
+            child: Text(
+              l10n.delete,
+              style: const TextStyle(color: AppColors.alertRed),
+            ),
           ),
         ],
       ),
     );
 
     if (confirm == true && mounted) {
-      final success =
-          await context.read<BatchProvider>().deleteBatch(widget.batchId);
+      final success = await context.read<BatchProvider>().deleteBatch(
+        widget.batchId,
+      );
       if (mounted && success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.batchDeleted)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.batchDeleted)));
         Navigator.pop(context);
       }
     }
   }
 
   Future<void> _addMedicine(Map<String, dynamic> data) async {
-    await context
-        .read<BatchProvider>()
-        .addMedicineToBatch(widget.batchId, data);
+    await context.read<BatchProvider>().addMedicineToBatch(
+      widget.batchId,
+      data,
+    );
     if (mounted) {
       setState(() => _showAddForm = false);
       context.read<BatchProvider>().fetchBatch(widget.batchId);
@@ -131,9 +136,10 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> {
   }
 
   Future<void> _removeMedicine(String medicineId) async {
-    await context
-        .read<BatchProvider>()
-        .removeMedicineFromBatch(widget.batchId, medicineId);
+    await context.read<BatchProvider>().removeMedicineFromBatch(
+      widget.batchId,
+      medicineId,
+    );
     if (mounted) {
       context.read<BatchProvider>().fetchBatch(widget.batchId);
     }
@@ -164,88 +170,85 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> {
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : batch == null
-              ? Center(child: Text(provider.error ?? l10n.unknown))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+          ? Center(child: Text(provider.error ?? l10n.unknown))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header info / edit form
+                  if (_isEditing) _buildEditForm() else _buildHeader(batch),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Medications list
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Header info / edit form
-                      if (_isEditing) _buildEditForm() else _buildHeader(batch),
-                      const SizedBox(height: AppSpacing.lg),
-
-                      // Medications list
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            l10n.medicines,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                          ),
-                          TextButton.icon(
-                            onPressed: () =>
-                                setState(() => _showAddForm = !_showAddForm),
-                            icon: Icon(_showAddForm
-                                ? Icons.close
-                                : Icons.add),
-                            label: Text(_showAddForm
-                                ? l10n.cancel
-                                : l10n.addRow),
-                          ),
-                        ],
+                      Text(
+                        l10n.medicines,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
-
-                      if (_showAddForm) ...[
-                        MedicineFormWidget(onSave: _addMedicine),
-                        const Divider(height: AppSpacing.lg),
-                      ],
-
-                      if (batch.medications.isEmpty)
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppSpacing.xl),
-                            child: Text(
-                              l10n.noMedications,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
-                          ),
-                        )
-                      else
-                        ...batch.medications.map((med) => Card(
-                              margin: const EdgeInsets.only(
-                                  bottom: AppSpacing.sm),
-                              child: ListTile(
-                                leading: const Icon(Icons.medication,
-                                    color: AppColors.primaryBlue),
-                                title: Text(med.medicineName),
-                                subtitle: Text(
-                                  [
-                                    if (med.frequency != null) med.frequency!,
-                                    if (med.durationDays != null)
-                                      '${med.durationDays}d',
-                                    if (med.dosageAmount != null)
-                                      '${med.dosageAmount} ${med.unit ?? ''}',
-                                  ].join(' - '),
-                                ),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.remove_circle_outline,
-                                      color: AppColors.alertRed),
-                                  onPressed: med.id != null
-                                      ? () => _removeMedicine(med.id!)
-                                      : null,
-                                ),
-                              ),
-                            )),
+                      TextButton.icon(
+                        onPressed: () =>
+                            setState(() => _showAddForm = !_showAddForm),
+                        icon: Icon(_showAddForm ? Icons.close : Icons.add),
+                        label: Text(_showAddForm ? l10n.cancel : l10n.addRow),
+                      ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: AppSpacing.sm),
+
+                  if (_showAddForm) ...[
+                    MedicineFormWidget(onSave: _addMedicine),
+                    const Divider(height: AppSpacing.lg),
+                  ],
+
+                  if (batch.medications.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.xl),
+                        child: Text(
+                          l10n.noMedications,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
+                      ),
+                    )
+                  else
+                    ...batch.medications.map(
+                      (med) => Card(
+                        margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.medication,
+                            color: AppColors.primaryBlue,
+                          ),
+                          title: Text(med.medicineName),
+                          subtitle: Text(
+                            [
+                              if (med.frequency != null) med.frequency!,
+                              if (med.durationDays != null)
+                                '${med.durationDays}d',
+                              if (med.dosageAmount != null)
+                                '${med.dosageAmount} ${med.unit ?? ''}',
+                            ].join(' - '),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(
+                              Icons.remove_circle_outline,
+                              color: AppColors.alertRed,
+                            ),
+                            onPressed: med.id != null
+                                ? () => _removeMedicine(med.id!)
+                                : null,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
     );
   }
 
@@ -270,10 +273,9 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> {
                 const SizedBox(width: AppSpacing.sm),
                 Text(
                   batch.name,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -288,10 +290,9 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> {
             const SizedBox(height: AppSpacing.xs),
             Text(
               l10n.batchMedicineCount(batch.medications.length),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: AppColors.textSecondary),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -319,8 +320,8 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> {
               onTap: () async {
                 final picked = await showTimePicker(
                   context: context,
-                  initialTime: _selectedTime ??
-                      const TimeOfDay(hour: 8, minute: 0),
+                  initialTime:
+                      _selectedTime ?? const TimeOfDay(hour: 8, minute: 0),
                 );
                 if (picked != null) setState(() => _selectedTime = picked);
               },
@@ -346,10 +347,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> {
                   child: Text(l10n.cancel),
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                ElevatedButton(
-                  onPressed: _saveEdit,
-                  child: Text(l10n.save),
-                ),
+                ElevatedButton(onPressed: _saveEdit, child: Text(l10n.save)),
               ],
             ),
           ],

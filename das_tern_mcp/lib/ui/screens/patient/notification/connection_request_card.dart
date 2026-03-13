@@ -63,8 +63,9 @@ class ConnectionRequestCard extends StatelessWidget {
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor:
-                        AppColors.primaryBlue.withValues(alpha: 0.1),
+                    backgroundColor: AppColors.primaryBlue.withValues(
+                      alpha: 0.1,
+                    ),
                     child: const Icon(
                       Icons.person_add,
                       color: AppColors.primaryBlue,
@@ -87,7 +88,7 @@ class ConnectionRequestCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          timeAgo(notif.createdAt),
+                          timeAgo(notif.createdAt, context),
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,

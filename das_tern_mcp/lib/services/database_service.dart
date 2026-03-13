@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 import 'logger_service.dart';
@@ -14,8 +15,22 @@ class DatabaseService {
   static const String _dbName = 'das_tern.db';
 
   Future<Database> get database async {
-    _database ??= await _initDatabase();
+    if (kIsWeb) {
+      _database ??= await _initInMemoryDatabase();
+    } else {
+      _database ??= await _initDatabase();
+    }
     return _database!;
+  }
+
+  Future<Database> _initInMemoryDatabase() async {
+    _log.info('DatabaseService', 'Initializing in-memory database for web');
+    return openDatabase(
+      ':memory:',
+      version: _dbVersion,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
   }
 
   Future<Database> _initDatabase() async {
@@ -82,11 +97,12 @@ class DatabaseService {
 
     // Index for fast schedule lookups
     await db.execute(
-        'CREATE INDEX idx_dose_scheduled ON dose_events(scheduled_time)');
+      'CREATE INDEX idx_dose_scheduled ON dose_events(scheduled_time)',
+    );
+    await db.execute('CREATE INDEX idx_dose_status ON dose_events(status)');
     await db.execute(
-        'CREATE INDEX idx_dose_status ON dose_events(status)');
-    await db.execute(
-        'CREATE INDEX idx_sync_queue_created ON sync_queue(created_at)');
+      'CREATE INDEX idx_sync_queue_created ON sync_queue(created_at)',
+    );
 
     // Health vitals table
     await _createHealthVitalsTable(db);
@@ -114,8 +130,12 @@ class DatabaseService {
         synced INTEGER NOT NULL DEFAULT 1
       )
     ''');
-    await db.execute('CREATE INDEX idx_vital_type ON health_vitals(vital_type)');
-    await db.execute('CREATE INDEX idx_vital_measured ON health_vitals(measured_at)');
+    await db.execute(
+      'CREATE INDEX idx_vital_type ON health_vitals(vital_type)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_vital_measured ON health_vitals(measured_at)',
+    );
   }
 
   Future<void> _createMedicationBatchesTable(Database db) async {
@@ -132,13 +152,20 @@ class DatabaseService {
         updated_at TEXT NOT NULL
       )
     ''');
-    await db.execute('CREATE INDEX idx_batch_patient ON medication_batches(patient_id)');
-    await db.execute('CREATE INDEX idx_batch_active ON medication_batches(patient_id, is_active)');
+    await db.execute(
+      'CREATE INDEX idx_batch_patient ON medication_batches(patient_id)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_batch_active ON medication_batches(patient_id, is_active)',
+    );
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      _log.info('DatabaseService', 'Migrating database from v$oldVersion to v2');
+      _log.info(
+        'DatabaseService',
+        'Migrating database from v$oldVersion to v2',
+      );
       await _createHealthVitalsTable(db);
       _log.success('DatabaseService', 'Migration to v2 complete');
     }
@@ -183,10 +210,7 @@ class DatabaseService {
   /// Get all unsynced dose events.
   Future<List<Map<String, dynamic>>> getUnsyncedDoses() async {
     final db = await database;
-    final rows = await db.query(
-      'dose_events',
-      where: 'synced = 0',
-    );
+    final rows = await db.query('dose_events', where: 'synced = 0');
     return rows.map(_rowToDose).toList();
   }
 
@@ -238,7 +262,11 @@ class DatabaseService {
   /// Get a single dose event by id.
   Future<Map<String, dynamic>?> getDoseById(String id) async {
     final db = await database;
-    final rows = await db.query('dose_events', where: 'id = ?', whereArgs: [id]);
+    final rows = await db.query(
+      'dose_events',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
     if (rows.isEmpty) return null;
     return _rowToDose(rows.first);
   }
@@ -254,7 +282,10 @@ class DatabaseService {
     required String method,
     Map<String, dynamic>? body,
   }) async {
-    _log.dbOperation('INSERT', 'sync_queue', {'action': action, 'endpoint': endpoint});
+    _log.dbOperation('INSERT', 'sync_queue', {
+      'action': action,
+      'endpoint': endpoint,
+    });
     final db = await database;
     return db.insert('sync_queue', {
       'action': action,
@@ -299,8 +330,9 @@ class DatabaseService {
   /// Get count of pending sync items.
   Future<int> pendingSyncCount() async {
     final db = await database;
-    final result =
-        await db.rawQuery('SELECT COUNT(*) as count FROM sync_queue');
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM sync_queue',
+    );
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
@@ -309,19 +341,17 @@ class DatabaseService {
   // ────────────────────────────────────────────
 
   /// Cache prescription data for offline access.
-  Future<void> cachePrescriptions(List<Map<String, dynamic>> prescriptions) async {
+  Future<void> cachePrescriptions(
+    List<Map<String, dynamic>> prescriptions,
+  ) async {
     final db = await database;
     final batch = db.batch();
     for (final p in prescriptions) {
-      batch.insert(
-        'prescriptions',
-        {
-          'id': p['id'],
-          'data_json': jsonEncode(p),
-          'updated_at': p['updatedAt'] ?? DateTime.now().toIso8601String(),
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      batch.insert('prescriptions', {
+        'id': p['id'],
+        'data_json': jsonEncode(p),
+        'updated_at': p['updatedAt'] ?? DateTime.now().toIso8601String(),
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
     await batch.commit(noResult: true);
   }
@@ -331,8 +361,10 @@ class DatabaseService {
     final db = await database;
     final rows = await db.query('prescriptions', orderBy: 'updated_at DESC');
     return rows
-        .map((r) =>
-            Map<String, dynamic>.from(jsonDecode(r['data_json'] as String)))
+        .map(
+          (r) =>
+              Map<String, dynamic>.from(jsonDecode(r['data_json'] as String)),
+        )
         .toList();
   }
 
@@ -346,30 +378,28 @@ class DatabaseService {
     final db = await database;
     final batch = db.batch();
     for (final v in vitals) {
-      batch.insert(
-        'health_vitals',
-        {
-          'id': v['id'],
-          'patient_id': v['patientId'],
-          'vital_type': v['vitalType'],
-          'value': v['value'],
-          'value_secondary': v['valueSecondary'],
-          'unit': v['unit'],
-          'measured_at': v['measuredAt'],
-          'notes': v['notes'],
-          'is_abnormal': (v['isAbnormal'] == true) ? 1 : 0,
-          'source': v['source'],
-          'created_at': v['createdAt'],
-          'synced': 1,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      batch.insert('health_vitals', {
+        'id': v['id'],
+        'patient_id': v['patientId'],
+        'vital_type': v['vitalType'],
+        'value': v['value'],
+        'value_secondary': v['valueSecondary'],
+        'unit': v['unit'],
+        'measured_at': v['measuredAt'],
+        'notes': v['notes'],
+        'is_abnormal': (v['isAbnormal'] == true) ? 1 : 0,
+        'source': v['source'],
+        'created_at': v['createdAt'],
+        'synced': 1,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
     await batch.commit(noResult: true);
   }
 
   /// Query cached vitals with optional type filter.
-  Future<List<Map<String, dynamic>>> getCachedVitals({String? vitalType}) async {
+  Future<List<Map<String, dynamic>>> getCachedVitals({
+    String? vitalType,
+  }) async {
     final db = await database;
     final rows = await db.query(
       'health_vitals',
@@ -377,41 +407,46 @@ class DatabaseService {
       whereArgs: vitalType != null ? [vitalType] : null,
       orderBy: 'measured_at DESC',
     );
-    return rows.map((r) => {
-      'id': r['id'],
-      'patientId': r['patient_id'],
-      'vitalType': r['vital_type'],
-      'value': r['value'],
-      'valueSecondary': r['value_secondary'],
-      'unit': r['unit'],
-      'measuredAt': r['measured_at'],
-      'notes': r['notes'],
-      'isAbnormal': r['is_abnormal'] == 1,
-      'source': r['source'],
-      'createdAt': r['created_at'],
-    }).toList();
+    return rows
+        .map(
+          (r) => {
+            'id': r['id'],
+            'patientId': r['patient_id'],
+            'vitalType': r['vital_type'],
+            'value': r['value'],
+            'valueSecondary': r['value_secondary'],
+            'unit': r['unit'],
+            'measuredAt': r['measured_at'],
+            'notes': r['notes'],
+            'isAbnormal': r['is_abnormal'] == 1,
+            'source': r['source'],
+            'createdAt': r['created_at'],
+          },
+        )
+        .toList();
   }
 
   /// Get vitals that have not been synced to the server.
   Future<List<Map<String, dynamic>>> getUnsyncedVitals() async {
     final db = await database;
-    final rows = await db.query(
-      'health_vitals',
-      where: 'synced = 0',
-    );
-    return rows.map((r) => {
-      'id': r['id'],
-      'patientId': r['patient_id'],
-      'vitalType': r['vital_type'],
-      'value': r['value'],
-      'valueSecondary': r['value_secondary'],
-      'unit': r['unit'],
-      'measuredAt': r['measured_at'],
-      'notes': r['notes'],
-      'isAbnormal': r['is_abnormal'] == 1,
-      'source': r['source'],
-      'createdAt': r['created_at'],
-    }).toList();
+    final rows = await db.query('health_vitals', where: 'synced = 0');
+    return rows
+        .map(
+          (r) => {
+            'id': r['id'],
+            'patientId': r['patient_id'],
+            'vitalType': r['vital_type'],
+            'value': r['value'],
+            'valueSecondary': r['value_secondary'],
+            'unit': r['unit'],
+            'measuredAt': r['measured_at'],
+            'notes': r['notes'],
+            'isAbnormal': r['is_abnormal'] == 1,
+            'source': r['source'],
+            'createdAt': r['created_at'],
+          },
+        )
+        .toList();
   }
 
   /// Mark vitals as synced after successful server push.
@@ -435,21 +470,17 @@ class DatabaseService {
     final db = await database;
     final batch = db.batch();
     for (final b in batches) {
-      batch.insert(
-        'medication_batches',
-        {
-          'id': b['id'],
-          'patient_id': b['patientId'],
-          'name': b['name'],
-          'scheduled_time': b['scheduledTime'],
-          'is_active': (b['isActive'] == true) ? 1 : 0,
-          'data_json': jsonEncode(b),
-          'synced': 1,
-          'created_at': b['createdAt'] ?? DateTime.now().toIso8601String(),
-          'updated_at': b['updatedAt'] ?? DateTime.now().toIso8601String(),
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      batch.insert('medication_batches', {
+        'id': b['id'],
+        'patient_id': b['patientId'],
+        'name': b['name'],
+        'scheduled_time': b['scheduledTime'],
+        'is_active': (b['isActive'] == true) ? 1 : 0,
+        'data_json': jsonEncode(b),
+        'synced': 1,
+        'created_at': b['createdAt'] ?? DateTime.now().toIso8601String(),
+        'updated_at': b['updatedAt'] ?? DateTime.now().toIso8601String(),
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
     await batch.commit(noResult: true);
   }
@@ -462,41 +493,38 @@ class DatabaseService {
       orderBy: 'created_at DESC',
     );
     return rows
-        .map((r) =>
-            Map<String, dynamic>.from(jsonDecode(r['data_json'] as String)))
+        .map(
+          (r) =>
+              Map<String, dynamic>.from(jsonDecode(r['data_json'] as String)),
+        )
         .toList();
   }
 
   /// Cache a locally-created batch (offline).
   Future<void> cacheBatchLocally(Map<String, dynamic> batchData) async {
     final db = await database;
-    await db.insert(
-      'medication_batches',
-      {
-        'id': batchData['id'] ?? 'local_${DateTime.now().millisecondsSinceEpoch}',
-        'patient_id': batchData['patientId'] ?? '',
-        'name': batchData['name'],
-        'scheduled_time': batchData['scheduledTime'],
-        'is_active': 1,
-        'data_json': jsonEncode(batchData),
-        'synced': 0,
-        'created_at': DateTime.now().toIso8601String(),
-        'updated_at': DateTime.now().toIso8601String(),
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('medication_batches', {
+      'id': batchData['id'] ?? 'local_${DateTime.now().millisecondsSinceEpoch}',
+      'patient_id': batchData['patientId'] ?? '',
+      'name': batchData['name'],
+      'scheduled_time': batchData['scheduledTime'],
+      'is_active': 1,
+      'data_json': jsonEncode(batchData),
+      'synced': 0,
+      'created_at': DateTime.now().toIso8601String(),
+      'updated_at': DateTime.now().toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   /// Get batches not yet synced to server.
   Future<List<Map<String, dynamic>>> getUnsyncedBatches() async {
     final db = await database;
-    final rows = await db.query(
-      'medication_batches',
-      where: 'synced = 0',
-    );
+    final rows = await db.query('medication_batches', where: 'synced = 0');
     return rows
-        .map((r) =>
-            Map<String, dynamic>.from(jsonDecode(r['data_json'] as String)))
+        .map(
+          (r) =>
+              Map<String, dynamic>.from(jsonDecode(r['data_json'] as String)),
+        )
         .toList();
   }
 
@@ -550,16 +578,19 @@ class DatabaseService {
       'taken_at': dose['takenAt'],
       'skip_reason': dose['skipReason'],
       'was_offline': (dose['wasOffline'] == true) ? 1 : 0,
-      'medication_name': dose['medicationName'] ??
+      'medication_name':
+          dose['medicationName'] ??
           (dose['medication'] is Map
               ? dose['medication']['medicineName'] ?? ''
               : ''),
-      'dosage': dose['dosage'] ??
+      'dosage':
+          dose['dosage'] ??
           (dose['medication'] is Map
               ? '${dose['medication']['morningDosage'] ?? 0}'
               : ''),
-      'medication_json':
-          dose['medication'] != null ? jsonEncode(dose['medication']) : null,
+      'medication_json': dose['medication'] != null
+          ? jsonEncode(dose['medication'])
+          : null,
       'created_at': dose['createdAt'],
       'updated_at': dose['updatedAt'],
       'synced': 1,

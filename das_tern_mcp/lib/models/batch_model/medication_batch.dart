@@ -107,9 +107,12 @@ class MedicationBatch {
       isActive: json['isActive'] as bool? ?? true,
       medications: json['medications'] != null
           ? (json['medications'] as List)
-              .map((m) => BatchMedication.fromJson(
-                  Map<String, dynamic>.from(m as Map)))
-              .toList()
+                .map(
+                  (m) => BatchMedication.fromJson(
+                    Map<String, dynamic>.from(m as Map),
+                  ),
+                )
+                .toList()
           : [],
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)

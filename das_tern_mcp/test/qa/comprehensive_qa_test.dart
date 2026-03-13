@@ -70,7 +70,7 @@ void main() {
           'medicineName': 'Amoxicillin',
           'medicineNameKhmer': 'អាម៉ុកស៊ីស៊ីលីន',
           'morningDosage': 1.0,
-          'daytimeDosage': 0.0,
+          'afternoonDosage': 0.0,
           'nightDosage': 1.0,
           'frequency': 'Twice daily',
           'timing': 'After meals',
@@ -122,7 +122,7 @@ void main() {
           'medicineName': 'Paracetamol',
           'medicineNameKhmer': 'ប៉ារ៉ាសេតាម៉ុល',
           'morningDosage': 1.0,
-          'daytimeDosage': 1.0,
+          'afternoonDosage': 1.0,
           'nightDosage': 1.0,
           'frequency': 'Three times daily',
           'timing': 'After meals',
@@ -133,7 +133,7 @@ void main() {
       final rx = Prescription.fromJson(multiMed);
       expect(rx.medications.length, 2);
       expect(rx.medications[1].medicineName, 'Paracetamol');
-      expect(rx.medications[1].daytimeDosage, 1.0);
+      expect(rx.medications[1].afternoonDosage, 1.0);
     });
   });
 
@@ -147,7 +147,7 @@ void main() {
         'medicineName': 'Test Med',
         'medicineNameKhmer': 'ថ្នាំសាកល្បង',
         'morningDosage': 2,
-        'daytimeDosage': 1,
+        'afternoonDosage': 1,
         'nightDosage': 0,
         'frequency': 'Twice daily',
         'timing': 'Before meals',
@@ -155,7 +155,7 @@ void main() {
         'updatedAt': '2025-01-15T00:00:00.000Z',
       });
       expect(med.morningDosage, 2.0);
-      expect(med.daytimeDosage, 1.0);
+      expect(med.afternoonDosage, 1.0);
       expect(med.nightDosage, 0.0);
       expect(med.morningDosage, isA<double>());
     });
@@ -166,7 +166,7 @@ void main() {
         'medicineName': 'Metformin',
         'medicineNameKhmer': 'មិតហ្វរមីន',
         'morningDosage': 1,
-        'daytimeDosage': 0,
+        'afternoonDosage': 0,
         'nightDosage': 1,
         'frequency': 'Twice daily',
         'timing': 'With food',
@@ -260,7 +260,7 @@ void main() {
     });
 
     test('all time periods are handled', () {
-      for (final period in ['MORNING', 'DAYTIME', 'NIGHT']) {
+      for (final period in ['MORNING', 'AFTERNOON', 'EVENING', 'NIGHT']) {
         final dose = DoseEvent(
           prescriptionId: 'rx-001',
           medicationId: 'med-001',
@@ -483,7 +483,7 @@ void main() {
       final doses = [
         DoseEvent.fromJson(_dueJson('dose-m1', 'DUE', period: 'MORNING')),
         DoseEvent.fromJson(_dueJson('dose-m2', 'DUE', period: 'MORNING')),
-        DoseEvent.fromJson(_dueJson('dose-d1', 'DUE', period: 'DAYTIME')),
+        DoseEvent.fromJson(_dueJson('dose-d1', 'DUE', period: 'AFTERNOON')),
         DoseEvent.fromJson(_dueJson('dose-n1', 'DUE', period: 'NIGHT')),
       ];
 
@@ -493,7 +493,7 @@ void main() {
       }
 
       expect(grouped['MORNING']!.length, 2);
-      expect(grouped['DAYTIME']!.length, 1);
+      expect(grouped['AFTERNOON']!.length, 1);
       expect(grouped['NIGHT']!.length, 1);
     });
 

@@ -52,7 +52,17 @@ class NotificationService {
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
           >();
-      await android?.requestNotificationsPermission();
+      if (android != null) {
+        // Request notification permission (Android 13+)
+        await android.requestNotificationsPermission();
+        // Request exact alarm permission (Android 12+)
+        // This checks if already granted; only opens settings if needed
+        final exactAlarmGranted =
+            await android.canScheduleExactNotifications() ?? false;
+        if (!exactAlarmGranted) {
+          await android.requestExactAlarmsPermission();
+        }
+      }
     }
 
     _initialized = true;
@@ -84,7 +94,13 @@ class NotificationService {
 
     final id = doseId.hashCode.abs() % 2147483647; // safe 32-bit int
 
-    final periodLabel = timePeriod == 'DAYTIME' ? '🌅 Daytime' : '🌙 Night';
+    final periodLabel = switch (timePeriod) {
+      'MORNING' => '🌅 Morning',
+      'AFTERNOON' => '☀️ Afternoon',
+      'EVENING' => '🌇 Evening',
+      'NIGHT' => '🌙 Night',
+      _ => '💊 Dose',
+    };
 
     await _plugin.zonedSchedule(
       id,
@@ -108,7 +124,7 @@ class NotificationService {
           presentSound: true,
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       payload: doseId,
@@ -147,7 +163,7 @@ class NotificationService {
         medicationName: dose['medicationName'] as String? ?? 'Medication',
         dosage: dose['dosage'] as String? ?? '',
         reminderTime: reminderTime,
-        timePeriod: dose['timePeriod'] as String? ?? 'DAYTIME',
+        timePeriod: dose['timePeriod'] as String? ?? 'MORNING',
       );
     }
   }
@@ -211,7 +227,7 @@ class NotificationService {
           presentSound: true,
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,

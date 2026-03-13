@@ -16,10 +16,6 @@
   "register": "Register",
 
   "welcomeMessage": "Your medication reminder companion",
-  "welcomeScreenSubtitle": "Your health, our priority. Manage your medical records with ease.",
-  "emergencyAccess": "Emergency Access",
-  "doctorStep1PersonalInfo": "Step 1 of 2 - Personal Information",
-  "doctorStep2ProfessionalInfo": "Step 2 of 2 - Professional & Security",
 
   "selectRoleTitle": "I am...",
   "selectRoleSubtitle": "Select your role to get started",
@@ -346,6 +342,13 @@
   "waitingStatus": "Waiting",
   "gracePeriodSettings": "Grace Period Settings",
   "unknown": "Unknown",
+  "familyFunctionTitle": "Family Features",
+  "familyIntroDescription": "Allow family members to track your daily medication intake and receive Notifications when:",
+  "familyBulletSender": "You take medication",
+  "familyBulletReceiver": "You miss a dose",
+  "familyIntroFooter": "Manage your family to receive updates and detailed monitoring information etc.",
+  "startUsing": "Start Using",
+  "learnMore": "Learn More",
 
   "scanPrescriptionTitle": "Scan Prescription",
   "scanPrescriptionDescription": "Use your camera to scan a prescription\nfrom your doctor.",
@@ -426,7 +429,6 @@
   "payWithBankingApp": "Pay with Banking App",
   "selectYourBank": "Select Your Bank",
   "openInBankingApp": "Open in Banking App",
-  "bankAmountPreFilled": "Bakong: payment pre-loaded · Others: open app and scan the QR above",
   "orOpenDirectly": "Or tap to open your banking app directly:",
   "noBankingAppInstalled": "Could not open banking app. Please scan the QR code instead.",
   "bankNotInstalled": "App not installed. Please scan the QR code instead.",
@@ -456,7 +458,7 @@
   "familyPlanFeature": "Family Plan",
 
   "unlockPremiumFeatures": "Unlock premium features and get the most out of DasTern",
-  "premiumTrialActive": "🎉 Premium Trial Active",
+  "premiumTrialActive": "Premium Trial Active",
   "dayRemaining": "day remaining",
   "daysRemaining": "days remaining",
   "expiresToday": "Expires today",
@@ -488,6 +490,15 @@
   "twentyGBStorage": "20 GB storage",
   "prioritySupport": "Priority support",
   "freeTrialOffer": "1-month free trial for new users!",
+  "claimYourFreeTrial": "Claim Your Free Trial",
+  "getOneMonthFreePremiumAccess": "Get 1 month free premium access",
+  "claimTrial": "Claim Trial",
+  "trialDaysRemainingBanner": "You have {days} days remaining",
+  "@trialDaysRemainingBanner": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
   "yourTrialPeriod": "Your Trial Period",
   "trialExpiresOn": "Trial expires on",
   "daysLeft": "days left",
@@ -745,12 +756,6 @@
       "token": {"type": "String"}
     }
   },
-  "shareQrAndCodeMessage": "Here is my DasTern connection code: {token}\n\nScan the QR code image or enter the code manually in the DasTern app to connect with me.",
-  "@shareQrAndCodeMessage": {
-    "placeholders": {
-      "token": {"type": "String"}
-    }
-  },
   "generateNewCode": "Generate New Code",
   "codeCopied": "Code copied",
 
@@ -995,63 +1000,58 @@
   "enterPhoneOrEmail": "Enter phone number or email",
   "noPatientFound": "No patient found",
   "connectionRequestSent": "Connection request sent",
-  "connectionRequestFailed": "Connection request failed",
+  "connectionRequestFailed": "Failed to send connection request",
   "sendConnectionRequest": "Send Connection Request",
-  "connectionApproved": "Connection approved",
-  "connectionRejected": "Connection rejected",
-  "approveConnection": "Approve Connection",
-  "rejectConnection": "Reject Connection",
+
+  "doctorStep1PersonalInfo": "Step 1 of 2 - Personal Info",
+  "doctorStep2ProfessionalInfo": "Step 2 of 2 - Professional Info",
+
+  "welcomeScreenSubtitle": "Your trusted medication companion",
+  "emergencyAccess": "Emergency Access",
+
+  "connectionApproved": "Connection Approved",
+  "connectionRejected": "Connection Rejected",
+
   "removeNotification": "Remove Notification",
-  "removeNotificationConfirm": "Remove notification?",
+  "removeNotificationConfirm": "Are you sure you want to remove this notification?",
   "remove": "Remove",
-  "prescriptionConfirmed": "Prescription confirmed",
-  "prescriptionRejected": "Prescription rejected",
-  "rejectPrescription": "Reject Prescription",
-  "confirmPrescription": "Confirm Prescription",
-  "prescriptionFromDoctor": "Prescription from {doctor}",
-  "@prescriptionFromDoctor": {
+
+  "shareQrAndCodeMessage": "DasTern QR & Connection Code: {token}",
+  "@shareQrAndCodeMessage": {
     "placeholders": {
-      "doctor": {"type": "String"}
+      "token": {"type": "String"}
     }
   },
-  "pendingPrescriptions": "Pending Prescriptions",
-  "missedDoseBanner": "You missed a dose",
+
+  "rejectConnection": "Reject",
+  "approveConnection": "Approve",
 
   "ocrOutpatient": "Outpatient",
   "ocrInpatient": "Inpatient",
   "ocrFacilityHospital": "Hospital",
   "ocrFacilityClinic": "Clinic",
-  "ocrNotAvailable": "Not available",
-  "ocrNeedsReviewYes": "Yes, needs review",
+  "ocrNeedsReviewYes": "Needs Review",
   "ocrAiEnhanced": "AI Enhanced",
-  "ocrAiUnavailable": "OCR Only",
-  "ocrPatientInfoSection": "Patient Information",
-  "ocrPatientId": "Patient ID",
-  "ocrPatientName": "Patient Name",
-  "ocrPatientKhmerName": "Patient Name (Khmer)",
-  "ocrPatientAge": "Age",
-  "ocrYearsOld": "{age} years old",
-  "@ocrYearsOld": {
-    "placeholders": {
-      "age": {"type": "String"}
-    }
-  },
-  "ocrPatientGender": "Gender",
-  "ocrPrescriberSection": "Prescriber Information",
-  "ocrPrescriberName": "Prescriber Name",
-  "ocrFacilitySection": "Facility Information",
-  "ocrFacilityName": "Facility Name",
-  "ocrFacilityType": "Facility Type",
-  "ocrClinicalSection": "Clinical Information",
-  "ocrDiagnosis": "Diagnosis",
-  "ocrMetadataSection": "Metadata",
-  "ocrConfidenceScore": "Confidence Score",
-  "ocrConfidencePercent": "{confidence}%",
+  "ocrAiUnavailable": "AI Unavailable",
+
+  "bankAmountPreFilled": "Amount pre-filled by bank",
+
+  "ocrConfidencePercent": "{percent}% confidence",
   "@ocrConfidencePercent": {
     "placeholders": {
-      "confidence": {"type": "String"}
+      "percent": {"type": "String"}
     }
   },
+  "ocrNotAvailable": "N/A",
+  "ocrScanInfoSection": "Scan Information",
+  "ocrPrescriberSection": "Prescriber",
+  "ocrPrescriberName": "Prescriber Name",
+  "ocrFacilitySection": "Facility",
+  "ocrFacilityName": "Facility Name",
+  "ocrFacilityType": "Facility Type",
+  "ocrValidated": "Validated",
+  "ocrMetadataSection": "OCR Metadata",
+  "ocrConfidenceScore": "Confidence Score",
   "ocrEngine": "OCR Engine",
   "ocrProcessingTime": "Processing Time",
   "ocrMilliseconds": "{ms}ms",
@@ -1063,6 +1063,161 @@
   "ocrPrescriptionType": "Prescription Type",
   "ocrLanguagesDetected": "Languages Detected",
   "ocrValidationStatus": "Validation Status",
-  "ocrValidated": "Validated",
-  "ocrScanInfoSection": "Scan Information"
+
+  "rejectPrescription": "Reject Prescription",
+  "prescriptionRejected": "Prescription rejected",
+  "prescriptionConfirmed": "Prescription confirmed",
+  "confirmPrescription": "Confirm Prescription",
+  "pendingPrescriptions": "Pending Prescriptions",
+  "prescriptionFromDoctor": "From Dr. {name}",
+  "@prescriptionFromDoctor": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "missedDoseBanner": "You have missed doses today",
+
+  "familyFunctionTitle": "Family & Caregivers",
+  "familyIntroDescription": "Connect with family members or caregivers to share your medication schedule.",
+  "familyBulletSender": "Share your schedule with family to let them monitor your medication adherence",
+  "familyBulletReceiver": "Scan a patient's QR code to start monitoring their medication intake",
+  "familyIntroFooter": "Connections require patient approval and can be revoked at any time.",
+  "startUsing": "Get Started",
+  "learnMore": "Learn More",
+
+  "appearance": "Appearance",
+  "notificationPermission": "Notification Permission",
+  "permissionGranted": "Granted",
+  "rateAppSubtitle": "Share your feedback on the App Store",
+  "contactSupportSubtitle": "Get help from our support team",
+  "termsOfServiceSubtitle": "Read our terms and conditions",
+  "privacyPolicySubtitle": "Read our privacy policy",
+  "tosLastUpdated": "Last updated: March 1, 2026",
+  "tosContactFooter": "Questions? Contact us at support@dastern.com",
+  "tosSection1Title": "Acceptance of Terms",
+  "tosSection1Body": "By accessing or using DasTern, you agree to be bound by these Terms of Service. If you do not agree, please do not use the application.",
+  "tosSection2Title": "Description of Service",
+  "tosSection2Body": "DasTern provides medication management, health tracking, and telemedicine features. The app is not a substitute for professional medical advice, diagnosis, or treatment.",
+  "tosSection3Title": "User Accounts",
+  "tosSection3Body": "You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate information and to update it as necessary.",
+  "tosSection4Title": "Subscription & Payments",
+  "tosSection4Body": "Some features require a paid subscription. Prices are displayed before purchase. You may cancel at any time; access continues until the end of the billing period.",
+  "tosSection5Title": "Intellectual Property",
+  "tosSection5Body": "All content, trademarks, and software in DasTern are owned by or licensed to us. You may not copy, modify, or distribute any part without written permission.",
+  "tosSection6Title": "Limitation of Liability",
+  "tosSection6Body": "DasTern is provided as is. We are not liable for any indirect, incidental, or consequential damages arising from your use of the service.",
+  "tosSection7Title": "Changes to Terms",
+  "tosSection7Body": "We reserve the right to modify these terms at any time. Continued use after changes constitutes acceptance of the new terms.",
+
+  "ppLastUpdated": "Last updated: March 1, 2026",
+  "ppHighlightBanner": "Your health data is encrypted end-to-end and never shared without consent.",
+  "ppContactFooter": "Questions? Contact privacy@dastern.com",
+  "ppSection1Title": "Information We Collect",
+  "ppSection1Body": "We collect personal information you provide (name, email, health data) and automatically gathered data (device info, usage patterns) to deliver and improve our services.",
+  "ppSection2Title": "Health Data",
+  "ppSection2Body": "Medication records, vital signs, and health notes are stored securely. We never sell health data. Access is limited to you, your care team (with your consent), and authorized staff for service delivery.",
+  "ppSection3Title": "Data Security",
+  "ppSection3Body": "We use industry-standard encryption (AES-256) for data at rest and TLS 1.3 for data in transit. Access is controlled with role-based permissions and regular security audits.",
+  "ppSection4Title": "Sharing & Disclosure",
+  "ppSection4Body": "We do not sell your data. We may share information with healthcare providers you authorize, service partners under strict agreements, or when required by law.",
+  "ppSection5Title": "Cookies & Analytics",
+  "ppSection5Body": "We use minimal analytics to understand app usage and improve features. No third-party advertising trackers are used in DasTern.",
+  "ppSection6Title": "Your Rights",
+  "ppSection6Body": "You can access, correct, export, or delete your personal data at any time from your profile settings. You may also withdraw consent for optional data processing.",
+  "ppSection7Title": "Policy Changes",
+  "ppSection7Body": "We will notify you of significant changes via in-app notification or email. Continued use after changes constitutes acceptance.",
+
+  "csHowCanWeHelp": "How can we help?",
+  "csChooseOption": "Choose an option below to get in touch",
+  "csEmailUs": "Email Us",
+  "csSend": "Send",
+  "csCallUs": "Call Us",
+  "csCall": "Call",
+  "csOfficeHours": "Office Hours",
+  "csOfficeHoursValue": "Mon – Fri, 8 AM – 6 PM (ICT)",
+  "csResponseTime": "We usually respond within 24 hours.",
+  "termsSubtitle": "Read our terms & conditions",
+  "privacySubtitle": "How we protect your data",
+  "helpImprove": "Help us improve DasTern",
+
+  "timeAgoJustNow": "Just now",
+  "timeAgoMinutes": "{minutes}m ago",
+  "@timeAgoMinutes": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "timeAgoHours": "{hours}h ago",
+  "@timeAgoHours": {
+    "placeholders": {
+      "hours": {"type": "int"}
+    }
+  },
+  "timeAgoDays": "{days}d ago",
+  "@timeAgoDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+
+  "createPrescriptionManual": "Create Prescription Manually",
+  "createPrescriptionManualDesc": "Build a prescription step-by-step with full control",
+  "scanPrescriptionOption": "Scan Prescription",
+  "scanPrescriptionOptionDesc": "Use camera OCR to extract medicines from paper prescriptions",
+  "quickAddMedicine": "Quick Add Medicine",
+  "quickAddMedicineDesc": "Add a single medicine quickly with basic schedule",
+
+  "activityReport": "Activity Report",
+  "adherenceSummary": "Adherence Summary",
+  "weeklyAdherence": "Weekly Adherence",
+  "monthlyAdherence": "Monthly Adherence",
+  "totalDoses": "Total Doses",
+  "doseHistory": "Dose History",
+  "onTime": "On Time",
+
+  "wizardStepPrescription": "Prescription",
+  "wizardStepMedicines": "Medicines",
+  "wizardStepReview": "Review",
+  "prescriptionName": "Prescription Name",
+  "prescriptionNameHint": "e.g. Blood pressure treatment",
+  "doctorNameOptional": "Doctor Name (Optional)",
+  "doctorNameHint": "e.g. Dr. Chan Dara",
+  "startDate": "Start Date",
+  "endDate": "End Date",
+  "medicinesCount": "{count} medicines",
+  "@medicinesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "noMedicinesAdded": "No medicines added",
+  "addYourFirstMedicine": "Add your first medicine to continue",
+  "addMedicineStep": "Add Medicine",
+  "addAnotherMedicine": "Add Another Medicine",
+  "reviewPrescription": "Review Prescription",
+  "prescriptionDuration": "{days} days",
+  "@prescriptionDuration": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "schedulePreview": "Schedule Preview",
+  "scheduleAutoGenerated": "Schedule is auto-generated based on medicine frequency",
+  "morningTime": "Morning",
+  "afternoonTime": "Afternoon",
+  "nightTime": "Night",
+  "savePrescription": "Save Prescription",
+
+  "ocrPatientInfoSection": "Patient Information",
+  "ocrPatientName": "Patient Name",
+  "ocrPatientKhmerName": "Patient Name (Khmer)",
+  "ocrPatientId": "Patient ID",
+  "ocrPatientAge": "Age",
+  "ocrPatientGender": "Gender",
+
+  "prescriptionCreatedSuccess": "Prescription Created Successfully",
+  "yourScheduleReady": "Your medication schedule is ready",
+  "viewSchedule": "View Schedule",
+  "goHome": "Go Home"
 }

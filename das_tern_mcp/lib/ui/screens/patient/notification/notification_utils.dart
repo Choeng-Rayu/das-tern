@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../ui/theme/app_colors.dart';
 
 /// Shared helpers for the notification feature.
 
-/// Returns a human-readable relative time string.
-String timeAgo(DateTime dt) {
+/// Returns a human-readable relative time string, localized via [AppLocalizations].
+String timeAgo(DateTime dt, BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
   final diff = DateTime.now().difference(dt);
-  if (diff.inMinutes < 1) return 'now';
-  if (diff.inMinutes < 60) return '${diff.inMinutes}m';
-  if (diff.inHours < 24) return '${diff.inHours}h';
-  return '${diff.inDays}d';
+  if (diff.inMinutes < 1) return l10n.timeAgoJustNow;
+  if (diff.inMinutes < 60) return l10n.timeAgoMinutes(diff.inMinutes);
+  if (diff.inHours < 24) return l10n.timeAgoHours(diff.inHours);
+  return l10n.timeAgoDays(diff.inDays);
 }
 
 /// Maps notification type strings to appropriate icons.

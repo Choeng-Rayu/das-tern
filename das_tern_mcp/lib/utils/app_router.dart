@@ -34,6 +34,8 @@ import '../ui/screens/patient/screens/medication_choice_screen.dart';
 import '../ui/screens/patient/screens/create_batch_screen.dart';
 import '../ui/screens/patient/screens/batch_detail_screen.dart';
 import '../ui/screens/patient/screens/ocr_preview_screen.dart';
+import '../ui/screens/patient/screens/create_prescription_wizard_screen.dart';
+import '../ui/screens/patient/screens/prescription_success_screen.dart';
 import '../ui/screens/prescription_detail_screen.dart';
 import '../ui/screens/patient/screens/record_vital_screen.dart';
 import '../ui/screens/patient/screens/vital_trend_screen.dart';
@@ -91,6 +93,9 @@ class AppRouter {
   static const String patientCreateBatch = '/patient/create-batch';
   static const String batchDetail = '/patient/batch-detail';
   static const String ocrPreview = '/patient/ocr-preview';
+  static const String patientPrescriptionWizard =
+      '/patient/prescription-wizard';
+  static const String prescriptionSuccess = '/patient/prescription-success';
 
   // Health monitoring routes
   static const String patientRecordVital = '/patient/vitals/record';
@@ -197,6 +202,20 @@ class AppRouter {
       case ocrPreview:
         final args = settings.arguments as Map<String, dynamic>? ?? {};
         return _buildRoute(OcrPreviewScreen(extractedData: args));
+      case patientPrescriptionWizard:
+        return _buildRoute(const CreatePrescriptionWizardScreen());
+      case prescriptionSuccess:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return _buildRoute(
+          PrescriptionSuccessScreen(
+            prescriptionName: args['prescriptionName'] as String? ?? '',
+            dateRange: args['dateRange'] as String? ?? '',
+            doctorName: args['doctorName'] as String?,
+            medicines:
+                (args['medicines'] as List?)?.cast<Map<String, dynamic>>() ??
+                [],
+          ),
+        );
       case prescriptionDetail:
         final args = settings.arguments as Map<String, dynamic>?;
         return _buildRoute(

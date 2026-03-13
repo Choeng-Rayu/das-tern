@@ -17,6 +17,11 @@ class WelcomeScreen extends StatelessWidget {
         builder: (context, constraints) {
           final imageHeight = constraints.maxHeight * 0.70;
           final bottomHeight = constraints.maxHeight * 0.30;
+          final isCompactBottomPanel = bottomHeight < 232;
+          final buttonHeight = isCompactBottomPanel ? 48.0 : 50.0;
+          final verticalPadding = isCompactBottomPanel ? 20.0 : 28.0;
+          final buttonSpacing = isCompactBottomPanel ? 10.0 : 12.0;
+          final footerSpacing = isCompactBottomPanel ? 12.0 : 16.0;
 
           return Stack(
             children: [
@@ -95,17 +100,18 @@ class WelcomeScreen extends StatelessWidget {
                       top: Radius.circular(28),
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(
+                  padding: EdgeInsets.symmetric(
                     horizontal: 28,
-                    vertical: 28,
+                    vertical: verticalPadding,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Sign In button (filled blue)
                       SizedBox(
-                        height: 50,
+                        height: buttonHeight,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
@@ -133,11 +139,11 @@ class WelcomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: buttonSpacing),
 
                       // Sign Up button (outlined)
                       SizedBox(
-                        height: 50,
+                        height: buttonHeight,
                         child: OutlinedButton(
                           onPressed: () =>
                               Navigator.of(context).pushNamed('/register-role'),
@@ -161,12 +167,17 @@ class WelcomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: footerSpacing),
 
                       // Emergency Access link
                       Center(
                         child: TextButton(
                           onPressed: () {},
+                          style: TextButton.styleFrom(
+                            minimumSize: Size.zero,
+                            padding: EdgeInsets.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
                           child: Text(
                             l10n.emergencyAccess,
                             style: const TextStyle(

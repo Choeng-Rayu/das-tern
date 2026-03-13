@@ -1,12 +1,17 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
+import '../../../screens/support/contact_support_screen.dart';
+import '../../../screens/support/terms_of_service_screen.dart';
+import '../../../screens/support/privacy_policy_screen.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/theme_provider.dart';
 import '../../../widgets/common_widgets.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// Settings tab for doctor - clean professional UI matching design standard.
 class DoctorSettingsTab extends StatefulWidget {
@@ -36,7 +41,15 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppHeader(title: l10n.settings),
+      appBar: AppHeader(
+        title: l10n.settings,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: LanguageSwitcherButton(lightBackground: true),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
@@ -97,44 +110,58 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             const SizedBox(height: AppSpacing.md),
 
             // APPEARANCE
-            _sectionLabel('APPEARANCE'),
+            _sectionLabel(l10n.appearance.toUpperCase()),
             _buildGroupCard(isDark, [
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 12,
+                  vertical: 14,
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.brightness_6_outlined, size: 20),
-                    const SizedBox(width: 12),
-                    Text(
-                      l10n.theme,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const Spacer(),
-                    SegmentedButton<ThemeMode>(
-                      segments: const [
-                        ButtonSegment(
-                          value: ThemeMode.system,
-                          label: Text('System', style: TextStyle(fontSize: 11)),
-                        ),
-                        ButtonSegment(
-                          value: ThemeMode.light,
-                          label: Text('Light', style: TextStyle(fontSize: 11)),
-                        ),
-                        ButtonSegment(
-                          value: ThemeMode.dark,
-                          label: Text('Dark', style: TextStyle(fontSize: 11)),
+                    Row(
+                      children: [
+                        const Icon(Icons.brightness_6_outlined, size: 20),
+                        const SizedBox(width: 12),
+                        Text(
+                          l10n.theme,
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ],
-                      selected: {themeProvider.themeMode},
-                      onSelectionChanged: (v) =>
-                          themeProvider.setThemeMode(v.first),
-                      style: ButtonStyle(
-                        visualDensity: VisualDensity.compact,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        _ThemeOptionCard(
+                          icon: Icons.phone_android_rounded,
+                          label: l10n.systemTheme,
+                          isSelected:
+                              themeProvider.themeMode == ThemeMode.system,
+                          isDark: isDark,
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.system),
+                        ),
+                        const SizedBox(width: 10),
+                        _ThemeOptionCard(
+                          icon: Icons.light_mode_rounded,
+                          label: l10n.lightTheme,
+                          isSelected:
+                              themeProvider.themeMode == ThemeMode.light,
+                          isDark: isDark,
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.light),
+                        ),
+                        const SizedBox(width: 10),
+                        _ThemeOptionCard(
+                          icon: Icons.dark_mode_rounded,
+                          label: l10n.darkTheme,
+                          isSelected: themeProvider.themeMode == ThemeMode.dark,
+                          isDark: isDark,
+                          onTap: () =>
+                              themeProvider.setThemeMode(ThemeMode.dark),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -203,7 +230,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Notification Permission',
+                          l10n.notificationPermission,
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
@@ -217,7 +244,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Granted',
+                              l10n.permissionGranted,
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     color: AppColors.statusSuccess,
@@ -235,7 +262,7 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             const SizedBox(height: AppSpacing.md),
 
             // ACCOUNT (Edit Profile + Security + Logout)
-            _sectionLabel('ACCOUNT'),
+            _sectionLabel(l10n.account.toUpperCase()),
             _buildGroupCard(isDark, [
               _buildNavRow(
                 context,
@@ -293,38 +320,9 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
                 context,
                 icon: Icons.workspace_premium_outlined,
                 label: l10n.manageSubscriptions,
+                isLast: true,
                 onTap: () {
                   Navigator.pushNamed(context, '/subscription/upgrade');
-                },
-              ),
-              _divider(isDark),
-              _buildNavRow(
-                context,
-                icon: Icons.restore_rounded,
-                label: l10n.restoreSubscription,
-                isLast: true,
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Restoring subscription\u2026'),
-                    ),
-                  );
-                },
-              ),
-            ]),
-            const SizedBox(height: AppSpacing.md),
-
-            // RATE APP
-            _buildGroupCard(isDark, [
-              _buildNavRow(
-                context,
-                icon: Icons.star_outline_rounded,
-                label: l10n.rateApp,
-                isLast: true,
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Opening app store\u2026')),
-                  );
                 },
               ),
             ]),
@@ -333,37 +331,69 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             // SUPPORT
             _sectionLabel(l10n.support.toUpperCase()),
             _buildGroupCard(isDark, [
-              _buildNavRow(
+              _buildSupportRow(
                 context,
-                icon: Icons.mail_outline_rounded,
+                isDark: isDark,
+                icon: Icons.star_rounded,
+                iconBg: const Color(0xFFFF9500),
+                label: l10n.rateApp,
+                subtitle: l10n.helpImprove,
+                onTap: () async {
+                  // TODO: Replace with actual app store URL
+                  final uri = Uri.parse('https://play.google.com/store');
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
+              ),
+              _divider(isDark),
+              _buildSupportRow(
+                context,
+                isDark: isDark,
+                icon: Icons.headset_mic_rounded,
+                iconBg: const Color(0xFF007AFF),
                 label: l10n.contactSupport,
+                subtitle: l10n.contactSupportSubtitle,
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Opening contact\u2026')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ContactSupportScreen(),
+                    ),
                   );
                 },
               ),
               _divider(isDark),
-              _buildNavRow(
+              _buildSupportRow(
                 context,
-                icon: Icons.article_outlined,
+                isDark: isDark,
+                icon: Icons.article_rounded,
+                iconBg: const Color(0xFF34C759),
                 label: l10n.termsOfService,
+                subtitle: l10n.termsSubtitle,
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Opening Terms of Use\u2026')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const TermsOfServiceScreen(),
+                    ),
                   );
                 },
               ),
               _divider(isDark),
-              _buildNavRow(
+              _buildSupportRow(
                 context,
-                icon: Icons.privacy_tip_outlined,
+                isDark: isDark,
+                icon: Icons.shield_rounded,
+                iconBg: const Color(0xFFAF52DE),
                 label: l10n.privacyPolicy,
+                subtitle: l10n.privacySubtitle,
                 isLast: true,
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Opening Privacy Policy\u2026'),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PrivacyPolicyScreen(),
                     ),
                   );
                 },
@@ -461,6 +491,70 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
       color: isDark
           ? Colors.white.withValues(alpha: 0.08)
           : Colors.black.withValues(alpha: 0.08),
+    );
+  }
+
+  Widget _buildSupportRow(
+    BuildContext context, {
+    required bool isDark,
+    required IconData icon,
+    required Color iconBg,
+    required String label,
+    required String subtitle,
+    required VoidCallback onTap,
+    bool isLast = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: isLast
+          ? const BorderRadius.only(
+              bottomLeft: Radius.circular(14),
+              bottomRight: Radius.circular(14),
+            )
+          : BorderRadius.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, size: 20, color: Colors.white),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -579,6 +673,85 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
             child: Text(l10n.logout),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Tappable theme option card with icon, label, and selected state.
+class _ThemeOptionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _ThemeOptionCard({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedBg = isDark
+        ? AppColors.primaryBlue.withValues(alpha: 0.18)
+        : AppColors.primaryBlue.withValues(alpha: 0.1);
+    final unselectedBg = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.grey.withValues(alpha: 0.08);
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: isSelected ? selectedBg : unselectedBg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? AppColors.primaryBlue : Colors.transparent,
+              width: 1.5,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 24,
+                color: isSelected
+                    ? AppColors.primaryBlue
+                    : (isDark ? Colors.white60 : Colors.grey),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected
+                      ? AppColors.primaryBlue
+                      : (isDark ? Colors.white70 : Colors.grey.shade700),
+                ),
+              ),
+              const SizedBox(height: 4),
+              AnimatedOpacity(
+                opacity: isSelected ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  size: 16,
+                  color: AppColors.primaryBlue,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

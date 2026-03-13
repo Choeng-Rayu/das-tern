@@ -135,7 +135,10 @@ class DoctorDashboardProvider extends ChangeNotifier {
       final rawList = List<Map<String, dynamic>>.from(result['patients'] ?? []);
       _patients = rawList.map((e) => PatientListItem.fromJson(e)).toList();
       _totalPatients = result['total'] ?? 0;
-      _log.success('DoctorDashboard', 'Patient list loaded: ${_patients.length}');
+      _log.success(
+        'DoctorDashboard',
+        'Patient list loaded: ${_patients.length}',
+      );
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
       _log.error('DoctorDashboard', 'Failed to load patients', e);
@@ -191,8 +194,11 @@ class DoctorDashboardProvider extends ChangeNotifier {
   // Adherence
   // ────────────────────────────────────────────
 
-  Future<void> fetchPatientAdherence(String patientId,
-      {String? startDate, String? endDate}) async {
+  Future<void> fetchPatientAdherence(
+    String patientId, {
+    String? startDate,
+    String? endDate,
+  }) async {
     _adherenceLoading = true;
     _error = null;
     notifyListeners();
@@ -223,11 +229,13 @@ class DoctorDashboardProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await _api.getDoctorPendingConnections();
-      _pendingConnections = List<Map<String, dynamic>>.from(result)
-          .map((e) => PendingConnection.fromJson(e))
-          .toList();
-      _log.success('DoctorDashboard',
-          'Pending connections loaded: ${_pendingConnections.length}');
+      _pendingConnections = List<Map<String, dynamic>>.from(
+        result,
+      ).map((e) => PendingConnection.fromJson(e)).toList();
+      _log.success(
+        'DoctorDashboard',
+        'Pending connections loaded: ${_pendingConnections.length}',
+      );
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
       _log.error('DoctorDashboard', 'Failed to load pending connections', e);
@@ -288,11 +296,10 @@ class DoctorDashboardProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await _api.getDoctorNotes(patientId);
-      _doctorNotes = List<Map<String, dynamic>>.from(result)
-          .map((e) => DoctorNote.fromJson(e))
-          .toList();
-      _log.success(
-          'DoctorDashboard', 'Notes loaded: ${_doctorNotes.length}');
+      _doctorNotes = List<Map<String, dynamic>>.from(
+        result,
+      ).map((e) => DoctorNote.fromJson(e)).toList();
+      _log.success('DoctorDashboard', 'Notes loaded: ${_doctorNotes.length}');
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
       _log.error('DoctorDashboard', 'Failed to load notes', e);
@@ -359,11 +366,14 @@ class DoctorDashboardProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await _api.getDoctorPrescriptions(status: status);
-      _doctorPrescriptions =
-          List<Map<String, dynamic>>.from(result['prescriptions'] ?? []);
+      _doctorPrescriptions = List<Map<String, dynamic>>.from(
+        result['prescriptions'] ?? [],
+      );
       _totalPrescriptions = result['total'] ?? 0;
-      _log.success('DoctorDashboard',
-          'Prescriptions loaded: ${_doctorPrescriptions.length}');
+      _log.success(
+        'DoctorDashboard',
+        'Prescriptions loaded: ${_doctorPrescriptions.length}',
+      );
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
       _log.error('DoctorDashboard', 'Failed to load prescriptions', e);
@@ -385,7 +395,10 @@ class DoctorDashboardProvider extends ChangeNotifier {
     try {
       final result = await _api.getDoctorDashboardGraph(period: _graphPeriod);
       _graphData = List<Map<String, dynamic>>.from(result['data'] ?? []);
-      _log.success('DoctorDashboard', 'Graph data loaded: ${_graphData.length} points');
+      _log.success(
+        'DoctorDashboard',
+        'Graph data loaded: ${_graphData.length} points',
+      );
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
       _log.error('DoctorDashboard', 'Failed to load graph data', e);

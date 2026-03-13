@@ -32,14 +32,24 @@ export class DosesService {
         dailyProgress,
         groups: [
           {
-            period: 'DAYTIME',
+            period: 'MORNING',
+            color: '#FFA726',
+            doses: doses.filter(d => this.isTimePeriod(d.timePeriod, 'MORNING')).map(d => this.formatDose(d)),
+          },
+          {
+            period: 'AFTERNOON',
             color: '#2D5BFF',
-            doses: doses.filter(d => d.timePeriod === 'DAYTIME').map(d => this.formatDose(d)),
+            doses: doses.filter(d => d.timePeriod === 'AFTERNOON').map(d => this.formatDose(d)),
+          },
+          {
+            period: 'EVENING',
+            color: '#FF7043',
+            doses: doses.filter(d => d.timePeriod === 'EVENING').map(d => this.formatDose(d)),
           },
           {
             period: 'NIGHT',
             color: '#6B4AA3',
-            doses: doses.filter(d => d.timePeriod === 'NIGHT').map(d => this.formatDose(d)),
+            doses: doses.filter(d => this.isTimePeriod(d.timePeriod, 'NIGHT')).map(d => this.formatDose(d)),
           },
         ],
       };
@@ -138,7 +148,7 @@ export class DosesService {
       id: dose.id,
       medicationName: dose.medication.medicineName,
       medicationNameKhmer: dose.medication.medicineNameKhmer,
-      dosage: dose.medication.morningDosage || dose.medication.daytimeDosage || dose.medication.nightDosage,
+      dosage: dose.medication.morningDosage || dose.medication.afternoonDosage || dose.medication.eveningDosage || dose.medication.nightDosage,
       scheduledTime: dose.scheduledTime,
       timePeriod: dose.timePeriod,
       prescriptionId: dose.prescriptionId,
@@ -280,11 +290,24 @@ export class DosesService {
     return results;
   }
 
+  private isTimePeriod(value: unknown, expected: 'MORNING' | 'DAYTIME' | 'NIGHT'): boolean {
+    return String(value).toUpperCase() === expected;
+  }
+
   private getDosageForTimePeriod(medication: any, period: string): any {
+    if (this.isTimePeriod(period, 'MORNING')) {
+      return medication.morningDosage;
+    }
+    if (period === 'AFTERNOON') {
+      return medication.afternoonDosage;
+    }
+    if (period === 'EVENING') {
+      return medication.eveningDosage;
+    }
     if (period === 'NIGHT') {
       return medication.nightDosage;
     }
-    return medication.morningDosage || medication.daytimeDosage;
+    return medication.morningDosage;
   }
 
   private async calculateDailyProgress(patientId: string, date: Date): Promise<number> {

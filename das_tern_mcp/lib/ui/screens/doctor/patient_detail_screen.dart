@@ -47,198 +47,164 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<DoctorDashboardProvider>();
     final details = provider.selectedPatientDetails;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          details?.patient.displayName ?? l10n.patient,
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: l10n.overview),
-            Tab(text: l10n.adherence),
-            Tab(text: l10n.vitals),
-            Tab(text: l10n.notes),
-          ],
-        ),
-      ),
+      appBar: AppBar(title: Text(details?.patient.displayName ?? l10n.patient)),
       body: provider.detailsLoading
           ? const Center(child: CircularProgressIndicator())
           : details == null
-              ? Center(
-                  child: Text(
-                    provider.error ?? l10n.failedToLoadPatientDetails,
-                    style: TextStyle(color: AppColors.alertRed),
-                  ),
-                )
-              : TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _OverviewTab(details: details),
-                    _AdherenceTab(details: details),
-                    _VitalsTab(patientId: widget.patientId),
-                    _NotesTab(
-                      patientId: widget.patientId,
-                      noteController: _noteController,
-                    ),
-                  ],
+          ? Center(
+              child: Text(
+                provider.error ?? l10n.failedToLoadPatientDetails,
+                style: TextStyle(color: AppColors.alertRed),
+              ),
+            )
+          : Column(
+              children: [
+                // Patient Profile Card
+                _PatientProfileCard(
+                  patient: details.patient,
+                  adherence: details.adherence,
+                  isDark: isDark,
                 ),
+                // Tab navigation
+                Expanded(
+                  child: DefaultTabController(
+                    length: 2,
+                    child: Column(
+                      children: [
+                        TabBar(
+                          tabs: [
+                            Tab(text: l10n.overview),
+                            Tab(text: l10n.prescriptions),
+                          ],
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            children: [
+                              _OverviewTab(details: details),
+                              _PrescriptionsTab(details: details),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Overview Tab
+// Patient Profile Card
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-class _OverviewTab extends StatelessWidget {
-  final PatientDetails details;
-  const _OverviewTab({required this.details});
+class _PatientProfileCard extends StatelessWidget {
+  final PatientInfo patient;
+  final AdherenceResult adherence;
+  final bool isDark;
+
+  const _PatientProfileCard({
+    required this.patient,
+    required this.adherence,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final patient = details.patient;
-    final adherence = details.adherence;
-    final prescriptions = details.prescriptions;
-
-    return SingleChildScrollView(
+    return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Patient Info Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      color: isDark ? Colors.grey[850] : Colors.grey[50],
+      child: Card(
+        elevation: isDark ? 2 : 1,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with avatar and basic info
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 28,
-                        backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
-                        child: Text(
-                          (patient.firstName ?? '?')[0].toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryBlue,
-                          ),
-                        ),
+                  CircleAvatar(
+                    radius: 32,
+                    backgroundColor: AppColors.primaryBlue.withValues(
+                      alpha: 0.1,
+                    ),
+                    child: Text(
+                      patient.displayName.isNotEmpty
+                          ? patient.displayName[0].toUpperCase()
+                          : '?',
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryBlue,
                       ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          patient.displayName,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
                           children: [
-                            Text(
-                              patient.displayName,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              l10n.ageLabel(patient.age?.toString() ?? 'N/A', patient.gender ?? 'N/A'),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
-                            Text(
-                              patient.phoneNumber ?? '',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
+                            if (patient.age != null)
+                              Text(
+                                '${patient.age} yrs',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: AppColors.textSecondary),
+                              ),
+                            if (patient.age != null && patient.gender != null)
+                              const SizedBox(width: 8),
+                            if (patient.gender != null)
+                              Text(
+                                patient.gender ?? '',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: AppColors.textSecondary),
+                              ),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-
-          // Adherence Summary
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Row(
+              const SizedBox(height: AppSpacing.md),
+              // Adherence metrics
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _MetricColumn(
-                    label: l10n.adherence,
+                    label: 'Adherence',
                     value: '${adherence.overallPercentage.toStringAsFixed(0)}%',
                     color: _adherenceColor(adherence.level),
                   ),
                   _MetricColumn(
-                    label: l10n.taken,
+                    label: 'Taken',
                     value: '${adherence.takenDoses}',
                     color: AppColors.successGreen,
                   ),
                   _MetricColumn(
-                    label: l10n.missed,
+                    label: 'Missed',
                     value: '${adherence.missedDoses}',
                     color: AppColors.alertRed,
                   ),
-                  _MetricColumn(
-                    label: l10n.late,
-                    value: '${adherence.lateDoses}',
-                    color: AppColors.warningOrange,
-                  ),
                 ],
               ),
-            ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.lg),
-
-          // Prescriptions
-          Text(
-            l10n.activePrescriptionsCount(prescriptions.where((p) => p.isActive).length),
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          if (prescriptions.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-              child: Center(child: Text(l10n.noPrescriptions)),
-            )
-          else
-            ...prescriptions.map(
-              (rx) => Card(
-                child: ListTile(
-                  leading: Icon(
-                    Icons.description,
-                    color: rx.isActive
-                        ? AppColors.successGreen
-                        : AppColors.neutralGray,
-                  ),
-                  title: Text(rx.symptoms ?? l10n.prescription),
-                  subtitle: Text(
-                    l10n.statusMedicines(rx.status, rx.medications.length),
-                  ),
-                  trailing: Text(
-                    _formatDate(rx.createdAt),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: AppColors.textSecondary),
-                  ),
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -255,6 +221,135 @@ class _OverviewTab extends StatelessWidget {
         return AppColors.neutralGray;
     }
   }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Prescriptions Tab
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+class _PrescriptionsTab extends StatelessWidget {
+  final PatientDetails details;
+
+  const _PrescriptionsTab({required this.details});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final prescriptions = details.prescriptions;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (prescriptions.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.description_outlined,
+                      size: 48,
+                      color: AppColors.neutral300,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      l10n.noPrescriptions,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ...prescriptions.map((rx) {
+              final isDark = Theme.of(context).brightness == Brightness.dark;
+              return Card(
+                margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                elevation: isDark ? 2 : 1,
+                color: isDark
+                    ? Colors.grey[850]
+                    : Theme.of(context).cardTheme.color,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(AppSpacing.md),
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: rx.isActive
+                          ? AppColors.successGreen.withValues(alpha: 0.1)
+                          : AppColors.neutral300.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.description,
+                      color: rx.isActive
+                          ? AppColors.successGreen
+                          : AppColors.neutralGray,
+                    ),
+                  ),
+                  title: Text(
+                    rx.symptoms ?? l10n.prescription,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 4),
+                      Text(
+                        '${rx.medications.length} ${rx.medications.length == 1 ? 'medicine' : l10n.medications}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: rx.isActive
+                                  ? AppColors.successGreen.withValues(
+                                      alpha: 0.15,
+                                    )
+                                  : AppColors.neutral300.withValues(
+                                      alpha: 0.15,
+                                    ),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              rx.status,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: rx.isActive
+                                    ? AppColors.successGreen
+                                    : AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            _formatDate(rx.createdAt),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
 
   String _formatDate(String? iso) {
     if (iso == null) return '';
@@ -267,11 +362,91 @@ class _OverviewTab extends StatelessWidget {
   }
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Overview Tab
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+class _OverviewTab extends StatelessWidget {
+  final PatientDetails details;
+  const _OverviewTab({required this.details});
+
+  @override
+  Widget build(BuildContext context) {
+    final patient = details.patient;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Patient Info
+          Text(
+            'Patient Information',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _InfoRow(label: 'Age', value: '${patient.age ?? 'N/A'}'),
+                  const SizedBox(height: AppSpacing.sm),
+                  _InfoRow(label: 'Gender', value: patient.gender ?? 'N/A'),
+                  const SizedBox(height: AppSpacing.sm),
+                  _InfoRow(label: 'Phone', value: patient.phoneNumber ?? 'N/A'),
+                  const SizedBox(height: AppSpacing.sm),
+                  _InfoRow(label: 'Email', value: patient.email ?? 'N/A'),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _InfoRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+        ),
+        Text(
+          value,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+}
+
 class _MetricColumn extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
-  const _MetricColumn({required this.label, required this.value, required this.color});
+  const _MetricColumn({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -279,331 +454,19 @@ class _MetricColumn extends StatelessWidget {
       children: [
         Text(
           value,
-          style: Theme.of(context)
-              .textTheme
-              .headlineSmall
-              ?.copyWith(fontWeight: FontWeight.bold, color: color),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: AppColors.textSecondary),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
         ),
       ],
-    );
-  }
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Adherence Tab
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-class _AdherenceTab extends StatelessWidget {
-  final PatientDetails details;
-  const _AdherenceTab({required this.details});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final timeline = details.adherenceTimeline;
-
-    if (timeline.isEmpty) {
-      return Center(child: Text(l10n.noAdherenceData));
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.dailyAdherenceLast30,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: AppSpacing.md),
-
-          // Simple bar chart representation
-          SizedBox(
-            height: 200,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: timeline.map((point) {
-                final pct = point.percentage;
-                return Expanded(
-                  child: Tooltip(
-                    message: '${point.date}: ${pct.toStringAsFixed(0)}%',
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 1),
-                      height: (pct / 100) * 180 + 2,
-                      decoration: BoxDecoration(
-                        color: _barColor(pct),
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(2),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-
-          // Legend
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _LegendDot(color: AppColors.successGreen, label: '≥90%'),
-              const SizedBox(width: AppSpacing.md),
-              _LegendDot(color: AppColors.warningOrange, label: '70-89%'),
-              const SizedBox(width: AppSpacing.md),
-              _LegendDot(color: AppColors.alertRed, label: '<70%'),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-
-          // Timeline list
-          Text(
-            l10n.dailyBreakdown,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          ...timeline.reversed.take(14).map(
-            (point) => ListTile(
-              dense: true,
-              leading: Icon(
-                Icons.circle,
-                size: 12,
-                color: _barColor(point.percentage),
-              ),
-              title: Text(point.date),
-              trailing: Text(
-                '${point.percentage.toStringAsFixed(0)}% (${point.takenDoses}/${point.totalDoses})',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _barColor(double pct) {
-    if (pct >= 90) return AppColors.successGreen;
-    if (pct >= 70) return AppColors.warningOrange;
-    return AppColors.alertRed;
-  }
-}
-
-class _LegendDot extends StatelessWidget {
-  final Color color;
-  final String label;
-  const _LegendDot({required this.color, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 4),
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
-      ],
-    );
-  }
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Notes Tab
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-class _NotesTab extends StatelessWidget {
-  final String patientId;
-  final TextEditingController noteController;
-  const _NotesTab({required this.patientId, required this.noteController});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final provider = context.watch<DoctorDashboardProvider>();
-
-    return Column(
-      children: [
-        // Add note input
-        Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: noteController,
-                  decoration: InputDecoration(
-                    hintText: l10n.addNoteHint,
-                    border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.sm,
-                    ),
-                  ),
-                  maxLines: 2,
-                  minLines: 1,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              IconButton(
-                icon: const Icon(Icons.send, color: AppColors.primaryBlue),
-                onPressed: () async {
-                  final content = noteController.text.trim();
-                  if (content.isEmpty) return;
-                  final success = await provider.createNote(patientId, content);
-                  if (success) noteController.clear();
-                },
-              ),
-            ],
-          ),
-        ),
-        const Divider(height: 1),
-
-        // Notes list
-        Expanded(
-          child: provider.notesLoading
-              ? const Center(child: CircularProgressIndicator())
-              : provider.doctorNotes.isEmpty
-                  ? Center(child: Text(l10n.noNotesYet))
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      itemCount: provider.doctorNotes.length,
-                      itemBuilder: (context, index) {
-                        final note = provider.doctorNotes[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppSpacing.md),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      note.formattedDate,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.edit, size: 18),
-                                          onPressed: () =>
-                                              _showEditDialog(context, provider, note),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete, size: 18,
-                                              color: AppColors.alertRed),
-                                          onPressed: () =>
-                                              _showDeleteDialog(context, provider, note),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: AppSpacing.xs),
-                                Text(note.content),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-        ),
-      ],
-    );
-  }
-
-  void _showEditDialog(
-    BuildContext context,
-    DoctorDashboardProvider provider,
-    DoctorNote note,
-  ) {
-    final l10n = AppLocalizations.of(context)!;
-    final editController = TextEditingController(text: note.content);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.editNote),
-        content: TextField(
-          controller: editController,
-          maxLines: 5,
-          decoration: const InputDecoration(border: OutlineInputBorder()),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final content = editController.text.trim();
-              if (content.isNotEmpty) {
-                await provider.updateNote(note.id, content);
-              }
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteDialog(
-    BuildContext context,
-    DoctorDashboardProvider provider,
-    DoctorNote note,
-  ) {
-    final l10n = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.deleteNote),
-        content: Text(l10n.deleteNoteConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.cancel),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.alertRed,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () async {
-              await provider.deleteNote(note.id);
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -666,10 +529,7 @@ class _VitalsTabState extends State<_VitalsTab> {
           children: [
             Text(_error!, style: const TextStyle(color: AppColors.alertRed)),
             const SizedBox(height: AppSpacing.sm),
-            ElevatedButton(
-              onPressed: _loadVitals,
-              child: Text(l10n.retry),
-            ),
+            ElevatedButton(onPressed: _loadVitals, child: Text(l10n.retry)),
           ],
         ),
       );
@@ -697,10 +557,9 @@ class _VitalsTabState extends State<_VitalsTab> {
           children: [
             Text(
               l10n.latestReadings,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.sm),
             GridView.count(
@@ -762,43 +621,48 @@ class _VitalsTabState extends State<_VitalsTab> {
             const SizedBox(height: AppSpacing.lg),
             Text(
               l10n.historyCount(_vitals.length),
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.sm),
-            ..._vitals.take(50).map(
-              (vital) => Card(
-                margin: const EdgeInsets.only(bottom: AppSpacing.xs),
-                child: ListTile(
-                  dense: true,
-                  leading: Container(
-                    width: 6,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: vital.isAbnormal
-                          ? AppColors.alertRed
-                          : AppColors.successGreen,
-                      borderRadius: BorderRadius.circular(3),
+            ..._vitals
+                .take(50)
+                .map(
+                  (vital) => Card(
+                    margin: const EdgeInsets.only(bottom: AppSpacing.xs),
+                    child: ListTile(
+                      dense: true,
+                      leading: Container(
+                        width: 6,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: vital.isAbnormal
+                              ? AppColors.alertRed
+                              : AppColors.successGreen,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                      title: Text(
+                        '${vital.vitalType.displayName}: ${vital.displayValue} ${vital.unit}',
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                      subtitle: Text(
+                        '${vital.measuredAt.day}/${vital.measuredAt.month}/${vital.measuredAt.year} '
+                        '${vital.measuredAt.hour.toString().padLeft(2, '0')}:'
+                        '${vital.measuredAt.minute.toString().padLeft(2, '0')}',
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                      trailing: vital.isAbnormal
+                          ? const Icon(
+                              Icons.warning,
+                              color: AppColors.alertRed,
+                              size: 18,
+                            )
+                          : null,
                     ),
                   ),
-                  title: Text(
-                    '${vital.vitalType.displayName}: ${vital.displayValue} ${vital.unit}',
-                    style: const TextStyle(fontSize: 13),
-                  ),
-                  subtitle: Text(
-                    '${vital.measuredAt.day}/${vital.measuredAt.month}/${vital.measuredAt.year} '
-                    '${vital.measuredAt.hour.toString().padLeft(2, '0')}:'
-                    '${vital.measuredAt.minute.toString().padLeft(2, '0')}',
-                    style: const TextStyle(fontSize: 11),
-                  ),
-                  trailing: vital.isAbnormal
-                      ? const Icon(Icons.warning, color: AppColors.alertRed, size: 18)
-                      : null,
                 ),
-              ),
-            ),
           ],
         ),
       ),

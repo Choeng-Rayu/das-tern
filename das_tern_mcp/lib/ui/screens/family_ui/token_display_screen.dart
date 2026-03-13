@@ -302,10 +302,18 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
           ),
           const SizedBox(height: AppSpacing.lg),
 
-          // Share button
+          // Share QR Code as image
+          PrimaryButton(
+            text: l10n.shareQrCode,
+            icon: Icons.qr_code,
+            onPressed: _shareTokenWithQr,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          // Share text code only
           PrimaryButton(
             text: l10n.shareCodeButton,
             icon: Icons.share,
+            isOutlined: true,
             onPressed: () {
               Share.share(l10n.shareCodeMessage(_token ?? ''));
             },
