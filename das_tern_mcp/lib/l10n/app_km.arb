@@ -1116,12 +1116,9 @@
   "prescriptionCreatedSuccess": "បានបង្កើតវេជ្ជបញ្ជាជោគជ័យ",
   "yourScheduleReady": "កាលវិភាគថ្នាំរបស់អ្នករួចរាល់",
   "viewSchedule": "មើលកាលវិភាគ",
-  "goHome": "ត្រឡប់ទៅទំព័រដើម",
-
   "premiumBadge": "Premium",
   "familyAlertsRequirePremium": "ការជូនដំណឹងគ្រួសារត្រូវការគម្រោង Premium។ ដំឡើងដើម្បីទទួលបានការជូនដំណឹងនៅពេលអ្នកជិតស្និទ្ធមិនបានផឹកថ្នាំ។",
   "upgradeToPremiumForFamilyAlerts": "ដំឡើងទៅ Premium",
-
   "notifReminderTitle": "ការរំលឹកថ្នាំ",
   "notifReminderRetryTag": " (រំលឹក)",
   "notifSnoozedTitle": "ការរំលឹកថ្នាំ (ពន្យារ)",
@@ -1158,5 +1155,13 @@
   "notifTestTitle": "ការរំលឹកសាកល្បង",
   "notifTestBody": "នេះជាការរំលឹកសាកល្បង។ ប៊ូតុងសកម្មភាពដំណើរការបានត្រឹមត្រូវ។",
   "sendTestNotification": "ផ្ញើការរំលឹកសាកល្បង",
-  "testNotificationSent": "បានផ្ញើការរំលឹកសាកល្បង!"
+  "testNotificationSent": "បានផ្ញើការរំលឹកសាកល្បង!",
+  "downloadPdf": "ទាញយក PDF",
+  "premiumFeature": "មុខងារ Premium",
+  "downloadReportDescription": "ទាញយករបាយការណ៍សកម្មភាពរបស់អ្នកជា PDF។ មានតែសម្រាប់គម្រោង Premium ប៉ុណ្ណោះ។",
+  "upgradeToPremium": "ធ្វើឱ្យប្រសើរជា Premium",
+  "maybeLater": "ពេលក្រោយ",
+  "generatingPdf": "កំពុងបង្កើត PDF...",
+  "pdfReady": "PDF របាយការណ៍រួចរាល់",
+  "goHome": "ត្រឡប់ទៅទំព័រដើម"
 }

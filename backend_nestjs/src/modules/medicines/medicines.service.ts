@@ -63,8 +63,6 @@ export class MedicinesService {
         additionalNote: dto.additionalNote,
         createdBy: userId,
         morningDosage: hasTimes ? (morningDosage || Prisma.DbNull) : { amount: `${dto.dosageAmount}${dto.dosageUnit}`, beforeMeal: dto.beforeMeal || false },
-        afternoonDosage: hasTimes ? (afternoonDosage || Prisma.DbNull) : Prisma.DbNull,
-        eveningDosage: hasTimes ? (eveningDosage || Prisma.DbNull) : Prisma.DbNull,
         nightDosage: hasTimes ? (nightDosage || Prisma.DbNull) : Prisma.DbNull,
         imageUrl: dto.imageUrl,
         frequency: dto.frequency || '1ដង/១ថ្ងៃ',
@@ -373,8 +371,9 @@ export class MedicinesService {
     const morningMin = mealPref?.morningMeal ? parseInt(mealPref.morningMeal.split(':')[1]) : 0;
     const afternoonHour = mealPref?.afternoonMeal ? parseInt(mealPref.afternoonMeal.split(':')[0]) : 12;
     const afternoonMin = mealPref?.afternoonMeal ? parseInt(mealPref.afternoonMeal.split(':')[1]) : 0;
-    const eveningHour = mealPref?.eveningMeal ? parseInt(mealPref.eveningMeal.split(':')[0]) : 17;
-    const eveningMin = mealPref?.eveningMeal ? parseInt(mealPref.eveningMeal.split(':')[1]) : 0;
+    // No 'eveningMeal' property exists, use 'nightMeal' for evening medication times
+    const eveningHour = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[0]) : 17;
+    const eveningMin = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[1]) : 0;
     const nightHour = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[0]) : 20;
     const nightMin = mealPref?.nightMeal ? parseInt(mealPref.nightMeal.split(':')[1]) : 0;
 

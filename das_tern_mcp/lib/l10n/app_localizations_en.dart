@@ -2892,6 +2892,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goHome => 'Go Home';
 
   @override
+  String get downloadPdf => 'Download PDF';
+
+  @override
+  String get downloadReportDescription =>
+      'Download your activity report as a PDF. Available on Premium plans.';
+
+  @override
+  String get maybeLater => 'Maybe Later';
+
+  @override
+  String get generatingPdf => 'Generating PDF...';
+
+  @override
+  String get pdfReady => 'Report PDF is ready';
+
+  @override
   String get premiumBadge => 'Premium';
 
   @override

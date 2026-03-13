@@ -43,12 +43,12 @@ export class DosesService {
           {
             period: 'AFTERNOON',
             color: '#2D5BFF',
-            doses: doses.filter(d => d.timePeriod === 'AFTERNOON').map(d => this.formatDose(d)),
+            doses: doses.filter(d => String(d.timePeriod).toUpperCase() === 'AFTERNOON').map(d => this.formatDose(d)),
           },
           {
             period: 'EVENING',
             color: '#FF7043',
-            doses: doses.filter(d => d.timePeriod === 'EVENING').map(d => this.formatDose(d)),
+            doses: doses.filter(d => String(d.timePeriod).toUpperCase() === 'EVENING').map(d => this.formatDose(d)),
           },
           {
             period: 'NIGHT',
@@ -155,7 +155,7 @@ export class DosesService {
       id: dose.id,
       medicationName: dose.medication.medicineName,
       medicationNameKhmer: dose.medication.medicineNameKhmer,
-      dosage: dose.medication.morningDosage || dose.medication.afternoonDosage || dose.medication.eveningDosage || dose.medication.nightDosage,
+      dosage: dose.medication.morningDosage || dose.medication.nightDosage,
       scheduledTime: dose.scheduledTime,
       timePeriod: dose.timePeriod,
       prescriptionId: dose.prescriptionId,

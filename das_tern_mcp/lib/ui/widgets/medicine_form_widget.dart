@@ -97,6 +97,13 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
+    final scheduleTimes = <Map<String, String>>[
+      if (_morning) {'timePeriod': 'morning', 'time': '07:00'},
+      if (_afternoon) {'timePeriod': 'afternoon', 'time': '12:00'},
+      if (_evening) {'timePeriod': 'evening', 'time': '17:00'},
+      if (_night) {'timePeriod': 'night', 'time': '20:00'},
+    ];
+
     widget.onSave({
       'medicineName': _nameController.text.trim(),
       'medicineNameKhmer': _nameKhmerController.text.trim(),
@@ -507,6 +514,7 @@ class _ScheduleChip extends StatelessWidget {
     this.color,
     required this.selected,
     required this.onTap,
+   
   });
 
   final String label;
@@ -514,6 +522,7 @@ class _ScheduleChip extends StatelessWidget {
   final Color? color;
   final bool selected;
   final VoidCallback onTap;
+
 
   @override
   Widget build(BuildContext context) {
