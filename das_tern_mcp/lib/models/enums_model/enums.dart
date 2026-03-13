@@ -28,6 +28,10 @@ enum NotificationType {
   missedDoseAlert,
   urgentPrescriptionChange,
   familyAlert,
+  vitalAnomaly,
+  emergencyAlert,
+  reminderEscalation,
+  doseConfirmed,
 }
 
 // ── Helpers ──
@@ -135,5 +139,53 @@ ConnectionStatus connectionStatusFromString(String value) {
       return ConnectionStatus.revoked;
     default:
       return ConnectionStatus.pending;
+  }
+}
+
+NotificationType notificationTypeFromString(String value) {
+  switch (value) {
+    case 'CONNECTION_REQUEST':
+      return NotificationType.connectionRequest;
+    case 'PRESCRIPTION_UPDATE':
+      return NotificationType.prescriptionUpdate;
+    case 'MISSED_DOSE_ALERT':
+      return NotificationType.missedDoseAlert;
+    case 'URGENT_PRESCRIPTION_CHANGE':
+      return NotificationType.urgentPrescriptionChange;
+    case 'FAMILY_ALERT':
+      return NotificationType.familyAlert;
+    case 'VITAL_ANOMALY':
+      return NotificationType.vitalAnomaly;
+    case 'EMERGENCY_ALERT':
+      return NotificationType.emergencyAlert;
+    case 'REMINDER_ESCALATION':
+      return NotificationType.reminderEscalation;
+    case 'DOSE_CONFIRMED':
+      return NotificationType.doseConfirmed;
+    default:
+      return NotificationType.familyAlert;
+  }
+}
+
+String notificationTypeToString(NotificationType type) {
+  switch (type) {
+    case NotificationType.connectionRequest:
+      return 'CONNECTION_REQUEST';
+    case NotificationType.prescriptionUpdate:
+      return 'PRESCRIPTION_UPDATE';
+    case NotificationType.missedDoseAlert:
+      return 'MISSED_DOSE_ALERT';
+    case NotificationType.urgentPrescriptionChange:
+      return 'URGENT_PRESCRIPTION_CHANGE';
+    case NotificationType.familyAlert:
+      return 'FAMILY_ALERT';
+    case NotificationType.vitalAnomaly:
+      return 'VITAL_ANOMALY';
+    case NotificationType.emergencyAlert:
+      return 'EMERGENCY_ALERT';
+    case NotificationType.reminderEscalation:
+      return 'REMINDER_ESCALATION';
+    case NotificationType.doseConfirmed:
+      return 'DOSE_CONFIRMED';
   }
 }

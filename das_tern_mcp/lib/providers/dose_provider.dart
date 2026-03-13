@@ -169,8 +169,8 @@ class DoseProvider extends ChangeNotifier {
         );
       }
 
-      // Cancel the reminder for this dose
-      await _notif.cancelReminder(doseId);
+      // Cancel all retry reminders for this dose
+      await _notif.cancelDoseReminders(doseId);
 
       // Re-fetch schedule
       await fetchTodaySchedule();
@@ -198,13 +198,70 @@ class DoseProvider extends ChangeNotifier {
         );
       }
 
-      await _notif.cancelReminder(doseId);
+      await _notif.cancelDoseReminders(doseId);
       await fetchTodaySchedule();
       return true;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
       notifyListeners();
       return false;
+    }
+  }
+
+  /// Process queued notification actions (mark_taken / skip) that were
+  /// triggered from notification action buttons while the app was closed
+  /// or in the background. Called from main.dart on startup / resume.
+  Future<void> processPendingNotificationActions() async {
+    final actions = await _notif.consumePendingActions();
+    if (actions.isEmpty) return;
+
+    _log.info('DoseProvider', 'Processing pending notification actions', {
+      'count': actions.length,
+    });
+
+    for (final action in actions) {
+      final actionId = action['action'] as String?;
+      final payload = action['payload'] as String?;
+      if (actionId == null || payload == null) continue;
+
+      // Payload may be a single dose ID or comma-separated (batch).
+      final doseIds = payload.split(',').where((s) => s.isNotEmpty).toList();
+
+      switch (actionId) {
+        case 'mark_taken':
+          for (final doseId in doseIds) {
+            _log.info(
+              'DoseProvider',
+              'Pending action: mark_taken',
+              {'doseId': doseId},
+            );
+            await markTaken(doseId);
+          }
+          break;
+        case 'skip':
+          for (final doseId in doseIds) {
+            _log.info(
+              'DoseProvider',
+              'Pending action: skip',
+              {'doseId': doseId},
+            );
+            await skipDose(doseId, 'Skipped via notification');
+          }
+          break;
+        case 'snooze':
+          // Snooze is already handled at notification-service level
+          // (a new notification was scheduled immediately). No provider
+          // action needed — just log it.
+          _log.info('DoseProvider', 'Pending action: snooze (no-op)', {
+            'payload': payload,
+          });
+          break;
+        default:
+          _log.warning(
+            'DoseProvider',
+            'Unknown pending action: $actionId',
+          );
+      }
     }
   }
 }

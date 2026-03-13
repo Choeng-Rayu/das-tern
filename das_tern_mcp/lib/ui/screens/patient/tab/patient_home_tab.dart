@@ -4,11 +4,14 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/dose_provider.dart';
 import '../../../../providers/health_monitoring_provider.dart';
 import '../../../../providers/notification_provider.dart';
+import '../../../../providers/subscription_provider.dart';
 import '../../../../models/enums_model/medication_type.dart';
 import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/header_widgets.dart';
+import 'patient_medications_tab.dart';
+import '../screens/activity_report_screen.dart';
 
 /// Patient home tab – daily dashboard.
 /// Sections: header · medication tracker · progress · today's doses · quick actions · vitals
@@ -62,32 +65,31 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
     final doseProvider = context.watch<DoseProvider>();
     final healthProvider = context.watch<HealthMonitoringProvider>();
     final notifProvider = context.watch<NotificationProvider>();
+    final subProvider = context.watch<SubscriptionProvider>();
     final l10n = AppLocalizations.of(context)!;
 
     return RefreshIndicator(
       onRefresh: _onRefresh,
-      child: SingleChildScrollView(
+      child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Patient header with background image ──
-            PatientHeader(
-              onNotificationTap: () {
-                final notifProv = context.read<NotificationProvider>();
-                Navigator.pushNamed(
-                  context,
-                  AppRouter.patientNotifications,
-                ).then((_) {
+        slivers: [
+          // ── Sticky patient header ──
+          PatientHeader(
+            onNotificationTap: () {
+              final notifProv = context.read<NotificationProvider>();
+              Navigator.pushNamed(context, AppRouter.patientNotifications).then(
+                (_) {
                   if (!mounted) return;
                   notifProv.fetchNotifications();
-                });
-              },
-              unreadCount: notifProvider.unreadCount,
-            ),
+                },
+              );
+            },
+            unreadCount: notifProvider.unreadCount,
+          ),
 
-            // ── Time-period medicine section ──
-            Padding(
+          // ── Scrollable content ──
+          SliverToBoxAdapter(
+            child: Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,6 +124,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.beforeMeal,
                           backgroundImage: 'assets/morning.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'MORNING'),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -135,6 +144,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.afternoon,
                           backgroundImage: 'assets/afternoon.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'AFTERNOON'),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -152,6 +168,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.evening,
                           backgroundImage: 'assets/afternoon.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'EVENING'),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -165,6 +188,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.night,
                           backgroundImage: 'assets/night.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'NIGHT'),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -358,23 +388,38 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                   Row(
                     children: [
                       Expanded(
-                        child: _QuickActionCard(
-                          icon: Icons.history,
-                          title: l10n.medicationIntakeHistory,
-                          color: const Color(0xFF0288D1),
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ActivityReportScreen(),
+                            ),
+                          ),
+                          child: _QuickActionCard(
+                            icon: Icons.history,
+                            title: l10n.medicationIntakeHistory,
+                            color: const Color(0xFF0288D1),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            AppRouter.familyAccessList,
-                          ),
+                          onTap: () {
+                            if (subProvider.isPremium) {
+                              Navigator.pushNamed(
+                                context,
+                                AppRouter.familyAccessList,
+                              );
+                            } else {
+                              _showPremiumFamilyDialog(context);
+                            }
+                          },
                           child: _QuickActionCard(
                             icon: Icons.family_restroom,
                             title: l10n.familyFeatures,
                             color: const Color(0xFF29B6F6),
+                            showPremiumBadge: !subProvider.isPremium,
                           ),
                         ),
                       ),
@@ -622,8 +667,8 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -654,6 +699,44 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
     return months[month - 1];
   }
 
+  /// Show premium upsell dialog for family alerts
+  void _showPremiumFamilyDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.lock, color: AppColors.warningOrange, size: 22),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: Text(l10n.premiumFeature)),
+          ],
+        ),
+        content: Text(l10n.familyAlertsRequirePremium),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.pushNamed(context, AppRouter.subscriptionUpgrade);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryBlue,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.upgradeNow),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Get icon for vital type
   IconData _vitalIcon(VitalType type) {
     switch (type) {
@@ -673,6 +756,8 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
   }
 }
 
+// ── _TimePeriodCard ─────────────────────────────────────────────────────────
+
 class _TimePeriodCard extends StatelessWidget {
   const _TimePeriodCard({
     required this.label,
@@ -680,6 +765,7 @@ class _TimePeriodCard extends StatelessWidget {
     required this.doseCount,
     required this.badgeText,
     this.backgroundImage,
+    this.onTap,
   });
 
   final String label;
@@ -687,59 +773,79 @@ class _TimePeriodCard extends StatelessWidget {
   final int doseCount;
   final String badgeText;
   final String? backgroundImage;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      decoration: BoxDecoration(
+    // ClipRRect ensures the image is clipped to the rounded corners
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        image: backgroundImage != null
-            ? DecorationImage(
-                image: AssetImage(backgroundImage!),
-                fit: BoxFit.cover,
-              )
-            : null,
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.white, size: 24),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+        child: Container(
+          height: 110,
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            image: backgroundImage != null
+                ? DecorationImage(
+                    image: AssetImage(backgroundImage!),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                      Colors.black.withValues(alpha: 0.25),
+                      BlendMode.darken,
+                    ),
+                  )
+                : null,
+            // Fallback color if no image
+            color: backgroundImage == null ? AppColors.primaryBlue : null,
           ),
-          Text(
-            l10n.medicineCountLabel(doseCount),
-            style: const TextStyle(color: Colors.white70, fontSize: 10),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(AppRadius.full),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
-            ),
-            child: Text(
-              badgeText,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 24),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
+              Text(
+                l10n.medicineCountLabel(doseCount),
+                style: const TextStyle(color: Colors.white70, fontSize: 10),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                ),
+                child: Text(
+                  badgeText,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
+
+// ── _DoseCheckItem ──────────────────────────────────────────────────────────
 
 class _DoseCheckItem extends StatelessWidget {
   const _DoseCheckItem({
@@ -835,55 +941,87 @@ class _DoseCheckItem extends StatelessWidget {
   }
 }
 
+// ── _QuickActionCard ────────────────────────────────────────────────────────
+
 class _QuickActionCard extends StatelessWidget {
   const _QuickActionCard({
     required this.icon,
     required this.title,
     required this.color,
+    this.showPremiumBadge = false,
   });
 
   final IconData icon;
   final String title;
   final Color color;
+  final bool showPremiumBadge;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.8)]),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(AppRadius.md),
-            ),
-            child: Icon(icon, color: Colors.white, size: 22),
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.8)]),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Icon(icon, color: Colors.white, size: 22),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Icon(
+                showPremiumBadge ? Icons.lock : Icons.chevron_right,
+                color: Colors.white70,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+        if (showPremiumBadge)
+          Positioned(
+            top: 6,
+            right: 6,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.warningOrange,
+                borderRadius: BorderRadius.circular(AppRadius.full),
+              ),
+              child: const Text(
+                'Premium',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
-          const Icon(Icons.chevron_right, color: Colors.white70, size: 20),
-        ],
-      ),
+      ],
     );
   }
 }
 
-// ── Missed Dose Banner ──────────────────────────────────────────────────────
+// ── _MissedDoseBanner ───────────────────────────────────────────────────────
 
 class _MissedDoseBanner extends StatelessWidget {
   final int missedCount;

@@ -1226,4 +1226,51 @@
   "age": "Age",
   "phone": "Phone",
   "yearsUnit": "years"
+  "premiumBadge": "Premium",
+  "familyAlertsRequirePremium": "Family alerts require a Premium plan. Upgrade to get notified when your loved ones miss a dose.",
+  "upgradeToPremiumForFamilyAlerts": "Upgrade to Premium",
+  "notifReminderTitle": "Medication Reminder",
+  "notifReminderRetryTag": " (Reminder)",
+  "notifSnoozedTitle": "Medication Reminder (Snoozed)",
+  "notifPeriodMorning": "Morning",
+  "notifPeriodAfternoon": "Afternoon",
+  "notifPeriodEvening": "Evening",
+  "notifPeriodNight": "Night",
+  "notifPeriodDose": "Dose",
+  "notifSingleBody": "Time to take {name} ({dosage}) - {period}",
+  "@notifSingleBody": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "dosage": {"type": "String"},
+      "period": {"type": "String"}
+    }
+  },
+  "notifBatchBody": "{period} medicines:",
+  "@notifBatchBody": {
+    "placeholders": {
+      "period": {"type": "String"}
+    }
+  },
+  "notifSnoozedBodySingle": "You snoozed your medication reminder. Please take your medicine now.",
+  "notifSnoozedBodyBatch": "You snoozed your medication reminder. Please take your medicines now.",
+  "notifActionMarkTaken": "Mark as Taken",
+  "notifActionSnooze": "Snooze 10min",
+  "notifActionSkip": "Skip",
+  "notifChannelDoseRemindersName": "Dose Reminders",
+  "notifChannelDoseRemindersDesc": "Reminders to take your medication",
+  "notifChannelBatchRemindersName": "Batch Reminders",
+  "notifChannelBatchRemindersDesc": "Reminders for medication batch groups",
+  "notifChannelGeneralName": "General",
+  "notifChannelGeneralDesc": "General app notifications",
+  "notifTestTitle": "Test Notification",
+  "notifTestBody": "This is a test reminder. Action buttons work correctly.",
+  "sendTestNotification": "Send Test Notification",
+  "testNotificationSent": "Test notification sent!",
+  "downloadPdf": "Download PDF",
+  "premiumFeature": "Premium Feature",
+  "downloadReportDescription": "Download your activity report as a PDF. Available on Premium plans.",
+  "upgradeToPremium": "Upgrade to Premium",
+  "maybeLater": "Maybe Later",
+  "generatingPdf": "Generating PDF...",
+  "pdfReady": "Report PDF is ready"
 }

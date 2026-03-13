@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
+import '../../../../services/notification_service.dart';
 import '../../../screens/patient/screens/activity_report_screen.dart';
 import '../../../screens/support/contact_support_screen.dart';
 import '../../../screens/support/privacy_policy_screen.dart';
@@ -415,7 +416,63 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
           ],
         ),
       ),
+      _divider(isDark),
+      InkWell(
+        onTap: () => _sendTestNotification(context, l10n),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(14),
+          bottomRight: Radius.circular(14),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.send_outlined,
+                  color: AppColors.primaryBlue,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  l10n.sendTestNotification,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
+            ],
+          ),
+        ),
+      ),
     ]);
+  }
+
+  Future<void> _sendTestNotification(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    await NotificationService.instance.showTestNotification();
+    if (!mounted) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l10n.testNotificationSent),
+        backgroundColor: AppColors.statusSuccess,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   String _patientName(Map<String, dynamic>? user) {
