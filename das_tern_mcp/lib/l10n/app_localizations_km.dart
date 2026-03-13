@@ -2890,22 +2890,6 @@ class AppLocalizationsKm extends AppLocalizations {
   String get goHome => 'ត្រឡប់ទៅទំព័រដើម';
 
   @override
-  String get downloadPdf => 'ទាញយក PDF';
-
-  @override
-  String get downloadReportDescription =>
-      'ទាញយករបាយការណ៍សកម្មភាពរបស់អ្នកជា PDF។ មានតែសម្រាប់គម្រោង Premium ប៉ុណ្ណោះ។';
-
-  @override
-  String get maybeLater => 'ពេលក្រោយ';
-
-  @override
-  String get generatingPdf => 'កំពុងបង្កើត PDF...';
-
-  @override
-  String get pdfReady => 'PDF របាយការណ៍រួចរាល់';
-
-  @override
   String get premiumBadge => 'Premium';
 
   @override
@@ -2996,4 +2980,20 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get testNotificationSent => 'បានផ្ញើការរំលឹកសាកល្បង!';
+
+  @override
+  String get downloadPdf => 'ទាញយក PDF';
+
+  @override
+  String get downloadReportDescription =>
+      'ទាញយករបាយការណ៍សកម្មភាពរបស់អ្នកជា PDF។ មានតែសម្រាប់គម្រោង Premium ប៉ុណ្ណោះ។';
+
+  @override
+  String get maybeLater => 'ពេលក្រោយ';
+
+  @override
+  String get generatingPdf => 'កំពុងបង្កើត PDF...';
+
+  @override
+  String get pdfReady => 'PDF របាយការណ៍រួចរាល់';
 }

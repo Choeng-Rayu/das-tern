@@ -1116,6 +1116,8 @@
   "prescriptionCreatedSuccess": "បានបង្កើតវេជ្ជបញ្ជាជោគជ័យ",
   "yourScheduleReady": "កាលវិភាគថ្នាំរបស់អ្នករួចរាល់",
   "viewSchedule": "មើលកាលវិភាគ",
+  "goHome": "ត្រឡប់ទៅទំព័រដើម",
+
   "premiumBadge": "Premium",
   "familyAlertsRequirePremium": "ការជូនដំណឹងគ្រួសារត្រូវការគម្រោង Premium។ ដំឡើងដើម្បីទទួលបានការជូនដំណឹងនៅពេលអ្នកជិតស្និទ្ធមិនបានផឹកថ្នាំ។",
   "upgradeToPremiumForFamilyAlerts": "ដំឡើងទៅ Premium",
@@ -1162,6 +1164,5 @@
   "upgradeToPremium": "ធ្វើឱ្យប្រសើរជា Premium",
   "maybeLater": "ពេលក្រោយ",
   "generatingPdf": "កំពុងបង្កើត PDF...",
-  "pdfReady": "PDF របាយការណ៍រួចរាល់",
-  "goHome": "ត្រឡប់ទៅទំព័រដើម"
+  "pdfReady": "PDF របាយការណ៍រួចរាល់"
 }

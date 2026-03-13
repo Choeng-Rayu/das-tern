@@ -1219,6 +1219,8 @@
   "prescriptionCreatedSuccess": "Prescription Created Successfully",
   "yourScheduleReady": "Your medication schedule is ready",
   "viewSchedule": "View Schedule",
+  "goHome": "Go Home",
+
   "premiumBadge": "Premium",
   "familyAlertsRequirePremium": "Family alerts require a Premium plan. Upgrade to get notified when your loved ones miss a dose.",
   "upgradeToPremiumForFamilyAlerts": "Upgrade to Premium",
@@ -1265,6 +1267,5 @@
   "upgradeToPremium": "Upgrade to Premium",
   "maybeLater": "Maybe Later",
   "generatingPdf": "Generating PDF...",
-  "pdfReady": "Report PDF is ready",
-  "goHome": "Go Home"
+  "pdfReady": "Report PDF is ready"
 }
