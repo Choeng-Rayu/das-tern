@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../providers/dose_provider.dart';
 import '../../../../providers/prescription_provider.dart';
 import '../../../../providers/batch_provider.dart';
 import '../../../theme/app_colors.dart';
@@ -11,7 +12,8 @@ import '../../../widgets/header_widgets.dart';
 
 /// Medications tab – lists active prescriptions, batch groups, and their medications.
 class PatientMedicationsTab extends StatefulWidget {
-  const PatientMedicationsTab({super.key});
+  final String? period; // optional: MORNING|AFTERNOON|EVENING|NIGHT
+  const PatientMedicationsTab({super.key, this.period});
 
   @override
   State<PatientMedicationsTab> createState() => _PatientMedicationsTabState();
@@ -24,6 +26,15 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PrescriptionProvider>().fetchPrescriptions();
       context.read<BatchProvider>().fetchBatches();
+      // If opened with a specific period, ensure doses are loaded
+      if (widget.period != null) {
+        // DoseProvider is defined in the app – fetch today's schedule
+        try {
+          context.read<DoseProvider>().fetchTodaySchedule();
+        } catch (_) {
+          // DoseProvider may not be available in some contexts; ignore
+        }
+      }
     });
   }
 
@@ -32,6 +43,19 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<PrescriptionProvider>();
     final batchProvider = context.watch<BatchProvider>();
+    // If period specified, try to get doses from DoseProvider
+    final period = widget.period;
+    List<dynamic>? periodDoses;
+    if (period != null) {
+      try {
+        final doseProv = context.watch<DoseProvider>();
+        periodDoses = doseProv.todaysDoses
+            .where((d) => d.timePeriod.toUpperCase() == period)
+            .toList();
+      } catch (_) {
+        periodDoses = null;
+      }
+    }
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -155,9 +179,10 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                       ],
 
                       // Prescriptions Section (ACTIVE only)
-                      if (provider.prescriptions
-                          .where((p) => p.status == 'ACTIVE')
-                          .isNotEmpty) ...[
+                      if (period == null &&
+                          provider.prescriptions
+                              .where((p) => p.status == 'ACTIVE')
+                              .isNotEmpty) ...[
                         Text(
                           l10n.prescriptions,
                           style: Theme.of(context).textTheme.titleMedium
@@ -276,6 +301,101 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                             ),
                       ],
 
+                      // If opened for a specific period, show filtered doses list
+                      if (period != null) ...[
+                        Text(
+                          l10n.medications,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        if (periodDoses == null)
+                          const Center(child: CircularProgressIndicator())
+                        else if (periodDoses.isEmpty)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                top: AppSpacing.xxl,
+                              ),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle_outline,
+                                    size: 48,
+                                    color: AppColors.successGreen,
+                                  ),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Text(
+                                    l10n.noMoreMedicationsToday,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          ...periodDoses.map(
+                            (dose) => Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: AppSpacing.sm,
+                              ),
+                              child: AppCard(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 44,
+                                      height: 44,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryBlue.withValues(
+                                          alpha: 0.08,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: dose['imageUrl'] != null
+                                          ? Image.network(dose['imageUrl'])
+                                          : const Icon(
+                                              Icons.medication,
+                                              color: AppColors.primaryBlue,
+                                            ),
+                                    ),
+                                    const SizedBox(width: AppSpacing.md),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            dose['medicationName'] ?? '',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            dose['dosage'] ?? '',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.chevron_right,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                      ] else
                       // Empty state
                       if (provider.prescriptions
                               .where((p) => p.status == 'ACTIVE')

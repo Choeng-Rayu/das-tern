@@ -10,6 +10,7 @@ import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/header_widgets.dart';
+import 'patient_medications_tab.dart';
 import '../screens/activity_report_screen.dart';
 
 /// Patient home tab – daily dashboard.
@@ -123,6 +124,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.beforeMeal,
                           backgroundImage: 'assets/morning.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'MORNING'),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -136,6 +144,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.afternoon,
                           backgroundImage: 'assets/afternoon.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'AFTERNOON'),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -153,6 +168,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.evening,
                           backgroundImage: 'assets/afternoon.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'EVENING'),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -166,6 +188,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.night,
                           backgroundImage: 'assets/night.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'NIGHT'),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -727,6 +756,8 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
   }
 }
 
+// ── _TimePeriodCard ─────────────────────────────────────────────────────────
+
 class _TimePeriodCard extends StatelessWidget {
   const _TimePeriodCard({
     required this.label,
@@ -734,6 +765,7 @@ class _TimePeriodCard extends StatelessWidget {
     required this.doseCount,
     required this.badgeText,
     this.backgroundImage,
+    this.onTap,
   });
 
   final String label;
@@ -741,59 +773,79 @@ class _TimePeriodCard extends StatelessWidget {
   final int doseCount;
   final String badgeText;
   final String? backgroundImage;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      decoration: BoxDecoration(
+    // ClipRRect ensures the image is clipped to the rounded corners
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        image: backgroundImage != null
-            ? DecorationImage(
-                image: AssetImage(backgroundImage!),
-                fit: BoxFit.cover,
-              )
-            : null,
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.white, size: 24),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+        child: Container(
+          height: 110,
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            image: backgroundImage != null
+                ? DecorationImage(
+                    image: AssetImage(backgroundImage!),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                      Colors.black.withValues(alpha: 0.25),
+                      BlendMode.darken,
+                    ),
+                  )
+                : null,
+            // Fallback color if no image
+            color: backgroundImage == null ? AppColors.primaryBlue : null,
           ),
-          Text(
-            l10n.medicineCountLabel(doseCount),
-            style: const TextStyle(color: Colors.white70, fontSize: 10),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(AppRadius.full),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
-            ),
-            child: Text(
-              badgeText,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 24),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
+              Text(
+                l10n.medicineCountLabel(doseCount),
+                style: const TextStyle(color: Colors.white70, fontSize: 10),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                ),
+                child: Text(
+                  badgeText,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
+
+// ── _DoseCheckItem ──────────────────────────────────────────────────────────
 
 class _DoseCheckItem extends StatelessWidget {
   const _DoseCheckItem({
@@ -889,6 +941,8 @@ class _DoseCheckItem extends StatelessWidget {
   }
 }
 
+// ── _QuickActionCard ────────────────────────────────────────────────────────
+
 class _QuickActionCard extends StatelessWidget {
   const _QuickActionCard({
     required this.icon,
@@ -967,7 +1021,7 @@ class _QuickActionCard extends StatelessWidget {
   }
 }
 
-// ── Missed Dose Banner ──────────────────────────────────────────────────────
+// ── _MissedDoseBanner ───────────────────────────────────────────────────────
 
 class _MissedDoseBanner extends StatelessWidget {
   final int missedCount;

@@ -2980,6 +2980,8 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get testNotificationSent => 'បានផ្ញើការរំលឹកសាកល្បង!';
+
+  @override
   String get downloadPdf => 'ទាញយក PDF';
 
   @override

@@ -2984,6 +2984,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get testNotificationSent => 'Test notification sent!';
+
+  @override
   String get downloadPdf => 'Download PDF';
 
   @override
