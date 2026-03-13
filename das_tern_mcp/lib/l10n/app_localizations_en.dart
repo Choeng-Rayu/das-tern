@@ -2890,4 +2890,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goHome => 'Go Home';
+
+  @override
+  String get searchHint => 'Search...';
+
+  @override
+  String get noResultsFound => 'No results found';
+
+  @override
+  String get age => 'Age';
+
+  @override
+  String get phone => 'Phone';
+
+  @override
+  String get yearsUnit => 'years';
 }

@@ -1219,5 +1219,11 @@
   "prescriptionCreatedSuccess": "Prescription Created Successfully",
   "yourScheduleReady": "Your medication schedule is ready",
   "viewSchedule": "View Schedule",
-  "goHome": "Go Home"
+  "goHome": "Go Home",
+
+  "searchHint": "Search...",
+  "noResultsFound": "No results found",
+  "age": "Age",
+  "phone": "Phone",
+  "yearsUnit": "years"
 }

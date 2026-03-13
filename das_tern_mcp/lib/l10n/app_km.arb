@@ -1116,5 +1116,11 @@
   "prescriptionCreatedSuccess": "បានបង្កើតវេជ្ជបញ្ជាជោគជ័យ",
   "yourScheduleReady": "កាលវិភាគថ្នាំរបស់អ្នករួចរាល់",
   "viewSchedule": "មើលកាលវិភាគ",
-  "goHome": "ត្រឡប់ទៅទំព័រដើម"
+  "goHome": "ត្រឡប់ទៅទំព័រដើម",
+
+  "searchHint": "ស្វែងរក...",
+  "noResultsFound": "រកមិនឃើញ",
+  "age": "អាយុ",
+  "phone": "លេខទូរសព្ទ",
+  "yearsUnit": "ឆ្នាំ"
 }

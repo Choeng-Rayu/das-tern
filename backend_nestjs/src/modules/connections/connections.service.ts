@@ -207,6 +207,7 @@ export class ConnectionsService {
 
   /**
    * Get connected caregivers for a patient (with alertsEnabled).
+   * Returns full connection shape so Flutter Connection.fromJson works.
    */
   async getCaregivers(patientId: string) {
     const connections = await this.prisma.connection.findMany({
@@ -215,32 +216,21 @@ export class ConnectionsService {
           { initiatorId: patientId },
           { recipientId: patientId },
         ],
-        status: 'ACCEPTED',
+        status: { in: ['ACCEPTED', 'PENDING'] },
       },
       include: {
-        initiator: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true, phoneNumber: true } },
-        recipient: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true, phoneNumber: true } },
+        initiator: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true, phoneNumber: true, gender: true, dateOfBirth: true } },
+        recipient: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true, phoneNumber: true, gender: true, dateOfBirth: true } },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
-    return connections.map(conn => {
-      const isPatientInitiator = conn.initiatorId === patientId;
-      const caregiver = isPatientInitiator ? conn.recipient : conn.initiator;
-      const metadata = conn.metadata as any;
-
-      return {
-        connectionId: conn.id,
-        caregiver,
-        permissionLevel: conn.permissionLevel,
-        alertsEnabled: metadata?.alertsEnabled ?? true,
-        acceptedAt: conn.acceptedAt,
-        lastAlertSent: metadata?.lastAlertSent || null,
-      };
-    });
+    return connections;
   }
 
   /**
    * Get connected patients for a caregiver.
+   * Returns full connection shape so Flutter Connection.fromJson works.
    */
   async getConnectedPatients(caregiverId: string) {
     const connections = await this.prisma.connection.findMany({
@@ -249,24 +239,16 @@ export class ConnectionsService {
           { initiatorId: caregiverId },
           { recipientId: caregiverId },
         ],
-        status: 'ACCEPTED',
+        status: { in: ['ACCEPTED', 'PENDING'] },
       },
       include: {
-        initiator: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true } },
-        recipient: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true } },
+        initiator: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true, phoneNumber: true, gender: true, dateOfBirth: true } },
+        recipient: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true, phoneNumber: true, gender: true, dateOfBirth: true } },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
-    return connections.map(conn => {
-      const isCaregiverInitiator = conn.initiatorId === caregiverId;
-      const patient = isCaregiverInitiator ? conn.recipient : conn.initiator;
-
-      return {
-        connectionId: conn.id,
-        patient,
-        permissionLevel: conn.permissionLevel,
-      };
-    });
+    return connections;
   }
 
   /**

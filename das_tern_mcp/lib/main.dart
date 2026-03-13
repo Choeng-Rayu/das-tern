@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
@@ -40,7 +41,9 @@ Future<void> main() async {
   log.info('App', '🚀 Starting DAS TERN MCP App');
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (!kIsWeb) {
+  const isWeb = bool.fromEnvironment('dart.library.js_util');
+
+  if (!isWeb) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   }
