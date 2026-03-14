@@ -559,25 +559,28 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
                   )
                 else
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      OutlinedButton.icon(
-                        onPressed: () => _handleReject(notif, connectionId),
-                        icon: const Icon(Icons.close, size: 18),
-                        label: Text(l10n.rejectConnection),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.alertRed,
-                          side: const BorderSide(color: AppColors.alertRed),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _handleReject(notif, connectionId),
+                          icon: const Icon(Icons.close, size: 18),
+                          label: Text(l10n.rejectConnection),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.alertRed,
+                            side: const BorderSide(color: AppColors.alertRed),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
-                      ElevatedButton.icon(
-                        onPressed: () => _handleApprove(notif, connectionId),
-                        icon: const Icon(Icons.check, size: 18),
-                        label: Text(l10n.approveConnection),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryBlue,
-                          foregroundColor: Colors.white,
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _handleApprove(notif, connectionId),
+                          icon: const Icon(Icons.check, size: 18),
+                          label: Text(l10n.approveConnection),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryBlue,
+                            foregroundColor: Colors.white,
+                          ),
                         ),
                       ),
                     ],

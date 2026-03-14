@@ -302,6 +302,10 @@ class _PatientScanTabState extends State<PatientScanTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final iconSize = (MediaQuery.of(context).size.width * 0.28).clamp(
+      90.0,
+      130.0,
+    );
 
     return Column(
       children: [
@@ -326,8 +330,8 @@ class _PatientScanTabState extends State<PatientScanTab> {
                       children: [
                         const SizedBox(height: AppSpacing.xl),
                         Container(
-                          width: 120,
-                          height: 120,
+                          width: iconSize,
+                          height: iconSize,
                           decoration: BoxDecoration(
                             color: AppColors.primaryBlue.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(24),

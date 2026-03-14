@@ -104,73 +104,78 @@ class _RecordVitalScreenState extends State<RecordVitalScreen> {
           children: [
             Text(
               l10n.selectVitalType,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.sm),
 
-            // Vital type grid
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 3,
-              mainAxisSpacing: AppSpacing.sm,
-              crossAxisSpacing: AppSpacing.sm,
-              childAspectRatio: 1.1,
-              children: VitalType.values.map((type) {
-                final selected = _selectedType == type;
-                return GestureDetector(
-                  onTap: () => setState(() {
-                    _selectedType = type;
-                    _valueController.clear();
-                    _secondaryController.clear();
-                  }),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: selected
-                          ? AppColors.primaryBlue.withValues(alpha: 0.1)
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(AppRadius.lg),
-                      border: Border.all(
-                        color: selected
-                            ? AppColors.primaryBlue
-                            : AppColors.neutral300,
-                        width: selected ? 2 : 1,
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          _iconForType(type),
-                          size: 28,
+            // Vital type grid — responsive column count
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final crossCount = constraints.maxWidth < 360 ? 2 : 3;
+                return GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: crossCount,
+                  mainAxisSpacing: AppSpacing.sm,
+                  crossAxisSpacing: AppSpacing.sm,
+                  childAspectRatio: 1.1,
+                  children: VitalType.values.map((type) {
+                    final selected = _selectedType == type;
+                    return GestureDetector(
+                      onTap: () => setState(() {
+                        _selectedType = type;
+                        _valueController.clear();
+                        _secondaryController.clear();
+                      }),
+                      child: Container(
+                        decoration: BoxDecoration(
                           color: selected
-                              ? AppColors.primaryBlue
-                              : AppColors.neutralGray,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          type.displayName,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
+                              ? AppColors.primaryBlue.withValues(alpha: 0.1)
+                              : Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(AppRadius.lg),
+                          border: Border.all(
                             color: selected
                                 ? AppColors.primaryBlue
-                                : AppColors.textPrimary,
+                                : AppColors.neutral300,
+                            width: selected ? 2 : 1,
                           ),
                         ),
-                        Text(
-                          type.unit,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: AppColors.textSecondary,
-                          ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              _iconForType(type),
+                              size: 28,
+                              color: selected
+                                  ? AppColors.primaryBlue
+                                  : AppColors.neutralGray,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              type.displayName,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: selected
+                                        ? AppColors.primaryBlue
+                                        : AppColors.textPrimary,
+                                  ),
+                            ),
+                            Text(
+                              type.unit,
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(color: AppColors.textSecondary),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  }).toList(),
                 );
-              }).toList(),
+              },
             ),
 
             if (_selectedType != null) ...[
@@ -192,9 +197,12 @@ class _RecordVitalScreenState extends State<RecordVitalScreen> {
                         keyboardType: TextInputType.number,
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Text('/', style: TextStyle(fontSize: 24)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        '/',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                     ),
                     Expanded(
                       child: TextField(

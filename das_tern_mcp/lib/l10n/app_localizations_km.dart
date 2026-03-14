@@ -2903,6 +2903,8 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get yearsUnit => 'ឆ្នាំ';
+
+  @override
   String get premiumBadge => 'Premium';
 
   @override
