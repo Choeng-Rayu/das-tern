@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -47,7 +49,10 @@ Future<void> main() async {
 
   const isWeb = bool.fromEnvironment('dart.library.js_util');
 
-  if (!isWeb) {
+  final useFfiDatabase = !isWeb &&
+      (Platform.isLinux || Platform.isMacOS || Platform.isWindows);
+
+  if (useFfiDatabase) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   }

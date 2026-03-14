@@ -5587,6 +5587,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'years'**
   String get yearsUnit;
+
   /// No description provided for @premiumBadge.
   ///
   /// In en, this message translates to:

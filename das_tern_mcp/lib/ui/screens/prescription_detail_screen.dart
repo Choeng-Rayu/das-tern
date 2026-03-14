@@ -53,9 +53,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                       borderRadius: BorderRadius.circular(AppRadius.lg),
                       boxShadow:  [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(
-                            0.5,
-                          ), // Shadow color with opacity
+                          color: Colors.grey.withValues(alpha: 0.5),
                           spreadRadius: 1,
                           blurRadius: 5,
                           offset: Offset(0, 2),
@@ -166,9 +164,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                       borderRadius: BorderRadius.circular(AppRadius.lg),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(
-                            0.5,
-                          ), // Shadow color with opacity
+                          color: Colors.grey.withValues(alpha: 0.5),
                           spreadRadius: 1,
                           blurRadius: 5,
                           offset: Offset(0, 2),
