@@ -136,19 +136,15 @@ class _PaymentQrScreenState extends State<PaymentQrScreen>
                 const SizedBox(height: AppSpacing.lg),
                 SizedBox(
                   width: double.infinity,
-                  height: 54,
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.account_balance, size: 22),
-                    label: Text(
-                      l10n.payWithBankingApp,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    label: Text(l10n.payWithBankingApp),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF003D99),
                       foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.md,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),

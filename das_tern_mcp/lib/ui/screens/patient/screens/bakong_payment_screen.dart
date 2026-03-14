@@ -166,7 +166,6 @@ class BakongPaymentScreen extends StatelessWidget {
             // Confirm button
             SizedBox(
               width: double.infinity,
-              height: 52,
               child: ElevatedButton(
                 onPressed: sub.isLoading
                     ? null
@@ -183,6 +182,7 @@ class BakongPaymentScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0066CC),
                   foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -199,8 +199,10 @@ class BakongPaymentScreen extends StatelessWidget {
                       )
                     : Text(
                         l10n.confirmAndGetQR,
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.labelLarge?.copyWith(
+                          color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

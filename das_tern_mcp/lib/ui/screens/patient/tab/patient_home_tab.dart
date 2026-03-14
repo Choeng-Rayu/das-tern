@@ -784,7 +784,7 @@ class _TimePeriodCard extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppRadius.lg),
         child: Container(
-          height: 110,
+          constraints: const BoxConstraints(minHeight: 90),
           padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppRadius.lg),

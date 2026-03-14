@@ -196,19 +196,19 @@ class _FamilyHeader extends StatelessWidget {
             top: -2,
             right: -2,
             child: Container(
-              width: 17,
-              height: 17,
+              width: 18,
+              height: 18,
               decoration: const BoxDecoration(
                 color: AppColors.alertRed,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: const Text(
+              child: Text(
                 '1',
-                style: TextStyle(
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Colors.white,
-                  fontSize: 9,
                   fontWeight: FontWeight.bold,
+                  fontSize: 11,
                 ),
               ),
             ),
@@ -292,7 +292,6 @@ class _FamilyIntroContent extends StatelessWidget {
           // ── Start Using button (blue) ──
           SizedBox(
             width: double.infinity,
-            height: 50,
             child: ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/family/connect');
@@ -300,6 +299,7 @@ class _FamilyIntroContent extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryBlue,
                 foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadius.xxl),
                 ),
@@ -320,13 +320,13 @@ class _FamilyIntroContent extends StatelessWidget {
           // ── Learn More button (outlined) ──
           SizedBox(
             width: double.infinity,
-            height: 50,
             child: OutlinedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/family/access-list');
               },
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.textPrimary,
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                 side: const BorderSide(color: AppColors.neutral300),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadius.xxl),
