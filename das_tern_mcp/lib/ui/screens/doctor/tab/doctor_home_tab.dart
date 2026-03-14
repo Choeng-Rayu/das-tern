@@ -331,13 +331,10 @@ class _StatCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.xl),
             boxShadow: [
               BoxShadow(
-                 color:  Colors.grey.withOpacity(
-                  0.5,
-                ), // Shadow color with opacity
+                color: Colors.grey.withValues(alpha: 0.5),
                 spreadRadius: 1,
                 blurRadius: 5,
-                offset: Offset(0, 2)
-
+                offset: Offset(0, 2),
               ),
             ],
           ),

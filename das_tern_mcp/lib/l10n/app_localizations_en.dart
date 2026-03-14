@@ -2905,6 +2905,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yearsUnit => 'years';
+
+  @override
   String get premiumBadge => 'Premium';
 
   @override
