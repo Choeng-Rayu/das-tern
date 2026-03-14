@@ -507,7 +507,6 @@ class _ScheduleChip extends StatelessWidget {
     this.color,
     required this.selected,
     required this.onTap,
-   
   });
 
   final String label;
@@ -515,7 +514,6 @@ class _ScheduleChip extends StatelessWidget {
   final Color? color;
   final bool selected;
   final VoidCallback onTap;
-
 
   @override
   Widget build(BuildContext context) {

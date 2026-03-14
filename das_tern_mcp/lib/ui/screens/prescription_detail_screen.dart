@@ -33,7 +33,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
     final rx = provider.selectedPrescription;
     final isDoctor = auth.user?['role'] == 'DOCTOR';
 
-
     return Scaffold(
       appBar: AppBar(title: Text(l10n.prescriptionDetails)),
       body: provider.isLoading
@@ -49,16 +48,16 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                   Container(
                     padding: EdgeInsets.all(AppSpacing.lg),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).cardTheme.color ?? Colors.white ,
+                      color: Theme.of(context).cardTheme.color ?? Colors.white,
                       borderRadius: BorderRadius.circular(AppRadius.lg),
-                      boxShadow:  [
+                      boxShadow: [
                         BoxShadow(
                           color: Colors.grey.withValues(alpha: 0.5),
                           spreadRadius: 1,
                           blurRadius: 5,
                           offset: Offset(0, 2),
                         ),
-                      ]
+                      ],
                     ),
                     child: Column(
                       children: [
@@ -132,17 +131,12 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                             l10n.followUpLabel,
                             '${rx.followUpDate!.day}/${rx.followUpDate!.month}/${rx.followUpDate!.year}',
                           ),
-                        
-
                       ],
                     ),
-
                   ),
-                  
-                  // Status badge
-                  
-                  const SizedBox(height: AppSpacing.md),
 
+                  // Status badge
+                  const SizedBox(height: AppSpacing.md),
 
                   // OCR Metadata sections
                   if (rx.ocrMetadata != null) ...[
@@ -153,10 +147,9 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                     _buildFacilitySection(l10n, rx.ocrMetadata!),
                     _buildScanMetadataSection(l10n, rx.ocrMetadata!),
                   ],
-                  
-                  
+
                   const SizedBox(height: AppSpacing.sm),
-                
+
                   Container(
                     padding: EdgeInsets.all(AppSpacing.lg),
                     decoration: BoxDecoration(
@@ -195,7 +188,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                         ),
 
                         const SizedBox(height: AppSpacing.md),
-                        
 
                         ...rx.medications.map(
                           (med) => Card(
@@ -242,10 +234,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                       ],
                     ),
                   ),
-                
-
-
-
 
                   const SizedBox(height: AppSpacing.lg),
 

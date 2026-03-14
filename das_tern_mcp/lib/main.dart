@@ -31,7 +31,6 @@ import 'l10n/app_localizations.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
-  
   final log = LoggerService.instance;
   // Capture Flutter errors
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -49,8 +48,8 @@ Future<void> main() async {
 
   const isWeb = bool.fromEnvironment('dart.library.js_util');
 
-  final useFfiDatabase = !isWeb &&
-      (Platform.isLinux || Platform.isMacOS || Platform.isWindows);
+  final useFfiDatabase =
+      !isWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows);
 
   if (useFfiDatabase) {
     sqfliteFfiInit();
