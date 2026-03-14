@@ -597,6 +597,9 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.75,
+      ),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(
@@ -611,7 +614,8 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children:
+ [
           // ── Drag handle ──────────────────────────────────────────────────
           Center(
             child: Container(
@@ -642,10 +646,11 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
           const SizedBox(height: AppSpacing.lg),
 
           // ── Bank grid ────────────────────────────────────────────────────
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          Flexible(
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
               mainAxisSpacing: AppSpacing.md,
               crossAxisSpacing: AppSpacing.sm,
@@ -661,6 +666,7 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
                 onTap: () => _openBank(bank),
               );
             },
+          ),
           ),
         ],
       ),

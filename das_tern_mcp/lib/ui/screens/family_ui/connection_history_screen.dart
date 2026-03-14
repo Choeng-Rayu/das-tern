@@ -56,16 +56,19 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
           // Filter chips
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              children: [
-                _buildFilterChip('all', l10n.all),
-                const SizedBox(width: AppSpacing.sm),
-                _buildFilterChip('ACCEPTED', l10n.filterAccepted),
-                const SizedBox(width: AppSpacing.sm),
-                _buildFilterChip('REVOKED', l10n.filterRevoked),
-                const SizedBox(width: AppSpacing.sm),
-                _buildFilterChip('PENDING', l10n.pending),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildFilterChip('all', l10n.all),
+                  const SizedBox(width: AppSpacing.sm),
+                  _buildFilterChip('ACCEPTED', l10n.filterAccepted),
+                  const SizedBox(width: AppSpacing.sm),
+                  _buildFilterChip('REVOKED', l10n.filterRevoked),
+                  const SizedBox(width: AppSpacing.sm),
+                  _buildFilterChip('PENDING', l10n.pending),
+                ],
+              ),
             ),
           ),
 

@@ -663,7 +663,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                     ],
                   ),
 
-                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
@@ -981,6 +981,8 @@ class _QuickActionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
