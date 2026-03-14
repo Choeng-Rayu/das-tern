@@ -144,8 +144,10 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                               ?.copyWith(color: Colors.white70),
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        Wrap(
+                          alignment: WrapAlignment.spaceEvenly,
+                          spacing: AppSpacing.md,
+                          runSpacing: AppSpacing.sm,
                           children: [
                             _featureBadge(
                               Icons.all_inclusive,
@@ -168,7 +170,6 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                 // Go to Home button
                 SizedBox(
                   width: double.infinity,
-                  height: 52,
                   child: ElevatedButton(
                     onPressed: () {
                       sub.resetPayment();
@@ -179,6 +180,9 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryBlue,
                       foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.md,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -186,8 +190,8 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                     ),
                     child: Text(
                       l10n.goToHome,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
