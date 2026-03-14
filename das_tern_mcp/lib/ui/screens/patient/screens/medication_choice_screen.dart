@@ -12,10 +12,7 @@ class MedicationChoiceScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.addMedicine),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: Text(l10n.addMedicine), elevation: 0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(

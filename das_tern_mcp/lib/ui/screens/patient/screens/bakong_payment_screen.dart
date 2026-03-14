@@ -199,9 +199,7 @@ class BakongPaymentScreen extends StatelessWidget {
                       )
                     : Text(
                         l10n.confirmAndGetQR,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.labelLarge?.copyWith(
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),

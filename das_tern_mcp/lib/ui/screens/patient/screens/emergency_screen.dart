@@ -66,7 +66,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<HealthMonitoringProvider>();
     // Adaptive SOS button: 52% of screen width, clamped between 150–220 dp
-    final sosSize = (MediaQuery.of(context).size.width * 0.52).clamp(150.0, 220.0);
+    final sosSize = (MediaQuery.of(context).size.width * 0.52).clamp(
+      150.0,
+      220.0,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -77,7 +80,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Center(
-          child: _triggered ? _buildSuccessState(l10n) : _buildSosState(l10n, provider, sosSize),
+          child: _triggered
+              ? _buildSuccessState(l10n)
+              : _buildSosState(l10n, provider, sosSize),
         ),
       ),
     );
@@ -119,7 +124,11 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: AppSpacing.md),
-        const Icon(Icons.warning_amber_rounded, size: 64, color: AppColors.alertRed),
+        const Icon(
+          Icons.warning_amber_rounded,
+          size: 64,
+          color: AppColors.alertRed,
+        ),
         const SizedBox(height: AppSpacing.md),
         Text(
           l10n.emergencyAlert,
@@ -162,7 +171,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                       SizedBox(height: 8),
                       Text(
                         'SOS',
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),

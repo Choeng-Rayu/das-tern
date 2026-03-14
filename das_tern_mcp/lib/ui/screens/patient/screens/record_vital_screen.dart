@@ -156,22 +156,18 @@ class _RecordVitalScreenState extends State<RecordVitalScreen> {
                             Text(
                               type.displayName,
                               textAlign: TextAlign.center,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.labelSmall?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: selected
-                                    ? AppColors.primaryBlue
-                                    : AppColors.textPrimary,
-                              ),
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: selected
+                                        ? AppColors.primaryBlue
+                                        : AppColors.textPrimary,
+                                  ),
                             ),
                             Text(
                               type.unit,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.labelSmall?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
                         ),

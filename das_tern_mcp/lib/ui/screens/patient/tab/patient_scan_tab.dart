@@ -302,7 +302,10 @@ class _PatientScanTabState extends State<PatientScanTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final iconSize = (MediaQuery.of(context).size.width * 0.28).clamp(90.0, 130.0);
+    final iconSize = (MediaQuery.of(context).size.width * 0.28).clamp(
+      90.0,
+      130.0,
+    );
 
     return Column(
       children: [
