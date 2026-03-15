@@ -23,6 +23,7 @@ class PatientShell extends StatefulWidget {
 class _PatientShellState extends State<PatientShell> {
   int _currentIndex = 0;
   late final PageController _pageController;
+  ShellTabController? _shellTabController;
 
   final _tabs = const [
     PatientHomeTab(),
@@ -36,24 +37,35 @@ class _PatientShellState extends State<PatientShell> {
   void initState() {
     super.initState();
     _pageController = PageController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ShellTabController>().addListener(_onTabSwitch);
-    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final controller = context.read<ShellTabController>();
+    if (!identical(_shellTabController, controller)) {
+      _shellTabController?.removeListener(_onTabSwitch);
+      _shellTabController = controller;
+      _shellTabController?.addListener(_onTabSwitch);
+    }
   }
 
   void _onTabSwitch() {
-    final i = context.read<ShellTabController>().requestedIndex;
+    final i = _shellTabController?.requestedIndex ?? _currentIndex;
+    if (!mounted) return;
     setState(() => _currentIndex = i);
-    _pageController.animateToPage(
-      i,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    if (_pageController.hasClients) {
+      _pageController.animateToPage(
+        i,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
   void dispose() {
-    context.read<ShellTabController>().removeListener(_onTabSwitch);
+    _shellTabController?.removeListener(_onTabSwitch);
     _pageController.dispose();
     super.dispose();
   }

@@ -3,12 +3,14 @@ import { PrismaService } from '../../database/prisma.service';
 import { CreateConnectionDto, AcceptConnectionDto } from './dto';
 import { PermissionLevel } from '@prisma/client';
 import { NotificationsService } from '../notifications/notifications.service';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class ConnectionsService {
   constructor(
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
+    private auditService: AuditService,
   ) {}
 
   async create(initiatorId: string, dto: CreateConnectionDto) {
@@ -40,8 +42,8 @@ export class ConnectionsService {
           revokedAt: null,
         },
         include: {
-          initiator: { select: { id: true, fullName: true, firstName: true, role: true } },
-          recipient: { select: { id: true, fullName: true, role: true } },
+          initiator: { select: { id: true, fullName: true, firstName: true, lastName: true, role: true } },
+          recipient: { select: { id: true, fullName: true, firstName: true, lastName: true, role: true } },
         },
       });
 
@@ -54,6 +56,32 @@ export class ConnectionsService {
         { connectionId: connection.id, initiatorId },
       );
 
+      await this.auditService.log({
+        actorId: initiatorId,
+        actorRole: connection.initiator.role,
+        actionType: 'CONNECTION_REQUEST',
+        resourceType: 'Connection',
+        resourceId: connection.id,
+        details: {
+          status: 'PENDING',
+          connectionId: connection.id,
+          initiatorId: connection.initiatorId,
+          recipientId: connection.recipientId,
+          initiator: {
+            id: connection.initiator.id,
+            firstName: connection.initiator.firstName,
+            lastName: connection.initiator.lastName,
+            fullName: connection.initiator.fullName,
+          },
+          recipient: {
+            id: connection.recipient.id,
+            firstName: connection.recipient.firstName,
+            lastName: connection.recipient.lastName,
+            fullName: connection.recipient.fullName,
+          },
+        },
+      });
+
       return connection;
     }
 
@@ -64,8 +92,8 @@ export class ConnectionsService {
         status: 'PENDING',
       },
       include: {
-        initiator: { select: { id: true, fullName: true, firstName: true, role: true } },
-        recipient: { select: { id: true, fullName: true, role: true } },
+        initiator: { select: { id: true, fullName: true, firstName: true, lastName: true, role: true } },
+        recipient: { select: { id: true, fullName: true, firstName: true, lastName: true, role: true } },
       },
     });
 
@@ -78,6 +106,32 @@ export class ConnectionsService {
       `${initiatorName} wants to connect with you.`,
       { connectionId: connection.id, initiatorId },
     );
+
+    await this.auditService.log({
+      actorId: initiatorId,
+      actorRole: connection.initiator.role,
+      actionType: 'CONNECTION_REQUEST',
+      resourceType: 'Connection',
+      resourceId: connection.id,
+      details: {
+        status: 'PENDING',
+        connectionId: connection.id,
+        initiatorId: connection.initiatorId,
+        recipientId: connection.recipientId,
+        initiator: {
+          id: connection.initiator.id,
+          firstName: connection.initiator.firstName,
+          lastName: connection.initiator.lastName,
+          fullName: connection.initiator.fullName,
+        },
+        recipient: {
+          id: connection.recipient.id,
+          firstName: connection.recipient.firstName,
+          lastName: connection.recipient.lastName,
+          fullName: connection.recipient.fullName,
+        },
+      },
+    });
 
     return connection;
   }
@@ -115,7 +169,8 @@ export class ConnectionsService {
         permissionLevel: dto.permissionLevel || 'ALLOWED',
       },
       include: {
-        recipient: { select: { id: true, fullName: true, firstName: true } },
+        initiator: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true } },
+        recipient: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true } },
       },
     });
 
@@ -128,6 +183,32 @@ export class ConnectionsService {
       `${recipientName} has accepted your connection request.`,
       { connectionId: id },
     );
+
+    await this.auditService.log({
+      actorId: userId,
+      actorRole: updated.recipient.role,
+      actionType: 'CONNECTION_ACCEPT',
+      resourceType: 'Connection',
+      resourceId: id,
+      details: {
+        status: 'ACCEPTED',
+        connectionId: updated.id,
+        initiatorId: updated.initiatorId,
+        recipientId: updated.recipientId,
+        initiator: {
+          id: updated.initiator.id,
+          firstName: updated.initiator.firstName,
+          lastName: updated.initiator.lastName,
+          fullName: updated.initiator.fullName,
+        },
+        recipient: {
+          id: updated.recipient.id,
+          firstName: updated.recipient.firstName,
+          lastName: updated.recipient.lastName,
+          fullName: updated.recipient.fullName,
+        },
+      },
+    });
 
     return updated;
   }
@@ -147,8 +228,8 @@ export class ConnectionsService {
       where: { id },
       data: { status: 'REVOKED', revokedAt: new Date() },
       include: {
-        initiator: { select: { id: true, fullName: true, firstName: true } },
-        recipient: { select: { id: true, fullName: true, firstName: true } },
+        initiator: { select: { id: true, fullName: true, firstName: true, lastName: true, role: true } },
+        recipient: { select: { id: true, fullName: true, firstName: true, lastName: true, role: true } },
       },
     });
 
@@ -166,6 +247,32 @@ export class ConnectionsService {
       { connectionId: id },
     );
 
+    await this.auditService.log({
+      actorId: userId,
+      actorRole: isInitiator ? updated.initiator.role : updated.recipient.role,
+      actionType: 'CONNECTION_REVOKE',
+      resourceType: 'Connection',
+      resourceId: id,
+      details: {
+        status: 'REVOKED',
+        connectionId: updated.id,
+        initiatorId: updated.initiatorId,
+        recipientId: updated.recipientId,
+        initiator: {
+          id: updated.initiator.id,
+          firstName: updated.initiator.firstName,
+          lastName: updated.initiator.lastName,
+          fullName: updated.initiator.fullName,
+        },
+        recipient: {
+          id: updated.recipient.id,
+          firstName: updated.recipient.firstName,
+          lastName: updated.recipient.lastName,
+          fullName: updated.recipient.fullName,
+        },
+      },
+    });
+
     return updated;
   }
 
@@ -181,10 +288,42 @@ export class ConnectionsService {
       throw new ForbiddenException('Only patient can update permissions');
     }
 
-    return this.prisma.connection.update({
+    const updated = await this.prisma.connection.update({
       where: { id },
       data: { permissionLevel },
+      include: {
+        initiator: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true } },
+        recipient: { select: { id: true, firstName: true, lastName: true, fullName: true, role: true } },
+      },
     });
+
+    await this.auditService.log({
+      actorId: patientId,
+      actionType: 'PERMISSION_CHANGE',
+      resourceType: 'Connection',
+      resourceId: id,
+      details: {
+        status: updated.status,
+        connectionId: updated.id,
+        permissionLevel,
+        initiatorId: updated.initiatorId,
+        recipientId: updated.recipientId,
+        initiator: {
+          id: updated.initiator.id,
+          firstName: updated.initiator.firstName,
+          lastName: updated.initiator.lastName,
+          fullName: updated.initiator.fullName,
+        },
+        recipient: {
+          id: updated.recipient.id,
+          firstName: updated.recipient.firstName,
+          lastName: updated.recipient.lastName,
+          fullName: updated.recipient.fullName,
+        },
+      },
+    });
+
+    return updated;
   }
 
   async checkPermission(doctorId: string, patientId: string): Promise<PermissionLevel> {
@@ -338,14 +477,102 @@ export class ConnectionsService {
       ];
     }
 
-    return this.prisma.auditLog.findMany({
+    const logs = await this.prisma.auditLog.findMany({
       where: {
-        actorId: userId,
         actionType: { in: actionTypes as any },
+        OR: [
+          { actorId: userId },
+          { details: { path: ['initiatorId'], equals: userId } },
+          { details: { path: ['recipientId'], equals: userId } },
+        ],
       },
       orderBy: { createdAt: 'desc' },
       take: 50,
     });
+
+    const logItems = logs.map((log: any) => {
+      const details = (log.details as any) || {};
+      const fallbackStatus =
+        log.actionType === 'CONNECTION_ACCEPT'
+          ? 'ACCEPTED'
+          : log.actionType === 'CONNECTION_REVOKE'
+          ? 'REVOKED'
+          : 'PENDING';
+
+      return {
+        id: log.id,
+        actionType: log.actionType,
+        status: details.status || fallbackStatus,
+        createdAt: log.createdAt,
+        connectionId: details.connectionId || log.resourceId,
+        initiator: details.initiator || { id: details.initiatorId || '' },
+        recipient: details.recipient || { id: details.recipientId || '' },
+      };
+    });
+
+    // Fallback for environments where historical audit rows were not written.
+    // This keeps history visible by deriving events from connection records.
+    const connectionStatusFilter = filter && ['PENDING', 'ACCEPTED', 'REVOKED'].includes(filter)
+      ? (filter as any)
+      : undefined;
+
+    const connections = await this.prisma.connection.findMany({
+      where: {
+        OR: [{ initiatorId: userId }, { recipientId: userId }],
+        ...(connectionStatusFilter ? { status: connectionStatusFilter } : {}),
+      },
+      include: {
+        initiator: { select: { id: true, firstName: true, lastName: true, fullName: true } },
+        recipient: { select: { id: true, firstName: true, lastName: true, fullName: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 50,
+    });
+
+    const connectionItems = connections.map((conn) => {
+      const status = conn.status;
+      const actionType =
+        status === 'ACCEPTED'
+          ? 'CONNECTION_ACCEPT'
+          : status === 'REVOKED'
+          ? 'CONNECTION_REVOKE'
+          : 'CONNECTION_REQUEST';
+
+      return {
+        id: `connection_${conn.id}_${status}`,
+        actionType,
+        status,
+        createdAt: conn.updatedAt,
+        connectionId: conn.id,
+        initiator: {
+          id: conn.initiator.id,
+          firstName: conn.initiator.firstName,
+          lastName: conn.initiator.lastName,
+          fullName: conn.initiator.fullName,
+        },
+        recipient: {
+          id: conn.recipient.id,
+          firstName: conn.recipient.firstName,
+          lastName: conn.recipient.lastName,
+          fullName: conn.recipient.fullName,
+        },
+      };
+    });
+
+    const merged = [...logItems, ...connectionItems]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const deduped: any[] = [];
+    const seen = new Set<string>();
+    for (const item of merged) {
+      const key = `${item.connectionId}:${item.status}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      deduped.push(item);
+      if (deduped.length >= 50) break;
+    }
+
+    return deduped;
   }
 
   // ============================

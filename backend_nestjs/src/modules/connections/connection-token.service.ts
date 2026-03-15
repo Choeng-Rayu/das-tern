@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { AuditService } from '../audit/audit.service';
 import { PermissionLevel } from '@prisma/client';
 import * as crypto from 'crypto';
 
@@ -17,6 +18,7 @@ export class ConnectionTokenService {
   constructor(
     private prisma: PrismaService,
     private notificationsService: NotificationsService,
+    private auditService: AuditService,
   ) {}
 
   /**
@@ -168,6 +170,32 @@ export class ConnectionTokenService {
       `${initiatorName} wants to connect with you.`,
       { connectionId: connection.id, initiatorId: caregiverId },
     );
+
+    await this.auditService.log({
+      actorId: caregiverId,
+      actorRole: connection.initiator.role,
+      actionType: 'CONNECTION_REQUEST',
+      resourceType: 'Connection',
+      resourceId: connection.id,
+      details: {
+        status: 'PENDING',
+        connectionId: connection.id,
+        initiatorId: connection.initiatorId,
+        recipientId: connection.recipientId,
+        initiator: {
+          id: connection.initiator.id,
+          firstName: connection.initiator.firstName,
+          lastName: connection.initiator.lastName,
+          fullName: connection.initiator.fullName,
+        },
+        recipient: {
+          id: connection.recipient.id,
+          firstName: connection.recipient.firstName,
+          lastName: connection.recipient.lastName,
+          fullName: connection.recipient.fullName,
+        },
+      },
+    });
 
     return connection;
   }

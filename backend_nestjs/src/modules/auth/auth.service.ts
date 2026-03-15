@@ -148,8 +148,8 @@ export class AuthService {
     // Hash password
     const passwordHash = await bcrypt.hash(dto.password, this.BCRYPT_ROUNDS);
 
-    // Generate placeholder phone number if not provided
-    const phoneNumber = dto.phoneNumber || `nophone_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    // Keep phone nullable; placeholder values can exceed DB limits and are not needed.
+    const phoneNumber = dto.phoneNumber ?? null;
 
     // Create user with PENDING status (requires OTP verification)
     const user = await this.prisma.user.create({
@@ -209,8 +209,8 @@ export class AuthService {
     // Hash password
     const passwordHash = await bcrypt.hash(dto.password, this.BCRYPT_ROUNDS);
 
-    // Generate placeholder phone number if not provided
-    const phoneNumber = dto.phoneNumber || `nophone_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    // Keep phone nullable; placeholder values can exceed DB limits and are not needed.
+    const phoneNumber = dto.phoneNumber ?? null;
 
     // Create doctor with PENDING_VERIFICATION status
     const user = await this.prisma.user.create({
