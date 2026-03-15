@@ -188,6 +188,7 @@
   "activeDays": "Active Days",
 
   "markAsTaken": "Mark as Taken",
+  "markAsPending": "Mark as Pending",
   "markedAsTaken": "Marked as taken",
   "taken": "Taken",
   "takenAt": "Taken at",
@@ -307,6 +308,16 @@
   "emergencyLabel": "Emergency",
   "recordLabel": "Record",
   "onePill": "1 pill",
+  "markAllDone": "Mark All Done",
+  "completedCount": "Completed ({count})",
+  "@completedCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "noPendingDoses": "No pending doses",
+  "selectDosesToMark": "Select doses to mark as taken",
+  "timePeriodLabel": "Period",
   "unresolvedAlerts": "{count} unresolved health alert(s)",
   "@unresolvedAlerts": {
     "placeholders": {
@@ -962,6 +973,8 @@
   "daytimeColumn": "Daytime",
   "nightColumn": "Night",
   "afterMeal": "After meal",
+  "withFood": "With food",
+  "prnDescription": "Take as needed, no fixed schedule",
   "addMedicineRow": "Add medicine row",
   "createPrescriptionFab": "Create Prescription",
 
@@ -1068,6 +1081,9 @@
   "prescriptionRejected": "Prescription rejected",
   "prescriptionConfirmed": "Prescription confirmed",
   "confirmPrescription": "Confirm Prescription",
+  "deletePrescription": "Delete Prescription",
+  "deletePrescriptionConfirm": "Are you sure you want to delete this prescription? All scheduled dose reminders will be removed.",
+  "prescriptionDeleted": "Prescription deleted",
   "pendingPrescriptions": "Pending Prescriptions",
   "prescriptionFromDoctor": "From Dr. {name}",
   "@prescriptionFromDoctor": {

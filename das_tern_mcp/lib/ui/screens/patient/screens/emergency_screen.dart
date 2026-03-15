@@ -4,6 +4,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/health_monitoring_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 class EmergencyScreen extends StatefulWidget {
   const EmergencyScreen({super.key});
@@ -76,6 +77,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         title: Text(l10n.emergencyLabel),
         backgroundColor: AppColors.alertRed,
         foregroundColor: Colors.white,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),

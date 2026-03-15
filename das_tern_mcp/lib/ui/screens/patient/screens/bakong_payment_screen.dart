@@ -4,6 +4,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/subscription_provider.dart';
 import '../../../../ui/theme/app_colors.dart';
 import '../../../../ui/theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// Bakong payment description screen with plan summary and upgrade button.
 /// When user taps "Confirm & Get QR Code", creates payment and navigates to QR screen.
@@ -23,7 +24,7 @@ class BakongPaymentScreen extends StatelessWidget {
     final sub = context.watch<SubscriptionProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.bakongPaymentTitle), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.bakongPaymentTitle), centerTitle: true, actions: const [LanguageSwitcherButton(lightBackground: true)]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(

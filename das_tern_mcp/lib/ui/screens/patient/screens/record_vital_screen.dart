@@ -5,6 +5,7 @@ import '../../../../models/enums_model/medication_type.dart';
 import '../../../../providers/health_monitoring_provider.dart';
 import '../../../../ui/theme/app_colors.dart';
 import '../../../../ui/theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 class RecordVitalScreen extends StatefulWidget {
   const RecordVitalScreen({super.key});
@@ -96,7 +97,7 @@ class _RecordVitalScreenState extends State<RecordVitalScreen> {
     final provider = context.watch<HealthMonitoringProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.recordVital)),
+      appBar: AppBar(title: Text(l10n.recordVital), actions: const [LanguageSwitcherButton(lightBackground: true)]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(

@@ -5,6 +5,7 @@ import '../../../../providers/prescription_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/medicine_form_widget.dart';
+import '../../../widgets/language_switcher.dart';
 
 class OcrPreviewScreen extends StatefulWidget {
   final Map<String, dynamic> extractedData;
@@ -549,12 +550,12 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     final provider = context.watch<PrescriptionProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: Text(l10n.ocrPreviewTitle),
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -643,7 +644,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppColors.neutral300),
       ),
@@ -1060,7 +1061,7 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(
           color: isExpanded ? AppColors.primaryBlue : AppColors.neutral300,
@@ -1192,14 +1193,24 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFFF3E0),
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? const Color(
+                                        0xFFE65100,
+                                      ).withValues(alpha: 0.18)
+                                    : const Color(0xFFFFF3E0),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 l10n.beforeMeal,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 10,
-                                  color: Color(0xFFE65100),
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? const Color(0xFFFFAB40)
+                                      : const Color(0xFFE65100),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),

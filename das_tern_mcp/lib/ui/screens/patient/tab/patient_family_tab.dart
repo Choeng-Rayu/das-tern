@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../models/connection_model/connection.dart';
 import '../../../../providers/connection_provider.dart';
+import '../../../../providers/notification_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/common_widgets.dart';
@@ -37,7 +38,6 @@ class _PatientFamilyTabState extends State<PatientFamilyTab> {
         connectionProvider.connectedPatients.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: AppColors.white,
       body: RefreshIndicator(
         onRefresh: () async {
           await connectionProvider.fetchCaregivers();
@@ -171,6 +171,7 @@ class _FamilyHeader extends StatelessWidget {
   }
 
   Widget _buildNotificationBell(BuildContext context) {
+    final unreadCount = context.watch<NotificationProvider>().unreadCount;
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, '/family/history');
@@ -191,28 +192,28 @@ class _FamilyHeader extends StatelessWidget {
               size: 20,
             ),
           ),
-          // Badge
-          Positioned(
-            top: -2,
-            right: -2,
-            child: Container(
-              width: 18,
-              height: 18,
-              decoration: const BoxDecoration(
-                color: AppColors.alertRed,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                '1',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
+          if (unreadCount > 0)
+            Positioned(
+              top: -2,
+              right: -2,
+              child: Container(
+                width: 18,
+                height: 18,
+                decoration: const BoxDecoration(
+                  color: AppColors.alertRed,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  unreadCount > 9 ? '9+' : '$unreadCount',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -239,6 +240,7 @@ class _FamilyIntroContent extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildIllustrationCard(
+                  context,
                   icon: Icons.family_restroom,
                   color: AppColors.primaryBlue,
                 ),
@@ -246,6 +248,7 @@ class _FamilyIntroContent extends StatelessWidget {
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: _buildIllustrationCard(
+                  context,
                   icon: Icons.notifications_active,
                   color: AppColors.warningOrange,
                   showPhone: true,
@@ -261,7 +264,7 @@ class _FamilyIntroContent extends StatelessWidget {
             l10n.familyIntroDescription,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 14,
               height: 1.6,
             ),
@@ -270,9 +273,9 @@ class _FamilyIntroContent extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
 
           // ── Bullet points ──
-          _buildBulletPoint('• ${l10n.familyBulletSender}'),
+          _buildBulletPoint(context, '• ${l10n.familyBulletSender}'),
           const SizedBox(height: AppSpacing.xs),
-          _buildBulletPoint('• ${l10n.familyBulletReceiver}'),
+          _buildBulletPoint(context, '• ${l10n.familyBulletReceiver}'),
 
           const SizedBox(height: AppSpacing.md),
 
@@ -281,7 +284,7 @@ class _FamilyIntroContent extends StatelessWidget {
             l10n.familyIntroFooter,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 14,
               height: 1.6,
             ),
@@ -325,9 +328,11 @@ class _FamilyIntroContent extends StatelessWidget {
                 Navigator.pushNamed(context, '/family/access-list');
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.textPrimary,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                side: const BorderSide(color: AppColors.neutral300),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadius.xxl),
                 ),
@@ -348,7 +353,8 @@ class _FamilyIntroContent extends StatelessWidget {
     );
   }
 
-  Widget _buildIllustrationCard({
+  Widget _buildIllustrationCard(
+    BuildContext context, {
     required IconData icon,
     required Color color,
     bool showPhone = false,
@@ -378,7 +384,7 @@ class _FamilyIntroContent extends StatelessWidget {
                     width: 48,
                     height: 72,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: color.withValues(alpha: 0.3),
@@ -403,15 +409,15 @@ class _FamilyIntroContent extends StatelessWidget {
     );
   }
 
-  Widget _buildBulletPoint(String text) {
+  Widget _buildBulletPoint(BuildContext context, String text) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
         padding: const EdgeInsets.only(left: AppSpacing.lg),
         child: Text(
           text,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 14,
             fontWeight: FontWeight.w500,
             height: 1.5,

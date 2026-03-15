@@ -493,6 +493,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markAsTaken => 'Mark as Taken';
 
   @override
+  String get markAsPending => 'Mark as Pending';
+
+  @override
   String get markedAsTaken => 'Marked as taken';
 
   @override
@@ -779,6 +782,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onePill => '1 pill';
+
+  @override
+  String get markAllDone => 'Mark All Done';
+
+  @override
+  String completedCount(int count) {
+    return 'Completed ($count)';
+  }
+
+  @override
+  String get noPendingDoses => 'No pending doses';
+
+  @override
+  String get selectDosesToMark => 'Select doses to mark as taken';
+
+  @override
+  String get timePeriodLabel => 'Period';
 
   @override
   String unresolvedAlerts(int count) {
@@ -2321,6 +2341,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get afterMeal => 'After meal';
 
   @override
+  String get withFood => 'With food';
+
+  @override
+  String get prnDescription => 'Take as needed, no fixed schedule';
+
+  @override
   String get addMedicineRow => 'Add medicine row';
 
   @override
@@ -2547,6 +2573,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmPrescription => 'Confirm Prescription';
+
+  @override
+  String get deletePrescription => 'Delete Prescription';
+
+  @override
+  String get deletePrescriptionConfirm =>
+      'Are you sure you want to delete this prescription? All scheduled dose reminders will be removed.';
+
+  @override
+  String get prescriptionDeleted => 'Prescription deleted';
 
   @override
   String get pendingPrescriptions => 'Pending Prescriptions';

@@ -6,6 +6,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/subscription_provider.dart';
 import '../../../../ui/theme/app_colors.dart';
 import '../../../../ui/theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// QR code display screen with live payment status polling.
 /// Shows the KHQR code, a countdown timer, and auto-navigates on payment success.
@@ -65,6 +66,7 @@ class _PaymentQrScreenState extends State<PaymentQrScreen>
             icon: const Icon(Icons.close),
             onPressed: () => _showCancelDialog(context, sub),
           ),
+          actions: const [LanguageSwitcherButton(lightBackground: true)],
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.md),
@@ -132,7 +134,7 @@ class _PaymentQrScreenState extends State<PaymentQrScreen>
               ],
 
               // ── Pay with Banking App button ──
-              if (status == 'PENDING' && sub.deepLink != null) ...[
+              if (status == 'PENDING') ...[
                 const SizedBox(height: AppSpacing.lg),
                 SizedBox(
                   width: double.infinity,
@@ -156,7 +158,7 @@ class _PaymentQrScreenState extends State<PaymentQrScreen>
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
                         builder: (_) => _BankChooserSheet(
-                          deepLink: sub.deepLink!,
+                          deepLink: sub.deepLink ?? '',
                           qrCode: sub.qrCode ?? '',
                         ),
                       );
@@ -343,7 +345,7 @@ class _QrCodeCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -597,9 +599,12 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.75,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(
           top: Radius.circular(AppRadius.xxl),
         ),
       ),
@@ -611,7 +616,8 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children:
+ [
           // ── Drag handle ──────────────────────────────────────────────────
           Center(
             child: Container(
@@ -642,10 +648,11 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
           const SizedBox(height: AppSpacing.lg),
 
           // ── Bank grid ────────────────────────────────────────────────────
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          Flexible(
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
               mainAxisSpacing: AppSpacing.md,
               crossAxisSpacing: AppSpacing.sm,
@@ -661,6 +668,7 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
                 onTap: () => _openBank(bank),
               );
             },
+          ),
           ),
         ],
       ),

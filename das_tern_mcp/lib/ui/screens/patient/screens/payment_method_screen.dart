@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// Payment method selection screen.
 /// Shows available payment methods: Bakong (KHQR) and Visa/Mastercard (Coming Soon).
@@ -20,7 +21,7 @@ class PaymentMethodScreen extends StatelessWidget {
     final price = plan['price'] ?? (planType == 'PREMIUM' ? 0.50 : 1.00);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.paymentMethod), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.paymentMethod), centerTitle: true, actions: const [LanguageSwitcherButton(lightBackground: true)]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
@@ -56,7 +57,7 @@ class PaymentMethodScreen extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
 
-            // Visa/Mastercard (Coming Soon)
+            // Visa/Mastercard (Coming Soon) — still tappable so user gets feedback
             _PaymentMethodCard(
               icon: Icons.credit_card,
               iconColor: const Color(0xFF1A1F71),
@@ -64,7 +65,14 @@ class PaymentMethodScreen extends StatelessWidget {
               subtitle: l10n.internationalCard,
               description: l10n.internationalCardSupport,
               isAvailable: false,
-              onTap: null,
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.comingSoon),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -107,12 +115,16 @@ class _OrderSummaryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '$planName Plan',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              Flexible(
+                child: Text(
+                  '$planName Plan',
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
               ),
+              const SizedBox(width: 8),
               Text(
                 '\$$price/month',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -163,7 +175,7 @@ class _PaymentMethodCard extends StatelessWidget {
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: isAvailable ? onTap : null,
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
@@ -187,10 +199,13 @@ class _PaymentMethodCard extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Text(
-                                title,
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              Flexible(
+                                child: Text(
+                                  title,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
                               ),
                               if (!isAvailable) ...[
                                 const SizedBox(width: 8),

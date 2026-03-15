@@ -7,6 +7,7 @@ import '../../../../models/health_model/health_vital.dart';
 import '../../../../providers/health_monitoring_provider.dart';
 import '../../../../ui/theme/app_colors.dart';
 import '../../../../ui/theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 class VitalTrendScreen extends StatefulWidget {
   final VitalType vitalType;
@@ -47,7 +48,7 @@ class _VitalTrendScreenState extends State<VitalTrendScreen> {
           ..sort((a, b) => a.measuredAt.compareTo(b.measuredAt));
 
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.vitalType.displayName} Trends')),
+      appBar: AppBar(title: Text('${widget.vitalType.displayName} Trends'), actions: const [LanguageSwitcherButton(lightBackground: true)]),
       body: Column(
         children: [
           // Period selector

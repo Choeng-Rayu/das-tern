@@ -4,6 +4,7 @@ import '../../../models/enums_model/enums.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Screen for patient to choose what access level to grant the caregiver.
 class AccessLevelSelectionScreen extends StatefulWidget {
@@ -47,7 +48,11 @@ class _AccessLevelSelectionScreenState
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.accessLevelTitle), centerTitle: true),
+      appBar: AppBar(
+        title: Text(l10n.accessLevelTitle),
+        centerTitle: true,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),

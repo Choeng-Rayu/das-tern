@@ -24,28 +24,21 @@ class PrescriptionSuccessScreen extends StatelessWidget {
   Map<String, List<Map<String, dynamic>>> _computeSchedule() {
     final schedule = <String, List<Map<String, dynamic>>>{};
     for (final med in medicines) {
-      final morning =
-          med['morning'] == true ||
-          (med['scheduleTimes'] as List?)?.any(
-                (t) => t['timePeriod'] == 'morning',
-              ) ==
-              true;
-      final daytime =
-          med['daytime'] == true ||
-          (med['scheduleTimes'] as List?)?.any(
-                (t) => t['timePeriod'] == 'daytime',
-              ) ==
-              true;
-      final night =
-          med['night'] == true ||
-          (med['scheduleTimes'] as List?)?.any(
-                (t) => t['timePeriod'] == 'night',
-              ) ==
-              true;
+      final slots = med['scheduleTimes'] as List? ?? [];
+      bool hasPeriod(String p) => slots.any(
+        (t) => (t['timePeriod'] as String? ?? '').toUpperCase() == p,
+      );
 
-      if (morning) schedule.putIfAbsent('morning', () => []).add(med);
-      if (daytime) schedule.putIfAbsent('afternoon', () => []).add(med);
-      if (night) schedule.putIfAbsent('night', () => []).add(med);
+      if (hasPeriod('MORNING')) {
+        schedule.putIfAbsent('morning', () => []).add(med);
+      }
+      if (hasPeriod('AFTERNOON') || hasPeriod('DAYTIME')) {
+        schedule.putIfAbsent('afternoon', () => []).add(med);
+      }
+      if (hasPeriod('EVENING')) {
+        schedule.putIfAbsent('afternoon', () => []).add(med);
+      }
+      if (hasPeriod('NIGHT')) { schedule.putIfAbsent('night', () => []).add(med); }
     }
     return schedule;
   }
@@ -58,7 +51,6 @@ class PrescriptionSuccessScreen extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F7FA),
         body: SafeArea(
           child: Column(
             children: [
@@ -352,7 +344,7 @@ class _ScheduleSlotCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
       ),
@@ -444,7 +436,7 @@ class _BottomActions extends StatelessWidget {
         AppSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),

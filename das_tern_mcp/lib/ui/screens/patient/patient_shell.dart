@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../providers/shell_tab_controller.dart';
 import '../../../utils/app_router.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common_widgets.dart';
@@ -20,6 +22,7 @@ class PatientShell extends StatefulWidget {
 
 class _PatientShellState extends State<PatientShell> {
   int _currentIndex = 0;
+  late final PageController _pageController;
 
   final _tabs = const [
     PatientHomeTab(),
@@ -28,6 +31,32 @@ class _PatientShellState extends State<PatientShell> {
     PatientFamilyTab(),
     PatientSettingsTab(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ShellTabController>().addListener(_onTabSwitch);
+    });
+  }
+
+  void _onTabSwitch() {
+    final i = context.read<ShellTabController>().requestedIndex;
+    setState(() => _currentIndex = i);
+    _pageController.animateToPage(
+      i,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    context.read<ShellTabController>().removeListener(_onTabSwitch);
+    _pageController.dispose();
+    super.dispose();
+  }
 
   void _showQuickAddMenu(BuildContext context, AppLocalizations l10n) {
     showModalBottomSheet(
@@ -99,6 +128,11 @@ class _PatientShellState extends State<PatientShell> {
                   Navigator.pop(ctx);
                   // Navigate to scan tab
                   setState(() => _currentIndex = 2);
+                  _pageController.animateToPage(
+                    2,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
                 },
               ),
               const Divider(height: 1),
@@ -137,7 +171,11 @@ class _PatientShellState extends State<PatientShell> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _tabs),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (i) => setState(() => _currentIndex = i),
+        children: _tabs.map((t) => _KeepAliveTab(child: t)).toList(),
+      ),
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton.extended(
               heroTag: 'patient_shell_fab',
@@ -151,7 +189,14 @@ class _PatientShellState extends State<PatientShell> {
           : null,
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+        onTap: (i) {
+          setState(() => _currentIndex = i);
+          _pageController.animateToPage(
+            i,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        },
         items: [
           AppNavItem(
             icon: Icons.home_outlined,
@@ -181,5 +226,27 @@ class _PatientShellState extends State<PatientShell> {
         ],
       ),
     );
+  }
+}
+
+/// Wrapper that keeps a tab alive in a [PageView] so state is not lost when
+/// swiping away and returning.
+class _KeepAliveTab extends StatefulWidget {
+  final Widget child;
+  const _KeepAliveTab({required this.child});
+
+  @override
+  State<_KeepAliveTab> createState() => _KeepAliveTabState();
+}
+
+class _KeepAliveTabState extends State<_KeepAliveTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
   }
 }

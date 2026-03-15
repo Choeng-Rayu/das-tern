@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/app_router.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
@@ -11,6 +12,11 @@ class PatientHeader extends StatelessWidget {
     this.onNotificationTap,
     this.unreadCount = 0,
     this.title,
+    /// Override back-button visibility.
+    /// - `null` (default): show back button only if [Navigator.canPop] is true.
+    /// - `false`: never show a back button (use on main tab screens).
+    /// - `true`: always show a back button.
+    this.showBackButton,
   });
 
   final VoidCallback? onNotificationTap;
@@ -19,6 +25,9 @@ class PatientHeader extends StatelessWidget {
   /// If provided, replaces the greeting text with this title
   /// while keeping the avatar row and background image.
   final String? title;
+
+  /// Controls back-button visibility. `null` defers to [Navigator.canPop].
+  final bool? showBackButton;
 
   String _greeting(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -44,6 +53,12 @@ class PatientHeader extends StatelessWidget {
 
     return SliverAppBar(
       automaticallyImplyLeading: false,
+      leading: (showBackButton ?? Navigator.canPop(context))
+          ? IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            )
+          : null,
       pinned: true,
       expandedHeight: 180,
       collapsedHeight: collapsedContentHeight,
@@ -53,7 +68,11 @@ class PatientHeader extends StatelessWidget {
       // ── Always visible: avatar row ──
       title: Row(
         children: [
-          const _PatientAvatar(),
+          GestureDetector(
+            onTap: () =>
+                Navigator.pushNamed(context, AppRouter.patientEditProfile),
+            child: const _PatientAvatar(),
+          ),
           const SizedBox(width: AppSpacing.sm),
           const _PatientName(),
           const Spacer(),
@@ -153,27 +172,50 @@ class _PatientAvatar extends StatelessWidget {
   }
 }
 
-/// Name
+/// Name + role badge
 class _PatientName extends StatelessWidget {
   const _PatientName();
 
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
+    final l10n = AppLocalizations.of(context)!;
     final firstName = (user?['firstName'] ?? '') as String;
     final lastName = (user?['lastName'] ?? '') as String;
     final fullName = '$firstName $lastName'.trim();
 
     return Expanded(
-      child: Text(
-        fullName.isEmpty ? 'Patient' : fullName,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            fullName.isEmpty ? l10n.patient : fullName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Container(
+            margin: const EdgeInsets.only(top: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              l10n.patientRole,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

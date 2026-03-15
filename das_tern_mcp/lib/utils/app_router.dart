@@ -44,6 +44,7 @@ import '../ui/screens/patient/screens/vital_thresholds_screen.dart';
 import '../ui/screens/patient/screens/emergency_screen.dart';
 import '../ui/screens/patient/screens/edit_profile_screen.dart';
 import '../ui/screens/patient/screens/change_password_screen.dart';
+import '../ui/screens/patient/tab/patient_scan_tab.dart';
 import '../ui/screens/patient/notification/patient_notifications_screen.dart';
 import '../ui/screens/doctor/notification/doctor_notifications_screen.dart';
 import '../models/enums_model/medication_type.dart';
@@ -90,6 +91,7 @@ class AppRouter {
   // Prescription routes
   static const String doctorCreatePrescription = '/doctor/create-prescription';
   static const String patientCreateMedicine = '/patient/create-medicine';
+  static const String patientScanPrescription = '/patient/scan-prescription';
   static const String prescriptionDetail = '/prescription/detail';
   static const String medicationChoice = '/patient/medication-choice';
   static const String patientCreateBatch = '/patient/create-batch';
@@ -199,6 +201,8 @@ class AppRouter {
         return _buildRoute(const CreatePrescriptionScreen());
       case patientCreateMedicine:
         return _buildRoute(const CreatePatientMedicineScreen());
+      case patientScanPrescription:
+        return _buildRoute(const Scaffold(body: PatientScanTab()));
       case medicationChoice:
         return _buildRoute(const MedicationChoiceScreen());
       case patientCreateBatch:

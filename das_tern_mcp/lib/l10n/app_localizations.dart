@@ -1046,6 +1046,12 @@ abstract class AppLocalizations {
   /// **'Mark as Taken'**
   String get markAsTaken;
 
+  /// No description provided for @markAsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Pending'**
+  String get markAsPending;
+
   /// No description provided for @markedAsTaken.
   ///
   /// In en, this message translates to:
@@ -1609,6 +1615,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'1 pill'**
   String get onePill;
+
+  /// No description provided for @markAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark All Done'**
+  String get markAllDone;
+
+  /// No description provided for @completedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed ({count})'**
+  String completedCount(int count);
+
+  /// No description provided for @noPendingDoses.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending doses'**
+  String get noPendingDoses;
+
+  /// No description provided for @selectDosesToMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Select doses to mark as taken'**
+  String get selectDosesToMark;
+
+  /// No description provided for @timePeriodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get timePeriodLabel;
 
   /// No description provided for @unresolvedAlerts.
   ///
@@ -4496,6 +4532,18 @@ abstract class AppLocalizations {
   /// **'After meal'**
   String get afterMeal;
 
+  /// No description provided for @withFood.
+  ///
+  /// In en, this message translates to:
+  /// **'With food'**
+  String get withFood;
+
+  /// No description provided for @prnDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Take as needed, no fixed schedule'**
+  String get prnDescription;
+
   /// No description provided for @addMedicineRow.
   ///
   /// In en, this message translates to:
@@ -4933,6 +4981,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm Prescription'**
   String get confirmPrescription;
+
+  /// No description provided for @deletePrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Prescription'**
+  String get deletePrescription;
+
+  /// No description provided for @deletePrescriptionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this prescription? All scheduled dose reminders will be removed.'**
+  String get deletePrescriptionConfirm;
+
+  /// No description provided for @prescriptionDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription deleted'**
+  String get prescriptionDeleted;
 
   /// No description provided for @pendingPrescriptions.
   ///
