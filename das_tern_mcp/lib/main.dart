@@ -17,6 +17,7 @@ import 'providers/subscription_provider.dart';
 import 'providers/health_monitoring_provider.dart';
 import 'providers/batch_provider.dart';
 import 'providers/adherence_provider.dart';
+import 'providers/shell_tab_controller.dart';
 import 'services/notification_service.dart';
 import 'services/sync_service.dart';
 import 'services/logger_service.dart';
@@ -148,6 +149,7 @@ class _DasTernAppState extends State<DasTernApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => HealthMonitoringProvider()),
         ChangeNotifierProvider(create: (_) => BatchProvider()),
         ChangeNotifierProvider(create: (_) => AdherenceProvider()),
+        ChangeNotifierProvider(create: (_) => ShellTabController()),
         ChangeNotifierProvider.value(value: SyncService.instance),
       ],
       child: Consumer2<ThemeProvider, LocaleProvider>(

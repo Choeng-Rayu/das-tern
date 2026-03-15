@@ -5,6 +5,7 @@ import '../../../../providers/batch_provider.dart';
 import '../../../../ui/theme/app_colors.dart';
 import '../../../../ui/theme/app_spacing.dart';
 import '../../../../ui/widgets/medicine_form_widget.dart';
+import '../../../widgets/language_switcher.dart';
 
 class CreateBatchScreen extends StatefulWidget {
   const CreateBatchScreen({super.key});
@@ -95,7 +96,10 @@ class _CreateBatchScreenState extends State<CreateBatchScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.createBatchGroup)),
+      appBar: AppBar(
+        title: Text(l10n.createBatchGroup),
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(

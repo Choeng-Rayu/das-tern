@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../providers/shell_tab_controller.dart';
 import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 class MedicationChoiceScreen extends StatelessWidget {
   const MedicationChoiceScreen({super.key});
@@ -12,7 +15,7 @@ class MedicationChoiceScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.addMedicine), elevation: 0),
+      appBar: AppBar(title: Text(l10n.addMedicine), elevation: 0, actions: const [LanguageSwitcherButton(lightBackground: true)]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
@@ -65,8 +68,10 @@ class MedicationChoiceScreen extends StatelessWidget {
               title: l10n.scanPrescriptionOption,
               description: l10n.scanPrescriptionOptionDesc,
               color: AppColors.successGreen,
-              onTap: () =>
-                  Navigator.pushNamed(context, AppRouter.patientCreateMedicine),
+              onTap: () {
+                context.read<ShellTabController>().switchTo(2);
+                Navigator.pop(context);
+              },
             ),
             const SizedBox(height: AppSpacing.md),
 

@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
+import '../../widgets/language_switcher.dart';
 
 /// QR code scanner screen for caregiver to scan patient's connection token.
 class QRScannerScreen extends StatefulWidget {
@@ -66,6 +67,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
             ),
             onPressed: () => _controller.toggleTorch(),
           ),
+          const LanguageSwitcherButton(lightBackground: true),
         ],
       ),
       body: Stack(

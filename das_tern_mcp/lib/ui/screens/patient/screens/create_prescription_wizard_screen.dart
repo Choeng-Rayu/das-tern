@@ -7,6 +7,7 @@ import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/medicine_form_widget.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// Multi-step prescription creation wizard.
 /// Step 1: Prescription info (name, doctor, dates)
@@ -143,32 +144,19 @@ class _CreatePrescriptionWizardScreenState
   Map<String, List<Map<String, dynamic>>> _computeSchedule() {
     final schedule = <String, List<Map<String, dynamic>>>{};
     for (final med in _medicines) {
-      final morning =
-          med['morning'] == true ||
-          (med['scheduleTimes'] as List?)?.any(
-                (t) => t['timePeriod'] == 'morning',
-              ) ==
-              true;
-      final daytime =
-          med['daytime'] == true ||
-          (med['scheduleTimes'] as List?)?.any(
-                (t) => t['timePeriod'] == 'daytime',
-              ) ==
-              true;
-      final night =
-          med['night'] == true ||
-          (med['scheduleTimes'] as List?)?.any(
-                (t) => t['timePeriod'] == 'night',
-              ) ==
-              true;
+      final times = (med['scheduleTimes'] as List?) ?? [];
+      bool hasPeriod(String p) =>
+          times.any((t) => (t['timePeriod'] as String?) == p);
 
-      if (morning) {
+      if (hasPeriod('MORNING')) {
         schedule.putIfAbsent('morning', () => []).add(med);
       }
-      if (daytime) {
-        schedule.putIfAbsent('afternoon', () => []).add(med);
+      // AFTERNOON and EVENING both map to the daytime preview slot
+      if (hasPeriod('AFTERNOON') || hasPeriod('EVENING')) {
+        final slot = schedule.putIfAbsent('afternoon', () => []);
+        if (!slot.contains(med)) slot.add(med);
       }
-      if (night) {
+      if (hasPeriod('NIGHT')) {
         schedule.putIfAbsent('night', () => []).add(med);
       }
     }
@@ -181,12 +169,10 @@ class _CreatePrescriptionWizardScreenState
     final provider = context.watch<PrescriptionProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: Text(l10n.createPrescription),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
         elevation: 0,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
       ),
       body: Column(
         children: [
@@ -423,7 +409,7 @@ class _CreatePrescriptionWizardScreenState
                 if (_showMedicineForm) ...[
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -803,7 +789,7 @@ class _StepIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.lg,
         vertical: AppSpacing.md,
@@ -895,7 +881,7 @@ class _WizardTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -916,7 +902,7 @@ class _WizardTextField extends StatelessWidget {
             borderSide: BorderSide.none,
           ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Theme.of(context).colorScheme.surface,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 14,
@@ -1025,7 +1011,7 @@ class _MedicineCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -1158,7 +1144,7 @@ class _ScheduleSlotCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
       ),

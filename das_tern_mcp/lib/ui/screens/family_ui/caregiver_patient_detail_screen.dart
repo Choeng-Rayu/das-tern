@@ -7,6 +7,7 @@ import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Detail screen for a caregiver viewing a specific patient.
 /// Shows patient info, access level, alerts toggle, and today's dose schedule.
@@ -148,7 +149,10 @@ class _CaregiverPatientDetailScreenState
 
     if (_connection == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(l10n.patient)),
+        appBar: AppBar(
+          title: Text(l10n.patient),
+          actions: const [LanguageSwitcherButton(lightBackground: true)],
+        ),
         body: Center(child: Text(l10n.connectionNotFound)),
       );
     }
@@ -160,6 +164,7 @@ class _CaregiverPatientDetailScreenState
         title: Text(patientName.isEmpty ? l10n.patient : patientName),
         centerTitle: true,
         actions: [
+          const LanguageSwitcherButton(lightBackground: true),
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'disconnect') {

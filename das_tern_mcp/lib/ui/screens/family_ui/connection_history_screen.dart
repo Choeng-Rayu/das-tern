@@ -5,6 +5,7 @@ import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Shows connection history with filter options.
 class ConnectionHistoryScreen extends StatefulWidget {
@@ -50,7 +51,7 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.connectionHistory), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.connectionHistory), centerTitle: true, actions: const [LanguageSwitcherButton(lightBackground: true)]),
       body: Column(
         children: [
           // Filter chips

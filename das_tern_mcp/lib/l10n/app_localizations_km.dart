@@ -493,6 +493,9 @@ class AppLocalizationsKm extends AppLocalizations {
   String get markAsTaken => 'សម្គាល់ថាបានទទួលទាន';
 
   @override
+  String get markAsPending => 'សម្គាល់ថាមិនទាន់ញ៉ាំ';
+
+  @override
   String get markedAsTaken => 'សម្គាល់ថាបានទទួលទាន';
 
   @override
@@ -779,6 +782,23 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get onePill => '១ គ្រាប់';
+
+  @override
+  String get markAllDone => 'សម្គាល់ទាំងអស់ថាបានប្រើ';
+
+  @override
+  String completedCount(int count) {
+    return 'បានបញ្ចប់ ($count)';
+  }
+
+  @override
+  String get noPendingDoses => 'គ្មានថ្នាំដែលត្រូវប្រើ';
+
+  @override
+  String get selectDosesToMark => 'ជ្រើសរើសថ្នាំដើម្បីសម្គាល់ថាបានប្រើ';
+
+  @override
+  String get timePeriodLabel => 'ពេលវេលា';
 
   @override
   String unresolvedAlerts(int count) {
@@ -2319,6 +2339,12 @@ class AppLocalizationsKm extends AppLocalizations {
   String get afterMeal => 'ក្រោយបាយ';
 
   @override
+  String get withFood => 'ជាមួយអាហារ';
+
+  @override
+  String get prnDescription => 'ផឹកតាមការចាំបាច់ គ្មានកាលវិភាគថេរ';
+
+  @override
   String get addMedicineRow => 'បន្ថែមជួរថ្នាំ';
 
   @override
@@ -2545,6 +2571,16 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get confirmPrescription => 'បញ្ជាក់វេជ្ជបញ្ជា';
+
+  @override
+  String get deletePrescription => 'លុបវេជ្ជបញ្ជា';
+
+  @override
+  String get deletePrescriptionConfirm =>
+      'តើអ្នកប្រាកដថាចង់លុបវេជ្ជបញ្ជានេះ? ការរំលឹកថ្នាំដែលបានកំណត់ពេលទាំងអស់នឹងត្រូវដកចេញ។';
+
+  @override
+  String get prescriptionDeleted => 'វេជ្ជបញ្ជាត្រូវបានលុប';
 
   @override
   String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';

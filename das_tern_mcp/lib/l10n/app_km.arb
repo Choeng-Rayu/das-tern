@@ -183,6 +183,7 @@
   "activeDays": "ថ្ងៃសកម្ម",
 
   "markAsTaken": "សម្គាល់ថាបានទទួលទាន",
+  "markAsPending": "សម្គាល់ថាមិនទាន់ញ៉ាំ",
   "markedAsTaken": "សម្គាល់ថាបានទទួលទាន",
   "taken": "បានញ៉ាំ",
   "takenAt": "បានញ៉ាំនៅ",
@@ -287,6 +288,16 @@
   "emergencyLabel": "ពេលបន្ទាន់",
   "recordLabel": "កត់ត្រា",
   "onePill": "១ គ្រាប់",
+  "markAllDone": "សម្គាល់ទាំងអស់ថាបានប្រើ",
+  "completedCount": "បានបញ្ចប់ ({count})",
+  "@completedCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "noPendingDoses": "គ្មានថ្នាំដែលត្រូវប្រើ",
+  "selectDosesToMark": "ជ្រើសរើសថ្នាំដើម្បីសម្គាល់ថាបានប្រើ",
+  "timePeriodLabel": "ពេលវេលា",
   "unresolvedAlerts": "ការជូនដំណឹងសុខភាព {count} មិនទាន់ដោះស្រាយ",
   "daysUnit": "ថ្ងៃ",
 
@@ -859,6 +870,8 @@
   "daytimeColumn": "ថ្ងៃ",
   "nightColumn": "យប់",
   "afterMeal": "ក្រោយបាយ",
+  "withFood": "ជាមួយអាហារ",
+  "prnDescription": "ផឹកតាមការចាំបាច់ គ្មានកាលវិភាគថេរ",
   "addMedicineRow": "បន្ថែមជួរថ្នាំ",
   "createPrescriptionFab": "បង្កើតវេជ្ជបញ្ជា",
 
@@ -965,6 +978,9 @@
   "prescriptionRejected": "វេជ្ជបញ្ជាបានបដិសេធ",
   "prescriptionConfirmed": "វេជ្ជបញ្ជាបានបញ្ជាក់",
   "confirmPrescription": "បញ្ជាក់វេជ្ជបញ្ជា",
+  "deletePrescription": "លុបវេជ្ជបញ្ជា",
+  "deletePrescriptionConfirm": "តើអ្នកប្រាកដថាចង់លុបវេជ្ជបញ្ជានេះ? ការរំលឹកថ្នាំដែលបានកំណត់ពេលទាំងអស់នឹងត្រូវដកចេញ។",
+  "prescriptionDeleted": "វេជ្ជបញ្ជាត្រូវបានលុប",
   "pendingPrescriptions": "វេជ្ជបញ្ជារង់ចាំ",
   "prescriptionFromDoctor": "ពីគ្រូពេទ្យ {name}",
   "@prescriptionFromDoctor": {

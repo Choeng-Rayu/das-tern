@@ -596,6 +596,19 @@ class ApiService {
     );
   }
 
+  /// PATCH /doses/:id/reset — reset a dose back to DUE status.
+  Future<Map<String, dynamic>> resetDose(String id) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.patch(
+          Uri.parse('$baseUrl/doses/$id/reset'),
+          headers: h,
+          body: jsonEncode({}),
+        ),
+      ),
+    );
+  }
+
   // ────────────────────────────────────────────
   // Connection endpoints
   // ────────────────────────────────────────────

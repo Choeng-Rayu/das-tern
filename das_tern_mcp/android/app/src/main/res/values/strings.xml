@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Google Sign-In configuration for Android.
+  default_web_client_id must match the WEB OAuth 2.0 client ID in Google Cloud Console.
+  The Android app (package: com.example.das_tern_mcp) with the debug SHA-1 fingerprint
+  must also be registered as an Android OAuth client in Google Cloud Console.
+-->
+<resources>
+    <string name="default_web_client_id">265372630808-fdi2v66tkfi85ful7gvh88r6rdi80h4u.apps.googleusercontent.com</string>
+</resources>

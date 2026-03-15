@@ -4,9 +4,11 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
 import '../../../../providers/subscription_provider.dart';
+import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/theme_provider.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// Patient profile tab – shows user info, settings, and logout.
 class PatientProfileTab extends StatelessWidget {
@@ -24,6 +26,7 @@ class PatientProfileTab extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.profile),
         automaticallyImplyLeading: false,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -57,6 +60,37 @@ class PatientProfileTab extends StatelessWidget {
                 context,
               ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
             ),
+            const SizedBox(height: AppSpacing.sm),
+            // Patient role badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.person_outline,
+                    size: 14,
+                    color: AppColors.primaryBlue,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    l10n.patientRole,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryBlue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: AppSpacing.lg),
 
             // Subscription card
@@ -73,59 +107,62 @@ class PatientProfileTab extends StatelessWidget {
                     horizontal: 16,
                     vertical: 14,
                   ),
-                  child: Builder(builder: (context) {
-                    final isDark =
-                        Theme.of(context).brightness == Brightness.dark;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.brightness_6, size: 20),
-                            const SizedBox(width: 12),
-                            Text(
-                              l10n.theme,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          children: [
-                            _ThemeOptionCard(
-                              icon: Icons.phone_android_rounded,
-                              label: 'System',
-                              isSelected: themeProvider.themeMode ==
+                  child: Builder(
+                    builder: (context) {
+                      final isDark =
+                          Theme.of(context).brightness == Brightness.dark;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.brightness_6, size: 20),
+                              const SizedBox(width: 12),
+                              Text(
+                                l10n.theme,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              _ThemeOptionCard(
+                                icon: Icons.phone_android_rounded,
+                                label: 'System',
+                                isSelected:
+                                    themeProvider.themeMode == ThemeMode.system,
+                                isDark: isDark,
+                                onTap: () => themeProvider.setThemeMode(
                                   ThemeMode.system,
-                              isDark: isDark,
-                              onTap: () => themeProvider
-                                  .setThemeMode(ThemeMode.system),
-                            ),
-                            const SizedBox(width: 10),
-                            _ThemeOptionCard(
-                              icon: Icons.light_mode_rounded,
-                              label: 'Light',
-                              isSelected: themeProvider.themeMode ==
-                                  ThemeMode.light,
-                              isDark: isDark,
-                              onTap: () => themeProvider
-                                  .setThemeMode(ThemeMode.light),
-                            ),
-                            const SizedBox(width: 10),
-                            _ThemeOptionCard(
-                              icon: Icons.dark_mode_rounded,
-                              label: 'Dark',
-                              isSelected: themeProvider.themeMode ==
-                                  ThemeMode.dark,
-                              isDark: isDark,
-                              onTap: () => themeProvider
-                                  .setThemeMode(ThemeMode.dark),
-                            ),
-                          ],
-                        ),
-                      ],
-                    );
-                  }),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              _ThemeOptionCard(
+                                icon: Icons.light_mode_rounded,
+                                label: 'Light',
+                                isSelected:
+                                    themeProvider.themeMode == ThemeMode.light,
+                                isDark: isDark,
+                                onTap: () =>
+                                    themeProvider.setThemeMode(ThemeMode.light),
+                              ),
+                              const SizedBox(width: 10),
+                              _ThemeOptionCard(
+                                icon: Icons.dark_mode_rounded,
+                                label: 'Dark',
+                                isSelected:
+                                    themeProvider.themeMode == ThemeMode.dark,
+                                isDark: isDark,
+                                onTap: () =>
+                                    themeProvider.setThemeMode(ThemeMode.dark),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
                 // Language
                 ListTile(
@@ -154,25 +191,26 @@ class PatientProfileTab extends StatelessWidget {
                   leading: const Icon(Icons.edit),
                   title: Text(l10n.editProfile),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // TODO: Navigate to edit profile
-                  },
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    AppRouter.patientEditProfile,
+                  ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.lock),
                   title: Text(l10n.changePassword),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // TODO: Navigate to change password
-                  },
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    AppRouter.patientChangePassword,
+                  ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.people),
                   title: Text(l10n.myConnections),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // TODO: Navigate to connections
-                  },
+                  onTap: () =>
+                      Navigator.pushNamed(context, AppRouter.familyAccessList),
                 ),
               ],
             ),
@@ -358,9 +396,7 @@ class _ThemeOptionCard extends StatelessWidget {
             color: isSelected ? selectedBg : unselectedBg,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected
-                  ? AppColors.primaryBlue
-                  : Colors.transparent,
+              color: isSelected ? AppColors.primaryBlue : Colors.transparent,
               width: 1.5,
             ),
           ),

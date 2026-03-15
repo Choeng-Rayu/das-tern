@@ -6,6 +6,7 @@ import '../../../../providers/batch_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/medicine_form_widget.dart';
+import '../../../widgets/language_switcher.dart';
 
 class BatchDetailScreen extends StatefulWidget {
   final String batchId;
@@ -165,6 +166,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> {
               icon: const Icon(Icons.delete_outline, color: AppColors.alertRed),
               onPressed: _deleteBatch,
             ),
+          const LanguageSwitcherButton(lightBackground: true),
         ],
       ),
       body: provider.isLoading
