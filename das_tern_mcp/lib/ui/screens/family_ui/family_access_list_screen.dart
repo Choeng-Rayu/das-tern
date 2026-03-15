@@ -8,6 +8,7 @@ import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../../utils/app_router.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Shows the list of connected family members / caregivers.
 /// Patient sees their caregivers; caregiver sees their patients.
@@ -56,12 +57,19 @@ class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
           // Blue gradient header
           AppGradientHeader(
             greeting: l10n.myFamily,
-            trailing: IconButton(
-              icon: const Icon(Icons.history, color: Colors.white),
-              onPressed: () {
-                Navigator.pushNamed(context, AppRouter.familyHistory);
-              },
-              tooltip: l10n.connectionHistory,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.history, color: Colors.white),
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRouter.familyHistory);
+                  },
+                  tooltip: l10n.connectionHistory,
+                ),
+                const LanguageSwitcherButton(lightBackground: false),
+                const SizedBox(width: 8),
+              ],
             ),
             extraContent: [
               const SizedBox(height: AppSpacing.md),
@@ -179,8 +187,11 @@ class _CaregiversList extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final filtered = _filterConnections(provider.caregivers, searchQuery,
-            useInitiator: true);
+        final filtered = _filterConnections(
+          provider.caregivers,
+          searchQuery,
+          useInitiator: true,
+        );
 
         if (provider.caregivers.isEmpty) {
           return _buildEmptyState(
@@ -277,8 +288,8 @@ List<Connection> _filterConnections(
   if (query.isEmpty) return connections;
   return connections.where((c) {
     final person = _getOtherPerson(c, preferPatient: !useInitiator);
-    final name =
-        '${person['firstName'] ?? ''} ${person['lastName'] ?? ''}'.trim();
+    final name = '${person['firstName'] ?? ''} ${person['lastName'] ?? ''}'
+        .trim();
     final fullName = person['fullName']?.toString() ?? '';
     return name.toLowerCase().contains(query) ||
         fullName.toLowerCase().contains(query);
@@ -331,20 +342,18 @@ Widget _buildEmptyState(
           const SizedBox(height: AppSpacing.md),
           Text(
             title,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: AppColors.textSecondary),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary),
           ),
           if (subtitle.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: AppColors.textSecondary),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ],
@@ -407,8 +416,8 @@ class _CaregiverCard extends StatelessWidget {
                   Text(
                     name.isEmpty ? l10n.caregiverLabel : name,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -416,8 +425,8 @@ class _CaregiverCard extends StatelessWidget {
                       connection.permissionLevel,
                     ),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -440,8 +449,8 @@ class _PatientCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final patient = _getOtherPerson(connection, preferPatient: true);
-    final name =
-        '${patient['firstName'] ?? ''} ${patient['lastName'] ?? ''}'.trim();
+    final name = '${patient['firstName'] ?? ''} ${patient['lastName'] ?? ''}'
+        .trim();
     final initials = _getInitials(patient);
 
     return Padding(
@@ -478,8 +487,8 @@ class _PatientCard extends StatelessWidget {
                   Text(
                     name.isEmpty ? l10n.patient : name,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -487,8 +496,8 @@ class _PatientCard extends StatelessWidget {
                       connection.permissionLevel,
                     ),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),

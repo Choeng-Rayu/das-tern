@@ -6,6 +6,7 @@ import '../../../../providers/prescription_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../../ui/widgets/medicine_form_widget.dart';
+import '../../../widgets/language_switcher.dart';
 
 class CreatePatientMedicineScreen extends StatefulWidget {
   const CreatePatientMedicineScreen({super.key});
@@ -57,6 +58,11 @@ class _CreatePatientMedicineScreenState
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.medicineAddedSuccessfully)));
       Navigator.pop(context);
+    } else if (mounted) {
+      final errMsg = context.read<PrescriptionProvider>().error ?? 'Failed to save medicine';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errMsg), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -66,7 +72,10 @@ class _CreatePatientMedicineScreenState
     final provider = context.watch<PrescriptionProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.addMedicine)),
+      appBar: AppBar(
+        title: Text(l10n.addMedicine),
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(

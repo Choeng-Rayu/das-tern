@@ -4,6 +4,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../models/enums_model/medication_type.dart';
 import '../../../../providers/health_monitoring_provider.dart';
 import '../../../theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 class VitalThresholdsScreen extends StatefulWidget {
   const VitalThresholdsScreen({super.key});
@@ -25,7 +26,10 @@ class _VitalThresholdsScreenState extends State<VitalThresholdsScreen> {
     final provider = context.watch<HealthMonitoringProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.alertThresholds)),
+      appBar: AppBar(
+        title: Text(l10n.alertThresholds),
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(

@@ -8,6 +8,7 @@ import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../../utils/app_router.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Caregiver dashboard for monitoring a specific patient's medication.
 /// Shows dose schedule, missed doses, and nudge functionality.
@@ -103,7 +104,10 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
 
     if (_connection == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(l10n.dashboard)),
+        appBar: AppBar(
+          title: Text(l10n.dashboard),
+          actions: const [LanguageSwitcherButton(lightBackground: true)],
+        ),
         body: Center(child: Text(l10n.connectionNotFound)),
       );
     }
@@ -117,6 +121,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
         title: Text(patientName.isEmpty ? l10n.dashboard : patientName),
         centerTitle: true,
         actions: [
+          const LanguageSwitcherButton(lightBackground: true),
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'revoke') {
@@ -311,9 +316,9 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
           const SizedBox(height: AppSpacing.xs),
           Text(
             l10n.familyAlertsRequirePremium,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.sm),
           Row(

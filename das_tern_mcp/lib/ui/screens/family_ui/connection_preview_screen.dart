@@ -7,6 +7,7 @@ import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Preview modal shown after scanning / entering a connection token.
 /// Shows patient info and permission level before confirming.
@@ -119,7 +120,11 @@ class _ConnectionPreviewScreenState extends State<ConnectionPreviewScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.connectionTitle), centerTitle: true),
+      appBar: AppBar(
+        title: Text(l10n.connectionTitle),
+        centerTitle: true,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),

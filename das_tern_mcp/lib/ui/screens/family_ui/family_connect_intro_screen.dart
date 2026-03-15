@@ -3,6 +3,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Intro screen for family connection flow.
 /// Patient chooses to share their QR or enter a caregiver's code.
@@ -14,9 +15,13 @@ class FamilyConnectIntroScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.connectFamilyTitle), centerTitle: true),
+      appBar: AppBar(
+        title: Text(l10n.connectFamilyTitle),
+        centerTitle: true,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             children: [
@@ -94,7 +99,7 @@ class FamilyConnectIntroScreen extends StatelessWidget {
                 },
               ),
 
-              const Spacer(),
+              const SizedBox(height: AppSpacing.lg),
 
               // Info text
               Row(

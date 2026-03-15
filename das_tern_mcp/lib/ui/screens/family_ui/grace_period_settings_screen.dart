@@ -5,6 +5,7 @@ import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Grace period settings screen – patient sets how many minutes before
 /// a missed dose triggers caregiver alerts.
@@ -97,7 +98,11 @@ class _GracePeriodSettingsScreenState extends State<GracePeriodSettingsScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.gracePeriodTitle), centerTitle: true),
+      appBar: AppBar(
+        title: Text(l10n.gracePeriodTitle),
+        centerTitle: true,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),

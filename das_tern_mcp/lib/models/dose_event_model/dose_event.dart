@@ -37,39 +37,99 @@ class DoseEvent {
 
   factory DoseEvent.fromJson(Map<String, dynamic> json) {
     return DoseEvent(
-      id: json['id'] as String?,
-      prescriptionId: json['prescriptionId'] as String? ?? '',
-      medicationId: json['medicationId'] as String? ?? '',
-      patientId: json['patientId'] as String? ?? '',
-      scheduledTime: DateTime.parse(json['scheduledTime'] as String),
-      timePeriod: json['timePeriod'] as String? ?? 'MORNING',
-      reminderTime: json['reminderTime'] as String?,
-      status: json['status'] as String? ?? 'DUE',
-      takenAt: json['takenAt'] != null
-          ? DateTime.parse(json['takenAt'] as String)
+      id: json['id'] is String ? json['id'] as String : null,
+      prescriptionId: json['prescriptionId'] is String
+          ? json['prescriptionId'] as String
+          : '',
+      medicationId: json['medicationId'] is String
+          ? json['medicationId'] as String
+          : '',
+      patientId: json['patientId'] is String ? json['patientId'] as String : '',
+      scheduledTime: _parseScheduledTime(json),
+      timePeriod: json['timePeriod'] is String
+          ? json['timePeriod'] as String
+          : 'MORNING',
+      reminderTime: json['reminderTime'] is String
+          ? json['reminderTime'] as String
           : null,
-      skipReason: json['skipReason'] as String?,
-      wasOffline: json['wasOffline'] as bool? ?? false,
-      medicationName:
-          json['medicationName'] as String? ??
-          (json['medication'] is Map
-              ? json['medication']['medicineName'] as String? ?? ''
-              : ''),
-      dosage:
-          json['dosage'] as String? ??
-          (json['medication'] is Map
-              ? '${json['medication']['morningDosage'] ?? 0}'
-              : ''),
+      status: json['status'] is String ? json['status'] as String : 'DUE',
+      takenAt: json['takenAt'] != null
+          ? DateTime.parse(json['takenAt'].toString())
+          : null,
+      skipReason: json['skipReason'] is String
+          ? json['skipReason'] as String
+          : null,
+      wasOffline: json['wasOffline'] is bool
+          ? json['wasOffline'] as bool
+          : false,
+      medicationName: json['medicationName'] is String
+          ? json['medicationName'] as String
+          : (json['medication'] is Map
+                ? (json['medication']['medicineName'] is String
+                      ? json['medication']['medicineName'] as String
+                      : '')
+                : ''),
+      dosage: json['dosage'] is String ? json['dosage'] as String :
+          (json['dosage'] is Map
+              ? (json['dosage']['amount']?.toString() ?? '')
+              : (json['medication'] is Map
+                  ? '${json['medication']['morningDosage'] ?? 0}'
+                  : '')),
       medication: json['medication'] is Map
           ? Map<String, dynamic>.from(json['medication'] as Map)
           : null,
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
+          ? DateTime.parse(json['createdAt'].toString())
           : DateTime.now(),
       updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'] as String)
+          ? DateTime.parse(json['updatedAt'].toString())
           : DateTime.now(),
     );
+  }
+
+  /// Parse scheduledTime and apply the actual dose time from [dosage.time]
+  /// when the raw value resolves to midnight (a common backend pattern where
+  /// the date is stored as UTC start-of-day for the local timezone).
+  static DateTime _parseScheduledTime(Map<String, dynamic> json) {
+    final raw = json['scheduledTime']?.toString() ?? '';
+    final base = raw.isNotEmpty ? DateTime.parse(raw) : DateTime.now();
+    final local = base.toLocal();
+
+    // Extract HH:MM from dosage.time if available
+    String? dosageTime;
+    final dosage = json['dosage'];
+    if (dosage is Map) {
+      dosageTime = dosage['time']?.toString();
+    }
+
+    if (dosageTime != null) {
+      final parts = dosageTime.split(':');
+      if (parts.length >= 2) {
+        final h = int.tryParse(parts[0]);
+        final m = int.tryParse(parts[1]);
+        if (h != null && m != null) {
+          // Always use dosage.time for the H:MM — the backend stores UTC
+          // start-of-local-day in scheduledTime, so only the date part is
+          // reliable; the real clock time lives in dosage.time.
+          return DateTime(local.year, local.month, local.day, h, m);
+        }
+      }
+    }
+
+    // No dosage.time: if midnight, fall back to period default
+    if (local.hour == 0 && local.minute == 0) {
+      final period = (json['timePeriod']?.toString() ?? '').toUpperCase();
+      final defaultHour = switch (period) {
+        'MORNING' => 8,
+        'AFTERNOON' => 13,
+        'EVENING' => 18,
+        'NIGHT' => 21,
+        _ => 8,
+      };
+      return DateTime(local.year, local.month, local.day, defaultHour, 0);
+    }
+
+    return local;
   }
 
   Map<String, dynamic> toJson() {

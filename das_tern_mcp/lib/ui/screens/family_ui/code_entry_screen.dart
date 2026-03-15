@@ -4,6 +4,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Screen for manual code entry (alternative to QR scanning).
 class CodeEntryScreen extends StatefulWidget {
@@ -46,7 +47,11 @@ class _CodeEntryScreenState extends State<CodeEntryScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.enterCodeTitle), centerTitle: true),
+      appBar: AppBar(
+        title: Text(l10n.enterCodeTitle),
+        centerTitle: true,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),

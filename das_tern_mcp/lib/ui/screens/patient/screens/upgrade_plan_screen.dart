@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/subscription_provider.dart';
 import '../../../theme/app_colors.dart';
+import '../../../widgets/language_switcher.dart';
 
 class UpgradePlanScreen extends StatefulWidget {
   const UpgradePlanScreen({super.key});
@@ -42,6 +43,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
         elevation: 0,
         backgroundColor: bg,
         surfaceTintColor: Colors.transparent,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
       ),
       body: Column(
         children: [
@@ -71,7 +73,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                     onClaimed: () => setState(() => _trialClaimed = true),
                   ),
 
-                if (_trialClaimed || sub.isPremium || sub.isOnTrial) ...[
+                if (_trialClaimed || sub.isOnTrial) ...[
                   const SizedBox(height: 8),
                   _TrialCountdown(
                     daysRemaining: _trialClaimed ? 30 : sub.trialDaysRemaining,
