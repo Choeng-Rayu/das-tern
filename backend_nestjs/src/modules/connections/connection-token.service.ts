@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PermissionLevel } from '@prisma/client';
 import * as crypto from 'crypto';
 
@@ -13,7 +14,10 @@ export interface TokenValidationResult {
 
 @Injectable()
 export class ConnectionTokenService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   /**
    * Generate a unique connection token for a patient.
@@ -154,6 +158,16 @@ export class ConnectionTokenService {
         },
       }),
     ]);
+
+    const initiatorName =
+      connection.initiator.fullName || connection.initiator.firstName || 'A user';
+    await this.notificationsService.send(
+      tokenRecord.patientId,
+      'CONNECTION_REQUEST',
+      'Connection Request',
+      `${initiatorName} wants to connect with you.`,
+      { connectionId: connection.id, initiatorId: caregiverId },
+    );
 
     return connection;
   }

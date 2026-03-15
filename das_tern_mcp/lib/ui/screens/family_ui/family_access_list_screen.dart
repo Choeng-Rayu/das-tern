@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../models/connection_model/connection.dart';
 import '../../../models/enums_model/enums.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
@@ -390,51 +391,124 @@ class _CaregiverCard extends StatelessWidget {
     final name =
         '${caregiver['firstName'] ?? ''} ${caregiver['lastName'] ?? ''}'.trim();
     final initials = _getInitials(caregiver);
+    final currentUserId = context.read<AuthProvider>().user?['id']?.toString();
+    final canRespondPending =
+        currentUserId != null &&
+        connection.status == ConnectionStatus.pending &&
+        connection.recipientId == currentUserId;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: AppCard(
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.15),
-              child: Text(
-                initials,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryBlue,
-                ),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name.isEmpty ? l10n.caregiverLabel : name,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.15),
+                  child: Text(
+                    initials,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryBlue,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    Connection.permissionLevelToDisplay(
-                      connection.permissionLevel,
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name.isEmpty ? l10n.caregiverLabel : name,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        Connection.permissionLevelToDisplay(
+                          connection.permissionLevel,
+                        ),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _AlertsToggle(connection: connection),
+                _buildConnectionStatusBadge(context, connection),
+              ],
+            ),
+            if (canRespondPending) ...[
+              const SizedBox(height: AppSpacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _handlePendingAction(context, accept: false),
+                      icon: const Icon(Icons.close, size: 18),
+                      label: Text(l10n.rejectConnection),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.alertRed,
+                        side: const BorderSide(color: AppColors.alertRed),
+                      ),
                     ),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _handlePendingAction(context, accept: true),
+                      icon: const Icon(Icons.check, size: 18),
+                      label: Text(l10n.approveConnection),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryBlue,
+                        foregroundColor: Colors.white,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-            _AlertsToggle(connection: connection),
-            _buildConnectionStatusBadge(context, connection),
+            ],
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _handlePendingAction(
+    BuildContext context, {
+    required bool accept,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    final provider = context.read<ConnectionProvider>();
+    final success = accept
+        ? await provider.acceptConnection(connection.id, {
+            'permissionLevel': 'ALLOWED',
+          })
+        : await provider.revokeConnection(connection.id);
+
+    if (!context.mounted) return;
+
+    await provider.fetchCaregivers();
+    await provider.fetchConnectedPatients();
+
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? (accept ? l10n.connectionApproved : l10n.connectionRejected)
+              : (provider.error ?? l10n.failedToConnect),
+        ),
+        backgroundColor: success
+            ? (accept ? AppColors.successGreen : AppColors.textSecondary)
+            : AppColors.alertRed,
       ),
     );
   }

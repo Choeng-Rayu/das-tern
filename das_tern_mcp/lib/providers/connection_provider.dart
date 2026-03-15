@@ -203,8 +203,14 @@ class ConnectionProvider extends ChangeNotifier {
   /// Send a nudge to a patient.
   Future<bool> sendNudge(String patientId, String? doseId) async {
     _error = null;
+    final normalizedDoseId = doseId?.trim();
+    if (normalizedDoseId == null || normalizedDoseId.isEmpty) {
+      _error = 'No valid dose selected for nudge';
+      notifyListeners();
+      return false;
+    }
     try {
-      await _api.sendNudge(patientId, doseId ?? '');
+      await _api.sendNudge(patientId, normalizedDoseId);
       return true;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
