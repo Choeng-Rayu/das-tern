@@ -71,7 +71,7 @@ _SKIP_PATTERNS = [
     re.compile(r'^វិធីប្រើ'),
     re.compile(r'^វេជ្ជបញ្ជា'),
     re.compile(r'^សូមយក'),
-    re.compile(r'គ្រពេទ្យព្យាបាល'),
+    re.compile(r'គ្រូពេទ្យព្យាបាល'),
     re.compile(r'^ព្រឹក(?:ក)?$'),
     re.compile(r'^ថ្ងៃត្រង់$'),
     re.compile(r'^ល្ងាច$'),
