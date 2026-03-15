@@ -147,7 +147,7 @@ class PipelineOrchestrator:
     # Footer patterns — lines that are NOT medication data
     _FOOTER_PATS = [
         r'រាជធានី',         # "Phnom Penh" (city name in dates)
-        r'គ្រពេទ្យព្យាបាល',  # "treating doctor"
+        r'គ្រូពេទ្យព្យាបាល',  # "treating doctor"
         r'វេជ្ជបណ្ឌិត',      # "doctor"
         r'សូមយក',           # "please bring"
         r'ថ្ងៃទី.*\d{4}',    # date pattern
