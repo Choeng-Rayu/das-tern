@@ -1,35 +1,25 @@
 # Backend NestJS
 
-The NestJS backend is the main control center of Das Tern.
-
 ```mermaid
 flowchart LR
-    A[Das Tern App] --> B[Backend NestJS]
-    B --> C[(Main Database)]
-    B --> D[OCR Service]
-    B --> E[AI LLM Service]
-    B --> F[Bakong Payment Service]
+    APP[Das Tern App] --> BE[Backend NestJS]
+    BE --> AUTH[Login and permissions]
+    BE --> RX[Prescriptions and reminders]
+    BE --> REL[Doctor and family connections]
+    BE --> DB[(Main Database)]
+    BE --> OCR[OCR Service]
+    BE --> AI[AI LLM Service]
+    BE --> PAY[Bakong Payment Service]
 ```
 
-## What it does
+## Simple explanation
 
-- It manages login, users, roles, and permissions.
-- It stores prescriptions, medicines, reminders, and dose records.
-- It handles doctor and family connections.
-- It records health monitoring data and notifications.
-- It connects to OCR, AI, and Bakong services when needed.
+- This is the main control center of the platform.
+- It handles users, prescriptions, reminders, sharing, and health records.
+- It also connects to OCR, AI, and payment services when needed.
 
-## Simple flow
+## Main idea
 
-1. The app sends a request to the backend.
-2. The backend checks identity and access rules.
-3. The backend handles the business logic.
-4. It saves data in the main database.
-5. If needed, it calls OCR, AI, or Bakong.
-6. It returns the final result to the app.
-
-## Why it matters
-
-- It is the single place that coordinates the full platform.
-- It keeps medical data, permissions, and workflows consistent.
-- It protects users from having to talk to many separate services directly.
+- The app talks to one main backend.
+- The backend enforces the rules and stores the data.
+- Users do not need to connect to the specialist services directly.
