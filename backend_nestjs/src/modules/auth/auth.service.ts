@@ -1,13 +1,14 @@
-import { Injectable, UnauthorizedException, BadRequestException, ConflictException, Logger } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, ConflictException, InternalServerErrorException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../../database/prisma.service';
-import { RegisterPatientDto, RegisterDoctorDto } from './dto';
+import { RegisterPatientDto, RegisterDoctorDto, TelegramAuthDto, TelegramCallbackDto } from './dto';
 import { OtpService } from './otp.service';
 import { EmailService } from '../email/email.service';
 import { UserRole } from '@prisma/client';
+import { TelegramAuthService } from './telegram-auth/telegram-auth.service';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +24,7 @@ export class AuthService {
     private configService: ConfigService,
     private otpService: OtpService,
     private emailService: EmailService,
+    private telegramAuthService: TelegramAuthService,
   ) {
     const googleClientId = this.configService.get('GOOGLE_CLIENT_ID');
     this.googleClient = new OAuth2Client(googleClientId);
@@ -90,7 +92,12 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { sub: user.id, phoneNumber: user.phoneNumber, role: user.role };
+    const payload = {
+      sub: user.id,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+      ...(user.telegramId ? { telegramId: user.telegramId } : {}),
+    };
     
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
@@ -103,6 +110,61 @@ export class AuthService {
       refreshToken,
       user,
     };
+  }
+
+  async telegramLogin(dto: TelegramAuthDto) {
+    try {
+      await this.telegramAuthService.validateTelegramAuth(dto);
+      const user = await this.telegramAuthService.findOrCreateUser(dto);
+      const { passwordHash, ...result } = user;
+
+      this.logger.log(`Telegram login successful for telegramId=${dto.id}`);
+      return this.login(result);
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof UnauthorizedException) {
+        throw error;
+      }
+
+      this.logger.error(
+        `Telegram login failed for telegramId=${dto.id}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw new InternalServerErrorException('Failed to authenticate with Telegram');
+    }
+  }
+
+  async handleTelegramCallback(data: TelegramCallbackDto | Record<string, string>): Promise<string> {
+    try {
+      const callbackData = data as Record<string, string>;
+      const hasLegacyPayload = typeof callbackData.hash === 'string' && callbackData.hash.length > 0;
+      const hasCodePayload = typeof callbackData.code === 'string' && callbackData.code.length > 0;
+
+      if (!hasLegacyPayload && hasCodePayload) {
+        this.logger.warn(
+          'Telegram callback received authorization code payload, but this backend is configured for login-widget hash verification flow',
+        );
+        throw new BadRequestException('Unsupported Telegram callback format. Please retry sign-in from the app.');
+      }
+
+      await this.telegramAuthService.validateTelegramAuth(data as TelegramCallbackDto);
+      const user = await this.telegramAuthService.findOrCreateUser(data as TelegramCallbackDto);
+
+      const { passwordHash, ...result } = user;
+
+      const authResult = await this.login(result);
+      this.logger.log('Telegram callback handled successfully');
+      return authResult.accessToken;
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof UnauthorizedException) {
+        throw error;
+      }
+
+      this.logger.error(
+        `Telegram callback handling failed: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw new InternalServerErrorException('Failed to process Telegram callback');
+    }
   }
 
   async registerPatient(dto: RegisterPatientDto) {

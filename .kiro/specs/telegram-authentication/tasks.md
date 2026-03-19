@@ -6,15 +6,15 @@ This implementation plan breaks down the Telegram authentication feature into at
 
 ## Tasks
 
-- [ ] 1. Database schema migration for Telegram fields
+- [x] 1. Database schema migration for Telegram fields
   - Add nullable Telegram fields to User model in Prisma schema
   - Create migration file with telegramId, telegramUsername, telegramFirstName, telegramLastName, telegramPhotoUrl
   - Add unique constraint and index on telegramId
   - Run migration to update PostgreSQL database
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7_
 
-- [ ] 2. Backend: Telegram hash verification service
-  - [ ] 2.1 Create TelegramHashVerifier service
+- [x] 2. Backend: Telegram hash verification service
+  - [x] 2.1 Create TelegramHashVerifier service
     - Implement HMAC SHA256 hash verification logic
     - Implement auth_date validation (24-hour expiry check)
     - Implement data check string construction (alphabetical sorting)
@@ -28,15 +28,15 @@ This implementation plan breaks down the Telegram authentication feature into at
     - Test data check string construction
     - _Requirements: 12.1, 12.2_
 
-- [ ] 3. Backend: Telegram authentication DTOs
+- [x] 3. Backend: Telegram authentication DTOs
   - Create TelegramAuthDto with validation decorators
   - Create TelegramCallbackDto extending TelegramAuthDto
   - Add class-validator rules for all fields (id, first_name, last_name, username, photo_url, auth_date, hash)
   - Export DTOs from dto/index.ts
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-- [ ] 4. Backend: Telegram authentication service
-  - [ ] 4.1 Create TelegramAuthService
+- [x] 4. Backend: Telegram authentication service
+  - [x] 4.1 Create TelegramAuthService
     - Implement validateTelegramAuth method with hash and auth_date verification
     - Implement findOrCreateUser method with account linking logic
     - Implement linkTelegramToExistingUser method for email-based linking
@@ -50,21 +50,21 @@ This implementation plan breaks down the Telegram authentication feature into at
     - Test error handling for invalid data
     - _Requirements: 12.3, 12.6_
 
-- [ ] 5. Backend: Telegram authentication module
+- [x] 5. Backend: Telegram authentication module
   - Create TelegramAuthModule with providers and exports
   - Import JwtModule and ConfigModule
   - Register TelegramAuthService and TelegramHashVerifier as providers
   - Export TelegramAuthService for use in AuthModule
   - _Requirements: 2.1, 2.2_
 
-- [ ] 6. Backend: Auth controller endpoints
-  - [ ] 6.1 Add POST /auth/telegram endpoint
+- [x] 6. Backend: Auth controller endpoints
+  - [x] 6.1 Add POST /auth/telegram endpoint
     - Add rate limiting (5 requests per minute)
     - Implement telegramAuth handler method
     - Add DTO validation with TelegramAuthDto
     - _Requirements: 2.1, 2.4_
   
-  - [ ] 6.2 Add GET /auth/telegram/callback endpoint
+  - [x] 6.2 Add GET /auth/telegram/callback endpoint
     - Add rate limiting (10 requests per minute)
     - Implement telegramCallback handler method
     - Generate JWT token on successful authentication
@@ -77,30 +77,30 @@ This implementation plan breaks down the Telegram authentication feature into at
     - Test error responses for invalid data
     - _Requirements: 12.3, 12.5_
 
-- [ ] 7. Backend: Auth service extensions
-  - [ ] 7.1 Add telegramLogin method to AuthService
+- [x] 7. Backend: Auth service extensions
+  - [x] 7.1 Add telegramLogin method to AuthService
     - Integrate with TelegramAuthService
     - Return AuthResponse with JWT tokens
     - _Requirements: 2.1, 7.1, 7.7_
   
-  - [ ] 7.2 Add handleTelegramCallback method to AuthService
+  - [x] 7.2 Add handleTelegramCallback method to AuthService
     - Validate Telegram data using TelegramAuthService
     - Find or create user with account linking
     - Generate JWT token with Telegram ID in payload
     - _Requirements: 2.2, 2.3, 5.1, 5.2, 5.3, 7.1, 7.2_
   
-  - [ ] 7.3 Update JWT payload to include telegramId
+  - [x] 7.3 Update JWT payload to include telegramId
     - Extend JwtPayload interface with optional telegramId field
     - Include telegramId in token generation when available
     - _Requirements: 7.2, 7.7_
 
-- [ ] 8. Backend: Security middleware and error handling
-  - [ ] 8.1 Add HTTPS enforcement middleware for production
+- [x] 8. Backend: Security middleware and error handling
+  - [x] 8.1 Add HTTPS enforcement middleware for production
     - Create HttpsEnforcementMiddleware
     - Apply to auth routes in production environment only
     - _Requirements: 8.7_
   
-  - [ ] 8.2 Implement standardized error responses
+  - [x] 8.2 Implement standardized error responses
     - Add error handlers for hash verification failures (401)
     - Add error handlers for auth_date expiry (401)
     - Add error handlers for missing parameters (400)
@@ -113,33 +113,33 @@ This implementation plan breaks down the Telegram authentication feature into at
   - Test endpoints manually with Postman or curl
   - Ask the user if questions arise
 
-- [ ] 10. Frontend: Deep link configuration
-  - [ ] 10.1 Configure deep link scheme in Android manifest
+- [x] 10. Frontend: Deep link configuration
+  - [x] 10.1 Configure deep link scheme in Android manifest
     - Add intent filter for myapp://login-success scheme
     - Configure launchMode and exported attributes
     - _Requirements: 1.5, 11.1_
   
-  - [ ] 10.2 Configure deep link scheme in iOS Info.plist
+  - [x] 10.2 Configure deep link scheme in iOS Info.plist
     - Add CFBundleURLTypes for myapp scheme
     - Configure URL handling
     - _Requirements: 1.5, 11.1_
   
-  - [ ] 10.3 Initialize deep link listener in main.dart
+  - [x] 10.3 Initialize deep link listener in main.dart
     - Add uni_links package initialization
     - Implement _initDeepLinkListener function
     - Implement _handleDeepLink function for login-success path
     - Handle both cold start and warm start deep links
     - _Requirements: 11.1, 11.2, 11.7_
 
-- [ ] 11. Frontend: Auth provider extensions
-  - [ ] 11.1 Add signInWithTelegram method to AuthProvider
+- [x] 11. Frontend: Auth provider extensions
+  - [x] 11.1 Add signInWithTelegram method to AuthProvider
     - Construct Telegram OAuth URL with bot credentials and callback URL
     - Launch external browser with url_launcher package
     - Handle browser launch failures with error messages
     - Add loading state management
     - _Requirements: 1.1, 1.2, 1.3, 9.5, 9.6_
   
-  - [ ] 11.2 Add handleTelegramCallback method to AuthProvider
+  - [x] 11.2 Add handleTelegramCallback method to AuthProvider
     - Extract and validate token from deep link
     - Store JWT token in flutter_secure_storage
     - Fetch user profile with token
@@ -147,7 +147,7 @@ This implementation plan breaks down the Telegram authentication feature into at
     - Handle errors with user-friendly messages
     - _Requirements: 7.5, 7.6, 11.2, 11.3, 11.4, 11.5, 11.6_
   
-  - [ ] 11.3 Add _buildTelegramOAuthUrl helper method
+  - [x] 11.3 Add _buildTelegramOAuthUrl helper method
     - Read TELEGRAM_BOT_USERNAME from environment
     - Read API_BASE_URL from environment
     - Construct OAuth URL with proper encoding
@@ -159,15 +159,15 @@ This implementation plan breaks down the Telegram authentication feature into at
     - Test error handling scenarios
     - _Requirements: 12.4_
 
-- [ ] 12. Frontend: Login screen UI
-  - [ ] 12.1 Add "Continue with Telegram" button to login screen
+- [x] 12. Frontend: Login screen UI
+  - [x] 12.1 Add "Continue with Telegram" button to login screen
     - Add ElevatedButton.icon with Telegram icon
     - Style with Telegram brand color (#0088CC)
     - Wire to AuthProvider.signInWithTelegram
     - Position below Google sign-in button
     - _Requirements: 1.1, 1.4_
   
-  - [ ] 12.2 Add localization strings for Telegram button
+  - [x] 12.2 Add localization strings for Telegram button
     - Add "continueWithTelegram" to app_en.arb
     - Add "continueWithTelegram" to app_km.arb (Khmer translation)
     - Add error message strings for authentication failures
@@ -179,14 +179,14 @@ This implementation plan breaks down the Telegram authentication feature into at
     - Test error dialog displays on failure
     - _Requirements: 12.4_
 
-- [ ] 13. Frontend: Error handling UI
+- [x] 13. Frontend: Error handling UI
   - Add _showErrorDialog method to display authentication errors
   - Implement "Try Again" button for retry functionality
   - Add localized error messages for all error scenarios
   - Test error display for hash verification, auth_date, and network failures
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
 
-- [ ] 14. Integration: Environment configuration
+- [x] 14. Integration: Environment configuration
   - Add TELEGRAM_BOT_TOKEN to backend .env file
   - Add TELEGRAM_BOT_USERNAME to backend .env file
   - Add TELEGRAM_BOT_USERNAME to Flutter .env file

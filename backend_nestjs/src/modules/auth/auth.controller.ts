@@ -1,4 +1,5 @@
-import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Query, Res, Req } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
@@ -12,6 +13,8 @@ import {
   SendOtpDto,
   VerifyOtpDto,
   GoogleLoginDto,
+  TelegramAuthDto,
+  TelegramCallbackDto,
   ForgotPasswordDto,
   ResetPasswordDto,
   ChangePasswordDto
@@ -79,6 +82,23 @@ export class AuthController {
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 attempts per minute
   async googleLoginMobile(@Body() dto: GoogleLoginDto) {
     return this.authService.googleLoginMobile(dto.idToken, dto.userRole);
+  }
+
+  @Post('telegram')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  async telegramAuth(@Body() dto: TelegramAuthDto) {
+    return this.authService.telegramLogin(dto);
+  }
+
+  @Get('telegram/callback')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  async telegramCallback(
+    @Query() query: Record<string, string>,
+    @Res() res: Response,
+  ) {
+    const token = await this.authService.handleTelegramCallback(query);
+    const deepLink = `myapp://login-success?token=${encodeURIComponent(token)}`;
+    return res.redirect(302, deepLink);
   }
 
   @Get('google')

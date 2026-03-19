@@ -62,6 +62,9 @@ dependencies:
   # URL Launcher (open deeplinks in banking apps)
   url_launcher: ^6.3.0
 
+  # Deep link handling
+  app_links: ^6.3.3
+
   # Image Picker (camera/gallery for prescription scanning)
   image_picker: ^1.0.7
 

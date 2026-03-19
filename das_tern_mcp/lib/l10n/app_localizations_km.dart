@@ -21,6 +21,21 @@ class AppLocalizationsKm extends AppLocalizations {
   String get signInWithGoogle => 'ចូលតាមរយៈ Google';
 
   @override
+  String get continueWithTelegram => 'បន្តតាមរយៈ Telegram';
+
+  @override
+  String get telegramAuthFailed =>
+      'ការចូលតាម Telegram បានបរាជ័យ។ សូមព្យាយាមម្តងទៀត។';
+
+  @override
+  String get telegramAuthInvalidToken =>
+      'សម័យចូល Telegram មិនត្រឹមត្រូវ ឬផុតកំណត់។ សូមព្យាយាមម្តងទៀត។';
+
+  @override
+  String get telegramAuthNetworkError =>
+      'មិនអាចតភ្ជាប់បានឥឡូវនេះ។ សូមពិនិត្យអ៊ីនធឺណិត ហើយព្យាយាមម្តងទៀត។';
+
+  @override
   String get orDivider => 'ឬ';
 
   @override

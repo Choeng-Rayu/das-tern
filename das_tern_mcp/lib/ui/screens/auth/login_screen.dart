@@ -123,6 +123,45 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _handleTelegramSignIn() async {
+    final auth = context.read<AuthProvider>();
+    final l10n = AppLocalizations.of(context)!;
+    final success = await auth.signInWithTelegram();
+
+    if (!mounted || success) return;
+
+    final rawError = (auth.error ?? '').toLowerCase();
+    String friendlyMessage = l10n.telegramAuthFailed;
+    if (rawError.contains('token')) {
+      friendlyMessage = l10n.telegramAuthInvalidToken;
+    } else if (rawError.contains('network') || rawError.contains('socket')) {
+      friendlyMessage = l10n.telegramAuthNetworkError;
+    }
+
+    _showErrorDialog(friendlyMessage);
+  }
+
+  Future<void> _showErrorDialog(String message) async {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(l10n.error),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(l10n.tryAgain),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -334,6 +373,35 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Color(0xFFE0E0E0),
                       width: 1.5,
                     ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // ── Telegram Sign-In button ──
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: hPad),
+              child: SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: auth.isLoading ? null : _handleTelegramSignIn,
+                  icon: const Icon(Icons.telegram, size: 20),
+                  label: Text(
+                    l10n.continueWithTelegram,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: const Color(0xFF0088CC),
+                    disabledBackgroundColor: const Color(0xFF7CC3E5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
                     ),

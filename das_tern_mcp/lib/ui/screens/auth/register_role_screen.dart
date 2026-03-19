@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/auth_widgets.dart';
 import '../../widgets/language_switcher.dart';
@@ -7,6 +9,38 @@ import '../../widgets/language_switcher.dart';
 /// Screen for choosing registration role: Patient or Doctor.
 class RegisterRoleScreen extends StatelessWidget {
   const RegisterRoleScreen({super.key});
+
+  Future<void> _handleTelegramSignIn(BuildContext context) async {
+    final auth = context.read<AuthProvider>();
+    final l10n = AppLocalizations.of(context)!;
+    final success = await auth.signInWithTelegram();
+
+    if (!context.mounted || success) return;
+
+    final rawError = (auth.error ?? '').toLowerCase();
+    String friendlyMessage = l10n.telegramAuthFailed;
+    if (rawError.contains('token')) {
+      friendlyMessage = l10n.telegramAuthInvalidToken;
+    } else if (rawError.contains('network') || rawError.contains('socket')) {
+      friendlyMessage = l10n.telegramAuthNetworkError;
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(l10n.error),
+          content: Text(friendlyMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(l10n.tryAgain),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,6 +130,61 @@ class RegisterRoleScreen extends StatelessWidget {
                 description: l10n.doctorRoleDescription,
                 onTap: () =>
                     Navigator.of(context).pushNamed('/register/doctor'),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: hPad),
+              child: Row(
+                children: [
+                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                    child: Text(
+                      l10n.orRegisterWith,
+                      style: const TextStyle(
+                        color: Color(0xFF888888),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: hPad),
+              child: Consumer<AuthProvider>(
+                builder: (context, auth, _) {
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: auth.isLoading
+                          ? null
+                          : () => _handleTelegramSignIn(context),
+                      icon: const Icon(Icons.telegram, size: 20),
+                      label: Text(
+                        l10n.continueWithTelegram,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: const Color(0xFF0088CC),
+                        disabledBackgroundColor: const Color(0xFF7CC3E5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
             SizedBox(height: topGap),

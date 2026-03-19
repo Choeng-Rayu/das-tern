@@ -549,6 +549,8 @@ The app loads `.env` at startup:
 |---|---|
 | `API_BASE_URL` | Full backend URL e.g. `http://192.168.0.10:3001/api/v1` |
 | `GOOGLE_CLIENT_ID` | Google OAuth Web Client ID for `google_sign_in` |
+| `TELEGRAM_BOT_CLIENT_ID` | Numeric Telegram bot id used as `bot_id` in Telegram OAuth URL |
+| `TELEGRAM_BOT_USERNAME` | Telegram bot username used to build Telegram OAuth URL |
 
 For physical device testing, update `ApiConstants.hostIpAddress` in `lib/utils/api_constants.dart` to your machine's LAN IP. The constant `USE_ANDROID_EMULATOR=true` can be set via `--dart-define` to switch to the emulator host `10.0.2.2`.
 

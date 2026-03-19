@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/api_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
@@ -240,6 +241,91 @@ class AuthProvider extends ChangeNotifier {
       // Sign out Google account on failure
       await _googleSignIn.signOut();
 
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Sign in with Telegram OAuth via external browser + deep link callback.
+  Future<bool> signInWithTelegram() async {
+    _log.info('AuthProvider', 'Telegram Sign-In attempt');
+    _setLoading(true);
+    _error = null;
+
+    try {
+      final authUrl = _buildTelegramOAuthUrl();
+      final uri = Uri.parse(authUrl);
+
+      _log.debug('AuthProvider', 'Opening Telegram OAuth URL', {
+        'host': uri.host,
+        'path': uri.path,
+      });
+
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!launched) {
+        _error = 'Could not open Telegram sign-in. Please try again.';
+        _log.error(
+          'AuthProvider',
+          'Failed to launch Telegram OAuth URL',
+          Exception('launchUrl returned false'),
+        );
+        notifyListeners();
+        return false;
+      }
+
+      _log.info('AuthProvider', 'Telegram OAuth URL opened successfully');
+      return true;
+    } catch (e) {
+      _error = e
+          .toString()
+          .replaceFirst('Exception: ', '')
+          .replaceFirst('FormatException: ', '');
+      _log.error('AuthProvider', 'Telegram Sign-In failed', e);
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Handle Telegram deep link callback token and authenticate user state.
+  Future<bool> handleTelegramCallback(String token) async {
+    _log.info('AuthProvider', 'Handling Telegram callback');
+    _setLoading(true);
+    _error = null;
+
+    try {
+      final trimmedToken = token.trim();
+      if (trimmedToken.isEmpty || !_isLikelyJwt(trimmedToken)) {
+        throw const FormatException('Invalid authentication token');
+      }
+
+      _accessToken = trimmedToken;
+      await _secureStorage.write(key: 'accessToken', value: trimmedToken);
+
+      _user = await _api.getProfile(trimmedToken);
+      _isAuthenticated = true;
+
+      _log.success('AuthProvider', 'Telegram authentication successful', {
+        'userId': _user?['id'],
+        'role': _user?['role'],
+      });
+
+      notifyListeners();
+      return true;
+    } catch (e) {
+      await _clearTokens();
+      _error = e
+          .toString()
+          .replaceFirst('Exception: ', '')
+          .replaceFirst('FormatException: ', '');
+      _log.error('AuthProvider', 'Telegram callback handling failed', e);
       notifyListeners();
       return false;
     } finally {
@@ -500,5 +586,38 @@ class AuthProvider extends ChangeNotifier {
   bool _isAuthFailure(Object error) {
     return error is ApiException &&
         (error.statusCode == 401 || error.statusCode == 403);
+  }
+
+  String _buildTelegramOAuthUrl() {
+    final botClientId = dotenv.env['TELEGRAM_BOT_CLIENT_ID']?.trim();
+    final apiBaseUrl = dotenv.env['API_BASE_URL']?.trim();
+
+    if (apiBaseUrl == null || apiBaseUrl.isEmpty) {
+      throw const FormatException('API_BASE_URL is not configured');
+    }
+
+    if (botClientId == null || botClientId.isEmpty) {
+      throw const FormatException(
+        'TELEGRAM_BOT_CLIENT_ID is not configured',
+      );
+    }
+
+    final normalizedApiBaseUrl = apiBaseUrl.replaceAll(RegExp(r'/+$'), '');
+    final callbackUrl = '$normalizedApiBaseUrl/auth/telegram/callback';
+    final parsedApiBase = Uri.parse(normalizedApiBaseUrl);
+    final origin = '${parsedApiBase.scheme}://${parsedApiBase.authority}';
+
+    final authUri = Uri.https('oauth.telegram.org', '/auth', {
+      'bot_id': botClientId,
+      'origin': origin,
+      'return_to': callbackUrl,
+    });
+
+    return authUri.toString();
+  }
+
+  bool _isLikelyJwt(String token) {
+    final parts = token.split('.');
+    return parts.length == 3 && parts.every((part) => part.isNotEmpty);
   }
 }

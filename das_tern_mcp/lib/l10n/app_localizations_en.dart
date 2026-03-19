@@ -21,6 +21,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInWithGoogle => 'Sign in with Google';
 
   @override
+  String get continueWithTelegram => 'Continue with Telegram';
+
+  @override
+  String get telegramAuthFailed => 'Telegram sign-in failed. Please try again.';
+
+  @override
+  String get telegramAuthInvalidToken =>
+      'Your Telegram login session is invalid or expired. Please try again.';
+
+  @override
+  String get telegramAuthNetworkError =>
+      'Unable to connect right now. Check your internet connection and try again.';
+
+  @override
   String get orDivider => 'or';
 
   @override

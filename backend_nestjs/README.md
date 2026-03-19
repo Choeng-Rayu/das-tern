@@ -181,6 +181,10 @@ GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 GOOGLE_CALLBACK_URL=http://localhost:3000/api/v1/auth/google/callback
 
+# Telegram OAuth
+TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+TELEGRAM_BOT_USERNAME=your-telegram-bot-username
+
 # Timezone
 TZ=Asia/Phnom_Penh
 ```

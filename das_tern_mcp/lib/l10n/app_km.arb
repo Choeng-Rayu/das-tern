@@ -6,6 +6,10 @@
 
   "signIn": "ចូលគណនី",
   "signInWithGoogle": "ចូលតាមរយៈ Google",
+  "continueWithTelegram": "បន្តតាមរយៈ Telegram",
+  "telegramAuthFailed": "ការចូលតាម Telegram បានបរាជ័យ។ សូមព្យាយាមម្តងទៀត។",
+  "telegramAuthInvalidToken": "សម័យចូល Telegram មិនត្រឹមត្រូវ ឬផុតកំណត់។ សូមព្យាយាមម្តងទៀត។",
+  "telegramAuthNetworkError": "មិនអាចតភ្ជាប់បានឥឡូវនេះ។ សូមពិនិត្យអ៊ីនធឺណិត ហើយព្យាយាមម្តងទៀត។",
   "orDivider": "ឬ",
   "forgotPassword": "ភ្លេចលេខកូដសម្ងាត់?",
   "dontHaveAccount": "មិនមានគណនី? ",

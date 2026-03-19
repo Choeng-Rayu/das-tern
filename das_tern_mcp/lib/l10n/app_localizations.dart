@@ -122,6 +122,30 @@ abstract class AppLocalizations {
   /// **'Sign in with Google'**
   String get signInWithGoogle;
 
+  /// No description provided for @continueWithTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Telegram'**
+  String get continueWithTelegram;
+
+  /// No description provided for @telegramAuthFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Telegram sign-in failed. Please try again.'**
+  String get telegramAuthFailed;
+
+  /// No description provided for @telegramAuthInvalidToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Telegram login session is invalid or expired. Please try again.'**
+  String get telegramAuthInvalidToken;
+
+  /// No description provided for @telegramAuthNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to connect right now. Check your internet connection and try again.'**
+  String get telegramAuthNetworkError;
+
   /// No description provided for @orDivider.
   ///
   /// In en, this message translates to:
