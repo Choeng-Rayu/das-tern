@@ -93,17 +93,17 @@ This is the most critical setup step. If your redirect URI is not registered, Te
 1. Open Telegram → search for @BotFather
 2. Send: /newbot
 3. Follow prompts → choose a name and username (must end in "bot")
-4. BotFather gives you: API Token  e.g. 8764946066:AAFhuIq-ohuo69FH51TkW1Mc9ukU7luKg3U
+4. BotFather gives you: API Token  e.g. <TELEGRAM_BOT_CLIENT_ID>:<TELEGRAM_BOT_TOKEN_REST>
 ```
 
 Your **Client ID** = the number before the colon in the API token.  
-Example: `8764946066:AAFhuIq...` → Client ID = `8764946066`
+Example: `<TELEGRAM_BOT_CLIENT_ID>:<TELEGRAM_BOT_TOKEN_REST>` → Client ID = `<TELEGRAM_BOT_CLIENT_ID>`
 
 ### 3.2 Configure OAuth for Web Login 2.0
 
 ```
 1. Send /mybots to BotFather
-2. Select your bot (e.g. @dasternbot)
+2. Select your bot (e.g. @<TELEGRAM_BOT_USERNAME>)
 3. Select: Bot Settings
 4. Select: Web Login
 5. Select: Allowed URLs (or "Configure Login URL")
@@ -121,7 +121,7 @@ You can retrieve it from BotFather:
 ```
 1. /mybots → select bot → Bot Settings → API Token
 2. The "OAuth Client Secret" is shown under Web Login settings.
-   It looks like: Hche_tFl7piYY_Q0rWNWdnM-1qVVk57dB9df9xeOise5nilm4Hia4A
+   It looks like: <TELEGRAM_BOT_CLIENT_SECRET>
 ```
 
 ---
@@ -132,13 +132,13 @@ You can retrieve it from BotFather:
 
 ```bash
 # Telegram Web Login 2.0
-TELEGRAM_BOT_CLIENT_ID=8764946066
-TELEGRAM_BOT_CLIENT_SECRET=Hche_tFl7piYY_Q0rWNWdnM-1qVVk57dB9df9xeOise5nilm4Hia4A
-TELEGRAM_BOT_USERNAME=dasternbot
-TELEGRAM_BOT_TOKEN=8764946066:AAFhuIq-ohuo69FH51TkW1Mc9ukU7luKg3U
+TELEGRAM_BOT_CLIENT_ID=<TELEGRAM_BOT_CLIENT_ID>
+TELEGRAM_BOT_CLIENT_SECRET=<TELEGRAM_BOT_CLIENT_SECRET>
+TELEGRAM_BOT_USERNAME=<TELEGRAM_BOT_USERNAME>
+TELEGRAM_BOT_TOKEN=<TELEGRAM_BOT_TOKEN>
 
 # Where Telegram redirects after user approves (your NestJS endpoint)
-TELEGRAM_OAUTH_REDIRECT_URI=http://10.212.42.175:3001/api/v1/auth/telegram/callback
+TELEGRAM_OAUTH_REDIRECT_URI=http://<YOUR_SERVER_IP>:3001/api/v1/auth/telegram/callback
 
 # Where your backend redirects back to the Flutter app (custom scheme)
 TELEGRAM_APP_REDIRECT_URI=dastern://auth/telegram/callback
@@ -148,14 +148,14 @@ TELEGRAM_APP_REDIRECT_URI=dastern://auth/telegram/callback
 
 ```bash
 # Backend base URL (use LAN IP, not localhost, for physical devices)
-API_BASE_URL=http://10.212.42.175:3001/api/v1
+API_BASE_URL=http://<YOUR_SERVER_IP>:3001/api/v1
 
 # Telegram credentials (client-side only — no secret here)
-TELEGRAM_BOT_CLIENT_ID=8764946066
-TELEGRAM_BOT_USERNAME=dasternbot
+TELEGRAM_BOT_CLIENT_ID=<TELEGRAM_BOT_CLIENT_ID>
+TELEGRAM_BOT_USERNAME=<TELEGRAM_BOT_USERNAME>
 
 # Must match TELEGRAM_OAUTH_REDIRECT_URI in backend
-TELEGRAM_OAUTH_REDIRECT_URI=http://10.212.42.175:3001/api/v1/auth/telegram/callback
+TELEGRAM_OAUTH_REDIRECT_URI=http://<YOUR_SERVER_IP>:3001/api/v1/auth/telegram/callback
 
 # Must match TELEGRAM_APP_REDIRECT_URI in backend
 TELEGRAM_APP_REDIRECT_URI=dastern://auth/telegram/callback
@@ -190,34 +190,6 @@ model User {
   @@map("users")
 }
 ```
-
-Then create and apply the migration:
-
-```bash
-cd backend_nestjs
-
-# Create migration
-npx prisma migrate dev --name add_google_id
-
-# Apply all pending migrations (safe for production)
-npx prisma migrate deploy
-
-# Regenerate Prisma client
-npx prisma generate
-```
-
-> **Gotcha:** Always run `npx prisma migrate deploy` after pulling new code that includes schema changes. If you skip this, Prisma queries will fail with `column does not exist` errors.
-
-### How Telegram users are stored
-
-Telegram users don't have an email, so we store their identity using the `idCardNumber` field as a unique marker:
-
-```
-idCardNumber = "TG_<telegram_user_sub>"
-Example:     = "TG_123456789"
-```
-
-The Telegram `sub` claim (subject) is the user's unique numeric Telegram ID.
 
 ---
 
@@ -319,7 +291,7 @@ export class AuthController {
   <title>Opening App...</title>
 </head>
 <body>
-  <p>Opening Das Tern... <a href="${deepLinkUrl}">Tap here if it doesn't open</a></p>
+  <p>Opening App... <a href="${deepLinkUrl}">Tap here if it doesn't open</a></p>
   <script>
     window.location.href = '${deepLinkUrl}';
   </script>
@@ -478,25 +450,6 @@ export class AuthService {
     return payload;
   }
 
-  // ── JWKS fetching with cache ────────────────────────────────────────────────
-
-  private async getTelegramJwks(): Promise<TelegramJwksResponse> {
-    const now = Date.now();
-    if (this.telegramJwksCache && this.telegramJwksCacheExpiry > now) {
-      return this.telegramJwksCache;
-    }
-
-    const response = await this.httpsGet('oauth.telegram.org', '/.well-known/jwks.json');
-    if (!response.ok) throw new UnauthorizedException('Failed to fetch Telegram signing keys');
-
-    const jwks = JSON.parse(response.body) as TelegramJwksResponse;
-    if (!jwks.keys?.length) throw new UnauthorizedException('Empty JWKS from Telegram');
-
-    this.telegramJwksCache = jwks;
-    this.telegramJwksCacheExpiry = now + 5 * 60 * 1000; // cache 5 minutes
-    return jwks;
-  }
-
   // ── User upsert ─────────────────────────────────────────────────────────────
 
   private async findOrCreateTelegramUser(claims: TelegramIdTokenPayload, userRole?: UserRole) {
@@ -584,12 +537,6 @@ export class AuthService {
       req.end();
     });
   }
-
-  private normalizePhoneNumber(phone?: string): string | null {
-    if (!phone) return null;
-    const cleaned = phone.replace(/\D/g, '');
-    return cleaned.length >= 7 ? `+${cleaned}` : null;
-  }
 }
 ```
 
@@ -609,213 +556,6 @@ dependencies:
   app_links: ^6.3.4               # Catch deep links (works on Android + iOS)
   flutter_secure_storage: ^9.2.2  # Store JWT tokens securely
   http: ^1.2.1                    # HTTP calls to your backend
-```
-
-Run:
-```bash
-flutter pub get
-```
-
-### 7b. Android Deep Link Setup
-
-In `android/app/src/main/AndroidManifest.xml`, inside the `<activity>` tag:
-
-```xml
-<!-- Handle dastern://auth/telegram/callback deep links -->
-<intent-filter>
-    <action android:name="android.intent.action.VIEW" />
-    <category android:name="android.intent.category.DEFAULT" />
-    <category android:name="android.intent.category.BROWSABLE" />
-    <data
-        android:scheme="dastern"
-        android:host="auth"
-        android:pathPrefix="/telegram/callback" />
-</intent-filter>
-```
-
-Also ensure the activity has `android:launchMode="singleTop"` to avoid creating a duplicate activity when the deep link fires.
-
-### 7c. iOS Deep Link Setup
-
-In `ios/Runner/Info.plist`, add:
-
-```xml
-<key>CFBundleURLTypes</key>
-<array>
-  <dict>
-    <key>CFBundleTypeRole</key>
-    <string>Editor</string>
-    <key>CFBundleURLSchemes</key>
-    <array>
-      <string>dastern</string>
-    </array>
-  </dict>
-</array>
-```
-
-### 7d. PKCE + State Generation
-
-```dart
-import 'dart:convert';
-import 'dart:math';
-import 'package:crypto/crypto.dart';
-
-// Generate a random URL-safe base64 string (no padding)
-String _generateRandomBase64Url(int byteLength) {
-  final random = Random.secure();
-  final bytes = List<int>.generate(byteLength, (_) => random.nextInt(256));
-  return base64UrlEncode(bytes).replaceAll('=', '');
-}
-
-// Derive the PKCE code challenge from the verifier
-String _computeCodeChallenge(String codeVerifier) {
-  final bytes = utf8.encode(codeVerifier);
-  final digest = sha256.convert(bytes);
-  return base64UrlEncode(digest.bytes).replaceAll('=', '');
-}
-```
-
-Usage:
-```dart
-final state         = _generateRandomBase64Url(16);  // CSRF protection
-final codeVerifier  = _generateRandomBase64Url(64);  // PKCE verifier (secret)
-final codeChallenge = _computeCodeChallenge(codeVerifier); // sent to Telegram
-```
-
-### 7e. Open Telegram OAuth in Browser
-
-```dart
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-Future<void> _startTelegramOAuth() async {
-  final clientId         = dotenv.env['TELEGRAM_BOT_CLIENT_ID']!;
-  final oauthRedirectUri = dotenv.env['TELEGRAM_OAUTH_REDIRECT_URI']!;
-  // ^ This is your BACKEND callback URL, e.g. http://10.x.x.x:3001/api/v1/auth/telegram/callback
-
-  final state         = _generateRandomBase64Url(16);
-  final codeVerifier  = _generateRandomBase64Url(64);
-  final codeChallenge = _computeCodeChallenge(codeVerifier);
-
-  // Save state + codeVerifier so we can validate when the deep link fires
-  _pendingState        = state;
-  _pendingCodeVerifier = codeVerifier;
-
-  final authUrl = Uri.https('oauth.telegram.org', '/auth', {
-    'client_id':             clientId,
-    'redirect_uri':          oauthRedirectUri,
-    'response_type':         'code',
-    'scope':                 'openid profile phone',
-    'state':                 state,
-    'code_challenge':        codeChallenge,
-    'code_challenge_method': 'S256',
-  });
-
-  await launchUrl(authUrl, mode: LaunchMode.externalApplication);
-}
-```
-
-### 7f. Listen for the Deep Link Callback
-
-Use `app_links` to catch the `dastern://auth/telegram/callback?code=...&state=...` URI:
-
-```dart
-import 'package:app_links/app_links.dart';
-
-final AppLinks _appLinks = AppLinks();
-StreamSubscription<Uri>? _linkSubscription;
-Completer<Uri>? _callbackCompleter;
-
-void _initDeepLinkListener() {
-  // Handle app already open → stream
-  _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-    _handleIncomingUri(uri);
-  });
-
-  // Handle cold start (app was closed, then opened by the deep link)
-  _appLinks.getInitialLink().then((uri) {
-    if (uri != null) _handleIncomingUri(uri);
-  });
-}
-
-void _handleIncomingUri(Uri uri) {
-  // Only handle our Telegram callback deep link
-  if (uri.scheme == 'dastern' &&
-      uri.host == 'auth' &&
-      uri.path == '/telegram/callback') {
-    _callbackCompleter?.complete(uri);
-  }
-}
-```
-
-### 7g. Complete the Login (POST to Backend)
-
-```dart
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-Future<bool> signInWithTelegram() async {
-  try {
-    // 1. Start OAuth and initialize a completer to await the callback
-    _callbackCompleter = Completer<Uri>();
-    await _startTelegramOAuth();
-
-    // 2. Wait for the deep link to fire (timeout after 2 minutes)
-    final callbackUri = await _callbackCompleter!.future.timeout(
-      const Duration(minutes: 2),
-    );
-
-    // 3. Validate CSRF state
-    final returnedState = callbackUri.queryParameters['state'];
-    if (returnedState != _pendingState) {
-      throw Exception('State mismatch — possible CSRF attack');
-    }
-
-    // 4. Check for errors from Telegram
-    final error = callbackUri.queryParameters['error'];
-    if (error != null) throw Exception('Telegram error: $error');
-
-    // 5. Extract the authorization code
-    final code = callbackUri.queryParameters['code'];
-    if (code == null) throw Exception('No code in callback');
-
-    // 6. POST to your backend to exchange code for app JWT
-    final apiBaseUrl      = dotenv.env['API_BASE_URL']!;
-    final oauthRedirectUri = dotenv.env['TELEGRAM_OAUTH_REDIRECT_URI']!;
-
-    final response = await http.post(
-      Uri.parse('$apiBaseUrl/auth/telegram'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'code':         code,
-        'codeVerifier': _pendingCodeVerifier,
-        'redirectUri':  oauthRedirectUri,
-        // Optional: 'userRole': 'PATIENT' or 'DOCTOR'
-      }),
-    );
-
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      final body = jsonDecode(response.body);
-      throw Exception(body['message'] ?? 'Login failed');
-    }
-
-    // 7. Store tokens and mark authenticated
-    final result = jsonDecode(response.body);
-    const storage = FlutterSecureStorage();
-    await storage.write(key: 'accessToken',  value: result['accessToken']);
-    await storage.write(key: 'refreshToken', value: result['refreshToken']);
-
-    return true;
-  } catch (e) {
-    print('Telegram login error: $e');
-    return false;
-  } finally {
-    _pendingState        = null;
-    _pendingCodeVerifier = null;
-    _callbackCompleter   = null;
-  }
-}
 ```
 
 ---
@@ -839,18 +579,6 @@ OutlinedButton.icon(
 )
 ```
 
-### Registration Screen
-
-Same button, but optionally pass a `userRole`:
-
-```dart
-// For patient registration
-await signInWithTelegram(userRole: 'PATIENT');
-
-// For doctor registration
-await signInWithTelegram(userRole: 'DOCTOR');
-```
-
 ---
 
 ## 9. Step 7 — Common Pitfalls & Fixes
@@ -860,37 +588,6 @@ await signInWithTelegram(userRole: 'DOCTOR');
 **Cause:** Node.js native `fetch` (backed by `undici`) tries Telegram's IPv6 address (`2001:67c:4e8:f004::9`) first. If IPv6 is not routed on your network, it times out. `curl` works because it falls back to IPv4 automatically.
 
 **Fix:** Replace `fetch()` calls with `https.request({ family: 4 })` in your NestJS service. The `family: 4` option forces DNS to resolve only IPv4 addresses.
-
-```typescript
-// ❌ This can ETIMEDOUT if your network has no working IPv6
-const res = await fetch('https://oauth.telegram.org/token', { ... });
-
-// ✅ This always works — forces IPv4
-const res = await this.httpsPost('oauth.telegram.org', '/token', headers, body);
-// (using the custom httpsPost helper shown in Step 4c)
-```
-
----
-
-### ❌ Error: `column "users.googleId" does not exist`
-
-**Cause:** Your Prisma schema has been updated with new columns (e.g., `googleId` for Google OAuth) but the actual database was never migrated.
-
-**Fix:**
-```bash
-cd backend_nestjs
-
-# Check which migrations are pending
-npx prisma migrate status
-
-# Apply all pending migrations
-npx prisma migrate deploy
-
-# Regenerate Prisma client
-npx prisma generate
-```
-
-> Always run `npx prisma migrate deploy` after cloning a repo or pulling upstream schema changes.
 
 ---
 
@@ -902,43 +599,7 @@ npx prisma generate
 1. Open [@BotFather](https://t.me/botfather)
 2. `/mybots` → select bot → Bot Settings → Web Login → Allowed URLs
 3. Add your exact NestJS callback URL, e.g.:  
-   `http://10.212.42.175:3001/api/v1/auth/telegram/callback`
-
----
-
-### ❌ Error: Browser doesn't open the app after Telegram login
-
-**Cause:** Your backend is returning a `302` redirect to `dastern://...`. Most mobile browsers block HTTP redirects to custom URI schemes for security reasons.
-
-**Fix:** Instead of `res.redirect(302, deepLinkUrl)`, return an HTML page that uses JavaScript to navigate:
-
-```typescript
-const html = `<!DOCTYPE html><html>
-<body>
-  <a href="${deepLinkUrl}">Open App</a>
-  <script>window.location.href='${deepLinkUrl}';</script>
-</body>
-</html>`;
-return res.status(200).header('Content-Type', 'text/html').send(html);
-```
-
----
-
-### ❌ Error: `state mismatch` in Flutter
-
-**Cause:** The `state` value generated before opening the browser was lost (e.g., variable was overwritten or the provider was recreated).
-
-**Fix:** Store `state` and `codeVerifier` in memory-persistent fields (e.g., class-level variables) before opening the browser, and clear them only after the full flow completes.
-
----
-
-### ❌ Error: `Telegram did not return an ID token`
-
-**Cause:** The code was already used (codes are single-use), or the `code_verifier` doesn't match the `code_challenge` that was sent to Telegram.
-
-**Fix:** Ensure:
-- `codeVerifier` in the POST to your backend is the exact same string used to compute `codeChallenge` that was sent to Telegram.
-- Each login attempt generates a **fresh** `state` + `codeVerifier` pair.
+   `http://<YOUR_SERVER_IP>:3001/api/v1/auth/telegram/callback`
 
 ---
 
@@ -1018,26 +679,16 @@ Flutter App (mobile)               NestJS Backend              Telegram OIDC Ser
         │◄──── { accessToken,            │                              │
         │        refreshToken, user } ───│                              │
         │                                │                              │
-        │  11. Store tokens in           │                              │
-        │      FlutterSecureStorage      │                              │
-        │                                │                              │
-        │  12. Navigate to home screen   │                              │
-        │                                │                              │
 ```
 
 ---
 
 ## Tips for Production
 
-1. **Use a fixed domain name** (e.g., via Cloudflare Tunnel or a VPS) instead of a raw IP for the callback URL. IPs change; domain names don't. Register the domain in BotFather once.
-
-2. **HTTPS is required in production.** Telegram will not send codes to HTTP URLs in production mode. For development, IP addresses are accepted.
-
-3. **Handle token refresh.** The app JWT (not the Telegram token) expires based on your `JWT_EXPIRES_IN` setting. Implement a refresh token flow so users stay logged in.
-
-4. **Test the cold-start deep link.** Kill the app completely, then complete the Telegram auth flow. The app should re-open and continue the flow via `getInitialLink()`.
-
-5. **Log Telegram callback calls.** Add logging to your `GET /auth/telegram/callback` endpoint to debug issues in the Telegram redirect step.
+1. **Use a fixed domain name** (e.g., via Cloudflare Tunnel or a VPS) instead of a raw IP for the callback URL.
+2. **HTTPS is required in production.** Telegram will not send codes to HTTP URLs in production mode.
+3. **Handle token refresh.** Implement a refresh token flow so users stay logged in.
+4. **Log Telegram callback calls.** Add logging to debug issues in the redirect step.
 
 ---
 
