@@ -12,7 +12,7 @@ It handles mixed Khmer/English text patterns common in Cambodian prescriptions.
 import re
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,6 @@ _PAT_GENDER = re.compile(r'ភេទ\s*[:\.]?\s*(ប្រុស|ស្រី)|S
 
 # Date patterns
 _PAT_DATE_FULL = re.compile(r'ថ្ងៃទី\s*(\d{1,2})\s*/\s*(\d{1,2})\s*/\s*(\d{4})')
-_PAT_DATE_PARTIAL = re.compile(r'ថ្ងៃទី\s*(\d{1,2})\s*/\s*(\d{4})')
 _PAT_DATE_ISO = re.compile(r'(\d{4})-(\d{1,2})-(\d{1,2})')
 _PAT_DATE_SLASH = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})')
 
@@ -71,7 +70,7 @@ _SKIP_PATTERNS = [
     re.compile(r'^វិធីប្រើ'),
     re.compile(r'^វេជ្ជបញ្ជា'),
     re.compile(r'^សូមយក'),
-    re.compile(r'គ្រពេទ្យព្យាបាល'),
+    re.compile(r'គ្រូពេទ្យព្យាបាល'),
     re.compile(r'^ព្រឹក(?:ក)?$'),
     re.compile(r'^ថ្ងៃត្រង់$'),
     re.compile(r'^ល្ងាច$'),
@@ -437,6 +436,7 @@ def _classify_cell(text: str) -> str:
 def parse_table_medications(
     rows: list,
     header_labels: Optional[list] = None,
+    row_confidences: Optional[List[float]] = None,
 ) -> List[ParsedMedication]:
     """Parse medications from structured table rows using content-based cell detection.
 
@@ -446,9 +446,10 @@ def parse_table_medications(
     """
     if not rows:
         return []
+    _ = header_labels
 
     medications: List[ParsedMedication] = []
-    for row in rows:
+    for idx, row in enumerate(rows):
         if not row or len(row) < 2:
             continue
 
@@ -459,6 +460,8 @@ def parse_table_medications(
 
         med = _parse_table_row_by_content(row, item_num=len(medications) + 1)
         if med is not None:
+            if row_confidences and idx < len(row_confidences):
+                med.confidence = max(0.0, min(1.0, float(row_confidences[idx])))
             _fill_default_time_slots(med)
             medications.append(med)
 
@@ -535,7 +538,7 @@ def _parse_table_row_by_content(
     # the quantity cell. In OCR output, dose cells may be classified as
     # "dose", "number", or even "unknown" due to OCR artifacts (e.g. "11"
     # instead of "1").
-    qty_indices = {i for i, ct, t in classified if ct == "quantity"}
+    qty_indices = {i for i, ct, _ in classified if ct == "quantity"}
     dose_values = []
     for i, ctype, text in classified:
         if i <= name_idx:
@@ -663,7 +666,7 @@ def parse_prescription(full_text: str, line_results: List[Any]) -> ParsedPrescri
     )
 
     medications: List[ParsedMedication] = []
-    for idx, line in enumerate(line_results, start=1):
+    for line in line_results:
         text = getattr(line, "text", "").strip()
         if not text:
             continue
@@ -695,16 +698,7 @@ def parse_prescription(full_text: str, line_results: List[Any]) -> ParsedPrescri
 
     rx.medications = medications
 
-    confidences = [m.confidence for m in medications if isinstance(m.confidence, (int, float))]
-    if confidences:
-        rx.confidence = round(sum(confidences) / len(confidences), 4)
-    else:
-        line_confidences = [
-            float(getattr(line, "confidence", 0.0))
-            for line in line_results
-            if isinstance(getattr(line, "confidence", None), (int, float))
-        ]
-        rx.confidence = round(sum(line_confidences) / len(line_confidences), 4) if line_confidences else 0.0
+    rx.confidence = recompute_prescription_confidence(rx, line_results)
 
     logger.info(
         "Parsed prescription: %s medications, patient=%s, doctor=%s, date=%s",
@@ -714,3 +708,29 @@ def parse_prescription(full_text: str, line_results: List[Any]) -> ParsedPrescri
         rx.issue_date,
     )
     return rx
+
+
+def recompute_prescription_confidence(
+    rx: ParsedPrescription,
+    line_results: Optional[List[Any]] = None,
+) -> float:
+    """Recompute confidence from the final chosen medication set.
+
+    Priority:
+    1. average medication confidence when structured meds exist
+    2. fallback to raw OCR line confidence average
+    """
+    med_confidences = [
+        float(m.confidence)
+        for m in rx.medications
+        if isinstance(getattr(m, "confidence", None), (int, float))
+    ]
+    if med_confidences:
+        return round(sum(med_confidences) / len(med_confidences), 4)
+
+    line_confidences = [
+        float(getattr(line, "confidence", 0.0))
+        for line in (line_results or [])
+        if isinstance(getattr(line, "confidence", None), (int, float))
+    ]
+    return round(sum(line_confidences) / len(line_confidences), 4) if line_confidences else 0.0

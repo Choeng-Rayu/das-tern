@@ -122,6 +122,12 @@ abstract class AppLocalizations {
   /// **'Sign in with Google'**
   String get signInWithGoogle;
 
+  /// No description provided for @signInWithTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Telegram'**
+  String get signInWithTelegram;
+
   /// No description provided for @orDivider.
   ///
   /// In en, this message translates to:
@@ -4033,6 +4039,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Register with Google'**
   String get registerWithGoogle;
+
+  /// No description provided for @registerWithTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'Register with Telegram'**
+  String get registerWithTelegram;
 
   /// No description provided for @orRegisterWith.
   ///

@@ -872,7 +872,19 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final provider = context.read<ConnectionProvider>();
     final patientId = _getPatientId() ?? _connection!.recipientId;
-    final success = await provider.sendNudge(patientId, dose?['id'] as String?);
+    final doseId = _resolveDoseIdForNudge(dose);
+
+    if (doseId == null) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.noPendingDoses),
+          backgroundColor: AppColors.alertRed,
+        ),
+      );
+      return;
+    }
+
+    final success = await provider.sendNudge(patientId, doseId);
 
     if (mounted) {
       messenger.showSnackBar(
@@ -888,6 +900,31 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
         ),
       );
     }
+  }
+
+  String? _resolveDoseIdForNudge(Map<String, dynamic>? selectedDose) {
+    final selectedId = selectedDose?['id']?.toString().trim();
+    if (selectedId != null && selectedId.isNotEmpty) {
+      return selectedId;
+    }
+
+    final doses = (_doseData?['doses'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    for (final d in doses) {
+      final status = d['status']?.toString();
+      final id = d['id']?.toString().trim();
+      if (id != null && id.isNotEmpty && (status == 'MISSED' || status == 'DUE')) {
+        return id;
+      }
+    }
+
+    for (final d in doses) {
+      final id = d['id']?.toString().trim();
+      if (id != null && id.isNotEmpty) {
+        return id;
+      }
+    }
+
+    return null;
   }
 
   void _showRevokeDialog(BuildContext context) {

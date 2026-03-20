@@ -6,6 +6,7 @@
 
   "signIn": "ចូលគណនី",
   "signInWithGoogle": "ចូលតាមរយៈ Google",
+  "signInWithTelegram": "ចូលតាមរយៈ Telegram",
   "orDivider": "ឬ",
   "forgotPassword": "ភ្លេចលេខកូដសម្ងាត់?",
   "dontHaveAccount": "មិនមានគណនី? ",
@@ -750,6 +751,7 @@
   },
 
   "registerWithGoogle": "ចុះឈ្មោះតាម Google",
+  "registerWithTelegram": "ចុះឈ្មោះតាម Telegram",
   "orRegisterWith": "ឬចុះឈ្មោះតាម",
 
   "email": "អ៊ីមែល",

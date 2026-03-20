@@ -153,10 +153,8 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
 
     final initiator = item['initiator'] ?? {};
     final recipient = item['recipient'] ?? {};
-    final initiatorName =
-        '${initiator['firstName'] ?? ''} ${initiator['lastName'] ?? ''}'.trim();
-    final recipientName =
-        '${recipient['firstName'] ?? ''} ${recipient['lastName'] ?? ''}'.trim();
+    final initiatorName = _displayName(initiator);
+    final recipientName = _displayName(recipient);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -210,5 +208,14 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
         ),
       ),
     );
+  }
+
+  String _displayName(Map<String, dynamic> person) {
+    final fullName = person['fullName']?.toString().trim() ?? '';
+    if (fullName.isNotEmpty) return fullName;
+    final first = person['firstName']?.toString() ?? '';
+    final last = person['lastName']?.toString() ?? '';
+    final joined = '$first $last'.trim();
+    return joined;
   }
 }

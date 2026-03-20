@@ -123,6 +123,26 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _handleTelegramSignIn() async {
+    final auth = context.read<AuthProvider>();
+    final success = await auth.signInWithTelegram();
+
+    if (!mounted) return;
+    if (success) {
+      final role = auth.userRole;
+      Navigator.of(
+        context,
+      ).pushReplacementNamed(role == 'DOCTOR' ? '/doctor' : '/patient');
+    } else if (auth.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.error!),
+          backgroundColor: AppColors.alertRed,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -321,6 +341,43 @@ class _LoginScreenState extends State<LoginScreen> {
                   icon: const _GoogleIcon(size: 20),
                   label: Text(
                     l10n.signInWithGoogle,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF333333),
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF333333),
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(
+                      color: Color(0xFFE0E0E0),
+                      width: 1.5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // ── Telegram Sign-In button ──
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: hPad),
+              child: SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton.icon(
+                  onPressed: auth.isLoading ? null : _handleTelegramSignIn,
+                  icon: const Icon(
+                    Icons.send_rounded,
+                    color: Color(0xFF229ED9),
+                    size: 20,
+                  ),
+                  label: Text(
+                    l10n.signInWithTelegram,
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

@@ -45,10 +45,15 @@ async function bootstrap() {
     }),
   );
 
-  const port = configService.get('PORT') || 3000;
-  await app.listen(port);
-  
-  console.log(`🚀 Application is running on: http://localhost:${port}/${configService.get('API_PREFIX')}`);
+  const port = Number(configService.get('PORT') || 3000);
+  const host = configService.get('HOST') || '0.0.0.0';
+  await app.listen(port, host);
+
+  const prefix = configService.get('API_PREFIX') || 'api/v1';
+  console.log(`🚀 Application is running on: http://localhost:${port}/${prefix}`);
+  if (host === '0.0.0.0') {
+    console.log(`🌐 Network access enabled on port ${port} (bind: 0.0.0.0)`);
+  }
 }
 
 bootstrap();

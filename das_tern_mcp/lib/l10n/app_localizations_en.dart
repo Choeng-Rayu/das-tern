@@ -21,6 +21,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInWithGoogle => 'Sign in with Google';
 
   @override
+  String get signInWithTelegram => 'Sign in with Telegram';
+
+  @override
   String get orDivider => 'or';
 
   @override
@@ -2069,6 +2072,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get registerWithGoogle => 'Register with Google';
+
+  @override
+  String get registerWithTelegram => 'Register with Telegram';
 
   @override
   String get orRegisterWith => 'or register with';

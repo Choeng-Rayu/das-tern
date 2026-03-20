@@ -3,11 +3,40 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
 import * as bcrypt from 'bcryptjs';
+import { createPublicKey, createVerify, randomBytes } from 'crypto';
+import * as https from 'https';
+import * as http from 'http';
 import { PrismaService } from '../../database/prisma.service';
 import { RegisterPatientDto, RegisterDoctorDto } from './dto';
 import { OtpService } from './otp.service';
 import { EmailService } from '../email/email.service';
 import { UserRole } from '@prisma/client';
+
+interface TelegramJwk {
+  kid: string;
+  kty: string;
+  alg: string;
+  use?: string;
+  n?: string;
+  e?: string;
+}
+
+interface TelegramJwksResponse {
+  keys: TelegramJwk[];
+}
+
+interface TelegramIdTokenPayload {
+  iss: string;
+  aud: string | number | Array<string | number>;
+  sub: string | number;
+  iat?: number | string;
+  exp?: number | string;
+  id?: number;
+  name?: string;
+  preferred_username?: string;
+  picture?: string;
+  phone_number?: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -16,6 +45,8 @@ export class AuthService {
   private readonly MAX_FAILED_ATTEMPTS = 5;
   private readonly BCRYPT_ROUNDS = 12;
   private readonly googleClient: OAuth2Client;
+  private telegramJwksCache: TelegramJwksResponse | null = null;
+  private telegramJwksCacheExpiry = 0;
 
   constructor(
     private prisma: PrismaService,
@@ -26,6 +57,150 @@ export class AuthService {
   ) {
     const googleClientId = this.configService.get('GOOGLE_CLIENT_ID');
     this.googleClient = new OAuth2Client(googleClientId);
+  }
+
+  logTelegramCallback(params: {
+    code?: string;
+    state?: string;
+    error?: string;
+  }) {
+    this.logger.log('Telegram callback reached', {
+      hasCode: Boolean(params.code),
+      hasState: Boolean(params.state),
+      error: params.error || null,
+    });
+  }
+
+  async telegramLoginMobile(
+    code: string,
+    codeVerifier: string,
+    redirectUri: string,
+    userRole?: UserRole,
+  ) {
+    const clientId = this.configService.get<string>('TELEGRAM_BOT_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('TELEGRAM_BOT_CLIENT_SECRET');
+
+    if (!clientId || !clientSecret) {
+      throw new UnauthorizedException('Telegram OAuth is not configured on server');
+    }
+
+    const tokenBody = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: redirectUri,
+      client_id: clientId,
+      code_verifier: codeVerifier,
+    });
+
+    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+    // Use Node.js https module (not fetch/undici) to avoid IPv6 ETIMEDOUT
+    // on networks where Telegram's IPv6 address is unreachable.
+    const tokenRes = await this.httpsPost('oauth.telegram.org', '/token', {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Basic ${basicAuth}`,
+    }, tokenBody.toString());
+
+    if (!tokenRes.ok) {
+      this.logger.error(`Telegram token exchange failed: ${tokenRes.status} ${tokenRes.body}`);
+      throw new UnauthorizedException(
+        `Telegram authorization failed (${tokenRes.status}): ${tokenRes.body || 'unknown error'}`,
+      );
+    }
+
+    const tokenData = JSON.parse(tokenRes.body) as { id_token?: string };
+    if (!tokenData.id_token) {
+      throw new UnauthorizedException('Telegram did not return an ID token');
+    }
+
+    let claims: TelegramIdTokenPayload;
+    try {
+      claims = await this.verifyTelegramIdToken(tokenData.id_token, clientId);
+    } catch (error) {
+      this.logger.error('Telegram ID token verification failed', {
+        error: (error as Error).message,
+      });
+      throw error;
+    }
+    const telegramMarker = `TG_${claims.sub}`;
+    const normalizedPhone = this.normalizePhoneNumber(claims.phone_number);
+
+    let user = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { idCardNumber: telegramMarker },
+          ...(normalizedPhone ? [{ phoneNumber: normalizedPhone }] : []),
+        ],
+      },
+    });
+
+    const fullName = claims.name?.trim() || null;
+    const nameParts = fullName
+      ? fullName.split(' ').filter((part) => part.trim().length > 0)
+      : [];
+    const firstName = nameParts.length > 0 ? nameParts[0] : 'Telegram';
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+    if (!user) {
+      const role = userRole || 'PATIENT';
+      user = await this.prisma.user.create({
+        data: {
+          role,
+          firstName,
+          lastName,
+          fullName: fullName || `${firstName} ${lastName}`.trim(),
+          phoneNumber: normalizedPhone,
+          idCardNumber: telegramMarker,
+          passwordHash: await bcrypt.hash(randomBytes(32).toString('hex'), this.BCRYPT_ROUNDS),
+          accountStatus: 'ACTIVE',
+          profilePictureUrl: claims.picture || null,
+        },
+      });
+
+      if (role === 'PATIENT') {
+        const trialEndDate = new Date();
+        trialEndDate.setMonth(trialEndDate.getMonth() + 1);
+        await this.prisma.subscription.create({
+          data: {
+            userId: user.id,
+            tier: 'PREMIUM',
+            storageQuota: 21474836480,
+            storageUsed: 0,
+            expiresAt: trialEndDate,
+          },
+        });
+      }
+    } else {
+      const updateData: Record<string, unknown> = {};
+      if (!user.idCardNumber) {
+        updateData.idCardNumber = telegramMarker;
+      }
+      if (!user.fullName && fullName) {
+        updateData.fullName = fullName;
+      }
+      if (!user.firstName && firstName) {
+        updateData.firstName = firstName;
+      }
+      if (!user.lastName && lastName) {
+        updateData.lastName = lastName;
+      }
+      if (!user.phoneNumber && normalizedPhone) {
+        updateData.phoneNumber = normalizedPhone;
+      }
+      if (claims.picture && claims.picture !== user.profilePictureUrl) {
+        updateData.profilePictureUrl = claims.picture;
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        user = await this.prisma.user.update({
+          where: { id: user.id },
+          data: updateData,
+        });
+      }
+    }
+
+    const { passwordHash, ...result } = user;
+    return this.login(result);
   }
 
   async validateUser(identifier: string, password: string) {
@@ -148,8 +323,8 @@ export class AuthService {
     // Hash password
     const passwordHash = await bcrypt.hash(dto.password, this.BCRYPT_ROUNDS);
 
-    // Generate placeholder phone number if not provided
-    const phoneNumber = dto.phoneNumber || `nophone_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    // Keep phone nullable; placeholder values can exceed DB limits and are not needed.
+    const phoneNumber = dto.phoneNumber ?? null;
 
     // Create user with PENDING status (requires OTP verification)
     const user = await this.prisma.user.create({
@@ -209,8 +384,8 @@ export class AuthService {
     // Hash password
     const passwordHash = await bcrypt.hash(dto.password, this.BCRYPT_ROUNDS);
 
-    // Generate placeholder phone number if not provided
-    const phoneNumber = dto.phoneNumber || `nophone_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    // Keep phone nullable; placeholder values can exceed DB limits and are not needed.
+    const phoneNumber = dto.phoneNumber ?? null;
 
     // Create doctor with PENDING_VERIFICATION status
     const user = await this.prisma.user.create({
@@ -603,5 +778,207 @@ export class AuthService {
     return {
       message: 'Password changed successfully.',
     };
+  }
+
+  private normalizePhoneNumber(phone?: string): string | null {
+    if (!phone) {
+      return null;
+    }
+    const digits = phone.replace(/\D/g, '');
+    if (!digits || digits.length > 20) {
+      return null;
+    }
+    return digits;
+  }
+
+  private decodeJwtPart(part: string): Record<string, any> {
+    const normalized = part.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+    return JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
+  }
+
+  private decodeJwtSignature(part: string): Buffer {
+    const normalized = part.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+    return Buffer.from(padded, 'base64');
+  }
+
+  private async getTelegramJwks(): Promise<TelegramJwksResponse> {
+    const now = Date.now();
+    if (this.telegramJwksCache && this.telegramJwksCacheExpiry > now) {
+      return this.telegramJwksCache;
+    }
+
+    // Use Node.js https module (not fetch/undici) to avoid IPv6 ETIMEDOUT.
+    const response = await this.httpsGet('oauth.telegram.org', '/.well-known/jwks.json');
+    if (!response.ok) {
+      throw new UnauthorizedException('Failed to fetch Telegram signing keys');
+    }
+
+    const jwks = JSON.parse(response.body) as TelegramJwksResponse;
+    if (!jwks.keys || jwks.keys.length === 0) {
+      throw new UnauthorizedException('Telegram signing keys are unavailable');
+    }
+
+    this.telegramJwksCache = jwks;
+    this.telegramJwksCacheExpiry = now + 5 * 60 * 1000;
+    return jwks;
+  }
+
+  /**
+   * Makes an HTTPS GET using Node's built-in `https` module with `family: 4`
+   * (IPv4-only). This avoids the ETIMEDOUT bug in Node's native `fetch`/undici
+   * on networks where the server's AAAA record is unreachable.
+   */
+  private httpsGet(
+    host: string,
+    path: string,
+  ): Promise<{ ok: boolean; status: number; body: string }> {
+    return new Promise((resolve, reject) => {
+      const options: https.RequestOptions = {
+        hostname: host,
+        path,
+        method: 'GET',
+        family: 4,
+        headers: { 'User-Agent': 'DasTern-Backend/1.0' },
+      };
+
+      const req = https.request(options, (res: http.IncomingMessage) => {
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', (chunk: string) => { body += chunk; });
+        res.on('end', () => {
+          resolve({
+            ok: res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300,
+            status: res.statusCode ?? 0,
+            body,
+          });
+        });
+      });
+
+      req.on('error', reject);
+      req.setTimeout(10000, () => {
+        req.destroy(new Error('Request timed out'));
+      });
+      req.end();
+    });
+  }
+
+  /**
+   * Makes an HTTPS POST using Node's built-in `https` module with `family: 4`
+   * (IPv4-only). Same reasoning as httpsGet above.
+   */
+  private httpsPost(
+    host: string,
+    path: string,
+    headers: Record<string, string>,
+    body: string,
+  ): Promise<{ ok: boolean; status: number; body: string }> {
+    return new Promise((resolve, reject) => {
+      const bodyBuffer = Buffer.from(body, 'utf8');
+      const options: https.RequestOptions = {
+        hostname: host,
+        path,
+        method: 'POST',
+        family: 4,
+        headers: {
+          ...headers,
+          'Content-Length': bodyBuffer.length,
+          'User-Agent': 'DasTern-Backend/1.0',
+        },
+      };
+
+      const req = https.request(options, (res: http.IncomingMessage) => {
+        let responseBody = '';
+        res.setEncoding('utf8');
+        res.on('data', (chunk: string) => { responseBody += chunk; });
+        res.on('end', () => {
+          resolve({
+            ok: res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300,
+            status: res.statusCode ?? 0,
+            body: responseBody,
+          });
+        });
+      });
+
+      req.on('error', reject);
+      req.setTimeout(10000, () => {
+        req.destroy(new Error('Request timed out'));
+      });
+      req.write(bodyBuffer);
+      req.end();
+    });
+  }
+
+  private async verifyTelegramIdToken(
+    idToken: string,
+    expectedAudience: string,
+  ): Promise<TelegramIdTokenPayload> {
+    const parts = idToken.split('.');
+    if (parts.length !== 3) {
+      throw new UnauthorizedException('Malformed Telegram ID token');
+    }
+
+    const header = this.decodeJwtPart(parts[0]);
+    const payload = this.decodeJwtPart(parts[1]) as TelegramIdTokenPayload;
+    const signature = this.decodeJwtSignature(parts[2]);
+
+    if (header.alg !== 'RS256' || !header.kid) {
+      throw new UnauthorizedException('Unsupported Telegram token algorithm');
+    }
+
+    const jwks = await this.getTelegramJwks();
+    const key = jwks.keys.find((item) => item.kid === header.kid);
+    if (!key) {
+      throw new UnauthorizedException('Unable to find Telegram signing key');
+    }
+
+    const verifier = createVerify('RSA-SHA256');
+    verifier.update(`${parts[0]}.${parts[1]}`);
+    verifier.end();
+
+    const publicKey = createPublicKey({
+      key: {
+        kty: key.kty,
+        kid: key.kid,
+        alg: key.alg,
+        use: key.use,
+        n: key.n,
+        e: key.e,
+      },
+      format: 'jwk',
+    });
+
+    const isSignatureValid = verifier.verify(publicKey, signature);
+    if (!isSignatureValid) {
+      throw new UnauthorizedException('Invalid Telegram token signature');
+    }
+
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const issuer = (payload.iss || '').replace(/\/$/, '');
+    if (issuer !== 'https://oauth.telegram.org') {
+      throw new UnauthorizedException('Invalid Telegram token issuer');
+    }
+
+    const audienceValues = Array.isArray(payload.aud)
+      ? payload.aud.map((item) => String(item))
+      : [String(payload.aud)];
+    if (!audienceValues.includes(String(expectedAudience))) {
+      throw new UnauthorizedException('Invalid Telegram token audience');
+    }
+
+    const exp = Number(payload.exp);
+    if (!Number.isFinite(exp) || exp <= nowSeconds) {
+      throw new UnauthorizedException('Telegram token has expired');
+    }
+
+    const sub = String(payload.sub || '').trim();
+    if (!sub) {
+      throw new UnauthorizedException('Telegram token subject is missing');
+    }
+
+    payload.sub = sub;
+
+    return payload;
   }
 }
