@@ -219,6 +219,40 @@ class ApiService {
     }
   }
 
+  /// POST /auth/telegram – Telegram OAuth login
+  Future<Map<String, dynamic>> telegramLogin(
+    String code,
+    String codeVerifier,
+    String redirectUri, {
+    String? userRole,
+  }) async {
+    _log.apiRequest('POST', '/auth/telegram', {
+      'code': '***',
+      'redirectUri': redirectUri,
+      'userRole': userRole,
+    });
+    try {
+      final res = await http.post(
+        Uri.parse('$baseUrl/auth/telegram'),
+        headers: await _headers(auth: false),
+        body: jsonEncode({
+          'code': code,
+          'codeVerifier': codeVerifier,
+          'redirectUri': redirectUri,
+          'userRole': userRole,
+        }),
+      );
+      final result = Map<String, dynamic>.from(_handleResponse(res));
+      _log.apiResponse('POST', '/auth/telegram', res.statusCode, {
+        'user': result['user']?['id'],
+      });
+      return result;
+    } catch (e) {
+      _log.error('ApiService', 'Telegram login failed', e);
+      rethrow;
+    }
+  }
+
   Future<Map<String, dynamic>> registerPatient({
     required String firstName,
     required String lastName,

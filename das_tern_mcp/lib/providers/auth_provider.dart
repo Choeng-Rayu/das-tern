@@ -1,8 +1,14 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
+import 'package:app_links/app_links.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/api_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
@@ -11,8 +17,15 @@ import '../core/config/dev_config.dart';
 
 /// Manages authentication state: login, register, logout, token storage.
 class AuthProvider extends ChangeNotifier {
+  AuthProvider({bool enableTelegramDeepLinkListener = true}) {
+    if (enableTelegramDeepLinkListener) {
+      _initTelegramAuthListener();
+    }
+  }
+
   final ApiService _api = ApiService.instance;
   final LoggerService _log = LoggerService.instance;
+  final AppLinks _appLinks = AppLinks();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
@@ -32,6 +45,10 @@ class AuthProvider extends ChangeNotifier {
   Map<String, dynamic>? _user;
   String? _error;
   Future<void>? _loadAuthStateFuture;
+  StreamSubscription<Uri>? _telegramLinkSubscription;
+  Completer<Uri>? _telegramCallbackCompleter;
+  String? _telegramExpectedState;
+  bool _telegramLinkListenerStarted = false;
 
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _isAuthenticated;
@@ -40,6 +57,12 @@ class AuthProvider extends ChangeNotifier {
   String? get userRole => _user?['role'];
   bool get isDoctor => userRole == 'DOCTOR';
   bool get isPatient => userRole == 'PATIENT';
+
+  @override
+  void dispose() {
+    _telegramLinkSubscription?.cancel();
+    super.dispose();
+  }
 
   /// Load stored auth state on app start.
   Future<void> loadAuthState() async {
@@ -243,6 +266,106 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Sign in with Telegram OAuth 2.0 (OIDC + PKCE).
+  Future<bool> signInWithTelegram({String? userRole}) async {
+    _log.info('AuthProvider', 'Telegram Sign-In attempt', {
+      'userRole': userRole,
+    });
+    _setLoading(true);
+    _error = null;
+
+    try {
+      final clientId = dotenv.env['TELEGRAM_BOT_CLIENT_ID']?.trim();
+      if (clientId == null || clientId.isEmpty) {
+        _error = 'Telegram client ID is not configured';
+        notifyListeners();
+        return false;
+      }
+
+      final oauthRedirectUri = _telegramOAuthRedirectUri;
+      final state = _generateRandomBase64Url(16);
+      final codeVerifier = _generateRandomBase64Url(64);
+      final codeChallenge = _base64UrlNoPadding(
+        sha256.convert(utf8.encode(codeVerifier)).bytes,
+      );
+
+      _telegramExpectedState = state;
+      _telegramCallbackCompleter = Completer<Uri>();
+
+      final authUrl = Uri.https('oauth.telegram.org', '/auth', {
+        'client_id': clientId,
+        'redirect_uri': oauthRedirectUri,
+        'response_type': 'code',
+        'scope': 'openid profile phone',
+        'state': state,
+        'code_challenge': codeChallenge,
+        'code_challenge_method': 'S256',
+      });
+
+      final didLaunch = await launchUrl(
+        authUrl,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!didLaunch) {
+        _error = 'Unable to open Telegram login';
+        notifyListeners();
+        return false;
+      }
+
+      final callbackUri = await _telegramCallbackCompleter!.future.timeout(
+        const Duration(minutes: 2),
+        onTimeout: () => throw TimeoutException('Telegram login timed out'),
+      );
+
+      final callbackState = callbackUri.queryParameters['state'];
+      if (callbackState == null || callbackState != _telegramExpectedState) {
+        _error = 'Telegram login state validation failed';
+        notifyListeners();
+        return false;
+      }
+
+      final callbackError = callbackUri.queryParameters['error'];
+      if (callbackError != null && callbackError.isNotEmpty) {
+        _error = callbackError;
+        notifyListeners();
+        return false;
+      }
+
+      final code = callbackUri.queryParameters['code'];
+      if (code == null || code.isEmpty) {
+        _error = 'Telegram did not return an authorization code';
+        notifyListeners();
+        return false;
+      }
+
+      final result = await _api.telegramLogin(
+        code,
+        codeVerifier,
+        oauthRedirectUri,
+        userRole: userRole,
+      );
+
+      await _saveTokens(result);
+      _user = result['user'];
+      _isAuthenticated = true;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e
+          .toString()
+          .replaceFirst('Exception: ', '')
+          .replaceFirst('ApiException: ', '');
+      _log.error('AuthProvider', 'Telegram Sign-In failed', e);
+      notifyListeners();
+      return false;
+    } finally {
+      _telegramExpectedState = null;
+      _telegramCallbackCompleter = null;
       _setLoading(false);
     }
   }
@@ -500,5 +623,76 @@ class AuthProvider extends ChangeNotifier {
   bool _isAuthFailure(Object error) {
     return error is ApiException &&
         (error.statusCode == 401 || error.statusCode == 403);
+  }
+
+  Future<void> _initTelegramAuthListener() async {
+    if (_telegramLinkListenerStarted) {
+      return;
+    }
+    _telegramLinkListenerStarted = true;
+
+    try {
+      final initialUri = await _appLinks.getInitialLink();
+      if (initialUri != null) {
+        _handleTelegramCallbackUri(initialUri);
+      }
+    } catch (error) {
+      _log.warning('AuthProvider', 'Failed reading initial deep link', error);
+    }
+
+    _telegramLinkSubscription = _appLinks.uriLinkStream.listen(
+      (uri) {
+        _handleTelegramCallbackUri(uri);
+      },
+      onError: (error) {
+        _log.warning('AuthProvider', 'Telegram deep link stream error', error);
+      },
+    );
+  }
+
+  void _handleTelegramCallbackUri(Uri uri) {
+    if (!_isTelegramCallbackUri(uri)) {
+      return;
+    }
+
+    final completer = _telegramCallbackCompleter;
+    if (completer != null && !completer.isCompleted) {
+      completer.complete(uri);
+    }
+  }
+
+  bool _isTelegramCallbackUri(Uri uri) {
+    final expected = Uri.parse(_telegramRedirectUri);
+    return uri.scheme == expected.scheme &&
+        uri.host == expected.host &&
+        uri.path == expected.path;
+  }
+
+  String get _telegramAppRedirectUri {
+    final configured = dotenv.env['TELEGRAM_APP_REDIRECT_URI']?.trim();
+    if (configured != null && configured.isNotEmpty) {
+      return configured;
+    }
+    return 'dastern://auth/telegram/callback';
+  }
+
+  String get _telegramOAuthRedirectUri {
+    final configured = dotenv.env['TELEGRAM_OAUTH_REDIRECT_URI']?.trim();
+    if (configured != null && configured.isNotEmpty) {
+      return configured;
+    }
+    return '${dotenv.env['API_BASE_URL']}/auth/telegram/callback';
+  }
+
+  String get _telegramRedirectUri => _telegramAppRedirectUri;
+
+  String _generateRandomBase64Url(int bytesLength) {
+    final random = Random.secure();
+    final bytes = List<int>.generate(bytesLength, (_) => random.nextInt(256));
+    return _base64UrlNoPadding(bytes);
+  }
+
+  String _base64UrlNoPadding(List<int> bytes) {
+    return base64UrlEncode(bytes).replaceAll('=', '');
   }
 }

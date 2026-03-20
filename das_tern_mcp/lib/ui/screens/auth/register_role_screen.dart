@@ -1,15 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/auth_widgets.dart';
 import '../../widgets/language_switcher.dart';
 
 /// Screen for choosing registration role: Patient or Doctor.
-class RegisterRoleScreen extends StatelessWidget {
+/// Also offers a direct "Register with Telegram" option that bypasses role
+/// selection (user role defaults to PATIENT when using Telegram).
+class RegisterRoleScreen extends StatefulWidget {
   const RegisterRoleScreen({super.key});
 
   @override
+  State<RegisterRoleScreen> createState() => _RegisterRoleScreenState();
+}
+
+class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
+  Future<void> _handleTelegramRegister() async {
+    final auth = context.read<AuthProvider>();
+    final success = await auth.signInWithTelegram();
+
+    if (!mounted) return;
+    if (success) {
+      final role = auth.userRole;
+      Navigator.of(
+        context,
+      ).pushReplacementNamed(role == 'DOCTOR' ? '/doctor' : '/patient');
+    } else if (auth.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.error!),
+          backgroundColor: AppColors.alertRed,
+        ),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
     final l10n = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
     final hPad = (size.width * 0.06).clamp(16.0, 40.0);
@@ -98,6 +129,67 @@ class RegisterRoleScreen extends StatelessWidget {
                     Navigator.of(context).pushNamed('/register/doctor'),
               ),
             ),
+            SizedBox(height: isSmallScreen ? AppSpacing.md : AppSpacing.xl),
+
+            // ── OR section ──
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: hPad),
+              child: Row(
+                children: [
+                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                    ),
+                    child: Text(
+                      l10n.orRegisterWith,
+                      style: const TextStyle(
+                        color: Color(0xFFAAAAAA),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // ── Telegram quick-register button ──
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: hPad),
+              child: SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton.icon(
+                  onPressed: auth.isLoading ? null : _handleTelegramRegister,
+                  icon: const Icon(
+                    Icons.send_rounded,
+                    color: Color(0xFF229ED9),
+                    size: 20,
+                  ),
+                  label: Text(
+                    l10n.registerWithTelegram,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF333333),
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF333333),
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(
+                      color: Color(0xFF229ED9),
+                      width: 1.5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             SizedBox(height: topGap),
 
             // ── Back to login link ──
@@ -113,6 +205,8 @@ class RegisterRoleScreen extends StatelessWidget {
     );
   }
 }
+
+// ── Role selection card ──────────────────────────────────────────────────────
 
 class _RoleCard extends StatelessWidget {
   final IconData icon;

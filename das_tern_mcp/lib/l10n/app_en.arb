@@ -6,6 +6,7 @@
 
   "signIn": "Sign In",
   "signInWithGoogle": "Sign in with Google",
+  "signInWithTelegram": "Sign in with Telegram",
   "orDivider": "or",
   "forgotPassword": "Forgot password?",
   "dontHaveAccount": "Don't have an account? ",
@@ -853,6 +854,7 @@
   },
 
   "registerWithGoogle": "Register with Google",
+  "registerWithTelegram": "Register with Telegram",
   "orRegisterWith": "or register with",
 
   "email": "Email",

@@ -21,6 +21,9 @@ class AppLocalizationsKm extends AppLocalizations {
   String get signInWithGoogle => 'ចូលតាមរយៈ Google';
 
   @override
+  String get signInWithTelegram => 'ចូលតាមរយៈ Telegram';
+
+  @override
   String get orDivider => 'ឬ';
 
   @override
@@ -2068,6 +2071,9 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get registerWithGoogle => 'ចុះឈ្មោះតាម Google';
+
+  @override
+  String get registerWithTelegram => 'ចុះឈ្មោះតាម Telegram';
 
   @override
   String get orRegisterWith => 'ឬចុះឈ្មោះតាម';
