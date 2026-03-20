@@ -30,6 +30,7 @@ dependencies:
 
   # Environment Variables
   flutter_dotenv: ^5.1.0
+  crypto: ^3.0.3
 
   # Internationalization
   intl: ^0.20.2
@@ -61,6 +62,7 @@ dependencies:
 
   # URL Launcher (open deeplinks in banking apps)
   url_launcher: ^6.3.0
+  app_links: ^6.3.2
 
   # Image Picker (camera/gallery for prescription scanning)
   image_picker: ^1.0.7

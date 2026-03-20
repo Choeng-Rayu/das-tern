@@ -63,6 +63,14 @@
 				<string>com.googleusercontent.apps.265372630808-rhs5d9r2v8c7nh688o2p8vg8givtqujo</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>dastern</string>
+			</array>
+		</dict>
 	</array>
 
 	<!-- Allow canLaunchUrl checks for Cambodian banking app URL schemes -->
