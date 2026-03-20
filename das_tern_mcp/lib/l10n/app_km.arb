@@ -6,6 +6,7 @@
 
   "signIn": "ចូលគណនី",
   "signInWithGoogle": "ចូលតាមរយៈ Google",
+  "signInWithTelegram": "ចូលតាមរយៈ Telegram",
   "orDivider": "ឬ",
   "forgotPassword": "ភ្លេចលេខកូដសម្ងាត់?",
   "dontHaveAccount": "មិនមានគណនី? ",
@@ -183,6 +184,7 @@
   "activeDays": "ថ្ងៃសកម្ម",
 
   "markAsTaken": "សម្គាល់ថាបានទទួលទាន",
+  "markAsPending": "សម្គាល់ថាមិនទាន់ញ៉ាំ",
   "markedAsTaken": "សម្គាល់ថាបានទទួលទាន",
   "taken": "បានញ៉ាំ",
   "takenAt": "បានញ៉ាំនៅ",
@@ -287,6 +289,16 @@
   "emergencyLabel": "ពេលបន្ទាន់",
   "recordLabel": "កត់ត្រា",
   "onePill": "១ គ្រាប់",
+  "markAllDone": "សម្គាល់ទាំងអស់ថាបានប្រើ",
+  "completedCount": "បានបញ្ចប់ ({count})",
+  "@completedCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "noPendingDoses": "គ្មានថ្នាំដែលត្រូវប្រើ",
+  "selectDosesToMark": "ជ្រើសរើសថ្នាំដើម្បីសម្គាល់ថាបានប្រើ",
+  "timePeriodLabel": "ពេលវេលា",
   "unresolvedAlerts": "ការជូនដំណឹងសុខភាព {count} មិនទាន់ដោះស្រាយ",
   "daysUnit": "ថ្ងៃ",
 
@@ -739,6 +751,7 @@
   },
 
   "registerWithGoogle": "ចុះឈ្មោះតាម Google",
+  "registerWithTelegram": "ចុះឈ្មោះតាម Telegram",
   "orRegisterWith": "ឬចុះឈ្មោះតាម",
 
   "email": "អ៊ីមែល",
@@ -859,6 +872,8 @@
   "daytimeColumn": "ថ្ងៃ",
   "nightColumn": "យប់",
   "afterMeal": "ក្រោយបាយ",
+  "withFood": "ជាមួយអាហារ",
+  "prnDescription": "ផឹកតាមការចាំបាច់ គ្មានកាលវិភាគថេរ",
   "addMedicineRow": "បន្ថែមជួរថ្នាំ",
   "createPrescriptionFab": "បង្កើតវេជ្ជបញ្ជា",
 
@@ -965,6 +980,9 @@
   "prescriptionRejected": "វេជ្ជបញ្ជាបានបដិសេធ",
   "prescriptionConfirmed": "វេជ្ជបញ្ជាបានបញ្ជាក់",
   "confirmPrescription": "បញ្ជាក់វេជ្ជបញ្ជា",
+  "deletePrescription": "លុបវេជ្ជបញ្ជា",
+  "deletePrescriptionConfirm": "តើអ្នកប្រាកដថាចង់លុបវេជ្ជបញ្ជានេះ? ការរំលឹកថ្នាំដែលបានកំណត់ពេលទាំងអស់នឹងត្រូវដកចេញ។",
+  "prescriptionDeleted": "វេជ្ជបញ្ជាត្រូវបានលុប",
   "pendingPrescriptions": "វេជ្ជបញ្ជារង់ចាំ",
   "prescriptionFromDoctor": "ពីគ្រូពេទ្យ {name}",
   "@prescriptionFromDoctor": {
@@ -1116,6 +1134,13 @@
   "prescriptionCreatedSuccess": "បានបង្កើតវេជ្ជបញ្ជាជោគជ័យ",
   "yourScheduleReady": "កាលវិភាគថ្នាំរបស់អ្នករួចរាល់",
   "viewSchedule": "មើលកាលវិភាគ",
+  "goHome": "ត្រឡប់ទៅទំព័រដើម",
+
+  "searchHint": "ស្វែងរក...",
+  "noResultsFound": "រកមិនឃើញ",
+  "age": "អាយុ",
+  "phone": "លេខទូរសព្ទ",
+  "yearsUnit": "ឆ្នាំ",
   "premiumBadge": "Premium",
   "familyAlertsRequirePremium": "ការជូនដំណឹងគ្រួសារត្រូវការគម្រោង Premium។ ដំឡើងដើម្បីទទួលបានការជូនដំណឹងនៅពេលអ្នកជិតស្និទ្ធមិនបានផឹកថ្នាំ។",
   "upgradeToPremiumForFamilyAlerts": "ដំឡើងទៅ Premium",
@@ -1162,6 +1187,5 @@
   "upgradeToPremium": "ធ្វើឱ្យប្រសើរជា Premium",
   "maybeLater": "ពេលក្រោយ",
   "generatingPdf": "កំពុងបង្កើត PDF...",
-  "pdfReady": "PDF របាយការណ៍រួចរាល់",
-  "goHome": "ត្រឡប់ទៅទំព័រដើម"
+  "pdfReady": "PDF របាយការណ៍រួចរាល់"
 }

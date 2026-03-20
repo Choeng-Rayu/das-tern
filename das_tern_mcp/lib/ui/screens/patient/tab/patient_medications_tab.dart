@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../models/dose_event_model/dose_event.dart';
+import '../../../../providers/dose_provider.dart';
 import '../../../../providers/prescription_provider.dart';
 import '../../../../providers/batch_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../../utils/app_router.dart';
 import '../../../widgets/common_widgets.dart';
+import '../../../widgets/dose_task_card.dart';
 import '../../../widgets/header_widgets.dart';
 
 /// Medications tab – lists active prescriptions, batch groups, and their medications.
 class PatientMedicationsTab extends StatefulWidget {
-  const PatientMedicationsTab({super.key});
+  final String? period; // optional: MORNING|AFTERNOON|EVENING|NIGHT
+  const PatientMedicationsTab({super.key, this.period});
 
   @override
   State<PatientMedicationsTab> createState() => _PatientMedicationsTabState();
@@ -24,6 +28,15 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PrescriptionProvider>().fetchPrescriptions();
       context.read<BatchProvider>().fetchBatches();
+      // If opened with a specific period, ensure doses are loaded
+      if (widget.period != null) {
+        // DoseProvider is defined in the app – fetch today's schedule
+        try {
+          context.read<DoseProvider>().fetchTodaySchedule();
+        } catch (_) {
+          // DoseProvider may not be available in some contexts; ignore
+        }
+      }
     });
   }
 
@@ -32,6 +45,19 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<PrescriptionProvider>();
     final batchProvider = context.watch<BatchProvider>();
+    // If period specified, try to get doses from DoseProvider
+    final period = widget.period;
+    List<DoseEvent>? periodDoses;
+    if (period != null) {
+      try {
+        final doseProv = context.watch<DoseProvider>();
+        periodDoses = doseProv.todaysDoses
+            .where((d) => d.timePeriod.toUpperCase() == period)
+            .toList();
+      } catch (_) {
+        periodDoses = null;
+      }
+    }
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -51,7 +77,7 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             // ── Sticky header ──
-            PatientHeader(title: l10n.medications),
+            PatientHeader(title: l10n.medications, showBackButton: false),
 
             // ── Content ──
             if (provider.isLoading && batchProvider.isLoading)
@@ -155,9 +181,10 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                       ],
 
                       // Prescriptions Section (ACTIVE only)
-                      if (provider.prescriptions
-                          .where((p) => p.status == 'ACTIVE')
-                          .isNotEmpty) ...[
+                      if (period == null &&
+                          provider.prescriptions
+                              .where((p) => p.status == 'ACTIVE')
+                              .isNotEmpty) ...[
                         Text(
                           l10n.prescriptions,
                           style: Theme.of(context).textTheme.titleMedium
@@ -218,6 +245,19 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                                                       AppColors.textSecondary,
                                                 ),
                                           ),
+                                          const SizedBox(width: 4),
+                                          GestureDetector(
+                                            onTap: () =>
+                                                _confirmDeletePrescription(
+                                              context,
+                                              rx.id ?? '',
+                                            ),
+                                            child: const Icon(
+                                              Icons.delete_outline,
+                                              size: 18,
+                                              color: AppColors.alertRed,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                       const SizedBox(height: AppSpacing.sm),
@@ -276,6 +316,136 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                             ),
                       ],
 
+                      // If opened for a specific period, show filtered doses list
+                      if (period != null) ...[
+                        Builder(builder: (context) {
+                          final allPeriodDoses = periodDoses ?? [];
+                          final pending = allPeriodDoses
+                              .where((d) =>
+                                  d.status != 'TAKEN_ON_TIME' &&
+                                  d.status != 'TAKEN_LATE' &&
+                                  d.status != 'SKIPPED')
+                              .toList();
+                          final done = allPeriodDoses
+                              .where((d) =>
+                                  d.status == 'TAKEN_ON_TIME' ||
+                                  d.status == 'TAKEN_LATE' ||
+                                  d.status == 'SKIPPED')
+                              .toList();
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      l10n.medications,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                    ),
+                                  ),
+                                  if (pending.isNotEmpty)
+                                    TextButton(
+                                      onPressed: () =>
+                                          _showMarkAllDoneSheet(context, pending),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: AppColors.primaryBlue,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                        minimumSize: const Size(0, 32),
+                                      ),
+                                      child: Text(
+                                        l10n.markAllDone,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: AppSpacing.sm),
+
+                              if (periodDoses == null)
+                                const Center(child: CircularProgressIndicator())
+                              else if (allPeriodDoses.isEmpty)
+                                Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: AppSpacing.xxl,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        const Icon(
+                                          Icons.check_circle_outline,
+                                          size: 48,
+                                          color: AppColors.successGreen,
+                                        ),
+                                        const SizedBox(height: AppSpacing.sm),
+                                        Text(
+                                          l10n.noMoreMedicationsToday,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              else ...[
+                                if (pending.isEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: AppSpacing.sm,
+                                    ),
+                                    child: Text(
+                                      l10n.noPendingDoses,
+                                      style: const TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  ...pending.map(
+                                    (dose) => DoseTaskCard(dose: dose),
+                                  ),
+
+                                // ── Collapsible completed section ──
+                                if (done.isNotEmpty)
+                                  Theme(
+                                    data: Theme.of(context).copyWith(
+                                      dividerColor: Colors.transparent,
+                                    ),
+                                    child: ExpansionTile(
+                                      tilePadding: EdgeInsets.zero,
+                                      childrenPadding: EdgeInsets.zero,
+                                      title: Text(
+                                        l10n.completedCount(done.length),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                      children: done
+                                          .map(
+                                            (dose) => DoseTaskCard(
+                                              dose: dose,
+                                              readOnly: true,
+                                            ),
+                                          )
+                                          .toList(),
+                                    ),
+                                  ),
+                              ],
+                            ],
+                          );
+                        }),
+                      ] else
                       // Empty state
                       if (provider.prescriptions
                               .where((p) => p.status == 'ACTIVE')
@@ -323,6 +493,191 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
         ),
       ),
     );
+  }
+
+  /// Show confirmation sheet for marking multiple doses as taken.
+  void _showMarkAllDoneSheet(BuildContext context, List<DoseEvent> pending) {
+    final l10n = AppLocalizations.of(context)!;
+    final doseProvider = context.read<DoseProvider>();
+    final selected = List<bool>.filled(pending.length, true);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            final checkedCount = selected.where((s) => s).length;
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.markAllDone,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      l10n.selectDosesToMark,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    const Divider(),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 320),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: pending.length,
+                        itemBuilder: (_, i) {
+                          final dose = pending[i];
+                          final st = dose.scheduledTime;
+                          final timeStr =
+                              '${st.hour.toString().padLeft(2, '0')}:${st.minute.toString().padLeft(2, '0')}';
+                          return CheckboxListTile(
+                            value: selected[i],
+                            onChanged: (v) =>
+                                setSheetState(() => selected[i] = v ?? false),
+                            title: Text(dose.medicationName),
+                            subtitle: Text('${dose.dosage}  ·  $timeStr'),
+                            activeColor: AppColors.successGreen,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            contentPadding: EdgeInsets.zero,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: checkedCount == 0
+                            ? null
+                            : () async {
+                                Navigator.pop(ctx);
+                                for (int i = 0; i < pending.length; i++) {
+                                  if (selected[i]) {
+                                    await doseProvider
+                                        .markTaken(pending[i].id ?? '');
+                                  }
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.successGreen,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor:
+                              AppColors.successGreen.withValues(alpha: 0.4),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.md,
+                          ),
+                        ),
+                        child: Text(
+                          '${l10n.markAllDone} ($checkedCount)',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// Show a confirmation dialog and optionally delete a prescription.
+  Future<void> _confirmDeletePrescription(
+    BuildContext context,
+    String prescriptionId,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.delete_outline, color: AppColors.alertRed, size: 22),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: Text(l10n.deletePrescription)),
+          ],
+        ),
+        content: Text(l10n.deletePrescriptionConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.alertRed,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final prescProv = context.read<PrescriptionProvider>();
+    final ok = await prescProv.deletePrescription(prescriptionId);
+
+    if (!context.mounted) return;
+
+    if (ok) {
+      // Refresh dose schedule to remove any now-deleted doses
+      context.read<DoseProvider>().fetchTodaySchedule();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.prescriptionDeleted),
+          backgroundColor: AppColors.successGreen,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(prescProv.error ?? l10n.error),
+          backgroundColor: AppColors.alertRed,
+        ),
+      );
+    }
   }
 
   List<Widget> _buildPendingSection(
@@ -382,6 +737,18 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                       'v${rx.currentVersion}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: () => _confirmDeletePrescription(
+                        context,
+                        rx.id ?? '',
+                      ),
+                      child: const Icon(
+                        Icons.delete_outline,
+                        size: 18,
+                        color: AppColors.alertRed,
                       ),
                     ),
                   ],

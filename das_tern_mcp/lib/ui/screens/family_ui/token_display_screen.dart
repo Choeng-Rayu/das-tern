@@ -12,6 +12,7 @@ import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Displays the generated connection token as a QR code + text code.
 /// Patient shows this to caregiver to scan.
@@ -92,7 +93,11 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.connectionCodeTitle), centerTitle: true),
+      appBar: AppBar(
+        title: Text(l10n.connectionCodeTitle),
+        centerTitle: true,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -146,7 +151,7 @@ class _TokenDisplayScreenState extends State<TokenDisplayScreen> {
           Container(
             padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(AppRadius.xl),
               boxShadow: [
                 BoxShadow(

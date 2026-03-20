@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../models/dose_event_model/dose_event.dart';
 import '../../../../providers/dose_provider.dart';
 import '../../../../providers/health_monitoring_provider.dart';
 import '../../../../providers/notification_provider.dart';
@@ -9,7 +10,9 @@ import '../../../../models/enums_model/medication_type.dart';
 import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
+import '../../../widgets/dose_task_card.dart';
 import '../../../widgets/header_widgets.dart';
+import 'patient_medications_tab.dart';
 import '../screens/activity_report_screen.dart';
 
 /// Patient home tab – daily dashboard.
@@ -74,6 +77,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
         slivers: [
           // ── Sticky patient header ──
           PatientHeader(
+            showBackButton: false,
             onNotificationTap: () {
               final notifProv = context.read<NotificationProvider>();
               Navigator.pushNamed(context, AppRouter.patientNotifications).then(
@@ -102,7 +106,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'ថ្ងៃ អាទិត្យ- ទី ${DateTime.now().day}- ${_khmerMonth(DateTime.now().month)}',
+                    _formatDate(context, DateTime.now()),
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
@@ -123,6 +127,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.beforeMeal,
                           backgroundImage: 'assets/morning.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'MORNING'),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -136,6 +147,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.afternoon,
                           backgroundImage: 'assets/afternoon.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'AFTERNOON'),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -153,6 +171,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.evening,
                           backgroundImage: 'assets/afternoon.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'EVENING'),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -166,6 +191,13 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                           ),
                           badgeText: l10n.night,
                           backgroundImage: 'assets/night.png',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PatientMedicationsTab(period: 'NIGHT'),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -190,7 +222,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                             alignment: Alignment.center,
                             children: [
                               CircularProgressIndicator(
-                                value: doseProvider.progress,
+                                value: doseProvider.monthlyProgress,
                                 strokeWidth: 6,
                                 backgroundColor: Colors.white.withValues(
                                   alpha: 0.5,
@@ -198,7 +230,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                                 color: AppColors.primaryBlue,
                               ),
                               Text(
-                                '${(doseProvider.progress * 30).toInt()} ${l10n.daysUnit}',
+                                '${doseProvider.effectiveDailyProgressCount} ${l10n.daysUnit}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
@@ -224,7 +256,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                               const SizedBox(height: 4),
                               Text(
                                 l10n.dayProgress(
-                                  (doseProvider.progress * 30).toInt(),
+                                  doseProvider.effectiveDailyProgressCount,
                                 ),
                                 style: const TextStyle(
                                   color: AppColors.primaryBlue,
@@ -248,94 +280,175 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // ── Today's doses (checklist) ──
-                  Row(
-                    children: [
-                      const Icon(Icons.checklist, size: 20),
-                      const SizedBox(width: AppSpacing.xs),
-                      Text(
-                        l10n.todaysTasks,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                  // ── Today's doses (checklist, grouped by period) ──
+                  Builder(builder: (context) {
+                    final allDoses = doseProvider.todaysDoses;
+                    const periodOrder = [
+                      'MORNING',
+                      'AFTERNOON',
+                      'EVENING',
+                      'NIGHT',
+                    ];
+                    final pendingByPeriod = <String, List<DoseEvent>>{};
+                    final doneDoses = <DoseEvent>[];
+                    for (final d in allDoses) {
+                      final isDone = d.status == 'TAKEN_ON_TIME' ||
+                          d.status == 'TAKEN_LATE' ||
+                          d.status == 'SKIPPED';
+                      if (isDone) {
+                        doneDoses.add(d);
+                      } else {
+                        pendingByPeriod
+                            .putIfAbsent(d.timePeriod, () => [])
+                            .add(d);
+                      }
+                    }
+                    final allPending = <DoseEvent>[
+                      for (final p in periodOrder) ...pendingByPeriod[p] ?? [],
+                    ];
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.checklist, size: 20),
+                            const SizedBox(width: AppSpacing.xs),
+                            Expanded(
+                              child: Text(
+                                l10n.todaysTasks,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            if (allPending.length >= 2)
+                              TextButton(
+                                onPressed: () => _showMarkAllDoneSheet(
+                                  context,
+                                  allPending,
+                                ),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.primaryBlue,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+                                  minimumSize: const Size(0, 32),
+                                ),
+                                child: Text(
+                                  l10n.markAllDone,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: AppSpacing.sm),
 
-                  if (doseProvider.isLoading)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(AppSpacing.lg),
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  else if (doseProvider.todaysDoses.isEmpty)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(AppSpacing.lg),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(AppRadius.lg),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.check_circle_outline,
-                            size: 48,
-                            color: AppColors.successGreen,
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            l10n.allCompleted,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                        if (doseProvider.isLoading)
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(AppSpacing.lg),
+                              child: CircularProgressIndicator(),
                             ),
-                          ),
-                          Text(
-                            l10n.noMoreMedicationsToday,
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 13,
+                          )
+                        else if (allDoses.isEmpty)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(AppSpacing.lg),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    ...doseProvider.todaysDoses.map(
-                      (dose) => _DoseCheckItem(
-                        name: dose.medicationName,
-                        dosage: dose.dosage,
-                        isTaken: dose.status == 'TAKEN',
-                        onTake: () => doseProvider.markTaken(dose.id ?? ''),
-                      ),
-                    ),
+                            child: Column(
+                              children: [
+                                const Icon(
+                                  Icons.check_circle_outline,
+                                  size: 48,
+                                  color: AppColors.successGreen,
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+                                Text(
+                                  l10n.allCompleted,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  l10n.noMoreMedicationsToday,
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else ...[
+                          // ── Pending doses grouped by period ──
+                          if (allPending.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: AppSpacing.sm,
+                              ),
+                              child: Text(
+                                l10n.noPendingDoses,
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            )
+                          else
+                            for (final period in periodOrder)
+                              if (pendingByPeriod[period]?.isNotEmpty ?? false)
+                                ...[
+                                  _PeriodSectionHeader(period: period),
+                                  const SizedBox(height: AppSpacing.xs),
+                                  ...pendingByPeriod[period]!
+                                      .map((d) => DoseTaskCard(dose: d)),
+                                  const SizedBox(height: AppSpacing.xs),
+                                ],
 
-                  // ── Missed dose banner ──
-                  if (doseProvider.todaysDoses.any((d) => d.status == 'MISSED'))
-                    _MissedDoseBanner(
-                      missedCount: doseProvider.todaysDoses
-                          .where((d) => d.status == 'MISSED')
-                          .length,
-                      onMarkTaken: () {
-                        final missed = doseProvider.todaysDoses
-                            .where((d) => d.status == 'MISSED')
-                            .toList();
-                        if (missed.isNotEmpty) {
-                          doseProvider.markTaken(missed.first.id ?? '');
-                        }
-                      },
-                    ),
+                          // ── Collapsible completed section ──
+                          if (doneDoses.isNotEmpty)
+                            Theme(
+                              data: Theme.of(context).copyWith(
+                                dividerColor: Colors.transparent,
+                              ),
+                              child: ExpansionTile(
+                                tilePadding: EdgeInsets.zero,
+                                childrenPadding: EdgeInsets.zero,
+                                title: Text(
+                                  l10n.completedCount(doneDoses.length),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                children: doneDoses
+                                    .map(
+                                      (dose) => DoseTaskCard(
+                                        dose: dose,
+                                        readOnly: true,
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                        ],
+                      ],
+                    );
+                  }),
 
                   const SizedBox(height: AppSpacing.lg),
 
@@ -356,45 +469,38 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                   ),
                   const SizedBox(height: AppSpacing.sm),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ActivityReportScreen(),
-                            ),
-                          ),
-                          child: _QuickActionCard(
-                            icon: Icons.history,
-                            title: l10n.medicationIntakeHistory,
-                            color: const Color(0xFF0288D1),
-                          ),
-                        ),
+                  GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ActivityReportScreen(),
                       ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            if (subProvider.isPremium) {
-                              Navigator.pushNamed(
-                                context,
-                                AppRouter.familyAccessList,
-                              );
-                            } else {
-                              _showPremiumFamilyDialog(context);
-                            }
-                          },
-                          child: _QuickActionCard(
-                            icon: Icons.family_restroom,
-                            title: l10n.familyFeatures,
-                            color: const Color(0xFF29B6F6),
-                            showPremiumBadge: !subProvider.isPremium,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                    child: _QuickActionCard(
+                      icon: Icons.history,
+                      title: l10n.medicationIntakeHistory,
+                      color: const Color(0xFF0288D1),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+
+                  GestureDetector(
+                    onTap: () {
+                      if (subProvider.isPremium) {
+                        Navigator.pushNamed(
+                          context,
+                          AppRouter.familyAccessList,
+                        );
+                      } else {
+                        _showPremiumFamilyDialog(context);
+                      }
+                    },
+                    child: _QuickActionCard(
+                      icon: Icons.family_restroom,
+                      title: l10n.familyFeatures,
+                      color: const Color(0xFF29B6F6),
+                      showPremiumBadge: !subProvider.isPremium,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
@@ -483,7 +589,7 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                         child: Container(
                           padding: const EdgeInsets.all(AppSpacing.sm),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(AppRadius.lg),
                             border: Border.all(
                               color: isAbnormal
@@ -634,13 +740,135 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
                     ],
                   ),
 
-                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  /// Show confirmation sheet for marking multiple doses as taken.
+  void _showMarkAllDoneSheet(BuildContext context, List<DoseEvent> pending) {
+    final l10n = AppLocalizations.of(context)!;
+    final doseProvider = context.read<DoseProvider>();
+    final selected = List<bool>.filled(pending.length, true);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            final checkedCount = selected.where((s) => s).length;
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.markAllDone,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      l10n.selectDosesToMark,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    const Divider(),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 320),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: pending.length,
+                        itemBuilder: (_, i) {
+                          final dose = pending[i];
+                          final st = dose.scheduledTime;
+                          final timeStr =
+                              '${st.hour.toString().padLeft(2, '0')}:${st.minute.toString().padLeft(2, '0')}';
+                          return CheckboxListTile(
+                            value: selected[i],
+                            onChanged: (v) =>
+                                setSheetState(() => selected[i] = v ?? false),
+                            title: Text(dose.medicationName),
+                            subtitle: Text('${dose.dosage}  ·  $timeStr'),
+                            activeColor: AppColors.successGreen,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            contentPadding: EdgeInsets.zero,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: checkedCount == 0
+                            ? null
+                            : () async {
+                                Navigator.pop(ctx);
+                                for (int i = 0; i < pending.length; i++) {
+                                  if (selected[i]) {
+                                    await doseProvider
+                                        .markTaken(pending[i].id ?? '');
+                                  }
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.successGreen,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor:
+                              AppColors.successGreen.withValues(alpha: 0.4),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.md,
+                          ),
+                        ),
+                        child: Text(
+                          '${l10n.markAllDone} ($checkedCount)',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -651,23 +879,18 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
         .length;
   }
 
-  /// Convert month number to Khmer month name
-  String _khmerMonth(int month) {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return months[month - 1];
+  /// Locale-aware date label, e.g. "Monday, March 15" / "ថ្ងៃចន្ទ ទី15 មីនា"
+  String _formatDate(BuildContext context, DateTime date) {
+    final isKhmer = Localizations.localeOf(context).languageCode == 'km';
+    if (isKhmer) {
+      const weekdays = ['ចន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ', 'សុក្រ', 'សៅរ៍', 'អាទិត្យ'];
+      const months = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+      return 'ថ្ងៃ${weekdays[date.weekday - 1]} ទី${date.day} ${months[date.month - 1]}';
+    } else {
+      const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      return '${weekdays[date.weekday - 1]}, ${months[date.month - 1]} ${date.day}';
+    }
   }
 
   /// Show premium upsell dialog for family alerts
@@ -727,6 +950,8 @@ class _PatientHomeTabState extends State<PatientHomeTab> {
   }
 }
 
+// ── _TimePeriodCard ─────────────────────────────────────────────────────────
+
 class _TimePeriodCard extends StatelessWidget {
   const _TimePeriodCard({
     required this.label,
@@ -734,6 +959,7 @@ class _TimePeriodCard extends StatelessWidget {
     required this.doseCount,
     required this.badgeText,
     this.backgroundImage,
+    this.onTap,
   });
 
   final String label;
@@ -741,153 +967,79 @@ class _TimePeriodCard extends StatelessWidget {
   final int doseCount;
   final String badgeText;
   final String? backgroundImage;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      decoration: BoxDecoration(
+    // ClipRRect ensures the image is clipped to the rounded corners
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        image: backgroundImage != null
-            ? DecorationImage(
-                image: AssetImage(backgroundImage!),
-                fit: BoxFit.cover,
-              )
-            : null,
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.white, size: 24),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 90),
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            image: backgroundImage != null
+                ? DecorationImage(
+                    image: AssetImage(backgroundImage!),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                      Colors.black.withValues(alpha: 0.25),
+                      BlendMode.darken,
+                    ),
+                  )
+                : null,
+            // Fallback color if no image
+            color: backgroundImage == null ? AppColors.primaryBlue : null,
           ),
-          Text(
-            l10n.medicineCountLabel(doseCount),
-            style: const TextStyle(color: Colors.white70, fontSize: 10),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(AppRadius.full),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
-            ),
-            child: Text(
-              badgeText,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 24),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DoseCheckItem extends StatelessWidget {
-  const _DoseCheckItem({
-    required this.name,
-    required this.dosage,
-    required this.isTaken,
-    required this.onTake,
-  });
-
-  final String name;
-  final String dosage;
-  final bool isTaken;
-  final VoidCallback onTake;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-              color: isTaken ? AppColors.successGreen : AppColors.primaryBlue,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
+              Text(
+                l10n.medicineCountLabel(doseCount),
+                style: const TextStyle(color: Colors.white70, fontSize: 10),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                ),
+                child: Text(
+                  badgeText,
                   style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
                     fontWeight: FontWeight.w500,
-                    fontSize: 14,
                   ),
                 ),
-                Text(
-                  dosage,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            l10n.onePill,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 13,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          GestureDetector(
-            onTap: isTaken ? null : onTake,
-            child: Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: isTaken ? AppColors.primaryBlue : Colors.white,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: AppColors.primaryBlue, width: 2),
               ),
-              child: isTaken
-                  ? const Icon(Icons.check, color: Colors.white, size: 18)
-                  : null,
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
+
+// ── _QuickActionCard ────────────────────────────────────────────────────────
 
 class _QuickActionCard extends StatelessWidget {
   const _QuickActionCard({
@@ -927,6 +1079,8 @@ class _QuickActionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
@@ -967,61 +1121,41 @@ class _QuickActionCard extends StatelessWidget {
   }
 }
 
-// ── Missed Dose Banner ──────────────────────────────────────────────────────
+// ── Period section header ─────────────────────────────────────────────────────
 
-class _MissedDoseBanner extends StatelessWidget {
-  final int missedCount;
-  final VoidCallback onMarkTaken;
-
-  const _MissedDoseBanner({
-    required this.missedCount,
-    required this.onMarkTaken,
-  });
+class _PeriodSectionHeader extends StatelessWidget {
+  const _PeriodSectionHeader({required this.period});
+  final String period;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(top: AppSpacing.sm),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.alertRed.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.alertRed.withValues(alpha: 0.30)),
-      ),
+    final (icon, color, label) = switch (period) {
+      'MORNING' => (Icons.wb_twilight, const Color(0xFFFFA726), l10n.morning),
+      'AFTERNOON' => (Icons.wb_sunny, const Color(0xFFFFD600), l10n.afternoon),
+      'EVENING' => (Icons.wb_cloudy_outlined, const Color(0xFFFF7043), l10n.evening),
+      'NIGHT' => (Icons.bedtime, const Color(0xFF5C6BC0), l10n.night),
+      _ => (Icons.access_time, AppColors.textSecondary, period),
+    };
+
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.xs, bottom: 2),
       child: Row(
         children: [
-          const Icon(
-            Icons.warning_amber_rounded,
-            color: AppColors.alertRed,
-            size: 22,
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              l10n.missedDoseBanner,
-              style: const TextStyle(
-                color: AppColors.alertRed,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: color,
             ),
-          ),
-          TextButton(
-            onPressed: onMarkTaken,
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.alertRed,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              minimumSize: const Size(0, 32),
-            ),
-            child: Text(l10n.markAsTaken, style: const TextStyle(fontSize: 12)),
           ),
         ],
       ),
     );
   }
 }
+
+

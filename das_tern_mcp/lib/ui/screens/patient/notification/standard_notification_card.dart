@@ -21,7 +21,9 @@ class StandardNotificationCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: AppColors.neutral300),
       ),
-      color: notif.isRead ? Colors.white : typeColor.withValues(alpha: 0.03),
+      color: notif.isRead
+          ? Theme.of(context).colorScheme.surface
+          : typeColor.withValues(alpha: 0.03),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: notif.isRead

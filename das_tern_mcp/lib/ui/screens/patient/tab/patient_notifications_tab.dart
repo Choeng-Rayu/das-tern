@@ -8,6 +8,7 @@ import '../../../../models/notification_model/notification.dart';
 import '../../../../models/connection_model/connection.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// Notifications screen – shows all notifications including
 /// doctor connection requests with approve/reject actions.
@@ -73,6 +74,7 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
                 ),
               ),
             ),
+          const LanguageSwitcherButton(lightBackground: true),
         ],
       ),
       body: RefreshIndicator(
@@ -489,7 +491,7 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
           ),
         ),
         color: notif.isRead
-            ? Colors.white
+            ? Theme.of(context).colorScheme.surface
             : AppColors.primaryBlue.withValues(alpha: 0.05),
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
@@ -559,25 +561,28 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
                   )
                 else
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      OutlinedButton.icon(
-                        onPressed: () => _handleReject(notif, connectionId),
-                        icon: const Icon(Icons.close, size: 18),
-                        label: Text(l10n.rejectConnection),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.alertRed,
-                          side: const BorderSide(color: AppColors.alertRed),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _handleReject(notif, connectionId),
+                          icon: const Icon(Icons.close, size: 18),
+                          label: Text(l10n.rejectConnection),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.alertRed,
+                            side: const BorderSide(color: AppColors.alertRed),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
-                      ElevatedButton.icon(
-                        onPressed: () => _handleApprove(notif, connectionId),
-                        icon: const Icon(Icons.check, size: 18),
-                        label: Text(l10n.approveConnection),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryBlue,
-                          foregroundColor: Colors.white,
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _handleApprove(notif, connectionId),
+                          icon: const Icon(Icons.check, size: 18),
+                          label: Text(l10n.approveConnection),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryBlue,
+                            foregroundColor: Colors.white,
+                          ),
                         ),
                       ),
                     ],
@@ -611,7 +616,9 @@ class _PatientNotificationsTabState extends State<PatientNotificationsTab> {
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: AppColors.neutral300),
       ),
-      color: notif.isRead ? Colors.white : Colors.blue.withValues(alpha: 0.03),
+      color: notif.isRead
+          ? Theme.of(context).colorScheme.surface
+          : Colors.blue.withValues(alpha: 0.03),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: notif.isRead

@@ -320,24 +320,21 @@ class _StatCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Material(
       color: Theme.of(context).cardTheme.color ?? Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppRadius.xl),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
         child: Container(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
             color: Theme.of(context).cardTheme.color ?? Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppRadius.xl),
             boxShadow: [
               BoxShadow(
-                 color:  Colors.grey.withOpacity(
-                  0.5,
-                ), // Shadow color with opacity
+                color: Colors.grey.withValues(alpha: 0.5),
                 spreadRadius: 1,
                 blurRadius: 5,
-                offset: Offset(0, 2)
-                
+                offset: Offset(0, 2),
               ),
             ],
           ),

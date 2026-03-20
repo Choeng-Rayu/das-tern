@@ -21,6 +21,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInWithGoogle => 'Sign in with Google';
 
   @override
+  String get signInWithTelegram => 'Sign in with Telegram';
+
+  @override
   String get orDivider => 'or';
 
   @override
@@ -493,6 +496,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markAsTaken => 'Mark as Taken';
 
   @override
+  String get markAsPending => 'Mark as Pending';
+
+  @override
   String get markedAsTaken => 'Marked as taken';
 
   @override
@@ -779,6 +785,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onePill => '1 pill';
+
+  @override
+  String get markAllDone => 'Mark All Done';
+
+  @override
+  String completedCount(int count) {
+    return 'Completed ($count)';
+  }
+
+  @override
+  String get noPendingDoses => 'No pending doses';
+
+  @override
+  String get selectDosesToMark => 'Select doses to mark as taken';
+
+  @override
+  String get timePeriodLabel => 'Period';
 
   @override
   String unresolvedAlerts(int count) {
@@ -2051,6 +2074,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registerWithGoogle => 'Register with Google';
 
   @override
+  String get registerWithTelegram => 'Register with Telegram';
+
+  @override
   String get orRegisterWith => 'or register with';
 
   @override
@@ -2321,6 +2347,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get afterMeal => 'After meal';
 
   @override
+  String get withFood => 'With food';
+
+  @override
+  String get prnDescription => 'Take as needed, no fixed schedule';
+
+  @override
   String get addMedicineRow => 'Add medicine row';
 
   @override
@@ -2547,6 +2579,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmPrescription => 'Confirm Prescription';
+
+  @override
+  String get deletePrescription => 'Delete Prescription';
+
+  @override
+  String get deletePrescriptionConfirm =>
+      'Are you sure you want to delete this prescription? All scheduled dose reminders will be removed.';
+
+  @override
+  String get prescriptionDeleted => 'Prescription deleted';
 
   @override
   String get pendingPrescriptions => 'Pending Prescriptions';
@@ -2892,20 +2934,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goHome => 'Go Home';
 
   @override
-  String get downloadPdf => 'Download PDF';
+  String get searchHint => 'Search...';
 
   @override
-  String get downloadReportDescription =>
-      'Download your activity report as a PDF. Available on Premium plans.';
+  String get noResultsFound => 'No results found';
 
   @override
-  String get maybeLater => 'Maybe Later';
+  String get age => 'Age';
 
   @override
-  String get generatingPdf => 'Generating PDF...';
+  String get phone => 'Phone';
 
   @override
-  String get pdfReady => 'Report PDF is ready';
+  String get yearsUnit => 'years';
 
   @override
   String get premiumBadge => 'Premium';
@@ -3000,4 +3041,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get testNotificationSent => 'Test notification sent!';
+
+  @override
+  String get downloadPdf => 'Download PDF';
+
+  @override
+  String get downloadReportDescription =>
+      'Download your activity report as a PDF. Available on Premium plans.';
+
+  @override
+  String get maybeLater => 'Maybe Later';
+
+  @override
+  String get generatingPdf => 'Generating PDF...';
+
+  @override
+  String get pdfReady => 'Report PDF is ready';
 }

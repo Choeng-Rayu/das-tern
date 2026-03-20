@@ -33,7 +33,6 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
   final _nameController = TextEditingController();
   final _nameKhmerController = TextEditingController();
   final _dosageController = TextEditingController();
-  final _frequencyController = TextEditingController();
   final _durationController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _noteController = TextEditingController();
@@ -42,12 +41,20 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
 
   MedicineType _medicineType = MedicineType.oral;
   MedicineUnit _unit = MedicineUnit.tablet;
+  int _frequencyPerDay = 1; // 1–4 times per day (drives max slot selection)
   bool _morning = true;
   bool _afternoon = false;
   bool _evening = false;
   bool _night = false;
-  bool _beforeMeal = false;
+  // 'BEFORE_MEAL' | 'AFTER_MEAL' | 'WITH_FOOD' | 'NONE'
+  String _mealTiming = 'NONE';
   bool _isPRN = false;
+
+  // Time-of-day defaults for each period (user-editable via time picker)
+  TimeOfDay _morningTime = const TimeOfDay(hour: 8, minute: 0);
+  TimeOfDay _afternoonTime = const TimeOfDay(hour: 13, minute: 0);
+  TimeOfDay _eveningTime = const TimeOfDay(hour: 18, minute: 0);
+  TimeOfDay _nightTime = const TimeOfDay(hour: 21, minute: 0);
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -59,7 +66,6 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
       _nameController.text = d['medicineName'] ?? '';
       _nameKhmerController.text = d['medicineNameKhmer'] ?? '';
       _dosageController.text = (d['dosageAmount'] ?? '').toString();
-      _frequencyController.text = d['frequency'] ?? '';
       _durationController.text = (d['durationDays'] ?? '').toString();
       _descriptionController.text = d['description'] ?? '';
       _noteController.text = d['additionalNote'] ?? '';
@@ -75,8 +81,39 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
           : (d['afternoon'] ?? false);
       _evening = d['eveningDosage'] != null ? true : (d['evening'] ?? false);
       _night = d['nightDosage'] != null ? true : (d['night'] ?? false);
-      _beforeMeal = d['beforeMeal'] ?? false;
+      // Parse frequency number from stored string (e.g. "2x/day" → 2)
+      final freqStr = d['frequency'] as String? ?? '';
+      final freqMatch = RegExp(r'\d+').firstMatch(freqStr);
+      _frequencyPerDay = freqMatch != null
+          ? (int.tryParse(freqMatch.group(0)!) ?? 1).clamp(1, 4)
+          : 1;
+      // Restore meal timing (new field takes precedence over legacy bool)
+      final mt = d['mealTiming'] as String?;
+      if (mt != null && mt.isNotEmpty) {
+        _mealTiming = mt;
+      } else if (d['beforeMeal'] == true) {
+        _mealTiming = 'BEFORE_MEAL';
+      }
       _isPRN = d['isPRN'] ?? false;
+      // Restore per-period times from scheduleTimes if present
+      final schedTimes = d['scheduleTimes'];
+      if (schedTimes is List) {
+        for (final st in schedTimes) {
+          final period = st['timePeriod'] as String?;
+          final timeStr = st['time'] as String?;
+          if (period == null || timeStr == null) continue;
+          final parts = timeStr.split(':');
+          if (parts.length < 2) continue;
+          final tod = TimeOfDay(
+            hour: int.tryParse(parts[0]) ?? 0,
+            minute: int.tryParse(parts[1]) ?? 0,
+          );
+          if (period == 'MORNING') { _morningTime = tod; }
+          else if (period == 'AFTERNOON') { _afternoonTime = tod; }
+          else if (period == 'EVENING') { _eveningTime = tod; }
+          else if (period == 'NIGHT') { _nightTime = tod; }
+        }
+      }
     }
   }
 
@@ -85,7 +122,6 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
     _nameController.dispose();
     _nameKhmerController.dispose();
     _dosageController.dispose();
-    _frequencyController.dispose();
     _durationController.dispose();
     _descriptionController.dispose();
     _noteController.dispose();
@@ -94,53 +130,105 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
+  /// Returns how many time slots are currently selected.
+  int get _selectedSlotCount =>
+      [_morning, _afternoon, _evening, _night].where((b) => b).length;
+
+  String _formatTod(TimeOfDay t) =>
+      '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
+  /// Auto-enable the next unselected default slot when frequency is increased.
+  /// Order: Morning → Afternoon → Night → Evening (typical medication pattern).
+  void _autoEnableNextSlot() {
+    if (!_morning) { _morning = true; return; }
+    if (!_afternoon) { _afternoon = true; return; }
+    if (!_night) { _night = true; return; }
+    if (!_evening) { _evening = true; return; }
+  }
+  Future<void> _pickTime(
+    TimeOfDay current,
+    ValueChanged<TimeOfDay> onPicked,
+  ) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: current,
+      builder: (ctx, child) => MediaQuery(
+        data: MediaQuery.of(ctx).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
+    );
+    if (picked != null) setState(() => onPicked(picked));
+  }
+
+  /// Attempt to toggle a time slot; enforces the frequency-per-day limit.
+  void _toggleSlot(void Function() toggle, bool currentValue) {
+    if (!currentValue && _selectedSlotCount >= _frequencyPerDay) {
+      // Already at limit – show feedback instead of toggling
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Maximum $_frequencyPerDay slot(s) allowed for this frequency.',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+    setState(toggle);
+  }
+
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
+    final beforeMeal = _mealTiming == 'BEFORE_MEAL';
 
-    final scheduleTimes = <Map<String, String>>[
-      if (_morning) {'timePeriod': 'morning', 'time': '07:00'},
-      if (_afternoon) {'timePeriod': 'afternoon', 'time': '12:00'},
-      if (_evening) {'timePeriod': 'evening', 'time': '17:00'},
-      if (_night) {'timePeriod': 'night', 'time': '20:00'},
-    ];
+    // Build scheduleTimes from selected time slots.
+    // Backend DTO expects: {timePeriod: 'MORNING'|'AFTERNOON'|'EVENING'|'NIGHT', time: 'HH:MM'}
+    final scheduleTimes = <Map<String, String>>[];
+    if (!_isPRN) {
+      if (_morning) {
+        scheduleTimes.add({'timePeriod': 'MORNING', 'time': _formatTod(_morningTime)});
+      }
+      if (_afternoon) {
+        scheduleTimes.add({'timePeriod': 'AFTERNOON', 'time': _formatTod(_afternoonTime)});
+      }
+      if (_evening) {
+        scheduleTimes.add({'timePeriod': 'EVENING', 'time': _formatTod(_eveningTime)});
+      }
+      if (_night) {
+        scheduleTimes.add({'timePeriod': 'NIGHT', 'time': _formatTod(_nightTime)});
+      }
+      // Fallback: if user set frequency > 0 but selected no slots, auto-fill defaults
+      if (scheduleTimes.isEmpty) {
+        const defaultOrder = [
+          ['MORNING', 'morning'],
+          ['AFTERNOON', 'afternoon'],
+          ['NIGHT', 'night'],
+          ['EVENING', 'evening'],
+        ];
+        for (int i = 0; i < _frequencyPerDay && i < defaultOrder.length; i++) {
+          final period = defaultOrder[i][0];
+          final tod = period == 'MORNING' ? _morningTime
+              : period == 'AFTERNOON' ? _afternoonTime
+              : period == 'NIGHT' ? _nightTime
+              : _eveningTime;
+          scheduleTimes.add({'timePeriod': period, 'time': _formatTod(tod)});
+        }
+      }
+    }
 
     widget.onSave({
       'medicineName': _nameController.text.trim(),
       'medicineNameKhmer': _nameKhmerController.text.trim(),
       'medicineType': _medicineType.toJson(),
       'unit': _unit.toJson(),
+      // Required by backend DTO
+      'dosageUnit': _unit.displayName,
+      'form': _medicineType.displayName,
       'dosageAmount': double.tryParse(_dosageController.text) ?? 1,
-      'frequency': _frequencyController.text.trim(),
+      'frequency': '${_frequencyPerDay}x/day',
       'durationDays': int.tryParse(_durationController.text) ?? 30,
-      if (_morning)
-        'morningDosage': {
-          'amount': (_dosageController.text.trim().isEmpty
-              ? '1'
-              : _dosageController.text.trim()),
-          'beforeMeal': _beforeMeal,
-        },
-      if (_afternoon)
-        'afternoonDosage': {
-          'amount': (_dosageController.text.trim().isEmpty
-              ? '1'
-              : _dosageController.text.trim()),
-          'beforeMeal': _beforeMeal,
-        },
-      if (_evening)
-        'eveningDosage': {
-          'amount': (_dosageController.text.trim().isEmpty
-              ? '1'
-              : _dosageController.text.trim()),
-          'beforeMeal': _beforeMeal,
-        },
-      if (_night)
-        'nightDosage': {
-          'amount': (_dosageController.text.trim().isEmpty
-              ? '1'
-              : _dosageController.text.trim()),
-          'beforeMeal': _beforeMeal,
-        },
-      'beforeMeal': _beforeMeal,
+      'scheduleTimes': scheduleTimes,
+      'beforeMeal': beforeMeal,
       'isPRN': _isPRN,
       if (_descriptionController.text.isNotEmpty)
         'description': _descriptionController.text.trim(),
@@ -221,14 +309,78 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
+                  // Frequency stepper (1–4 times per day)
                   Expanded(
-                    child: _field(
-                      controller: _frequencyController,
-                      label: l10n.frequencyRequired,
-                      hint: l10n.frequencyHintExample,
-                      validator: (v) => (v == null || v.trim().isEmpty)
-                          ? l10n.required
-                          : null,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.frequency,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.grey[400]
+                                : AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            _StepperButton(
+                              icon: Icons.remove,
+                              onPressed: _frequencyPerDay > 1
+                                  ? () => setState(() {
+                                      _frequencyPerDay--;
+                                      // Deselect excess slots
+                                      final slots = [
+                                        if (_night) 'night',
+                                        if (_evening) 'evening',
+                                        if (_afternoon) 'afternoon',
+                                        if (_morning) 'morning',
+                                      ];
+                                      while (slots.length > _frequencyPerDay) {
+                                        final excess = slots.removeAt(0);
+                                        if (excess == 'night') { _night = false; }
+                                        if (excess == 'evening') {
+                                          _evening = false;
+                                        }
+                                        if (excess == 'afternoon') {
+                                          _afternoon = false;
+                                        }
+                                        if (excess == 'morning') {
+                                          _morning = false;
+                                        }
+                                      }
+                                    })
+                                  : null,
+                            ),
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  '$_frequencyPerDay×/day',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            _StepperButton(
+                              icon: Icons.add,
+                              onPressed: _frequencyPerDay < 4
+                                  ? () => setState(() {
+                                      _frequencyPerDay++;
+                                      // Auto-enable the next default slot
+                                      if (!_isPRN) _autoEnableNextSlot();
+                                    })
+                                  : null,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -249,57 +401,175 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
             icon: Icons.wb_sunny_outlined,
             title: l10n.schedule,
             children: [
-              // Time-of-day chips
-              Row(
-                children: [
-                  _ScheduleChip(
-                    label: l10n.morning,
-                    icon: Icons.wb_sunny_rounded,
-                    selected: _morning,
-                    onTap: () => setState(() => _morning = !_morning),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  _ScheduleChip(
-                    label: l10n.afternoon,
-                    icon: Icons.wb_twilight,
-                    color: const Color(0xFF26C6DA),
-                    selected: _afternoon,
-                    onTap: () => setState(() => _afternoon = !_afternoon),
-                  ),
+              // Time-of-day chips (hidden when PRN)
+              if (!_isPRN) ...[
+                Row(
+                  children: [
+                    _ScheduleChip(
+                      label: l10n.morning,
+                      icon: Icons.wb_sunny_rounded,
+                      selected: _morning,
+                      onTap: () =>
+                          _toggleSlot(() => _morning = !_morning, _morning),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    _ScheduleChip(
+                      label: l10n.afternoon,
+                      icon: Icons.wb_twilight,
+                      color: const Color(0xFF26C6DA),
+                      selected: _afternoon,
+                      onTap: () => _toggleSlot(
+                        () => _afternoon = !_afternoon,
+                        _afternoon,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  children: [
+                    _ScheduleChip(
+                      label: l10n.evening,
+                      icon: Icons.wb_cloudy_outlined,
+                      color: const Color(0xFFFF7043),
+                      selected: _evening,
+                      onTap: () =>
+                          _toggleSlot(() => _evening = !_evening, _evening),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    _ScheduleChip(
+                      label: l10n.night,
+                      icon: Icons.nightlight_round,
+                      selected: _night,
+                      onTap: () => _toggleSlot(() => _night = !_night, _night),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                // ── Per-slot time pickers ──────────────────────────────────
+                if (_morning || _afternoon || _evening || _night) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  if (_morning)
+                    _SlotTimeTile(
+                      label: l10n.morning,
+                      icon: Icons.wb_sunny_rounded,
+                      color: AppColors.primaryBlue,
+                      time: _morningTime,
+                      onTap: () => _pickTime(
+                        _morningTime,
+                        (t) => _morningTime = t,
+                      ),
+                    ),
+                  if (_afternoon)
+                    _SlotTimeTile(
+                      label: l10n.afternoon,
+                      icon: Icons.wb_twilight,
+                      color: const Color(0xFF26C6DA),
+                      time: _afternoonTime,
+                      onTap: () => _pickTime(
+                        _afternoonTime,
+                        (t) => _afternoonTime = t,
+                      ),
+                    ),
+                  if (_evening)
+                    _SlotTimeTile(
+                      label: l10n.evening,
+                      icon: Icons.wb_cloudy_outlined,
+                      color: const Color(0xFFFF7043),
+                      time: _eveningTime,
+                      onTap: () => _pickTime(
+                        _eveningTime,
+                        (t) => _eveningTime = t,
+                      ),
+                    ),
+                  if (_night)
+                    _SlotTimeTile(
+                      label: l10n.night,
+                      icon: Icons.nightlight_round,
+                      color: AppColors.primaryBlue,
+                      time: _nightTime,
+                      onTap: () => _pickTime(
+                        _nightTime,
+                        (t) => _nightTime = t,
+                      ),
+                    ),
+                  const SizedBox(height: AppSpacing.xs),
                 ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Row(
-                children: [
-                  _ScheduleChip(
-                    label: l10n.evening,
-                    icon: Icons.wb_twilight,
-                    color: const Color(0xFFFF7043),
-                    selected: _evening,
-                    onTap: () => setState(() => _evening = !_evening),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  _ScheduleChip(
-                    label: l10n.night,
-                    icon: Icons.nightlight_round,
-                    selected: _night,
-                    onTap: () => setState(() => _night = !_night),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
+                const Divider(height: 1),
+                const SizedBox(height: AppSpacing.sm),
 
-              // Before meal & PRN toggles
-              _ToggleRow(
-                icon: Icons.restaurant_outlined,
-                label: l10n.beforeMeal,
-                value: _beforeMeal,
-                onChanged: (v) => setState(() => _beforeMeal = v),
-              ),
-              const Divider(height: 1),
+                // Meal timing — 3-option segmented control
+                Row(
+                  children: [
+                    Icon(
+                      Icons.restaurant_outlined,
+                      size: 18,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: SegmentedButton<String>(
+                        segments: [
+                          ButtonSegment(
+                            value: 'BEFORE_MEAL',
+                            label: Text(
+                              l10n.beforeMeal,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          ButtonSegment(
+                            value: 'AFTER_MEAL',
+                            label: Text(
+                              l10n.afterMeal,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          ButtonSegment(
+                            value: 'WITH_FOOD',
+                            label: Text(
+                              l10n.withFood,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                        selected: _mealTiming == 'NONE' ? {} : {_mealTiming},
+                        emptySelectionAllowed: true,
+                        multiSelectionEnabled: false,
+                        style: ButtonStyle(
+                          textStyle: WidgetStateProperty.all(
+                            const TextStyle(fontSize: 11),
+                          ),
+                          padding: WidgetStateProperty.all(
+                            const EdgeInsets.symmetric(horizontal: 4),
+                          ),
+                          visualDensity: const VisualDensity(
+                            horizontal: -1,
+                            vertical: -1,
+                          ),
+                        ),
+                        onSelectionChanged: (newSelection) {
+                          setState(() {
+                            _mealTiming = newSelection.isEmpty
+                                ? 'NONE'
+                                : newSelection.first;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                const Divider(height: 1),
+              ],
+
+              // PRN toggle + subtitle
               _ToggleRow(
                 icon: Icons.access_time_outlined,
                 label: l10n.prn,
+                subtitle: l10n.prnDescription,
                 value: _isPRN,
                 onChanged: (v) => setState(() => _isPRN = v),
               ),
@@ -381,6 +651,7 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
   }) {
     return DropdownButtonFormField<T>(
       initialValue: value,
+      isExpanded: true,
       decoration: _inputDecoration(label: label),
       items: items
           .map(
@@ -476,12 +747,14 @@ class _FormSection extends StatelessWidget {
                   child: Icon(icon, size: 17, color: AppColors.primaryBlue),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : AppColors.textPrimary,
+                    ),
                   ),
                 ),
               ],
@@ -514,7 +787,6 @@ class _ScheduleChip extends StatelessWidget {
     this.color,
     required this.selected,
     required this.onTap,
-   
   });
 
   final String label;
@@ -522,7 +794,6 @@ class _ScheduleChip extends StatelessWidget {
   final Color? color;
   final bool selected;
   final VoidCallback onTap;
-
 
   @override
   Widget build(BuildContext context) {
@@ -575,17 +846,19 @@ class _ScheduleChip extends StatelessWidget {
   }
 }
 
-/// Compact toggle row with icon, label, and a switch.
+/// Compact toggle row with icon, label, optional subtitle, and a switch.
 class _ToggleRow extends StatelessWidget {
   const _ToggleRow({
     required this.icon,
     required this.label,
+    this.subtitle,
     required this.value,
     required this.onChanged,
   });
 
   final IconData icon;
   final String label;
+  final String? subtitle;
   final bool value;
   final ValueChanged<bool> onChanged;
 
@@ -598,12 +871,27 @@ class _ToggleRow extends StatelessWidget {
           Icon(icon, size: 18, color: AppColors.textSecondary),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textPrimary,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                if (subtitle != null)
+                  Text(
+                    subtitle!,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.55),
+                    ),
+                  ),
+              ],
             ),
           ),
           Switch(
@@ -613,6 +901,112 @@ class _ToggleRow extends StatelessWidget {
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Small +/- button used in the frequency stepper.
+class _StepperButton extends StatelessWidget {
+  const _StepperButton({required this.icon, required this.onPressed});
+
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 32,
+      height: 32,
+      child: Material(
+        color: onPressed != null
+            ? AppColors.primaryBlue.withValues(alpha: 0.1)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onPressed,
+          child: Icon(
+            icon,
+            size: 18,
+            color: onPressed != null
+                ? AppColors.primaryBlue
+                : AppColors.neutral300,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Compact row showing a period's icon, label, and selected time.
+/// Tapping opens a system time picker.
+class _SlotTimeTile extends StatelessWidget {
+  const _SlotTimeTile({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.time,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color color;
+  final TimeOfDay time;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final timeStr =
+        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: color.withValues(alpha: 0.30),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.access_time, size: 13, color: color),
+                  const SizedBox(width: 4),
+                  Text(
+                    timeStr,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: color,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.edit_outlined, size: 14, color: AppColors.textSecondary),
+          ],
+        ),
       ),
     );
   }

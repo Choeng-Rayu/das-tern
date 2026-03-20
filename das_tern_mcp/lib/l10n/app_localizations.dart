@@ -122,6 +122,12 @@ abstract class AppLocalizations {
   /// **'Sign in with Google'**
   String get signInWithGoogle;
 
+  /// No description provided for @signInWithTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Telegram'**
+  String get signInWithTelegram;
+
   /// No description provided for @orDivider.
   ///
   /// In en, this message translates to:
@@ -1046,6 +1052,12 @@ abstract class AppLocalizations {
   /// **'Mark as Taken'**
   String get markAsTaken;
 
+  /// No description provided for @markAsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Pending'**
+  String get markAsPending;
+
   /// No description provided for @markedAsTaken.
   ///
   /// In en, this message translates to:
@@ -1609,6 +1621,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'1 pill'**
   String get onePill;
+
+  /// No description provided for @markAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark All Done'**
+  String get markAllDone;
+
+  /// No description provided for @completedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed ({count})'**
+  String completedCount(int count);
+
+  /// No description provided for @noPendingDoses.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending doses'**
+  String get noPendingDoses;
+
+  /// No description provided for @selectDosesToMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Select doses to mark as taken'**
+  String get selectDosesToMark;
+
+  /// No description provided for @timePeriodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get timePeriodLabel;
 
   /// No description provided for @unresolvedAlerts.
   ///
@@ -3998,6 +4040,12 @@ abstract class AppLocalizations {
   /// **'Register with Google'**
   String get registerWithGoogle;
 
+  /// No description provided for @registerWithTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'Register with Telegram'**
+  String get registerWithTelegram;
+
   /// No description provided for @orRegisterWith.
   ///
   /// In en, this message translates to:
@@ -4496,6 +4544,18 @@ abstract class AppLocalizations {
   /// **'After meal'**
   String get afterMeal;
 
+  /// No description provided for @withFood.
+  ///
+  /// In en, this message translates to:
+  /// **'With food'**
+  String get withFood;
+
+  /// No description provided for @prnDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Take as needed, no fixed schedule'**
+  String get prnDescription;
+
   /// No description provided for @addMedicineRow.
   ///
   /// In en, this message translates to:
@@ -4933,6 +4993,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm Prescription'**
   String get confirmPrescription;
+
+  /// No description provided for @deletePrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Prescription'**
+  String get deletePrescription;
+
+  /// No description provided for @deletePrescriptionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this prescription? All scheduled dose reminders will be removed.'**
+  String get deletePrescriptionConfirm;
+
+  /// No description provided for @prescriptionDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription deleted'**
+  String get prescriptionDeleted;
 
   /// No description provided for @pendingPrescriptions.
   ///
@@ -5558,35 +5636,35 @@ abstract class AppLocalizations {
   /// **'Go Home'**
   String get goHome;
 
-  /// No description provided for @downloadPdf.
+  /// No description provided for @searchHint.
   ///
   /// In en, this message translates to:
-  /// **'Download PDF'**
-  String get downloadPdf;
+  /// **'Search...'**
+  String get searchHint;
 
-  /// No description provided for @downloadReportDescription.
+  /// No description provided for @noResultsFound.
   ///
   /// In en, this message translates to:
-  /// **'Download your activity report as a PDF. Available on Premium plans.'**
-  String get downloadReportDescription;
+  /// **'No results found'**
+  String get noResultsFound;
 
-  /// No description provided for @maybeLater.
+  /// No description provided for @age.
   ///
   /// In en, this message translates to:
-  /// **'Maybe Later'**
-  String get maybeLater;
+  /// **'Age'**
+  String get age;
 
-  /// No description provided for @generatingPdf.
+  /// No description provided for @phone.
   ///
   /// In en, this message translates to:
-  /// **'Generating PDF...'**
-  String get generatingPdf;
+  /// **'Phone'**
+  String get phone;
 
-  /// No description provided for @pdfReady.
+  /// No description provided for @yearsUnit.
   ///
   /// In en, this message translates to:
-  /// **'Report PDF is ready'**
-  String get pdfReady;
+  /// **'years'**
+  String get yearsUnit;
 
   /// No description provided for @premiumBadge.
   ///
@@ -5755,6 +5833,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Test notification sent!'**
   String get testNotificationSent;
+
+  /// No description provided for @downloadPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Download PDF'**
+  String get downloadPdf;
+
+  /// No description provided for @downloadReportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Download your activity report as a PDF. Available on Premium plans.'**
+  String get downloadReportDescription;
+
+  /// No description provided for @maybeLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe Later'**
+  String get maybeLater;
+
+  /// No description provided for @generatingPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating PDF...'**
+  String get generatingPdf;
+
+  /// No description provided for @pdfReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Report PDF is ready'**
+  String get pdfReady;
 }
 
 class _AppLocalizationsDelegate

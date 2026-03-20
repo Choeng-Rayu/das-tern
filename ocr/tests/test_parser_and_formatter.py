@@ -1,7 +1,11 @@
 from types import SimpleNamespace
 
 from app.pipeline.formatter import build_dynamic_universal, build_extraction_summary
-from app.pipeline.text_parser import parse_prescription, parse_table_medications
+from app.pipeline.text_parser import (
+    parse_prescription,
+    parse_table_medications,
+    recompute_prescription_confidence,
+)
 
 
 def test_parse_prescription_extracts_header_and_medication() -> None:
@@ -92,3 +96,16 @@ def test_parse_table_medications_skips_footer_like_rows() -> None:
     assert meds[0].name_full == "Omeprazzole"
     assert meds[0].strength_value == "20mg"
     assert meds[0].total_quantity == 14
+
+
+def test_table_row_confidences_feed_overall_confidence() -> None:
+    rows = [
+        ["11", "Buttylscopoliamine", "14គ្រាប់", "1", "11"],
+        ["F21", "| Cellcoxx 100mg", "14គ្រាប់ស្រោប", "11", "11"],
+    ]
+
+    meds = parse_table_medications(rows, row_confidences=[0.45, 0.55])
+    parsed = parse_prescription("", [])
+    parsed.medications = meds
+
+    assert recompute_prescription_confidence(parsed, []) == 0.5

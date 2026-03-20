@@ -23,6 +23,7 @@ import '../ui/screens/family_ui/family_access_list_screen.dart';
 import '../ui/screens/family_ui/caregiver_dashboard_screen.dart';
 import '../ui/screens/family_ui/grace_period_settings_screen.dart';
 import '../ui/screens/family_ui/connection_history_screen.dart';
+import '../ui/screens/family_ui/caregiver_patient_detail_screen.dart';
 import '../ui/screens/patient/screens/upgrade_plan_screen.dart';
 import '../ui/screens/patient/screens/payment_method_screen.dart';
 import '../ui/screens/patient/screens/bakong_payment_screen.dart';
@@ -43,6 +44,7 @@ import '../ui/screens/patient/screens/vital_thresholds_screen.dart';
 import '../ui/screens/patient/screens/emergency_screen.dart';
 import '../ui/screens/patient/screens/edit_profile_screen.dart';
 import '../ui/screens/patient/screens/change_password_screen.dart';
+import '../ui/screens/patient/tab/patient_scan_tab.dart';
 import '../ui/screens/patient/notification/patient_notifications_screen.dart';
 import '../ui/screens/doctor/notification/doctor_notifications_screen.dart';
 import '../models/enums_model/medication_type.dart';
@@ -75,6 +77,7 @@ class AppRouter {
   static const String familyCaregiverDashboard = '/family/caregiver-dashboard';
   static const String familyGracePeriod = '/family/grace-period';
   static const String familyHistory = '/family/history';
+  static const String familyPatientDetail = '/family/patient-detail';
 
   // Subscription/payment routes
   static const String subscriptionUpgrade = '/subscription/upgrade';
@@ -88,6 +91,7 @@ class AppRouter {
   // Prescription routes
   static const String doctorCreatePrescription = '/doctor/create-prescription';
   static const String patientCreateMedicine = '/patient/create-medicine';
+  static const String patientScanPrescription = '/patient/scan-prescription';
   static const String prescriptionDetail = '/prescription/detail';
   static const String medicationChoice = '/patient/medication-choice';
   static const String patientCreateBatch = '/patient/create-batch';
@@ -174,6 +178,11 @@ class AppRouter {
         return _buildRoute(const GracePeriodSettingsScreen());
       case familyHistory:
         return _buildRoute(const ConnectionHistoryScreen());
+      case familyPatientDetail:
+        return _buildRoute(
+          const CaregiverPatientDetailScreen(),
+          settings: settings,
+        );
 
       // Subscription/payment routes
       case subscriptionUpgrade:
@@ -192,6 +201,8 @@ class AppRouter {
         return _buildRoute(const CreatePrescriptionScreen());
       case patientCreateMedicine:
         return _buildRoute(const CreatePatientMedicineScreen());
+      case patientScanPrescription:
+        return _buildRoute(const Scaffold(body: PatientScanTab()));
       case medicationChoice:
         return _buildRoute(const MedicationChoiceScreen());
       case patientCreateBatch:

@@ -3,10 +3,13 @@ import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../models/connection_model/connection.dart';
 import '../../../models/enums_model/enums.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
+import '../../../utils/app_router.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Shows the list of connected family members / caregivers.
 /// Patient sees their caregivers; caregiver sees their patients.
@@ -20,11 +23,18 @@ class FamilyAccessListScreen extends StatefulWidget {
 class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.trim().toLowerCase();
+      });
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ConnectionProvider>();
       provider.fetchCaregivers();
@@ -35,6 +45,7 @@ class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -42,33 +53,116 @@ class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppHeader(
-        title: l10n.myFamily,
-        showBackButton: true,
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: l10n.caregiversTab),
-            Tab(text: l10n.patientsTab),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              Navigator.pushNamed(context, '/family/history');
-            },
-            tooltip: l10n.connectionHistory,
+      body: Column(
+        children: [
+          // Blue gradient header
+          AppGradientHeader(
+            greeting: l10n.myFamily,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.history, color: Colors.white),
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRouter.familyHistory);
+                  },
+                  tooltip: l10n.connectionHistory,
+                ),
+                const LanguageSwitcherButton(lightBackground: false),
+                const SizedBox(width: 8),
+              ],
+            ),
+            extraContent: [
+              const SizedBox(height: AppSpacing.md),
+              // Search bar
+              Container(
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: l10n.searchHint,
+                    hintStyle: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 14,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: AppColors.textSecondary,
+                      size: 20,
+                    ),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, size: 18),
+                            onPressed: () {
+                              _searchController.clear();
+                            },
+                          )
+                        : null,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: AppSpacing.md,
+                    ),
+                    filled: false,
+                  ),
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              // Tab bar inside header
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                ),
+                child: TabBar(
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  labelColor: AppColors.primaryBlue,
+                  unselectedLabelColor: Colors.white,
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                  ),
+                  dividerColor: Colors.transparent,
+                  tabs: [
+                    Tab(text: l10n.caregiversTab),
+                    Tab(text: l10n.patientsTab),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          // Tab content
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _CaregiversList(searchQuery: _searchQuery),
+                _PatientsMonitoredList(searchQuery: _searchQuery),
+              ],
+            ),
           ),
         ],
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [_CaregiversList(), _PatientsMonitoredList()],
-      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.pushNamed(context, '/family/connect');
+          Navigator.pushNamed(context, AppRouter.familyConnect);
         },
         icon: const Icon(Icons.add),
         label: Text(l10n.newConnection),
@@ -81,6 +175,10 @@ class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
 
 /// Tab 1: My caregivers (shown to patient)
 class _CaregiversList extends StatelessWidget {
+  final String searchQuery;
+
+  const _CaregiversList({required this.searchQuery});
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -89,6 +187,12 @@ class _CaregiversList extends StatelessWidget {
         if (provider.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
+
+        final filtered = _filterConnections(
+          provider.caregivers,
+          searchQuery,
+          useInitiator: true,
+        );
 
         if (provider.caregivers.isEmpty) {
           return _buildEmptyState(
@@ -99,13 +203,22 @@ class _CaregiversList extends StatelessWidget {
           );
         }
 
+        if (filtered.isEmpty) {
+          return _buildEmptyState(
+            context,
+            icon: Icons.search_off,
+            title: l10n.noResultsFound,
+            subtitle: '',
+          );
+        }
+
         return RefreshIndicator(
           onRefresh: () => provider.fetchCaregivers(),
           child: ListView.builder(
             padding: const EdgeInsets.all(AppSpacing.md),
-            itemCount: provider.caregivers.length,
+            itemCount: filtered.length,
             itemBuilder: (context, index) {
-              return _CaregiverCard(connection: provider.caregivers[index]);
+              return _CaregiverCard(connection: filtered[index]);
             },
           ),
         );
@@ -116,6 +229,10 @@ class _CaregiversList extends StatelessWidget {
 
 /// Tab 2: Patients I'm monitoring (shown to caregiver)
 class _PatientsMonitoredList extends StatelessWidget {
+  final String searchQuery;
+
+  const _PatientsMonitoredList({required this.searchQuery});
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -124,6 +241,12 @@ class _PatientsMonitoredList extends StatelessWidget {
         if (provider.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
+
+        final filtered = _filterConnections(
+          provider.connectedPatients,
+          searchQuery,
+          useInitiator: false,
+        );
 
         if (provider.connectedPatients.isEmpty) {
           return _buildEmptyState(
@@ -134,20 +257,73 @@ class _PatientsMonitoredList extends StatelessWidget {
           );
         }
 
+        if (filtered.isEmpty) {
+          return _buildEmptyState(
+            context,
+            icon: Icons.search_off,
+            title: l10n.noResultsFound,
+            subtitle: '',
+          );
+        }
+
         return RefreshIndicator(
           onRefresh: () => provider.fetchConnectedPatients(),
           child: ListView.builder(
             padding: const EdgeInsets.all(AppSpacing.md),
-            itemCount: provider.connectedPatients.length,
+            itemCount: filtered.length,
             itemBuilder: (context, index) {
-              return _PatientCard(
-                connection: provider.connectedPatients[index],
-              );
+              return _PatientCard(connection: filtered[index]);
             },
           ),
         );
       },
     );
+  }
+}
+
+List<Connection> _filterConnections(
+  List<Connection> connections,
+  String query, {
+  required bool useInitiator,
+}) {
+  if (query.isEmpty) return connections;
+  return connections.where((c) {
+    final person = _getOtherPerson(c, preferPatient: !useInitiator);
+    final name = '${person['firstName'] ?? ''} ${person['lastName'] ?? ''}'
+        .trim();
+    final fullName = person['fullName']?.toString() ?? '';
+    return name.toLowerCase().contains(query) ||
+        fullName.toLowerCase().contains(query);
+  }).toList();
+}
+
+/// Determines the "other" person in a connection.
+/// For the Caregivers tab (preferPatient=false): returns the non-PATIENT side.
+/// For the Patients tab (preferPatient=true): returns the PATIENT side.
+/// Falls back to role-based detection, then to recipient.
+Map<String, dynamic> _getOtherPerson(
+  Connection c, {
+  required bool preferPatient,
+}) {
+  final initiator = c.initiator ?? {};
+  final recipient = c.recipient ?? {};
+  final initiatorRole = initiator['role']?.toString() ?? '';
+  final recipientRole = recipient['role']?.toString() ?? '';
+
+  if (preferPatient) {
+    // We want the patient side
+    if (recipientRole == 'PATIENT') return recipient;
+    if (initiatorRole == 'PATIENT') return initiator;
+    return recipient; // fallback
+  } else {
+    // We want the caregiver / non-patient side
+    if (initiatorRole == 'FAMILY_MEMBER' || initiatorRole == 'DOCTOR') {
+      return initiator;
+    }
+    if (recipientRole == 'FAMILY_MEMBER' || recipientRole == 'DOCTOR') {
+      return recipient;
+    }
+    return initiator; // fallback
   }
 }
 
@@ -171,18 +347,36 @@ Widget _buildEmptyState(
               context,
             ).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary),
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            subtitle,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
-          ),
+          if (subtitle.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
         ],
       ),
     ),
   );
+}
+
+String _getInitials(Map<String, dynamic> person) {
+  final first = (person['firstName'] ?? '') as String;
+  final last = (person['lastName'] ?? '') as String;
+  final fullName = (person['fullName'] ?? '') as String;
+
+  if (first.isNotEmpty && last.isNotEmpty) {
+    return '${first[0]}${last[0]}'.toUpperCase();
+  }
+  if (fullName.isNotEmpty) {
+    final parts = fullName.split(' ').where((p) => p.isNotEmpty).toList();
+    if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    return parts[0][0].toUpperCase();
+  }
+  return '?';
 }
 
 class _CaregiverCard extends StatelessWidget {
@@ -193,54 +387,128 @@ class _CaregiverCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    // For a patient, the caregiver is the initiator
-    final caregiver = connection.initiator ?? {};
+    final caregiver = _getOtherPerson(connection, preferPatient: false);
     final name =
         '${caregiver['firstName'] ?? ''} ${caregiver['lastName'] ?? ''}'.trim();
+    final initials = _getInitials(caregiver);
+    final currentUserId = context.read<AuthProvider>().user?['id']?.toString();
+    final canRespondPending =
+        currentUserId != null &&
+        connection.status == ConnectionStatus.pending &&
+        connection.recipientId == currentUserId;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: AppCard(
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
-              child: const Icon(
-                Icons.person,
-                color: AppColors.primaryBlue,
-                size: 22,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name.isEmpty ? l10n.caregiverLabel : name,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.15),
+                  child: Text(
+                    initials,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryBlue,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    Connection.permissionLevelToDisplay(
-                      connection.permissionLevel,
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name.isEmpty ? l10n.caregiverLabel : name,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        Connection.permissionLevelToDisplay(
+                          connection.permissionLevel,
+                        ),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _AlertsToggle(connection: connection),
+                _buildConnectionStatusBadge(context, connection),
+              ],
+            ),
+            if (canRespondPending) ...[
+              const SizedBox(height: AppSpacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _handlePendingAction(context, accept: false),
+                      icon: const Icon(Icons.close, size: 18),
+                      label: Text(l10n.rejectConnection),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.alertRed,
+                        side: const BorderSide(color: AppColors.alertRed),
+                      ),
                     ),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _handlePendingAction(context, accept: true),
+                      icon: const Icon(Icons.check, size: 18),
+                      label: Text(l10n.approveConnection),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryBlue,
+                        foregroundColor: Colors.white,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-            // Alerts toggle
-            _AlertsToggle(connection: connection),
-            // Status badge
-            _buildConnectionStatusBadge(context, connection),
+            ],
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _handlePendingAction(
+    BuildContext context, {
+    required bool accept,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    final provider = context.read<ConnectionProvider>();
+    final success = accept
+        ? await provider.acceptConnection(connection.id, {
+            'permissionLevel': 'ALLOWED',
+          })
+        : await provider.revokeConnection(connection.id);
+
+    if (!context.mounted) return;
+
+    await provider.fetchCaregivers();
+    await provider.fetchConnectedPatients();
+
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? (accept ? l10n.connectionApproved : l10n.connectionRejected)
+              : (provider.error ?? l10n.failedToConnect),
+        ),
+        backgroundColor: success
+            ? (accept ? AppColors.successGreen : AppColors.textSecondary)
+            : AppColors.alertRed,
       ),
     );
   }
@@ -254,10 +522,10 @@ class _PatientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    // For a caregiver, the patient is the recipient
-    final patient = connection.recipient ?? {};
+    final patient = _getOtherPerson(connection, preferPatient: true);
     final name = '${patient['firstName'] ?? ''} ${patient['lastName'] ?? ''}'
         .trim();
+    final initials = _getInitials(patient);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -266,7 +534,7 @@ class _PatientCard extends StatelessWidget {
             ? () {
                 Navigator.pushNamed(
                   context,
-                  '/family/caregiver-dashboard',
+                  AppRouter.familyPatientDetail,
                   arguments: {'connection': connection},
                 );
               }
@@ -275,11 +543,14 @@ class _PatientCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 22,
-              backgroundColor: AppColors.successGreen.withValues(alpha: 0.1),
-              child: const Icon(
-                Icons.favorite,
-                color: AppColors.successGreen,
-                size: 22,
+              backgroundColor: AppColors.successGreen.withValues(alpha: 0.15),
+              child: Text(
+                initials,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.successGreen,
+                ),
               ),
             ),
             const SizedBox(width: AppSpacing.md),
@@ -307,7 +578,10 @@ class _PatientCard extends StatelessWidget {
             ),
             _buildConnectionStatusBadge(context, connection),
             if (connection.status == ConnectionStatus.accepted)
-              const Icon(Icons.chevron_right, color: AppColors.neutral400),
+              const Padding(
+                padding: EdgeInsets.only(left: AppSpacing.xs),
+                child: Icon(Icons.chevron_right, color: AppColors.neutral400),
+              ),
           ],
         ),
       ),

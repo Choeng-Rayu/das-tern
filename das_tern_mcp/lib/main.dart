@@ -1,7 +1,10 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
@@ -14,6 +17,7 @@ import 'providers/subscription_provider.dart';
 import 'providers/health_monitoring_provider.dart';
 import 'providers/batch_provider.dart';
 import 'providers/adherence_provider.dart';
+import 'providers/shell_tab_controller.dart';
 import 'services/notification_service.dart';
 import 'services/sync_service.dart';
 import 'services/logger_service.dart';
@@ -29,7 +33,6 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   final log = LoggerService.instance;
-
   // Capture Flutter errors
   FlutterError.onError = (FlutterErrorDetails details) {
     log.error(
@@ -43,6 +46,16 @@ Future<void> main() async {
 
   log.info('App', 'Starting DAS TERN MCP App');
   WidgetsFlutterBinding.ensureInitialized();
+
+  const isWeb = bool.fromEnvironment('dart.library.js_util');
+
+  final useFfiDatabase =
+      !isWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows);
+
+  if (useFfiDatabase) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
 
   try {
     log.debug('App', 'Loading environment variables');
@@ -136,6 +149,7 @@ class _DasTernAppState extends State<DasTernApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => HealthMonitoringProvider()),
         ChangeNotifierProvider(create: (_) => BatchProvider()),
         ChangeNotifierProvider(create: (_) => AdherenceProvider()),
+        ChangeNotifierProvider(create: (_) => ShellTabController()),
         ChangeNotifierProvider.value(value: SyncService.instance),
       ],
       child: Consumer2<ThemeProvider, LocaleProvider>(

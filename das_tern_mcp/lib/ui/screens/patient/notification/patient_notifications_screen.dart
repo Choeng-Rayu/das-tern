@@ -10,6 +10,7 @@ import '../../../theme/app_spacing.dart';
 import 'connection_request_card.dart';
 import 'connection_request_sheet.dart';
 import 'standard_notification_card.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// Patient notification screen.
 ///
@@ -161,6 +162,7 @@ class _PatientNotificationsScreenState
                 ),
               ),
             ),
+          const LanguageSwitcherButton(lightBackground: true),
         ],
       ),
       body: RefreshIndicator(

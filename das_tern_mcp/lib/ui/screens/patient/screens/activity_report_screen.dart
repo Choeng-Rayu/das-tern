@@ -7,6 +7,7 @@ import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../../models/dose_event_model/dose_event.dart';
 import '../../../../providers/adherence_provider.dart';
 import '../../../../providers/dose_provider.dart';
 import '../../../../providers/subscription_provider.dart';
@@ -270,22 +271,6 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
         elevation: 0,
         backgroundColor: cs.surface,
         foregroundColor: cs.onSurface,
-        actions: [
-          _generatingPdf
-              ? const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                )
-              : IconButton(
-                  onPressed: _onDownloadTapped,
-                  tooltip: l10n.downloadPdf,
-                  icon: const Icon(Icons.picture_as_pdf_outlined),
-                ),
-        ],
       ),
       body: adherence.isLoading && dose.isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -300,6 +285,12 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
                   _SummaryCards(adherence: adherence, l10n: l10n),
                   const SizedBox(height: AppSpacing.lg),
                   _WeeklyBreakdown(adherence: adherence, l10n: l10n),
+                  const SizedBox(height: AppSpacing.lg),
+                  _DownloadPdfButton(
+                    generatingPdf: _generatingPdf,
+                    onTap: _onDownloadTapped,
+                    l10n: l10n,
+                  ),
                   const SizedBox(height: AppSpacing.lg),
                   _DoseHistorySection(dose: dose, l10n: l10n),
                   const SizedBox(height: AppSpacing.xl),
@@ -338,6 +329,17 @@ class _SummaryCards extends StatelessWidget {
                 label: l10n.weeklyAdherence,
                 percentage: weekly,
                 color: AppColors.primaryBlue,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AdherenceDetailScreen(
+                      title: l10n.weeklyAdherence,
+                      percentage: weekly,
+                      color: AppColors.primaryBlue,
+                      adherenceData: adherence.weeklyAdherence,
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
@@ -346,6 +348,17 @@ class _SummaryCards extends StatelessWidget {
                 label: l10n.monthlyAdherence,
                 percentage: monthly,
                 color: AppColors.successGreen,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AdherenceDetailScreen(
+                      title: l10n.monthlyAdherence,
+                      percentage: monthly,
+                      color: AppColors.successGreen,
+                      adherenceData: adherence.monthlyAdherence,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -364,35 +377,56 @@ class _AdherenceCard extends StatelessWidget {
     required this.label,
     required this.percentage,
     required this.color,
+    this.onTap,
   });
 
   final String label;
   final double percentage;
   final Color color;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          _CircularPercent(percentage: percentage, color: color, size: 72),
-          const SizedBox(height: 10),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: cs.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
+    return Material(
+      color: cs.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
+          child: Column(
+            children: [
+              _CircularPercent(percentage: percentage, color: color, size: 72),
+              const SizedBox(height: 10),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: cs.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'See details',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: color,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Icon(Icons.chevron_right_rounded, size: 14, color: color),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -678,112 +712,812 @@ class _DoseHistorySection extends StatelessWidget {
       children: [
         _SectionTitle(title: l10n.doseHistory),
         const SizedBox(height: AppSpacing.sm),
-        Container(
-          decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(16),
+        if (dose.isLoading)
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Center(child: CircularProgressIndicator()),
+          )
+        else if (dose.history.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Center(
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.history_rounded,
+                    size: 48,
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    l10n.noHistoryYet,
+                    style: TextStyle(color: cs.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          Column(
+            children: [
+              for (int i = 0; i < dose.history.length; i++) ...[
+                _DoseHistoryCard(event: dose.history[i], l10n: l10n),
+                if (i < dose.history.length - 1) const SizedBox(height: 8),
+              ],
+            ],
           ),
-          clipBehavior: Clip.antiAlias,
-          child: dose.isLoading
-              ? const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              : dose.history.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.history_rounded,
-                          size: 48,
-                          color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+      ],
+    );
+  }
+}
+
+class _DoseHistoryCard extends StatelessWidget {
+  const _DoseHistoryCard({required this.event, required this.l10n});
+
+  final DoseEvent event;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final d = event;
+
+    final isTaken = d.status.contains('TAKEN');
+    final isLate = d.status == 'TAKEN_LATE';
+    final isSkipped = d.status == 'SKIPPED';
+    final iconData = isTaken
+        ? Icons.check_circle_rounded
+        : isSkipped
+        ? Icons.skip_next_rounded
+        : Icons.cancel_rounded;
+    final statusColor = isTaken
+        ? (isLate ? AppColors.statusWarning : AppColors.statusSuccess)
+        : AppColors.statusError;
+    final statusLabel = isTaken
+        ? (isLate ? l10n.late : l10n.onTime)
+        : isSkipped
+        ? 'Skipped'
+        : l10n.missed;
+    final t = d.scheduledTime;
+    final timeStr =
+        '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+    final dateStr = '${t.day}/${t.month}/${t.year}';
+
+    return Material(
+      color: cs.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DoseDetailScreen(event: d, l10n: l10n),
+          ),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(left: BorderSide(color: statusColor, width: 4)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Icon(iconData, color: statusColor, size: 26),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      d.medicationName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '$dateStr  ·  $timeStr',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  statusLabel,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: statusColor,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 20,
+                color: cs.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({
+    required this.label,
+    required this.value,
+    required this.cs,
+    this.valueColor,
+    this.icon,
+  });
+
+  final String label;
+  final String value;
+  final ColorScheme cs;
+  final Color? valueColor;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 16, color: cs.onSurfaceVariant),
+            const SizedBox(width: 8),
+          ],
+          SizedBox(
+            width: 110,
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: valueColor ?? cs.onSurface,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Dose Detail Screen ────────────────────────────────────────────────────────
+
+class DoseDetailScreen extends StatelessWidget {
+  const DoseDetailScreen({super.key, required this.event, required this.l10n});
+
+  final DoseEvent event;
+  final AppLocalizations l10n;
+
+  String _formatTimePeriod(String period) {
+    switch (period) {
+      case 'MORNING':
+        return 'Morning';
+      case 'AFTERNOON':
+        return 'Afternoon';
+      case 'EVENING':
+        return 'Evening';
+      case 'NIGHT':
+        return 'Night';
+      case 'DAYTIME':
+        return 'Daytime';
+      default:
+        return period;
+    }
+  }
+
+  String _formatDateTime(DateTime dt) {
+    final d =
+        '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+    final t =
+        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    return '$d  ·  $t';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final d = event;
+
+    final isTaken = d.status.contains('TAKEN');
+    final isLate = d.status == 'TAKEN_LATE';
+    final isSkipped = d.status == 'SKIPPED';
+    final iconData = isTaken
+        ? Icons.check_circle_rounded
+        : isSkipped
+        ? Icons.skip_next_rounded
+        : Icons.cancel_rounded;
+    final statusColor = isTaken
+        ? (isLate ? AppColors.statusWarning : AppColors.statusSuccess)
+        : AppColors.statusError;
+    final statusLabel = isTaken
+        ? (isLate ? l10n.late : l10n.onTime)
+        : isSkipped
+        ? 'Skipped'
+        : l10n.missed;
+
+    return Scaffold(
+      backgroundColor: cs.surface,
+      appBar: AppBar(
+        title: Text(
+          d.medicationName,
+          style: TextStyle(
+            color: cs.onSurface,
+            fontWeight: FontWeight.w600,
+            fontSize: 17,
+          ),
+        ),
+        backgroundColor: cs.surface,
+        foregroundColor: cs.onSurface,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Status hero card ───────────────────────────────────────────
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 28),
+              decoration: BoxDecoration(
+                color: statusColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: statusColor.withValues(alpha: 0.25),
+                  width: 1.5,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Icon(iconData, color: statusColor, size: 52),
+                  const SizedBox(height: 10),
+                  Text(
+                    statusLabel,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: statusColor,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _formatDateTime(d.scheduledTime),
+                    style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: AppSpacing.lg),
+
+            // ── Detail section ─────────────────────────────────────────────
+            _SectionTitle(title: 'Dose Details'),
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Column(
+                children: [
+                  _DetailRow(
+                    label: 'Medication',
+                    value: d.medicationName,
+                    cs: cs,
+                    icon: Icons.medication_rounded,
+                  ),
+                  Divider(height: 16, color: cs.outlineVariant),
+                  if (d.dosage.isNotEmpty) ...[
+                    _DetailRow(
+                      label: 'Dosage',
+                      value: d.dosage,
+                      cs: cs,
+                      icon: Icons.scale_rounded,
+                    ),
+                    Divider(height: 16, color: cs.outlineVariant),
+                  ],
+                  _DetailRow(
+                    label: 'Time Period',
+                    value: _formatTimePeriod(d.timePeriod),
+                    cs: cs,
+                    icon: Icons.schedule_rounded,
+                  ),
+                  Divider(height: 16, color: cs.outlineVariant),
+                  _DetailRow(
+                    label: 'Scheduled',
+                    value: _formatDateTime(d.scheduledTime),
+                    cs: cs,
+                    icon: Icons.calendar_today_rounded,
+                  ),
+                  if (d.takenAt != null) ...[
+                    Divider(height: 16, color: cs.outlineVariant),
+                    _DetailRow(
+                      label: 'Taken At',
+                      value: _formatDateTime(d.takenAt!),
+                      cs: cs,
+                      icon: Icons.done_all_rounded,
+                      valueColor: AppColors.statusSuccess,
+                    ),
+                  ],
+                  if (d.reminderTime != null) ...[
+                    Divider(height: 16, color: cs.outlineVariant),
+                    _DetailRow(
+                      label: 'Reminder',
+                      value: d.reminderTime!,
+                      cs: cs,
+                      icon: Icons.notifications_outlined,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            // ── Skip / offline info ────────────────────────────────────────
+            if (isSkipped && d.skipReason != null && d.skipReason!.isNotEmpty ||
+                d.wasOffline) ...[
+              const SizedBox(height: AppSpacing.md),
+              _SectionTitle(title: 'Additional Info'),
+              const SizedBox(height: AppSpacing.sm),
+              Container(
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Column(
+                  children: [
+                    if (isSkipped &&
+                        d.skipReason != null &&
+                        d.skipReason!.isNotEmpty)
+                      _DetailRow(
+                        label: 'Skip Reason',
+                        value: d.skipReason!,
+                        cs: cs,
+                        icon: Icons.info_outline_rounded,
+                        valueColor: AppColors.statusError,
+                      ),
+                    if (d.wasOffline) ...[
+                      if (isSkipped &&
+                          d.skipReason != null &&
+                          d.skipReason!.isNotEmpty)
+                        Divider(height: 16, color: cs.outlineVariant),
+                      _DetailRow(
+                        label: 'Recorded',
+                        value: 'While offline',
+                        cs: cs,
+                        icon: Icons.wifi_off_rounded,
+                        valueColor: AppColors.statusWarning,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+
+            const SizedBox(height: AppSpacing.xl),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Download PDF Button ───────────────────────────────────────────────────────
+
+class _DownloadPdfButton extends StatelessWidget {
+  const _DownloadPdfButton({
+    required this.generatingPdf,
+    required this.onTap,
+    required this.l10n,
+  });
+
+  final bool generatingPdf;
+  final VoidCallback onTap;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: cs.primaryContainer,
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: generatingPdf ? null : onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: cs.primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: generatingPdf
+                    ? Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: cs.onPrimary,
                         ),
-                        const SizedBox(height: AppSpacing.sm),
+                      )
+                    : Icon(
+                        Icons.picture_as_pdf_rounded,
+                        color: cs.onPrimary,
+                        size: 24,
+                      ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      generatingPdf ? l10n.generatingPdf : l10n.downloadPdf,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: cs.onPrimaryContainer,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Premium feature · Tap to export',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+                color: cs.onPrimaryContainer.withValues(alpha: 0.6),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Adherence Detail Screen ───────────────────────────────────────────────────
+
+class AdherenceDetailScreen extends StatelessWidget {
+  const AdherenceDetailScreen({
+    super.key,
+    required this.title,
+    required this.percentage,
+    required this.color,
+    this.adherenceData,
+  });
+
+  final String title;
+  final double percentage;
+  final Color color;
+  final Map<String, dynamic>? adherenceData;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final days = (adherenceData?['days'] as List<dynamic>?) ?? [];
+    final taken = (adherenceData?['taken'] as num?)?.toInt() ?? 0;
+    final total = (adherenceData?['total'] as num?)?.toInt() ?? 0;
+    final missed = total - taken;
+
+    return Scaffold(
+      backgroundColor: cs.surface,
+      appBar: AppBar(
+        title: Text(
+          title,
+          style: TextStyle(
+            color: cs.onSurface,
+            fontWeight: FontWeight.w600,
+            fontSize: 17,
+          ),
+        ),
+        backgroundColor: cs.surface,
+        foregroundColor: cs.onSurface,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Big adherence circle ───────────────────────────────────────
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: color.withValues(alpha: 0.2),
+                  width: 1.5,
+                ),
+              ),
+              child: Column(
+                children: [
+                  _CircularPercent(
+                    percentage: percentage,
+                    color: color,
+                    size: 110,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ── Taken / Missed summary ────────────────────────────────────
+            if (total > 0) ...[
+              const SizedBox(height: AppSpacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: _AdherenceStat(
+                      label: 'Taken',
+                      value: '$taken',
+                      color: AppColors.statusSuccess,
+                      icon: Icons.check_circle_outline_rounded,
+                      cs: cs,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _AdherenceStat(
+                      label: 'Missed',
+                      value: '$missed',
+                      color: AppColors.statusError,
+                      icon: Icons.cancel_outlined,
+                      cs: cs,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _AdherenceStat(
+                      label: 'Total',
+                      value: '$total',
+                      color: AppColors.primaryBlue,
+                      icon: Icons.medication_rounded,
+                      cs: cs,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+
+            // ── Day-by-day breakdown ──────────────────────────────────────
+            if (days.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.lg),
+              _SectionTitle(title: 'Day by Day'),
+              const SizedBox(height: AppSpacing.sm),
+              ...days.map((dayData) {
+                final map = dayData as Map<String, dynamic>;
+                final label =
+                    (map['dayLabel'] as String?) ??
+                    (map['date'] as String? ?? '').split('-').last;
+                final date = map['date'] as String? ?? '';
+                final pct =
+                    (map['percentage'] as num?)?.toDouble().clamp(0.0, 100.0) ??
+                    0.0;
+                final dayTaken = (map['taken'] as num?)?.toInt();
+                final dayTotal = (map['total'] as num?)?.toInt();
+                final dayMissed =
+                    (map['missed'] as num?)?.toInt() ??
+                    (dayTotal != null && dayTaken != null
+                        ? dayTotal - dayTaken
+                        : null);
+                final barColor = pct >= 80
+                    ? AppColors.statusSuccess
+                    : pct >= 50
+                    ? AppColors.statusWarning
+                    : AppColors.statusError;
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border(
+                        left: BorderSide(color: barColor, width: 4),
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 36,
+                          child: Text(
+                            label,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (date.isNotEmpty)
+                          Text(
+                            date,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        const Spacer(),
+                        if (dayMissed != null && dayMissed > 0)
+                          Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.statusError.withValues(
+                                alpha: 0.12,
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              '$dayMissed missed',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.statusError,
+                              ),
+                            ),
+                          ),
                         Text(
-                          l10n.noHistoryYet,
-                          style: TextStyle(color: cs.onSurfaceVariant),
+                          '${pct.round()}%',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: barColor,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                )
-              : ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: dose.history.length,
-                  separatorBuilder: (_, _) =>
-                      Divider(height: 1, indent: 60, color: cs.outlineVariant),
-                  itemBuilder: (context, index) {
-                    final d = dose.history[index];
-                    final isTaken = d.status.contains('TAKEN');
-                    final isLate = d.status == 'TAKEN_LATE';
-                    final isSkipped = d.status == 'SKIPPED';
-                    final icon = isTaken
-                        ? Icons.check_circle_rounded
-                        : isSkipped
-                        ? Icons.skip_next_rounded
-                        : Icons.cancel_rounded;
-                    final iconColor = isTaken
-                        ? (isLate
-                              ? AppColors.statusWarning
-                              : AppColors.statusSuccess)
-                        : AppColors.statusError;
-                    final statusLabel = isTaken
-                        ? (isLate ? l10n.late : l10n.onTime)
-                        : isSkipped
-                        ? 'Skipped'
-                        : l10n.missed;
-                    final t = d.scheduledTime;
-                    final timeStr =
-                        '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
-                    final dateStr = '${t.day}/${t.month}/${t.year}';
-
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 4,
-                      ),
-                      leading: Icon(icon, color: iconColor, size: 26),
-                      title: Text(
-                        d.medicationName,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: cs.onSurface,
-                        ),
-                      ),
-                      subtitle: Text(
-                        '$dateStr  $timeStr',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: iconColor.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          statusLabel,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: iconColor,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                );
+              }),
+            ] else ...[
+              const SizedBox(height: AppSpacing.lg),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(16),
                 ),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.bar_chart_rounded,
+                        size: 48,
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        'No detailed breakdown available',
+                        style: TextStyle(color: cs.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+
+            const SizedBox(height: AppSpacing.xl),
+          ],
         ),
-      ],
+      ),
+    );
+  }
+}
+
+class _AdherenceStat extends StatelessWidget {
+  const _AdherenceStat({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.icon,
+    required this.cs,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+  final IconData icon;
+  final ColorScheme cs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+          ),
+        ],
+      ),
     );
   }
 }

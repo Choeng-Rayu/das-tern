@@ -6,7 +6,7 @@ class ApiConstants {
   // For Android emulator: 10.0.2.2
   // For physical device on WiFi: your computer's IP (e.g., 192.168.0.189)
   static const String hostIpAddress =
-      '192.168.0.101'; // Current machine Wi-Fi IP
+      '10.0.2.2'; // Android emulator host (points to host machine localhost)
 
   // Toggle emulator host via --dart-define=USE_ANDROID_EMULATOR=true
   static const bool useAndroidEmulator = bool.fromEnvironment(
