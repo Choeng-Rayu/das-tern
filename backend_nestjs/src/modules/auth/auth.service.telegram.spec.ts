@@ -235,7 +235,8 @@ describe('AuthService Telegram Login', () => {
     const result = await authService.telegramLoginMobile(
       'code',
       'verifier',
-      'http://10.212.42.255:3001/api/v1/auth/telegram/callback',
+      // 'http://10.212.42.210:3001/api/v1/auth/telegram/callback',
+      process.env.TELEGRAM_BOT_CALLBACK_URL || 'dastern://auth/telegram/callback',
       'PATIENT' as UserRole,
     );
 
@@ -257,7 +258,7 @@ describe('AuthService Telegram Login', () => {
       authService.telegramLoginMobile(
         'bad-code',
         'verifier',
-        'dastern://auth/telegram/callback',
+        process.env.TELEGRAM_BOT_CALLBACK_URL || 'dastern://auth/telegram/callback',
       ),
     ).rejects.toBeInstanceOf(UnauthorizedException);
   });
