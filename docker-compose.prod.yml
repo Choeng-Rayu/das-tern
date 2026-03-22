@@ -1,0 +1,218 @@
+##############################################################
+#  docker-compose.prod.yml — Production deployment
+#  Domain: dastern.site  |  VPS: 167.71.194.68
+#  Services: postgres, redis, rabbitmq, minio, backend, ocr, ai-llm
+#  NOT included: bakong_payment, flutter
+##############################################################
+
+services:
+
+  # ─────────────────────────────────────────────────
+  # Infrastructure
+  # ─────────────────────────────────────────────────
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: dastern-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-dastern}
+      POSTGRES_USER: ${POSTGRES_USER:-dastern_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
+      TZ: Asia/Phnom_Penh
+      PGTZ: Asia/Phnom_Penh
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init-scripts:/docker-entrypoint-initdb.d
+    command: >
+      postgres
+      -c timezone=Asia/Phnom_Penh
+      -c log_min_duration_statement=1000
+      -c max_connections=50
+      -c shared_buffers=128MB
+      -c effective_cache_size=512MB
+      -c maintenance_work_mem=32MB
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dastern_user} -d ${POSTGRES_DB:-dastern}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dastern-network
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: dastern-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+      --appendonly yes
+      --appendfsync everysec
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - dastern-network
+
+  rabbitmq:
+    image: rabbitmq:4.0-management-alpine
+    container_name: dastern-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-dastern_user}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - dastern-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: dastern-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-dastern_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - dastern-network
+
+  # ─────────────────────────────────────────────────
+  # Application Services
+  # ─────────────────────────────────────────────────
+
+  backend:
+    build:
+      context: ./backend_nestjs
+      dockerfile: Dockerfile
+    container_name: dastern-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend_nestjs/.env
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      API_PREFIX: api/v1
+      # Database — use Docker service name
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-dastern_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-dastern}?schema=public"
+      DATABASE_READ_URL: "postgresql://${POSTGRES_USER:-dastern_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-dastern}?schema=public"
+      POSTGRES_USER: "${POSTGRES_USER:-dastern_user}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB:-dastern}"
+      # Redis — Docker service name
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_DB: "0"
+      # MinIO / S3 — Docker service name
+      AWS_S3_ENDPOINT: "http://minio:9000"
+      AWS_ACCESS_KEY_ID: "${MINIO_ROOT_USER:-dastern_admin}"
+      AWS_SECRET_ACCESS_KEY: "${MINIO_ROOT_PASSWORD}"
+      AWS_S3_BUCKET: "${MINIO_BUCKET_NAME:-dastern-uploads}"
+      # Internal service URLs — Docker service names
+      AI_SERVICE_URL: "http://ai-llm:8001"
+      OCR_SERVICE_URL: "http://ocr:8000"
+      # OAuth callbacks — production subdomain
+      GOOGLE_CALLBACK_URL: "https://api.dastern.site/api/v1/auth/google/callback"
+      TELEGRAM_OAUTH_REDIRECT_URI: "https://api.dastern.site/api/v1/auth/telegram/callback"
+      # Bakong payment — separate VPS (payment.dastern.site)
+      BAKONG_SERVICE_URL: "https://payment.dastern.site"
+      # CORS — allow subdomains
+      ALLOWED_ORIGINS: "https://api.dastern.site,https://ocr.dastern.site,https://ai.dastern.site,https://payment.dastern.site"
+      TZ: Asia/Phnom_Penh
+    ports:
+      - "127.0.0.1:3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dastern-network
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('net').createConnection({port:3001}).on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  ocr:
+    build:
+      context: ./ocr
+      dockerfile: Dockerfile
+    container_name: dastern-ocr
+    restart: unless-stopped
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8000"
+      MAX_UPLOAD_SIZE_MB: "10"
+      TZ: Asia/Phnom_Penh
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks:
+      - dastern-network
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  ai-llm:
+    build:
+      context: ./ai-llm-service
+      dockerfile: Dockerfile
+    container_name: dastern-ai-llm
+    restart: unless-stopped
+    env_file:
+      - ./ai-llm-service/.env
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: /app
+      TZ: Asia/Phnom_Penh
+    ports:
+      - "127.0.0.1:8001:8001"
+    networks:
+      - dastern-network
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  minio_data:
+    driver: local
+
+networks:
+  dastern-network:
+    driver: bridge
