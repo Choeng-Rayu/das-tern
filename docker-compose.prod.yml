@@ -115,9 +115,8 @@ services:
       NODE_ENV: production
       PORT: "3001"
       API_PREFIX: api/v1
-      # Database — use Docker service name
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-dastern_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-dastern}?schema=public"
-      DATABASE_READ_URL: "postgresql://${POSTGRES_USER:-dastern_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-dastern}?schema=public"
+      # DATABASE_URL and DATABASE_READ_URL come from env_file (backend_nestjs/.env)
+      # They must be set with URL-encoded passwords to handle special characters (e.g. @, #).
       POSTGRES_USER: "${POSTGRES_USER:-dastern_user}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
       POSTGRES_DB: "${POSTGRES_DB:-dastern}"
