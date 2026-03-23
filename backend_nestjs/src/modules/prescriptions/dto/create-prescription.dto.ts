@@ -35,6 +35,18 @@ export class MedicationDto {
   @IsNumber()
   dosageAmount?: number;
 
+  @IsString()
+  @IsNotEmpty()
+  dosageUnit: string;
+
+  @IsString()
+  @IsNotEmpty()
+  form: string;
+
+  @IsOptional()
+  @IsArray()
+  scheduleTimes?: { timePeriod: string; time: string }[];
+
   @IsOptional()
   @IsString()
   description?: string;
