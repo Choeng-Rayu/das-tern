@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
 
 class ApiConstants {
-  // IMPORTANT: Set this to your computer's local IP when testing on a physical device
+  // PRODUCTION: Hosted backend on DigitalOcean VPS
+  static const String productionApiBaseUrl = 'https://api.dastern.site/api/v1';
+
+  // LOCAL DEVELOPMENT: Set this to your computer's local IP when testing on a physical device
   // Find it with: ip a | grep "inet " (on Linux)
   // For Android emulator: 10.0.2.2
   // For physical device on WiFi: your computer's IP (e.g., 192.168.0.189)
@@ -36,6 +39,7 @@ class ApiConstants {
     return 'http://127.0.0.1';
   }
 
+  // Fallback to production URL if .env is not loaded
   static String get apiBaseUrl => '$baseHost:$apiPort/$apiPrefix';
 
   // Timeouts
