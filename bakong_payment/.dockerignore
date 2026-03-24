@@ -12,6 +12,3 @@ Dockerfile
 docker-compose.yml
 .prettierrc
 eslint.config.mjs
-nest-cli.json
-tsconfig.json
-tsconfig.build.json

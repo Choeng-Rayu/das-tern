@@ -8,7 +8,7 @@ COPY package.json package-lock.json ./
 COPY prisma ./prisma/
 
 # Install all dependencies (including devDependencies for build)
-RUN npm ci
+RUN npm install
 
 # Generate Prisma client
 RUN npx prisma generate --schema=./prisma/schema.prisma
@@ -24,15 +24,12 @@ FROM node:22-alpine AS production
 
 WORKDIR /app
 
-# Copy dependency files
+# Copy dependency files and prisma schema (prisma needed for postinstall)
 COPY package.json package-lock.json ./
-
-# Install only production dependencies
-RUN npm ci --omit=dev
-
-# Copy Prisma schema and generate client
 COPY prisma ./prisma/
-RUN npx prisma generate --schema=./prisma/schema.prisma
+
+# Install only production dependencies (postinstall will run prisma generate)
+RUN npm install --omit=dev
 
 # Copy built application
 COPY --from=builder /app/dist ./dist/
