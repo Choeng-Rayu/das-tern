@@ -2,29 +2,17 @@
 
 ## Overview
 
-This design document specifies the technical implementation for integrating Telegram as an authentication method in the DasTern medication reminder system. The feature enables users to authenticate using their Telegram account through OAuth 2.0 flow with Telegram-specific HMAC SHA256 hash verification.
+This design document specifies the technical implementation for integrating Telegram as an authentication method in the DasTern medication reminder system. The feature enables users to authenticate using their Telegram account through the Telegram Login Widget with HMAC SHA256 hash verification.
 
-### Implementation Alignment Note (Current)
-
-Current code implements **Telegram Login 2.0 (OIDC Authorization Code + PKCE)**:
-
-- Flutter opens `https://oauth.telegram.org/auth` with PKCE
-- Telegram redirects to app deep link `dastern://auth/telegram/callback`
-- Flutter sends `code`, `codeVerifier`, `redirectUri` to backend `POST /auth/telegram`
-- Backend exchanges code for `id_token` at `https://oauth.telegram.org/token`
-- Backend validates JWT signature using Telegram JWKS and verifies claims (`iss`, `aud`, `exp`)
-
-Legacy widget hash verification flow is considered deprecated for this implementation.
-
-The implementation follows the existing authentication patterns established for Google OAuth and email/password authentication, ensuring consistency across the codebase. The design maintains backward compatibility with existing authentication methods and allows users to link multiple authentication providers to a single account.
+The implementation uses the official Telegram Login Widget (window.Telegram.Login.auth) loaded in a Flutter WebView, which provides user authentication data that is verified server-side. The design maintains backward compatibility with existing authentication methods and allows users to link multiple authentication providers to a single account.
 
 ### Key Design Principles
 
-- **Security First**: HMAC SHA256 verification, auth_date validation, and HTTPS enforcement
-- **Consistency**: Follow existing NestJS auth patterns (strategies, DTOs, services)
+- **Security First**: HMAC SHA256 verification using SHA256(bot_token) as secret key, auth_date validation, and HTTPS enforcement
+- **Consistency**: Follow existing NestJS auth patterns (DTOs, services, modules)
 - **Backward Compatibility**: Existing users and authentication methods remain unaffected
 - **Account Linking**: Support multiple authentication methods per user account
-- **Mobile-First**: Deep link handling for seamless Flutter app integration
+- **Mobile-First**: WebView integration for seamless Flutter app experience
 
 ## Architecture
 
@@ -82,39 +70,40 @@ graph TB
 sequenceDiagram
     participant U as User
     participant F as Flutter App
-    participant B as Browser
-    participant T as Telegram
+    participant W as WebView
+    participant T as Telegram Widget
     participant BE as Backend
     participant DB as Database
     
     U->>F: Tap "Continue with Telegram"
-    F->>B: Open OAuth URL
-    B->>T: Redirect to Telegram
+    F->>W: Load Telegram Widget Script
+    W->>T: Load https://telegram.org/js/telegram-widget.js
+    F->>W: Inject JS: window.Telegram.Login.auth({bot_id, request_access})
+    W->>T: Open Telegram Auth Popup
     T->>U: Request Authorization
     U->>T: Approve
-    T->>BE: Callback with auth data + hash
+    T->>W: Return user data (id, first_name, hash, auth_date, etc.)
+    W->>F: JavaScript callback with user data
+    F->>BE: POST /auth/telegram with user data
     
-    BE->>BE: Verify HMAC SHA256 hash
+    BE->>BE: Create secret = SHA256(bot_token)
+    BE->>BE: Create data_check_string (sorted params)
+    BE->>BE: Compute HMAC-SHA256(data_check_string, secret)
+    BE->>BE: Verify hash matches
     BE->>BE: Validate auth_date (< 24h)
-    BE->>BE: Validate required parameters
     
     alt User exists with telegram_id
         BE->>DB: Find user by telegram_id
         DB->>BE: Return existing user
-    else User exists with matching email
-        BE->>DB: Update user with telegram_id
-        DB->>BE: Return updated user
     else New user
-        BE->>DB: Create new user
+        BE->>DB: Create new user with Telegram data
         BE->>DB: Create default subscription
         DB->>BE: Return new user
     end
     
     BE->>BE: Generate JWT token
-    BE->>B: Redirect to deep link with token
-    B->>F: Trigger myapp://login-success?token=JWT
-    F->>F: Extract and validate token
-    F->>F: Store token in secure storage
+    BE->>F: Return {accessToken, refreshToken, user}
+    F->>F: Store tokens in secure storage
     F->>U: Navigate to home screen
 ```
 
@@ -196,10 +185,9 @@ export class TelegramHashVerifier {
 - Validate auth_date timestamp
 - Construct data check string
 - Compute expected hash
-
 #### 4. Auth Controller Extensions
 
-Add new endpoints to existing `auth.controller.ts`:
+Add new endpoint to existing `auth.controller.ts`:
 
 ```typescript
 @Controller('auth')
@@ -207,19 +195,22 @@ export class AuthController {
   // ... existing methods ...
 
   @Post('telegram')
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
-  async telegramAuth(@Body() dto: TelegramAuthDto) {
-    return this.authService.telegramLogin(dto);
-  }
-
-  @Get('telegram/callback')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
-  async telegramCallback(@Query() query: TelegramCallbackDto, @Res() res: Response) {
-    const token = await this.authService.handleTelegramCallback(query);
-    const deepLink = `myapp://login-success?token=${token}`;
-    return res.redirect(302, deepLink);
+  async telegramAuth(@Body() dto: TelegramAuthDto) {
+    // Verify hash and auth_date
+    const isValid = await this.telegramAuthService.verifyTelegramAuth(dto);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid Telegram authentication data');
+    }
+    
+    // Find or create user
+    const user = await this.authService.findOrCreateTelegramUser(dto);
+    
+    // Generate JWT tokens
+    return this.authService.login(user);
   }
 }
+```
 ```
 
 #### 5. Auth Service Extensions
@@ -281,65 +272,50 @@ export class TelegramCallbackDto extends TelegramAuthDto {
   // Used for GET /auth/telegram/callback query parameters
 }
 ```
-
-### Frontend Components
-
 #### 1. Auth Provider Extensions (`auth_provider.dart`)
 
-Extend existing AuthProvider with Telegram authentication:
+Extend existing AuthProvider with Telegram authentication using WebView:
 
 ```dart
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+
 class AuthProvider extends ChangeNotifier {
   // ... existing methods ...
 
-  /// Sign in with Telegram OAuth
-  Future<bool> signInWithTelegram() async {
+  /// Sign in with Telegram using WebView
+  Future<bool> signInWithTelegram(BuildContext context) async {
     _log.info('AuthProvider', 'Telegram Sign-In attempt');
     _setLoading(true);
     _error = null;
     
     try {
-      // Construct Telegram OAuth URL
-      final telegramUrl = _buildTelegramOAuthUrl();
+      // Show WebView dialog with Telegram Login Widget
+      final userData = await showDialog<Map<String, dynamic>>(
+        context: context,
+        builder: (context) => TelegramLoginDialog(
+          botId: dotenv.env['TELEGRAM_BOT_ID']!,
+        ),
+      );
       
-      // Open in external browser
-      if (await canLaunchUrl(Uri.parse(telegramUrl))) {
-        await launchUrl(
-          Uri.parse(telegramUrl),
-          mode: LaunchMode.externalApplication,
-        );
-        return true;
-      } else {
-        throw Exception('Could not launch Telegram authentication');
+      if (userData == null) {
+        throw Exception('Authentication cancelled');
       }
-    } catch (e) {
-      _error = e.toString().replaceFirst('Exception: ', '');
-      _log.error('AuthProvider', 'Telegram Sign-In failed', e);
-      notifyListeners();
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  /// Handle deep link callback from Telegram auth
-  Future<bool> handleTelegramCallback(String token) async {
-    _log.info('AuthProvider', 'Handling Telegram callback');
-    _setLoading(true);
-    _error = null;
-    
-    try {
-      // Validate token format
-      if (token.isEmpty) {
-        throw Exception('Invalid token received');
-      }
+      
+      // Send authentication data to backend
+      final response = await _api.post('/auth/telegram', body: userData);
       
       // Store tokens
-      await _secureStorage.write(key: 'accessToken', value: token);
-      _accessToken = token;
+      await _secureStorage.write(
+        key: 'accessToken',
+        value: response['accessToken'],
+      );
+      await _secureStorage.write(
+        key: 'refreshToken',
+        value: response['refreshToken'],
+      );
       
-      // Fetch user profile
-      _user = await _api.getProfile(token);
+      _accessToken = response['accessToken'];
+      _user = response['user'];
       _isAuthenticated = true;
       
       _log.success('AuthProvider', 'Telegram authentication successful', {
@@ -351,25 +327,75 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
-      _log.error('AuthProvider', 'Telegram callback handling failed', e);
+      _log.error('AuthProvider', 'Telegram Sign-In failed', e);
       notifyListeners();
       return false;
     } finally {
       _setLoading(false);
     }
   }
-
-  String _buildTelegramOAuthUrl() {
-    final botUsername = dotenv.env['TELEGRAM_BOT_USERNAME'];
-    final callbackUrl = Uri.encodeComponent(
-      '${dotenv.env['API_BASE_URL']}/auth/telegram/callback'
-    );
-    return 'https://oauth.telegram.org/auth?bot_id=$botUsername&origin=${callbackUrl}&request_access=write';
+}
+``` return 'https://oauth.telegram.org/auth?bot_id=$botUsername&origin=${callbackUrl}&request_access=write';
   }
 }
 ```
 
 #### 2. Login Screen Widget (`login_screen.dart`)
+
+Add Telegram button to existing login screen:
+
+```dart
+class LoginScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
+    
+    return Scaffold(
+      body: Column(
+        children: [
+          // ... existing email/password fields ...
+          
+          // Social auth buttons
+#### 2. Telegram Login Dialog Widget (`telegram_login_dialog.dart`)
+
+Create a dialog with WebView for Telegram Login Widget:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'dart:convert';
+
+class TelegramLoginDialog extends StatefulWidget {
+  final String botId;
+  
+  const TelegramLoginDialog({
+    Key? key,
+    required this.botId,
+  }) : super(key: key);
+
+  @override
+  _TelegramLoginDialogState createState() => _TelegramLoginDialogState();
+}
+
+class _TelegramLoginDialogState extends State<TelegramLoginDialog> {
+  late InAppWebViewController _webViewController;
+  bool _isLoading = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        height: 500,
+        child: Stack(
+          children: [
+            InAppWebView(
+              initialData: InAppWebViewInitialData(
+                data: _getTelegramWidgetHtml(),
+              ),
+              initialSettings: InAppWebViewSettings(
+                javaScriptEnabled: true,
+#### 3. Login Screen Widget (`login_screen.dart`)
 
 Add Telegram button to existing login screen:
 
@@ -393,7 +419,7 @@ class LoginScreen extends StatelessWidget {
           ),
           
           ElevatedButton.icon(
-            onPressed: () => authProvider.signInWithTelegram(),
+            onPressed: () => authProvider.signInWithTelegram(context),
             icon: Icon(Icons.telegram),
             label: Text(l10n.continueWithTelegram),
             style: ElevatedButton.styleFrom(
@@ -405,24 +431,50 @@ class LoginScreen extends StatelessWidget {
     );
   }
 }
-```
-
-#### 3. Deep Link Handler (`main.dart`)
-
-Configure deep link handling in app initialization:
-
-```dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize deep link listener
-  _initDeepLinkListener();
-  
-  runApp(MyApp());
+```       background-color: #0088cc;
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          font-size: 16px;
+          border-radius: 8px;
+          cursor: pointer;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="telegram-login-container">
+        <h3>Login with Telegram</h3>
+        <button onclick="loginWithTelegram()">Continue with Telegram</button>
+      </div>
+      
+      <script>
+        function loginWithTelegram() {
+          if (window.Telegram && window.Telegram.Login) {
+            window.Telegram.Login.auth(
+              { 
+                bot_id: '${widget.botId}',
+                request_access: true 
+              },
+              function(data) {
+                if (data) {
+                  // Send data back to Flutter
+                  window.flutter_inappwebview.callHandler('telegramAuthCallback', data);
+                } else {
+                  alert('Authentication failed or was cancelled');
+                }
+              }
+            );
+          } else {
+            alert('Telegram Login Widget not loaded');
+          }
+        }
+      </script>
+    </body>
+    </html>
+    ''';
+  }
 }
-
-void _initDeepLinkListener() {
-  // Listen for deep links when app is already running
+```/ Listen for deep links when app is already running
   uriLinkStream.listen((Uri? uri) {
     if (uri != null && uri.scheme == 'myapp') {
       _handleDeepLink(uri);
@@ -985,3 +1037,567 @@ All existing authentication endpoints remain unchanged:
 - `GET /auth/me` - Get current user profile
 
 New Telegram endpoints are additive only.
+
+
+## Correctness Properties
+
+A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.
+
+### Property Reflection
+
+After analyzing all acceptance criteria, I identified several areas where properties can be consolidated to eliminate redundancy:
+
+**Consolidation Decisions:**
+
+1. **Hash Verification Properties (3.1, 3.2, 3.3, 3.4)**: These can be combined into a single comprehensive property about hash verification round-trip behavior
+2. **User Creation Properties (5.4, 5.5, 5.6, 5.7)**: These can be combined into a single property about new user initialization
+3. **Error Message Properties (9.1, 9.2)**: These are specific enough to remain separate as they test different error conditions
+4. **Parameter Validation Properties (8.1, 8.2, 8.3, 8.4, 8.5)**: These can be combined into a single comprehensive validation property
+5. **JWT Properties (7.1, 7.2, 7.7)**: These can be combined into a single property about JWT generation consistency
+6. **Logging Properties (3.5, 4.5, 9.7)**: These can be combined into a single property about comprehensive error logging
+
+### Property 1: OAuth URL Construction
+
+For any bot credentials and callback URL, the constructed Telegram OAuth URL should contain the bot username and properly encoded callback URL in the correct format.
+
+**Validates: Requirements 1.3**
+
+### Property 2: Parameter Extraction Completeness
+
+For any valid Telegram callback request containing authentication parameters, all parameters (id, first_name, last_name, username, photo_url, auth_date, hash) should be extracted and available for processing.
+
+**Validates: Requirements 2.3**
+
+### Property 3: Hash Verification Round-Trip
+
+For any valid Telegram authentication data with correct bot token, computing the HMAC SHA256 hash from the data check string (parameters sorted alphabetically, excluding hash) and comparing it with the provided hash should correctly identify valid and invalid authentication attempts.
+
+**Validates: Requirements 3.1, 3.2, 3.3, 3.4**
+
+### Property 4: Auth Date Expiration Validation
+
+For any auth_date timestamp, if the time difference between current server time and auth_date exceeds 86400 seconds (24 hours) or is negative (future timestamp), the authentication request should be rejected with a 401 Unauthorized error.
+
+**Validates: Requirements 4.2, 4.3**
+
+### Property 5: User Lookup and Authentication
+
+For any valid Telegram authentication data with a telegram_id that exists in the database, the system should authenticate the existing user rather than creating a new account.
+
+**Validates: Requirements 5.1, 5.2**
+
+### Property 6: New User Initialization
+
+For any valid Telegram authentication data without an existing user, a new user should be created with accountStatus set to ACTIVE, role set to PATIENT, a generated password hash, and a default Premium trial subscription with 1-month expiration.
+
+**Validates: Requirements 5.3, 5.4, 5.5, 5.6, 5.7**
+
+### Property 7: Account Linking by Email
+
+For any existing user with a matching email but no telegram_id, when Telegram authentication is received with that email, the user record should be updated with Telegram profile data without creating a duplicate account.
+
+**Validates: Requirements 5.8**
+
+### Property 8: Telegram ID Uniqueness
+
+For any two users in the database, they cannot have the same non-null telegram_id value, ensuring each Telegram account can only be linked to one user account.
+
+**Validates: Requirements 6.7**
+
+### Property 9: Backward Compatibility
+
+For any existing user record created before Telegram authentication was implemented, all Telegram fields (telegram_id, telegram_username, telegram_first_name, telegram_last_name, telegram_photo_url) should be null and the user should be able to authenticate using their existing authentication method.
+
+**Validates: Requirements 6.6, 10.1**
+
+### Property 10: JWT Token Generation Consistency
+
+For any successful authentication (Telegram, Google, or email/password), the generated JWT token should include user ID, role, and use the same expiration settings, ensuring consistent token structure across all authentication methods.
+
+**Validates: Requirements 7.1, 7.2, 7.7, 10.7**
+
+### Property 11: Deep Link URL Format
+
+For any JWT token generated after successful Telegram authentication, the constructed deep link URL should follow the format `myapp://login-success?token={JWT_Token}` and trigger a 302 HTTP redirect.
+
+**Validates: Requirements 7.3, 7.4**
+
+### Property 12: Token Extraction and Storage
+
+For any deep link received by the Flutter app with a token parameter, the token should be extracted, validated as non-empty, and stored in secure storage (flutter_secure_storage).
+
+**Validates: Requirements 7.5, 11.2, 11.3, 11.4**
+
+### Property 13: Token Validation Before Navigation
+
+For any JWT token received via deep link, the token should be verified as valid before navigating to the home screen; if invalid or missing, an error message should be displayed and the user should remain on the login screen.
+
+**Validates: Requirements 11.5, 11.6**
+
+### Property 14: Comprehensive Parameter Validation
+
+For any Telegram authentication request, all required parameters (id, first_name, auth_date, hash) should be validated for presence, type correctness (id as positive integer, auth_date as valid Unix timestamp), and format; requests with missing or invalid parameters should be rejected with a 400 Bad Request error.
+
+**Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5**
+
+### Property 15: Input Sanitization
+
+For any string parameter received in Telegram authentication data (first_name, last_name, username), the value should be sanitized to prevent injection attacks before being stored in the database.
+
+**Validates: Requirements 8.6**
+
+### Property 16: Hash Verification Error Message
+
+For any Telegram authentication request where the computed HMAC SHA256 hash does not match the provided hash, the system should return a 401 Unauthorized error with the message "Invalid authentication data".
+
+**Validates: Requirements 9.1**
+
+### Property 17: Auth Date Expiration Error Message
+
+For any Telegram authentication request where the auth_date is older than 24 hours, the system should return a 401 Unauthorized error with the message "Authentication data has expired".
+
+**Validates: Requirements 4.4, 9.2**
+
+### Property 18: Comprehensive Error Logging
+
+For any authentication error (hash verification failure, expired auth_date, missing parameters, user creation failure), the system should create a log entry with sufficient detail including error type, telegram_id, auth_date, and error message for security monitoring and debugging.
+
+**Validates: Requirements 3.5, 4.5, 9.7**
+
+### Property 19: Error Dialog Display
+
+For any authentication error in the Flutter app, an error dialog should be displayed to the user with a user-friendly error message and a "Try Again" button for retry.
+
+**Validates: Requirements 9.5, 9.6**
+
+### Property 20: Multiple Authentication Methods
+
+For any user account, multiple authentication methods (Google, Telegram, email/password) should be linkable to the same account without creating duplicate user records, identified by matching email addresses.
+
+**Validates: Requirements 10.5, 10.6**
+
+## Testing Strategy
+
+### Dual Testing Approach
+
+This feature requires both unit tests and property-based tests to ensure comprehensive coverage:
+
+**Unit Tests** focus on:
+- Specific examples of OAuth URL construction
+- Rate limiting behavior (5 requests for /auth/telegram, 10 for /auth/telegram/callback)
+- Database schema validation (Telegram fields exist with correct types)
+- Deep link registration in app manifest
+- HTTPS enforcement in production environment
+- Specific error scenarios (Telegram API unavailable, user creation failure)
+- Backward compatibility with existing auth methods (Google, email/password, OTP)
+
+**Property-Based Tests** focus on:
+- Universal properties that hold for all inputs
+- Hash verification with randomly generated authentication data
+- Auth date validation with various timestamps
+- Parameter validation with random valid and invalid inputs
+- User creation and account linking with random user data
+- JWT token generation consistency across auth methods
+- Deep link parsing with random token values
+
+### Property-Based Testing Configuration
+
+**Testing Library**: Use `fast-check` for TypeScript/NestJS backend and `test` package with custom generators for Flutter/Dart frontend.
+
+**Test Configuration**:
+- Minimum 100 iterations per property test
+- Each test tagged with feature name and property number
+- Tag format: `Feature: telegram-authentication, Property {number}: {property_text}`
+
+**Example Property Test (Backend)**:
+
+```typescript
+import * as fc from 'fast-check';
+
+describe('Feature: telegram-authentication, Property 3: Hash Verification Round-Trip', () => {
+  it('should correctly verify valid and invalid HMAC SHA256 hashes', () => {
+    fc.assert(
+      fc.property(
+        fc.record({
+          id: fc.integer({ min: 1, max: 9999999
+## Correctness Properties
+
+A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.
+
+### Property Reflection
+
+After analyzing all acceptance criteria, I identified several areas where properties can be consolidated to eliminate redundancy:
+
+**Consolidation Decisions:**
+
+1. **Hash Verification Properties (3.1, 3.2, 3.3, 3.4)**: Combined into a single comprehensive property about hash verification
+2. **User Creation Properties (5.4, 5.5, 5.6, 5.7)**: Combined into a single property about new user initialization
+3. **Parameter Validation Properties (8.1, 8.2, 8.3, 8.4, 8.5)**: Combined into comprehensive validation property
+4. **JWT Properties (7.1, 7.2, 7.7)**: Combined into JWT generation consistency property
+5. **Logging Properties (3.5, 4.5, 9.7)**: Combined into comprehensive error logging property
+
+### Property 1: OAuth URL Construction
+
+For any bot credentials and callback URL, the constructed Telegram OAuth URL should contain the bot username and properly encoded callback URL in the correct format.
+
+**Validates: Requirements 1.3**
+
+### Property 2: Parameter Extraction Completeness
+
+For any valid Telegram callback request containing authentication parameters, all parameters should be extracted and available for processing.
+
+**Validates: Requirements 2.3**
+
+### Property 3: Hash Verification Round-Trip
+
+For any valid Telegram authentication data with correct bot token, computing the HMAC SHA256 hash from the data check string (parameters sorted alphabetically, excluding hash) and comparing it with the provided hash should correctly identify valid and invalid authentication attempts.
+
+**Validates: Requirements 3.1, 3.2, 3.3, 3.4**
+
+### Property 4: Auth Date Expiration Validation
+
+For any auth_date timestamp, if the time difference between current server time and auth_date exceeds 86400 seconds or is negative, the authentication request should be rejected with a 401 Unauthorized error.
+
+**Validates: Requirements 4.2, 4.3**
+
+### Property 5: User Lookup and Authentication
+
+For any valid Telegram authentication data with a telegram_id that exists in the database, the system should authenticate the existing user rather than creating a new account.
+
+**Validates: Requirements 5.1, 5.2**
+
+### Property 6: New User Initialization
+
+For any valid Telegram authentication data without an existing user, a new user should be created with accountStatus ACTIVE, role PATIENT, a generated password hash, and a default Premium trial subscription.
+
+**Validates: Requirements 5.3, 5.4, 5.5, 5.6, 5.7**
+
+### Property 7: Account Linking by Email
+
+For any existing user with a matching email but no telegram_id, when Telegram authentication is received with that email, the user record should be updated with Telegram profile data without creating a duplicate account.
+
+**Validates: Requirements 5.8**
+
+### Property 8: Telegram ID Uniqueness
+
+For any two users in the database, they cannot have the same non-null telegram_id value.
+
+**Validates: Requirements 6.7**
+
+### Property 9: Backward Compatibility
+
+For any existing user record created before Telegram authentication, all Telegram fields should be null and the user should authenticate using their existing method.
+
+**Validates: Requirements 6.6, 10.1**
+
+### Property 10: JWT Token Generation Consistency
+
+For any successful authentication method, the generated JWT token should include user ID, role, and use the same expiration settings.
+
+**Validates: Requirements 7.1, 7.2, 7.7, 10.7**
+
+### Property 11: Deep Link URL Format
+
+For any JWT token generated after successful Telegram authentication, the constructed deep link URL should follow the format myapp://login-success?token={JWT_Token}.
+
+**Validates: Requirements 7.3, 7.4**
+
+### Property 12: Token Extraction and Storage
+
+For any deep link received with a token parameter, the token should be extracted, validated as non-empty, and stored in secure storage.
+
+**Validates: Requirements 7.5, 11.2, 11.3, 11.4**
+
+### Property 13: Token Validation Before Navigation
+
+For any JWT token received via deep link, the token should be verified as valid before navigating to home screen; if invalid, an error should be displayed.
+
+**Validates: Requirements 11.5, 11.6**
+
+### Property 14: Comprehensive Parameter Validation
+
+For any Telegram authentication request, all required parameters should be validated for presence, type correctness, and format; invalid requests should be rejected with 400 Bad Request.
+
+**Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5**
+
+### Property 15: Input Sanitization
+
+For any string parameter received in Telegram authentication data, the value should be sanitized to prevent injection attacks.
+
+**Validates: Requirements 8.6**
+
+### Property 16: Hash Verification Error Message
+
+For any authentication request where the computed hash does not match the provided hash, the system should return 401 with message "Invalid authentication data".
+
+**Validates: Requirements 9.1**
+
+### Property 17: Auth Date Expiration Error Message
+
+For any authentication request where auth_date is older than 24 hours, the system should return 401 with message "Authentication data has expired".
+
+**Validates: Requirements 4.4, 9.2**
+
+### Property 18: Comprehensive Error Logging
+
+For any authentication error, the system should create a log entry with sufficient detail including error type, telegram_id, auth_date, and error message.
+
+**Validates: Requirements 3.5, 4.5, 9.7**
+
+### Property 19: Error Dialog Display
+
+For any authentication error in the Flutter app, an error dialog should be displayed with a user-friendly message and a "Try Again" button.
+
+**Validates: Requirements 9.5, 9.6**
+
+### Property 20: Multiple Authentication Methods
+
+For any user account, multiple authentication methods should be linkable to the same account without creating duplicates, identified by matching email.
+
+**Validates: Requirements 10.5, 10.6**
+
+
+## Testing Strategy
+
+### Dual Testing Approach
+
+This feature requires both unit tests and property-based tests to ensure comprehensive coverage:
+
+**Unit Tests** focus on:
+- Specific examples of OAuth URL construction
+- Rate limiting behavior (5 requests for /auth/telegram, 10 for /auth/telegram/callback)
+- Database schema validation (Telegram fields exist with correct types)
+- Deep link registration in app manifest
+- HTTPS enforcement in production environment
+- Specific error scenarios (Telegram API unavailable, user creation failure)
+- Backward compatibility with existing auth methods (Google, email/password, OTP)
+- Localization support (English and Khmer button text)
+- UI widget rendering (Telegram button on login screen)
+
+**Property-Based Tests** focus on:
+- Universal properties that hold for all inputs
+- Hash verification with randomly generated authentication data
+- Auth date validation with various timestamps
+- Parameter validation with random valid and invalid inputs
+- User creation and account linking with random user data
+- JWT token generation consistency across auth methods
+- Deep link parsing with random token values
+- Input sanitization with various malicious inputs
+
+### Property-Based Testing Configuration
+
+**Testing Libraries**:
+- Backend (NestJS): `fast-check` for TypeScript property-based testing
+- Frontend (Flutter): `test` package with custom generators for Dart
+
+**Test Configuration**:
+- Minimum 100 iterations per property test
+- Each test tagged with feature name and property number
+- Tag format: `Feature: telegram-authentication, Property {number}: {property_text}`
+
+**Example Property Test Structure (Backend)**:
+
+```typescript
+import * as fc from 'fast-check';
+
+describe('Feature: telegram-authentication, Property 3: Hash Verification Round-Trip', () => {
+  it('should correctly verify valid and invalid HMAC SHA256 hashes', () => {
+    fc.assert(
+      fc.property(
+        fc.record({
+          id: fc.integer({ min: 1, max: 999999999 }),
+          first_name: fc.string({ minLength: 1, maxLength: 100 }),
+          last_name: fc.option(fc.string({ maxLength: 100 })),
+          username: fc.option(fc.string({ minLength: 5, maxLength: 32 })),
+          auth_date: fc.integer({ min: 1600000000, max: 2000000000 }),
+        }),
+        (telegramData) => {
+          const verifier = new TelegramHashVerifier(configService);
+          
+          // Compute valid hash
+          const validHash = verifier.computeHash(telegramData, botToken);
+          const dataWithValidHash = { ...telegramData, hash: validHash };
+          
+          // Valid hash should pass verification
+          expect(verifier.verifyHash(dataWithValidHash)).toBe(true);
+          
+          // Invalid hash should fail verification
+          const invalidHash = 'a'.repeat(64);
+          const dataWithInvalidHash = { ...telegramData, hash: invalidHash };
+          expect(verifier.verifyHash(dataWithInvalidHash)).toBe(false);
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
+});
+```
+
+**Example Property Test Structure (Frontend)**:
+
+```dart
+import 'package:test/test.dart';
+
+void main() {
+  group('Feature: telegram-authentication, Property 12: Token Extraction and Storage', () {
+    test('should extract and store token from any valid deep link', () {
+      final random = Random();
+      
+      for (int i = 0; i < 100; i++) {
+        // Generate random JWT-like token
+        final token = _generateRandomToken(random);
+        final deepLink = Uri.parse('myapp://login-success?token=$token');
+        
+        // Extract token
+        final extractedToken = deepLink.queryParameters['token'];
+        
+        // Verify extraction
+        expect(extractedToken, equals(token));
+        expect(extractedToken, isNotEmpty);
+        
+        // Verify storage (mock secure storage)
+        final storage = MockSecureStorage();
+        storage.write(key: 'accessToken', value: extractedToken);
+        
+        final storedToken = storage.read(key: 'accessToken');
+        expect(storedToken, equals(token));
+      }
+    });
+  });
+}
+```
+
+### Unit Test Coverage Requirements
+
+**Backend Unit Tests**:
+
+1. **Telegram Hash Verifier**:
+   - Valid hash verification passes
+   - Invalid hash verification fails
+   - Data check string construction (alphabetical order, excluding hash)
+   - Auth date validation (current, expired, future timestamps)
+   - Edge cases: empty strings, special characters, very long strings
+
+2. **Telegram Auth Service**:
+   - User lookup by telegram_id
+   - User creation with Telegram data
+   - Account linking by email
+   - Subscription creation for new users
+   - Error handling for database failures
+
+3. **Auth Controller**:
+   - POST /auth/telegram endpoint exists and responds
+   - GET /auth/telegram/callback endpoint exists and responds
+   - Rate limiting enforcement (5 and 10 requests per minute)
+   - Parameter extraction from query string
+   - Deep link redirect with JWT token
+
+4. **Integration Tests**:
+   - Complete authentication flow from callback to JWT generation
+   - Account linking scenarios (existing Google user + Telegram)
+   - Backward compatibility with existing auth methods
+   - Error scenarios (invalid hash, expired auth_date, missing parameters)
+
+**Frontend Unit Tests**:
+
+1. **Auth Provider**:
+   - signInWithTelegram() constructs correct OAuth URL
+   - handleTelegramCallback() extracts and stores token
+   - Error handling for invalid tokens
+   - Deep link parsing logic
+
+2. **Login Screen Widget**:
+   - Telegram button renders correctly
+   - Button tap triggers signInWithTelegram()
+   - Localization support (English and Khmer)
+   - Button styling (Telegram blue color)
+
+3. **Deep Link Handler**:
+   - Deep link registration in app manifest
+   - URI parsing and token extraction
+   - Navigation to home screen after successful auth
+   - Error handling for malformed deep links
+
+4. **Widget Tests**:
+   - Login screen renders Telegram button
+   - Error dialog displays correctly
+   - "Try Again" button functionality
+
+### Integration Testing
+
+**End-to-End Test Scenarios**:
+
+1. **New User Registration via Telegram**:
+   - User taps "Continue with Telegram"
+   - Browser opens with Telegram OAuth
+   - User authorizes in Telegram
+   - Callback received with valid data
+   - New user created with Premium trial
+   - JWT token generated and stored
+   - User navigated to home screen
+
+2. **Existing User Login via Telegram**:
+   - User with existing Telegram account logs in
+   - System finds user by telegram_id
+   - JWT token generated
+   - User navigated to home screen
+
+3. **Account Linking**:
+   - User with Google account uses Telegram auth
+   - System links Telegram to existing account by email
+   - No duplicate user created
+   - JWT token includes both Google and Telegram IDs
+
+4. **Error Scenarios**:
+   - Invalid hash rejected with 401
+   - Expired auth_date rejected with 401
+   - Missing parameters rejected with 400
+   - Rate limiting enforced
+   - Error dialogs displayed in Flutter app
+
+### Security Testing
+
+**Security Test Cases**:
+
+1. **Hash Verification**:
+   - Tampered authentication data rejected
+   - Modified hash values rejected
+   - Replay attacks prevented by auth_date validation
+
+2. **Input Validation**:
+   - SQL injection attempts sanitized
+   - XSS attempts sanitized
+   - Invalid parameter types rejected
+   - Oversized inputs rejected
+
+3. **Rate Limiting**:
+   - Excessive requests blocked
+   - Rate limits reset after time window
+
+4. **HTTPS Enforcement**:
+   - Production endpoints require HTTPS
+   - HTTP requests redirected to HTTPS
+
+### Performance Testing
+
+**Performance Benchmarks**:
+
+1. **Hash Verification**: < 10ms per verification
+2. **User Lookup**: < 50ms database query
+3. **JWT Generation**: < 20ms per token
+4. **Complete Auth Flow**: < 500ms end-to-end
+
+### Test Data Management
+
+**Test Data Strategy**:
+
+1. **Property-Based Tests**: Use generators for random valid and invalid data
+2. **Unit Tests**: Use fixtures for specific test cases
+3. **Integration Tests**: Use test database with seed data
+4. **E2E Tests**: Use staging environment with test Telegram bot
+
+**Test Telegram Bot Configuration**:
+- Separate bot for testing (different bot token)
+- Test bot username: `dastern_test_bot`
+- Test callback URL: `http://localhost:3000/auth/telegram/callback`
+
