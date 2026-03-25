@@ -1,0 +1,56 @@
+#!/bin/bash
+# ============================================================================
+# QUICK START - Run these commands in order
+# ============================================================================
+
+echo "🚀 BAKONG PAYMENT DEPLOYMENT - QUICK START"
+echo "==========================================="
+echo ""
+echo "Your Configuration:"
+echo "  📍 Local IP: 10.212.42.210"
+echo "  🌐 Public IP: 117.20.116.46"
+echo "  🔗 Domain: payment.dastern.site"
+echo "  📧 Email: dastern.healthcare@gmail.com"
+echo ""
+echo "==========================================="
+echo ""
+
+# Step 1
+echo "STEP 1: Make scripts executable"
+echo "$ chmod +x /home/rayu/das-tern/bakong_payment/{deploy.sh,install-prerequisites.sh}"
+echo ""
+
+# Step 2
+echo "STEP 2: Install prerequisites"
+echo "$ sudo bash /home/rayu/das-tern/bakong_payment/install-prerequisites.sh"
+echo ""
+
+# Step 3
+echo "STEP 3: Update DNS in your registrar"
+echo "  ⚠️  CREATE AN A RECORD:"
+echo "      Name: payment"
+echo "      Type: A"
+echo "      Value: 117.20.116.46"
+echo "  ⏱️  Wait 5-15 minutes for DNS propagation"
+echo ""
+
+# Step 4
+echo "STEP 4: Configure port forwarding on your router"
+echo "  Forward Port 80 → 10.212.42.210:80"
+echo "  Forward Port 443 → 10.212.42.210:443"
+echo ""
+
+# Step 5
+echo "STEP 5: Run full deployment"
+echo "$ sudo bash /home/rayu/das-tern/bakong_payment/deploy.sh"
+echo ""
+
+# Step 6
+echo "STEP 6: Verify deployment"
+echo "$ curl https://payment.dastern.site/api/health"
+echo ""
+
+echo "==========================================="
+echo "For detailed instructions, read:"
+echo "  /home/rayu/das-tern/bakong_payment/DEPLOYMENT_GUIDE.md"
+echo "==========================================="
