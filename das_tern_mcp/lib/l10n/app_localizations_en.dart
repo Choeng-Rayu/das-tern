@@ -775,6 +775,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get healthVitals => 'Health Vitals';
 
   @override
+  String get assignedDoctor => 'Assigned Doctor';
+
+  @override
+  String get noVitalsRecorded => 'No vitals recorded during this period';
+
+  @override
   String get thresholds => 'Thresholds';
 
   @override

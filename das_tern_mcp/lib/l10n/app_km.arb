@@ -285,6 +285,8 @@
   "searchPrescription": "ស្វែងរកថ្នាំបញ្ជា",
   "medicationIntakeHistory": "សកម្មភាពពេល\nទទួលថ្នាំ",
   "healthVitals": "សុខភាពសារជាតិ",
+  "assignedDoctor": "វេជ្ជបណ្ឌិតជំនួយ",
+  "noVitalsRecorded": "មិនមានការកត់ត្រាសុខភាពក្នុងកំឡុងពេលនេះទេ",
   "thresholds": "កំណត់កម្រិត",
   "emergencyLabel": "ពេលបន្ទាន់",
   "recordLabel": "កត់ត្រា",

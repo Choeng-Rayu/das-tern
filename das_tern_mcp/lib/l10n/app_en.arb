@@ -305,6 +305,8 @@
   "searchPrescription": "Search prescriptions",
   "medicationIntakeHistory": "Medication\nintake history",
   "healthVitals": "Health Vitals",
+  "assignedDoctor": "Assigned Doctor",
+  "noVitalsRecorded": "No vitals recorded during this period",
   "thresholds": "Thresholds",
   "emergencyLabel": "Emergency",
   "recordLabel": "Record",
