@@ -1,38 +1,35 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import * as sgMail from '@sendgrid/mail';
 import * as validator from 'validator';
 
 @Injectable()
 export class EmailService {
-  private transporter;
   private readonly logger = new Logger(EmailService.name);
-  private readonly isDev: boolean;
   private readonly emailConfigured: boolean;
+  private readonly fromEmail: string;
+  private readonly fromName: string;
 
-  constructor(private configService: ConfigService) {
-    this.isDev = configService.get('NODE_ENV') === 'development';
-    const emailUser = configService.get('SENDGRID_FROM_EMAIL');
-    const emailPass = configService.get('SENDGRID_API_KEY');
-    this.emailConfigured =
-      !!emailUser &&
-      !!emailPass &&
-      emailUser !== 'noreply@dastern.com' &&
-      emailPass !== 'your-gmail-app-password-or-sendgrid-key';
+  constructor(configService: ConfigService) {
+    const apiKey = configService.get<string>('SENDGRID_API_KEY', '');
+    this.fromEmail = configService.get<string>('SENDGRID_FROM_EMAIL', 'noreply@dastern.com');
+    this.fromName = configService.get<string>('SENDGRID_FROM_NAME', 'Das Tern');
 
-    if (!this.emailConfigured) {
-      this.logger.warn('⚠️  Email credentials not configured — emails will be logged to console in dev mode');
+    // Valid SendGrid HTTP API key always starts with 'SG.'
+    // DigitalOcean blocks SMTP ports (25, 465, 587), so we use
+    // SendGrid's HTTP API (HTTPS port 443) to bypass port blocking.
+    this.emailConfigured = apiKey.startsWith('SG.');
+
+    if (this.emailConfigured) {
+      sgMail.setApiKey(apiKey);
+      this.logger.log('✅ SendGrid HTTP API configured — emails will be sent via HTTPS');
+    } else {
+      this.logger.warn(
+        '⚠️  SendGrid API key not set or invalid (must start with SG.) — ' +
+        'emails will be logged to console only. ' +
+        'Get a free key at https://app.sendgrid.com/settings/api_keys',
+      );
     }
-
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: emailUser,
-        pass: emailPass,
-      },
-    });
   }
 
   private validateAndSanitizeEmail(email: string): string {
@@ -42,17 +39,26 @@ export class EmailService {
     return validator.normalizeEmail(email) || email;
   }
 
+  /** Send an email via SendGrid HTTP API (bypasses SMTP port blocks on cloud VPS). */
+  private async send(msg: sgMail.MailDataRequired): Promise<void> {
+    if (!this.emailConfigured) {
+      this.logger.warn(`[NO-EMAIL] Would have sent "${msg.subject}" to ${msg.to} — SendGrid key not configured`);
+      return;
+    }
+    await sgMail.send(msg);
+  }
+
   async sendOTP(email: string, otp: string) {
     const sanitizedEmail = this.validateAndSanitizeEmail(email);
 
     if (!this.emailConfigured) {
-      this.logger.log(`[DEV] OTP email skipped — credentials not set`);
+      this.logger.log(`[DEV] OTP for ${sanitizedEmail}: ${otp}`);
       console.log(`\n📧 OTP Email to ${sanitizedEmail}:\n🔐 OTP Code: ${otp}\n`);
       return;
     }
 
-    await this.transporter.sendMail({
-      from: `"Das Tern" <${this.configService.get('SENDGRID_FROM_EMAIL')}>`,
+    await this.send({
+      from: { email: this.fromEmail, name: this.fromName },
       to: sanitizedEmail,
       subject: 'Your OTP Code - Das Tern',
       html: `
@@ -69,16 +75,16 @@ export class EmailService {
 
   async sendTestEmail(email: string) {
     const sanitizedEmail = this.validateAndSanitizeEmail(email);
-    
-    await this.transporter.sendMail({
-      from: `"Das Tern" <${this.configService.get('SENDGRID_FROM_EMAIL')}>`,
+
+    await this.send({
+      from: { email: this.fromEmail, name: this.fromName },
       to: sanitizedEmail,
       subject: 'Test Email - Das Tern',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #2D5BFF;">✅ Test Email Successful!</h1>
           <p>Email configuration is working correctly.</p>
-          <p>From: ${this.configService.get('SENDGRID_FROM_EMAIL')}</p>
+          <p>From: ${this.fromEmail}</p>
           <p>To: ${sanitizedEmail}</p>
         </div>
       `,
@@ -88,9 +94,9 @@ export class EmailService {
   async sendWelcomeEmail(email: string, name: string) {
     const sanitizedEmail = this.validateAndSanitizeEmail(email);
     const sanitizedName = validator.escape(name);
-    
-    await this.transporter.sendMail({
-      from: `"Das Tern" <${this.configService.get('SENDGRID_FROM_EMAIL')}>`,
+
+    await this.send({
+      from: { email: this.fromEmail, name: this.fromName },
       to: sanitizedEmail,
       subject: 'Welcome to Das Tern!',
       html: `
@@ -107,8 +113,8 @@ export class EmailService {
   async sendPasswordResetEmail(email: string, resetLink: string, otp: string) {
     const sanitizedEmail = this.validateAndSanitizeEmail(email);
 
-    await this.transporter.sendMail({
-      from: `"Das Tern" <${this.configService.get('SENDGRID_FROM_EMAIL')}>`,
+    await this.send({
+      from: { email: this.fromEmail, name: this.fromName },
       to: sanitizedEmail,
       subject: 'Password Reset - Das Tern',
       html: `
