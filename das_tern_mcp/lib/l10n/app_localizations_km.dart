@@ -775,6 +775,12 @@ class AppLocalizationsKm extends AppLocalizations {
   String get healthVitals => 'សុខភាពសារជាតិ';
 
   @override
+  String get assignedDoctor => 'វេជ្ជបណ្ឌិតជំនួយ';
+
+  @override
+  String get noVitalsRecorded => 'មិនមានការកត់ត្រាសុខភាពក្នុងកំឡុងពេលនេះទេ';
+
+  @override
   String get thresholds => 'កំណត់កម្រិត';
 
   @override

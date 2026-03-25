@@ -1598,6 +1598,18 @@ abstract class AppLocalizations {
   /// **'Health Vitals'**
   String get healthVitals;
 
+  /// No description provided for @assignedDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned Doctor'**
+  String get assignedDoctor;
+
+  /// No description provided for @noVitalsRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'No vitals recorded during this period'**
+  String get noVitalsRecorded;
+
   /// No description provided for @thresholds.
   ///
   /// In en, this message translates to:

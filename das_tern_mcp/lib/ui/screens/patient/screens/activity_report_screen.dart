@@ -8,18 +8,28 @@ import 'package:provider/provider.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../models/dose_event_model/dose_event.dart';
+import '../../../../models/prescription_model/prescription.dart';
+import '../../../../models/health_model/health_vital.dart';
 import '../../../../providers/adherence_provider.dart';
 import '../../../../providers/dose_provider.dart';
 import '../../../../providers/subscription_provider.dart';
+import '../../../../providers/auth_provider.dart';
+import '../../../../providers/prescription_provider.dart';
+import '../../../../providers/health_monitoring_provider.dart';
 import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
+import 'package:intl/intl.dart';
 
-/// Displays a comprehensive adherence and activity summary for the patient.
+/// Displays a comprehensive patient health report and activity summary.
 /// Sections:
-///   1. Summary cards (today, weekly, monthly adherence %)
-///   2. Weekly day-by-day breakdown
-///   3. Dose history list (last 30 days)
+///   1. Patient header card (name, DOB, age, gender, assigned doctor)
+///   2. Medication summary (detailed per-medication info)
+///   3. Summary cards (today, weekly, monthly adherence %)
+///   4. Weekly day-by-day breakdown
+///   5. Dose history list (last 30 days) - grouped by date
+///   6. Health vitals section (blood pressure, other vitals)
+///   7. Report timestamp footer
 /// The "Download PDF" button is visible to all users; tapping it checks premium status.
 class ActivityReportScreen extends StatefulWidget {
   const ActivityReportScreen({super.key});
@@ -42,6 +52,10 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
         startDate: monthAgo.toIso8601String().split('T')[0],
         endDate: now.toIso8601String().split('T')[0],
       );
+      // Fetch prescriptions for medication details and doctor info
+      context.read<PrescriptionProvider>().fetchPrescriptions(status: 'ACTIVE');
+      // Fetch latest health vitals
+      context.read<HealthMonitoringProvider>().fetchLatestVitals();
     });
   }
 
@@ -255,7 +269,13 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
     final l10n = AppLocalizations.of(context)!;
     final adherence = context.watch<AdherenceProvider>();
     final dose = context.watch<DoseProvider>();
+    final auth = context.watch<AuthProvider>();
+    final prescription = context.watch<PrescriptionProvider>();
+    final health = context.watch<HealthMonitoringProvider>();
     final cs = Theme.of(context).colorScheme;
+
+    final isLoading = adherence.isLoading || dose.isLoading ||
+                      prescription.isLoading || health.isLoading;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -272,7 +292,7 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
         backgroundColor: cs.surface,
         foregroundColor: cs.onSurface,
       ),
-      body: adherence.isLoading && dose.isLoading
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
@@ -282,17 +302,56 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // 1. Patient Header Card
+                  _PatientHeaderCard(auth: auth, l10n: l10n),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // 2. Assigned Doctor Card (if available)
+                  if (prescription.prescriptions.isNotEmpty &&
+                      prescription.prescriptions.first.doctor != null)
+                    ...[
+                      _AssignedDoctorCard(
+                        doctor: prescription.prescriptions.first.doctor!,
+                        l10n: l10n,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                    ],
+
+                  // 3. Medication Summary Section
+                  if (prescription.prescriptions.isNotEmpty) ...[
+                    _MedicationSummarySection(
+                      prescriptions: prescription.prescriptions,
+                      l10n: l10n,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                  ],
+
+                  // 4. Adherence Summary Cards
                   _SummaryCards(adherence: adherence, l10n: l10n),
                   const SizedBox(height: AppSpacing.lg),
+
+                  // 5. Weekly Breakdown
                   _WeeklyBreakdown(adherence: adherence, l10n: l10n),
                   const SizedBox(height: AppSpacing.lg),
+
+                  // 6. Download PDF Button
                   _DownloadPdfButton(
                     generatingPdf: _generatingPdf,
                     onTap: _onDownloadTapped,
                     l10n: l10n,
                   ),
                   const SizedBox(height: AppSpacing.lg),
+
+                  // 7. Dose History Section (grouped by date)
                   _DoseHistorySection(dose: dose, l10n: l10n),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // 8. Health Vitals Section
+                  _HealthVitalsSection(health: health, l10n: l10n),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // 9. Report Timestamp Footer
+                  _ReportTimestampFooter(),
                   const SizedBox(height: AppSpacing.xl),
                 ],
               ),
@@ -707,6 +766,23 @@ class _DoseHistorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
+    // Group doses by date
+    final groupedByDate = <String, List<DoseEvent>>{};
+    for (final event in dose.history) {
+      final dateKey = DateFormat.yMMMd().format(event.scheduledTime);
+      groupedByDate.putIfAbsent(dateKey, () => []);
+      groupedByDate[dateKey]!.add(event);
+    }
+
+    // Sort dates descending (most recent first)
+    final sortedDates = groupedByDate.keys.toList()
+      ..sort((a, b) {
+        final dateA = groupedByDate[a]!.first.scheduledTime;
+        final dateB = groupedByDate[b]!.first.scheduledTime;
+        return dateB.compareTo(dateA);
+      });
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -717,7 +793,7 @@ class _DoseHistorySection extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: const Center(child: CircularProgressIndicator()),
           )
@@ -726,7 +802,7 @@ class _DoseHistorySection extends StatelessWidget {
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               color: cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
               child: Column(
@@ -739,7 +815,9 @@ class _DoseHistorySection extends StatelessWidget {
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     l10n.noHistoryYet,
-                    style: TextStyle(color: cs.onSurfaceVariant),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
                   ),
                 ],
               ),
@@ -747,10 +825,31 @@ class _DoseHistorySection extends StatelessWidget {
           )
         else
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (int i = 0; i < dose.history.length; i++) ...[
-                _DoseHistoryCard(event: dose.history[i], l10n: l10n),
-                if (i < dose.history.length - 1) const SizedBox(height: 8),
+              for (final dateKey in sortedDates) ...[
+                // Date subheader
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 4,
+                    top: AppSpacing.sm,
+                    bottom: AppSpacing.xs,
+                  ),
+                  child: Text(
+                    dateKey,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                  ),
+                ),
+                // Doses for this date
+                ...groupedByDate[dateKey]!.map((event) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _DoseHistoryCard(event: event, l10n: l10n),
+                  );
+                }),
               ],
             ],
           ),
@@ -1515,6 +1614,640 @@ class _AdherenceStat extends StatelessWidget {
           Text(
             label,
             style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Patient Header Card ───────────────────────────────────────────────────────
+
+class _PatientHeaderCard extends StatelessWidget {
+  const _PatientHeaderCard({required this.auth, required this.l10n});
+
+  final AuthProvider auth;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final user = auth.user;
+
+    if (user == null) {
+      return const SizedBox.shrink();
+    }
+
+    final firstName = user['firstName'] as String? ?? '';
+    final lastName = user['lastName'] as String? ?? '';
+    final fullName = '$firstName $lastName'.trim();
+    final displayName = fullName.isEmpty ? l10n.patient : fullName;
+
+    final dateOfBirth = user['dateOfBirth'] != null
+        ? DateTime.tryParse(user['dateOfBirth'] as String)
+        : null;
+    final age = dateOfBirth != null
+        ? DateTime.now().difference(dateOfBirth).inDays ~/ 365
+        : null;
+
+    final genderStr = user['gender'] as String?;
+    final gender = genderStr != null ? _formatGender(genderStr) : null;
+
+    return Card(
+      elevation: 0,
+      color: cs.surfaceContainerHighest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          children: [
+            // Avatar
+            CircleAvatar(
+              radius: 36,
+              backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.12),
+              child: const Icon(
+                Icons.person_outline,
+                color: AppColors.primaryBlue,
+                size: 36,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            // Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    displayName,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  if (dateOfBirth != null)
+                    Text(
+                      '${l10n.dateOfBirth}: ${DateFormat.yMMMd().format(dateOfBirth)}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                    ),
+                  if (age != null)
+                    Text(
+                      '${l10n.age}: $age ${l10n.yearsUnit}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                    ),
+                  if (gender != null)
+                    Text(
+                      '${l10n.gender}: $gender',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatGender(String gender) {
+    switch (gender.toUpperCase()) {
+      case 'MALE':
+        return 'Male';
+      case 'FEMALE':
+        return 'Female';
+      case 'OTHER':
+        return 'Other';
+      default:
+        return gender;
+    }
+  }
+}
+
+// ── Assigned Doctor Card ──────────────────────────────────────────────────────
+
+class _AssignedDoctorCard extends StatelessWidget {
+  const _AssignedDoctorCard({required this.doctor, required this.l10n});
+
+  final Map<String, dynamic> doctor;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final doctorName = doctor['fullName'] as String? ?? 'Doctor';
+    final specialty = doctor['specialty'] as String? ?? '';
+    final hospitalClinic = doctor['hospitalClinic'] as String? ?? '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(title: l10n.assignedDoctor),
+        const SizedBox(height: AppSpacing.sm),
+        Card(
+          elevation: 0,
+          color: cs.surfaceContainerHighest,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: AppColors.successGreen.withValues(alpha: 0.12),
+                  child: const Icon(
+                    Icons.medical_services_outlined,
+                    color: AppColors.successGreen,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        doctorName,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: cs.onSurface,
+                            ),
+                      ),
+                      if (specialty.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          specialty,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                      if (hospitalClinic.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          hospitalClinic,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Medication Summary Section ────────────────────────────────────────────────
+
+class _MedicationSummarySection extends StatelessWidget {
+  const _MedicationSummarySection({
+    required this.prescriptions,
+    required this.l10n,
+  });
+
+  final List<Prescription> prescriptions;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(title: l10n.medications),
+        const SizedBox(height: AppSpacing.sm),
+        ...prescriptions.expand((prescription) {
+          return prescription.medications.map((med) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: _MedicationCard(
+                medication: med,
+                prescription: prescription,
+                l10n: l10n,
+              ),
+            );
+          });
+        }),
+      ],
+    );
+  }
+}
+
+class _MedicationCard extends StatelessWidget {
+  const _MedicationCard({
+    required this.medication,
+    required this.prescription,
+    required this.l10n,
+  });
+
+  final PrescriptionMedication medication;
+  final Prescription prescription;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    // Build schedule summary
+    final scheduleSlots = <String>[];
+    if (medication.morningDosage != null) scheduleSlots.add(l10n.morning);
+    if (medication.afternoonDosage != null) scheduleSlots.add(l10n.afternoon);
+    if (medication.eveningDosage != null) scheduleSlots.add(l10n.evening);
+    if (medication.nightDosage != null) scheduleSlots.add(l10n.night);
+
+    return Card(
+      elevation: 0,
+      color: cs.surfaceContainerHighest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: AppColors.primaryBlue.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Medication name
+            Text(
+              medication.medicineName,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface,
+                  ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+
+            // Medicine type and unit
+            if (medication.medicineType != null)
+              _InfoRow(
+                icon: Icons.medical_information_outlined,
+                label: l10n.form,
+                value: medication.medicineType!,
+                cs: cs,
+              ),
+            if (medication.dosageAmount != null && medication.unit != null)
+              _InfoRow(
+                icon: Icons.medication_outlined,
+                label: l10n.dosage,
+                value: '${medication.dosageAmount} ${medication.unit}',
+                cs: cs,
+              ),
+
+            // Frequency
+            if (medication.frequency.isNotEmpty)
+              _InfoRow(
+                icon: Icons.schedule,
+                label: l10n.frequency,
+                value: medication.frequency,
+                cs: cs,
+              ),
+
+            // Schedule slots
+            if (scheduleSlots.isNotEmpty)
+              _InfoRow(
+                icon: Icons.access_time,
+                label: l10n.schedule,
+                value: scheduleSlots.join(', '),
+                cs: cs,
+              ),
+
+            // Meal timing
+            if (medication.timing.isNotEmpty)
+              _InfoRow(
+                icon: Icons.restaurant_outlined,
+                label: l10n.timing,
+                value: medication.timing,
+                cs: cs,
+              ),
+
+            // PRN flag
+            if (medication.isPRN)
+              _InfoRow(
+                icon: Icons.info_outline,
+                label: l10n.typeLabel,
+                value: l10n.prn,
+                cs: cs,
+              ),
+
+            // Duration
+            if (medication.duration != null)
+              _InfoRow(
+                icon: Icons.event,
+                label: l10n.durationDays,
+                value: '${medication.duration} ${l10n.days}',
+                cs: cs,
+              ),
+
+            // Start and end dates from prescription
+            if (prescription.startDate != null)
+              _InfoRow(
+                icon: Icons.calendar_today,
+                label: l10n.startDate,
+                value: DateFormat.yMMMd().format(prescription.startDate!),
+                cs: cs,
+              ),
+            if (prescription.endDate != null)
+              _InfoRow(
+                icon: Icons.event_available,
+                label: l10n.endDate,
+                value: DateFormat.yMMMd().format(prescription.endDate!),
+                cs: cs,
+              ),
+
+            // Additional notes
+            if (medication.additionalNote != null &&
+                medication.additionalNote!.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.note_outlined,
+                      size: 16,
+                      color: cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        medication.additionalNote!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.cs,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final ColorScheme cs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: cs.onSurfaceVariant),
+          const SizedBox(width: 8),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                children: [
+                  TextSpan(
+                    text: '$label: ',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  TextSpan(text: value),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Health Vitals Section ─────────────────────────────────────────────────────
+
+class _HealthVitalsSection extends StatelessWidget {
+  const _HealthVitalsSection({required this.health, required this.l10n});
+
+  final HealthMonitoringProvider health;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final vitals = health.latestVitals;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(title: l10n.healthVitals),
+        const SizedBox(height: AppSpacing.sm),
+        Card(
+          elevation: 0,
+          color: cs.surfaceContainerHighest,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: vitals.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.favorite_border,
+                            size: 48,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            l10n.noVitalsRecorded,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : Column(
+                    children: vitals.map((vital) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: _VitalRow(vital: vital, l10n: l10n),
+                      );
+                    }).toList(),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _VitalRow extends StatelessWidget {
+  const _VitalRow({required this.vital, required this.l10n});
+
+  final HealthVital vital;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final formattedDate = DateFormat.yMMMd().add_jm().format(vital.measuredAt);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: _getVitalColor(vital.vitalType).withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            _getVitalIcon(vital.vitalType),
+            color: _getVitalColor(vital.vitalType),
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                vital.vitalType.displayName,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${vital.displayValue} ${vital.unit}',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                formattedDate,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  IconData _getVitalIcon(dynamic vitalType) {
+    final typeStr = vitalType.toString();
+    if (typeStr.contains('bloodPressure')) return Icons.favorite;
+    if (typeStr.contains('glucose')) return Icons.water_drop;
+    if (typeStr.contains('heartRate')) return Icons.monitor_heart;
+    if (typeStr.contains('weight')) return Icons.scale;
+    if (typeStr.contains('temperature')) return Icons.thermostat;
+    if (typeStr.contains('spo2')) return Icons.air;
+    return Icons.health_and_safety;
+  }
+
+  Color _getVitalColor(dynamic vitalType) {
+    final typeStr = vitalType.toString();
+    if (typeStr.contains('bloodPressure')) return AppColors.alertRed;
+    if (typeStr.contains('glucose')) return AppColors.warningOrange;
+    if (typeStr.contains('heartRate')) return AppColors.primaryBlue;
+    if (typeStr.contains('weight')) return AppColors.successGreen;
+    if (typeStr.contains('temperature')) return AppColors.warningOrange;
+    if (typeStr.contains('spo2')) return AppColors.primaryBlue;
+    return AppColors.primaryBlue;
+  }
+}
+
+// ── Report Timestamp Footer ───────────────────────────────────────────────────
+
+class _ReportTimestampFooter extends StatelessWidget {
+  const _ReportTimestampFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final now = DateTime.now();
+    final formattedDate = DateFormat.yMMMMd().add_jm().format(now);
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.access_time, size: 16, color: cs.onSurfaceVariant),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Report generated on:',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                Text(
+                  formattedDate,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            'Das Tern v1.0.0',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),
