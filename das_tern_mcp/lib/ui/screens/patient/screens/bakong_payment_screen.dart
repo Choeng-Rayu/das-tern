@@ -19,8 +19,9 @@ class BakongPaymentScreen extends StatelessWidget {
         {};
     final planType = args['planType'] as String? ?? 'PREMIUM';
     final plan = args['plan'] as Map<String, dynamic>? ?? {};
-    final planName = plan['name'] ?? planType.replaceAll('_', ' ');
-    final price = plan['price'] ?? (planType == 'PREMIUM' ? 0.50 : 1.00);
+    final planName = plan['name'] as String? ?? 
+        (planType == 'FAMILY_PREMIUM' ? 'Platinum' : planType.replaceAll('_', ' '));
+    final price = plan['price'] ?? (planType == 'FAMILY_PREMIUM' ? 1.00 : 0.50);
     final sub = context.watch<SubscriptionProvider>();
 
     return Scaffold(

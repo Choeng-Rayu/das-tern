@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# IMPORTANT: Production Keystore Files - NEVER COMMIT THESE!
+# These files are used for signing the Play Store release build.
+# If lost, you CANNOT update your app on the Play Store!
+*.keystore
+/android/app/*.keystore
+/android/keystore.properties
+/android/key.properties

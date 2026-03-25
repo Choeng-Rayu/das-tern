@@ -101,7 +101,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                     style: TextStyle(color: muted, fontSize: 14, height: 1.4),
                   ),
                   const SizedBox(height: 20),
-                  if (hasPlans)
+                  if (hasPlans) ...[
                     ...sub.plans!.map(
                       (plan) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
@@ -119,8 +119,30 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                           ),
                         ),
                       ),
-                    )
-                  else
+                    ),
+                    // Always add Platinum tile after backend plans
+                    _PlatinumPlanTile(
+                      isCurrent: sub.currentTier == 'FAMILY_PREMIUM',
+                      isDark: isDark,
+                      card: card,
+                      border: border,
+                      muted: muted,
+                      onUpgrade: () => Navigator.pushNamed(
+                        context,
+                        '/subscription/payment-method',
+                        arguments: {
+                          'planType': 'FAMILY_PREMIUM',
+                          'plan': {
+                            'id': 'FAMILY_PREMIUM',
+                            'name': 'Platinum',
+                            'price': 1.0,
+                            'currency': 'USD',
+                            'period': 'month',
+                          },
+                        },
+                      ),
+                    ),
+                  ] else ...[
                     _PlanTile(
                       plan: const {
                         'id': 'PREMIUM',
@@ -169,6 +191,29 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                         },
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    _PlatinumPlanTile(
+                      isCurrent: sub.currentTier == 'FAMILY_PREMIUM',
+                      isDark: isDark,
+                      card: card,
+                      border: border,
+                      muted: muted,
+                      onUpgrade: () => Navigator.pushNamed(
+                        context,
+                        '/subscription/payment-method',
+                        arguments: {
+                          'planType': 'FAMILY_PREMIUM',
+                          'plan': {
+                            'id': 'FAMILY_PREMIUM',
+                            'name': 'Platinum',
+                            'price': 1.0,
+                            'currency': 'USD',
+                            'period': 'month',
+                          },
+                        },
+                      ),
+                    ),
+                  ],
                 ],
 
                 const SizedBox(height: 32),
@@ -198,19 +243,20 @@ class _StatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isPremium = tier == 'PREMIUM' || tier == 'FAMILY_PREMIUM';
+    final isPlatinum = tier == 'FAMILY_PREMIUM';
 
     // ── Luxury palette (soft, not bold) ──
     final gradStart = isDark
-        ? const Color(0xFF1C2A4A) // soft slate navy
-        : const Color(0xFF5B7FFF); // muted periwinkle blue
+        ? (isPlatinum ? const Color(0xFF2D1B4E) : const Color(0xFF1C2A4A))
+        : (isPlatinum ? const Color(0xFF8B5CF6) : const Color(0xFF5B7FFF));
     final gradEnd = isDark
-        ? const Color(0xFF131E35) // subtle dark ink
-        : const Color(0xFF3D5EE8); // quiet indigo
+        ? (isPlatinum ? const Color(0xFF1A0F2E) : const Color(0xFF131E35))
+        : (isPlatinum ? const Color(0xFF6D28D9) : const Color(0xFF3D5EE8));
     final iconBg = isPremium
         ? Colors.white.withValues(alpha: 0.15)
         : Colors.white.withValues(alpha: 0.10);
     final iconColor = isPremium
-        ? const Color(0xFFE8C547) // warm gold
+        ? (isPlatinum ? const Color(0xFFF3E8FF) : const Color(0xFFE8C547))
         : Colors.white.withValues(alpha: 0.85);
 
     return Container(
@@ -320,6 +366,7 @@ class _StatusCard extends StatelessWidget {
   }
 
   String _displayName(String tier) {
+    if (tier == 'FAMILY_PREMIUM') return 'Platinum';
     return tier
         .replaceAll('_', ' ')
         .split(' ')
@@ -950,6 +997,7 @@ class _ComparisonTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isPlatinum = currentTier == 'FAMILY_PREMIUM';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1035,20 +1083,40 @@ class _ComparisonTable extends StatelessWidget {
                         ),
                       ),
                     ),
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: Text(
+                          'PLATINUM',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: isPlatinum
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                            letterSpacing: 0.8,
+                            color: isPlatinum
+                                ? const Color(0xFF8B5CF6)
+                                : const Color(0xFF8E8E93),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-              _row(context, 'Manual Input', true, true),
+              _row(context, 'Manual Input', true, true, true),
               _div(),
-              _row(context, 'OCR Scanning', null, '\u221e'),
+              _row(context, 'OCR Scanning', null, '\u221e', '\u221e'),
               _div(),
-              _row(context, 'Reminders', true, true),
+              _row(context, 'Reminders', true, true, true),
               _div(),
-              _row(context, l10n.familyLinksFeature, null, '5'),
+              _row(context, l10n.familyLinksFeature, null, '5', '\u221e'),
               _div(),
-              _row(context, l10n.storageFeature, '5 GB', '20 GB'),
+              _row(context, l10n.storageFeature, '5 GB', '20 GB', '50 GB'),
               _div(),
-              _row(context, l10n.prioritySupportFeature, null, true),
+              _row(context, l10n.prioritySupportFeature, null, true, true),
+              _div(),
+              _row(context, l10n.familyPlanFeature, null, null, true),
             ],
           ),
         ),
@@ -1063,7 +1131,7 @@ class _ComparisonTable extends StatelessWidget {
     color: border.withValues(alpha: 0.6),
   );
 
-  Widget _row(BuildContext ctx, String label, dynamic free, dynamic premium) {
+  Widget _row(BuildContext ctx, String label, dynamic free, dynamic premium, dynamic platinum) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -1077,12 +1145,13 @@ class _ComparisonTable extends StatelessWidget {
           ),
           Expanded(flex: 2, child: _val(free)),
           Expanded(flex: 2, child: _val(premium)),
+          Expanded(flex: 2, child: _val(platinum, isPlatinum: true)),
         ],
       ),
     );
   }
 
-  Widget _val(dynamic v) {
+  Widget _val(dynamic v, {bool isPlatinum = false}) {
     if (v == null || v == false) {
       return Center(
         child: Text(
@@ -1100,8 +1169,8 @@ class _ComparisonTable extends StatelessWidget {
         child: Container(
           width: 7,
           height: 7,
-          decoration: const BoxDecoration(
-            color: Color(0xFF34C759),
+          decoration: BoxDecoration(
+            color: isPlatinum ? const Color(0xFF8B5CF6) : const Color(0xFF34C759),
             shape: BoxShape.circle,
           ),
         ),
@@ -1110,7 +1179,224 @@ class _ComparisonTable extends StatelessWidget {
     return Center(
       child: Text(
         v.toString(),
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: isPlatinum ? const Color(0xFF8B5CF6) : null,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Platinum Plan Tile ──────────────────────────────────────────────
+class _PlatinumPlanTile extends StatelessWidget {
+  final bool isCurrent;
+  final bool isDark;
+  final Color card;
+  final Color border;
+  final Color muted;
+  final VoidCallback onUpgrade;
+
+  const _PlatinumPlanTile({
+    required this.isCurrent,
+    required this.isDark,
+    required this.card,
+    required this.border,
+    required this.muted,
+    required this.onUpgrade,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    const accent = Color(0xFF8B5CF6); // purple for Platinum
+    const features = [
+      'Everything in Premium',
+      'Unlimited OCR scanning',
+      'Unlimited family & doctor connections',
+      '50 GB storage',
+      'Group plan support',
+      'Priority support',
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isCurrent ? accent : border,
+          width: isCurrent ? 1.5 : 1,
+        ),
+        gradient: isCurrent
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  accent.withValues(alpha: isDark ? 0.08 : 0.04),
+                  card,
+                ],
+              )
+            : null,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            'Platinum',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: accent.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              'NEW',
+                              style: TextStyle(
+                                color: accent,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          const Text(
+                            '\$1.00',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              color: accent,
+                              letterSpacing: -1,
+                              height: 1,
+                            ),
+                          ),
+                          Text(
+                            '/month',
+                            style: TextStyle(
+                              color: muted,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (isCurrent)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      l10n.currentLabel.toUpperCase(),
+                      style: const TextStyle(
+                        color: accent,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          // Divider
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Divider(height: 1, color: border),
+          ),
+
+          // Features
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: features
+                  .map(
+                    (f) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: accent,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              f,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isDark ? Colors.white70 : const Color(0xFF3C3C43),
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+
+          // Button
+          if (!isCurrent)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              child: SizedBox(
+                width: double.infinity,
+                height: 46,
+                child: FilledButton(
+                  onPressed: onUpgrade,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: accent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    l10n.upgradeNow,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            )
+          else
+            const SizedBox(height: 20),
+        ],
       ),
     );
   }

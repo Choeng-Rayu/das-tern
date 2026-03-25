@@ -1062,6 +1062,19 @@ class ApiService {
     );
   }
 
+  /// POST /subscriptions/upgrade — upgrade to a given tier (e.g. FAMILY_PREMIUM)
+  Future<Map<String, dynamic>> upgradeSubscription(String tier) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.post(
+          Uri.parse('$baseUrl/subscriptions/upgrade'),
+          headers: h,
+          body: jsonEncode({'tier': tier}),
+        ),
+      ),
+    );
+  }
+
   // ────────────────────────────────────────────
   // Audit endpoints
   // ────────────────────────────────────────────

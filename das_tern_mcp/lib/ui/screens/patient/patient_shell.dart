@@ -192,7 +192,7 @@ class _PatientShellState extends State<PatientShell> {
           ? FloatingActionButton.extended(
               heroTag: 'patient_shell_fab',
               onPressed: () => _showQuickAddMenu(context, l10n),
-              backgroundColor: AppColors.primaryBlue,
+              backgroundColor: const Color(0xFF2196F3),
               foregroundColor: Colors.white,
               icon: const Icon(Icons.add),
               label: Text(l10n.addMedicine),
