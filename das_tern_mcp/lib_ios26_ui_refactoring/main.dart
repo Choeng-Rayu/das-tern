@@ -299,7 +299,7 @@ class _ShowcaseBodyState extends State<_ShowcaseBody> {
             label: l10n?.signIn ?? 'Sign In',
             isFullWidth: true,
             isLoading: _isSubmitting,
-            icon: Icons.login_rounded,
+            // icon: Icons.login_rounded,
             onPressed: () async {
               if (_formKey.currentState?.validate() ?? false) {
                 setState(() => _isSubmitting = true);
