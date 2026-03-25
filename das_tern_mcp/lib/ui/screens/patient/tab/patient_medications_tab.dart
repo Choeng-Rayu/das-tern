@@ -60,13 +60,16 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
     }
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         heroTag: 'medications_tab_fab',
         onPressed: () {
           Navigator.pushNamed(context, AppRouter.medicationChoice);
         },
-        backgroundColor: AppColors.primaryBlue,
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: const Color(0xFF2196F3),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add),
+        label: Text(l10n.createPrescription),
+        elevation: 4,
       ),
       body: RefreshIndicator(
         onRefresh: () async {
