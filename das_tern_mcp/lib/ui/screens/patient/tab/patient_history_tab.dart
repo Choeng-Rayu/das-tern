@@ -42,25 +42,6 @@ class _PatientHistoryTabState extends State<PatientHistoryTab> {
       ),
       body: Column(
         children: [
-          // Export Report Button
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRouter.patientHealthReport);
-                },
-                icon: const Icon(Icons.picture_as_pdf),
-                label: Text(l10n.exportReport),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-              ),
-            ),
-          ),
           // History List
           Expanded(
             child: provider.isLoading

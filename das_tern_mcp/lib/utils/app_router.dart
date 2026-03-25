@@ -24,7 +24,7 @@ import '../ui/screens/family_ui/caregiver_dashboard_screen.dart';
 import '../ui/screens/family_ui/grace_period_settings_screen.dart';
 import '../ui/screens/family_ui/connection_history_screen.dart';
 import '../ui/screens/family_ui/caregiver_patient_detail_screen.dart';
-import '../ui/screens/patient_report/patient_report_screen.dart';
+import '../ui/screens/patient/screens/activity_report_screen.dart';
 import '../ui/screens/patient/screens/upgrade_plan_screen.dart';
 import '../ui/screens/patient/screens/payment_method_screen.dart';
 import '../ui/screens/patient/screens/bakong_payment_screen.dart';
@@ -262,7 +262,7 @@ class AppRouter {
       case patientChangePassword:
         return _buildRoute(const ChangePasswordScreen());
       case patientHealthReport:
-        return _buildRoute(const PatientReportScreen());
+        return _buildRoute(const ActivityReportScreen());
 
       default:
         return _buildRoute(
