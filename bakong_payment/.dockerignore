@@ -1,0 +1,14 @@
+node_modules
+dist
+logs
+.git
+.gitignore
+.env.bakong-startup
+*.md
+test
+*.prompt.md
+.dockerignore
+Dockerfile
+docker-compose.yml
+.prettierrc
+eslint.config.mjs

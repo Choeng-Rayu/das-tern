@@ -104,3 +104,11 @@ flutter:
     - assets/night.png
     - assets/doctorLogo.png
     - assets/maximilianovich-doctor-5710159_1920.jpg
+    - assets/fonts/NotoSansKhmer/
+
+  fonts:
+    - family: NotoSansKhmer
+      fonts:
+        - asset: assets/fonts/NotoSansKhmer/NotoSansKhmer-VariableFont_wdth,wght.ttf
+        # - asset: assets/fonts/NotoSansKhmer/NotoSansKhmer-Bold.ttf
+          weight: 400
