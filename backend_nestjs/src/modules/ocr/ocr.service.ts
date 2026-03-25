@@ -67,8 +67,10 @@ export class OcrService {
       const { data: result } = await firstValueFrom(
         this.httpService.post<OcrExtractionResponse>(url, form, {
           headers: form.getHeaders(),
-          timeout: 30000,
+          timeout: 40000,
           maxBodyLength: 10 * 1024 * 1024,
+          // timeout: process.env.OCR_TIMEOUT,
+
         }),
       );
 
