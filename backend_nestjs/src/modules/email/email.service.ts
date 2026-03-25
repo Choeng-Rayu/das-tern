@@ -12,18 +12,36 @@ export class EmailService {
   private readonly fromName: string;
 
   constructor(private configService: ConfigService) {
-    // Gmail Configuration (Production Priority)
+    // SendGrid Configuration (Primary - recommended for production/VPS)
+    const sendgridApiKey = configService.get<string>('SENDGRID_API_KEY', '');
+    
+    // Gmail Fallback
     const gmailUser = configService.get<string>('GMAIL_USER', '');
     const gmailAppPassword = configService.get<string>('GMAIL_APP_PASSWORD', '');
     
-    // SendGrid Fallback
-    const sendgridApiKey = configService.get<string>('SENDGRID_API_KEY', '');
-    
-    this.fromEmail = configService.get<string>('SENDGRID_FROM_EMAIL', gmailUser || 'noreply@dastern.com');
+    this.fromEmail = configService.get<string>('SENDGRID_FROM_EMAIL', 
+      (gmailUser && gmailAppPassword) ? gmailUser : 'noreply@dastern.com');
     this.fromName = configService.get<string>('SENDGRID_FROM_NAME', 'Das Tern');
 
-    // Prioritize Gmail for production
-    if (gmailUser && gmailAppPassword) {
+    // Prioritize SendGrid for production (works better on cloud/VPS)
+    if (sendgridApiKey) {
+      this.emailConfigured = true;
+      this.transporter = nodemailer.createTransport({
+        host: 'smtp.sendgrid.net',
+        port: 587,
+        secure: false,
+        auth: {
+          user: 'apikey',
+          pass: sendgridApiKey,
+        },
+        // Add timeouts for better reliability
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
+      });
+      this.logger.log('✅ SendGrid SMTP configured — emails will be sent via SendGrid');
+    } else if (gmailUser && gmailAppPassword) {
+      // Gmail fallback (if SendGrid not configured)
       this.emailConfigured = true;
       this.transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -38,18 +56,6 @@ export class EmailService {
         },
       });
       this.logger.log('✅ Gmail SMTP configured — emails will be sent via Gmail');
-    } else if (sendgridApiKey) {
-      this.emailConfigured = true;
-      this.transporter = nodemailer.createTransport({
-        host: 'smtp.sendgrid.net',
-        port: 587,
-        secure: false,
-        auth: {
-          user: 'apikey',
-          pass: sendgridApiKey,
-        },
-      });
-      this.logger.log('✅ SendGrid SMTP configured — emails will be sent via SendGrid');
     } else {
       this.emailConfigured = false;
       this.logger.warn(
