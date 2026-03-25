@@ -13,21 +13,25 @@ class StandardNotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final typeColor = colorForNotificationType(notif.type);
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: AppColors.neutral300),
       ),
-      color: notif.isRead ? Colors.white : Colors.blue.withValues(alpha: 0.03),
+      color: notif.isRead
+          ? Theme.of(context).colorScheme.surface
+          : typeColor.withValues(alpha: 0.03),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: notif.isRead
               ? AppColors.neutral200
-              : AppColors.primaryBlue.withValues(alpha: 0.1),
+              : typeColor.withValues(alpha: 0.1),
           child: Icon(
             iconForNotificationType(notif.type),
-            color: notif.isRead ? AppColors.neutral400 : AppColors.primaryBlue,
+            color: notif.isRead ? AppColors.neutral400 : typeColor,
             size: 20,
           ),
         ),

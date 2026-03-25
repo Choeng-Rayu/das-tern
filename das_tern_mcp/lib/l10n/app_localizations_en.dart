@@ -21,6 +21,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInWithGoogle => 'Sign in with Google';
 
   @override
+  String get signInWithTelegram => 'Sign in with Telegram';
+
+  @override
   String get orDivider => 'or';
 
   @override
@@ -493,6 +496,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markAsTaken => 'Mark as Taken';
 
   @override
+  String get markAsPending => 'Mark as Pending';
+
+  @override
   String get markedAsTaken => 'Marked as taken';
 
   @override
@@ -779,6 +785,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onePill => '1 pill';
+
+  @override
+  String get markAllDone => 'Mark All Done';
+
+  @override
+  String completedCount(int count) {
+    return 'Completed ($count)';
+  }
+
+  @override
+  String get noPendingDoses => 'No pending doses';
+
+  @override
+  String get selectDosesToMark => 'Select doses to mark as taken';
+
+  @override
+  String get timePeriodLabel => 'Period';
 
   @override
   String unresolvedAlerts(int count) {
@@ -2051,6 +2074,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registerWithGoogle => 'Register with Google';
 
   @override
+  String get registerWithTelegram => 'Register with Telegram';
+
+  @override
   String get orRegisterWith => 'or register with';
 
   @override
@@ -2321,6 +2347,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get afterMeal => 'After meal';
 
   @override
+  String get withFood => 'With food';
+
+  @override
+  String get prnDescription => 'Take as needed, no fixed schedule';
+
+  @override
   String get addMedicineRow => 'Add medicine row';
 
   @override
@@ -2547,6 +2579,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmPrescription => 'Confirm Prescription';
+
+  @override
+  String get deletePrescription => 'Delete Prescription';
+
+  @override
+  String get deletePrescriptionConfirm =>
+      'Are you sure you want to delete this prescription? All scheduled dose reminders will be removed.';
+
+  @override
+  String get prescriptionDeleted => 'Prescription deleted';
 
   @override
   String get pendingPrescriptions => 'Pending Prescriptions';
@@ -2905,4 +2947,114 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yearsUnit => 'years';
+
+  @override
+  String get premiumBadge => 'Premium';
+
+  @override
+  String get familyAlertsRequirePremium =>
+      'Family alerts require a Premium plan. Upgrade to get notified when your loved ones miss a dose.';
+
+  @override
+  String get upgradeToPremiumForFamilyAlerts => 'Upgrade to Premium';
+
+  @override
+  String get notifReminderTitle => 'Medication Reminder';
+
+  @override
+  String get notifReminderRetryTag => ' (Reminder)';
+
+  @override
+  String get notifSnoozedTitle => 'Medication Reminder (Snoozed)';
+
+  @override
+  String get notifPeriodMorning => 'Morning';
+
+  @override
+  String get notifPeriodAfternoon => 'Afternoon';
+
+  @override
+  String get notifPeriodEvening => 'Evening';
+
+  @override
+  String get notifPeriodNight => 'Night';
+
+  @override
+  String get notifPeriodDose => 'Dose';
+
+  @override
+  String notifSingleBody(String name, String dosage, String period) {
+    return 'Time to take $name ($dosage) - $period';
+  }
+
+  @override
+  String notifBatchBody(String period) {
+    return '$period medicines:';
+  }
+
+  @override
+  String get notifSnoozedBodySingle =>
+      'You snoozed your medication reminder. Please take your medicine now.';
+
+  @override
+  String get notifSnoozedBodyBatch =>
+      'You snoozed your medication reminder. Please take your medicines now.';
+
+  @override
+  String get notifActionMarkTaken => 'Mark as Taken';
+
+  @override
+  String get notifActionSnooze => 'Snooze 10min';
+
+  @override
+  String get notifActionSkip => 'Skip';
+
+  @override
+  String get notifChannelDoseRemindersName => 'Dose Reminders';
+
+  @override
+  String get notifChannelDoseRemindersDesc =>
+      'Reminders to take your medication';
+
+  @override
+  String get notifChannelBatchRemindersName => 'Batch Reminders';
+
+  @override
+  String get notifChannelBatchRemindersDesc =>
+      'Reminders for medication batch groups';
+
+  @override
+  String get notifChannelGeneralName => 'General';
+
+  @override
+  String get notifChannelGeneralDesc => 'General app notifications';
+
+  @override
+  String get notifTestTitle => 'Test Notification';
+
+  @override
+  String get notifTestBody =>
+      'This is a test reminder. Action buttons work correctly.';
+
+  @override
+  String get sendTestNotification => 'Send Test Notification';
+
+  @override
+  String get testNotificationSent => 'Test notification sent!';
+
+  @override
+  String get downloadPdf => 'Download PDF';
+
+  @override
+  String get downloadReportDescription =>
+      'Download your activity report as a PDF. Available on Premium plans.';
+
+  @override
+  String get maybeLater => 'Maybe Later';
+
+  @override
+  String get generatingPdf => 'Generating PDF...';
+
+  @override
+  String get pdfReady => 'Report PDF is ready';
 }

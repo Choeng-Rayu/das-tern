@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from PIL import Image
 
 # Add app to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -43,6 +44,8 @@ def main():
     
     print(f"📸 Loading image: {image_path}")
     image_bytes = image_path.read_bytes()
+    with Image.open(image_path) as img:
+        image_width, image_height = img.size
     print(f"   Size: {len(image_bytes)} bytes")
     
     print("🔧 Initializing OCR engine...")
@@ -70,8 +73,8 @@ def main():
     data = build_dynamic_universal(
         parsed,
         processing_time_ms=processing_time_ms,
-        image_width=image_bytes.__len__(),  # placeholder
-        image_height=image_bytes.__len__(),  # placeholder
+        image_width=image_width,
+        image_height=image_height,
         image_format="png",
         file_size_bytes=len(image_bytes),
         preprocessing_applied=pipeline_meta.get("preprocessing_applied", []),

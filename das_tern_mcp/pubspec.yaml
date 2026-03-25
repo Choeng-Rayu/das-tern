@@ -30,6 +30,7 @@ dependencies:
 
   # Environment Variables
   flutter_dotenv: ^5.1.0
+  crypto: ^3.0.3
 
   # Internationalization
   intl: ^0.20.2
@@ -61,6 +62,7 @@ dependencies:
 
   # URL Launcher (open deeplinks in banking apps)
   url_launcher: ^6.3.0
+  app_links: ^6.3.2
 
   # Image Picker (camera/gallery for prescription scanning)
   image_picker: ^1.0.7
@@ -68,6 +70,9 @@ dependencies:
   # Charts
   fl_chart: ^0.69.0
 
+  # PDF generation & sharing
+  pdf: ^3.11.1
+  printing: ^5.13.2
 
   # Clipboard
   # (already available via Flutter SDK)
@@ -76,6 +81,15 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/logo.png"
 
 flutter:
   generate: true
@@ -83,6 +97,7 @@ flutter:
 
   assets:
     - .env
+    - assets/logo.png
     - assets/backgroundHeader.png
     - assets/morning.png
     - assets/afternoon.png

@@ -114,6 +114,23 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
     }
   }
 
+  Future<void> _handleTelegramRegister() async {
+    final auth = context.read<AuthProvider>();
+    final success = await auth.signInWithTelegram(userRole: 'PATIENT');
+
+    if (!mounted) return;
+    if (success) {
+      Navigator.of(context).pushReplacementNamed('/patient');
+    } else if (auth.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.error!),
+          backgroundColor: AppColors.alertRed,
+        ),
+      );
+    }
+  }
+
   Future<void> _selectDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -358,6 +375,36 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           ),
           const SizedBox(height: AppSpacing.md),
 
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton.icon(
+              onPressed: _handleTelegramRegister,
+              icon: const Icon(
+                Icons.send_rounded,
+                color: Color(0xFF229ED9),
+                size: 20,
+              ),
+              label: Text(
+                l10n.registerWithTelegram,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF333333),
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF333333),
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+
           // Already have account link
           AuthLinkRow(
             message: l10n.alreadyHaveAccount,
@@ -542,6 +589,36 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
               ),
               label: Text(
                 l10n.registerWithGoogle,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF333333),
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF333333),
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton.icon(
+              onPressed: auth.isLoading ? null : _handleTelegramRegister,
+              icon: const Icon(
+                Icons.send_rounded,
+                color: Color(0xFF229ED9),
+                size: 20,
+              ),
+              label: Text(
+                l10n.registerWithTelegram,
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

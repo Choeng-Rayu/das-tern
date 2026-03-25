@@ -143,7 +143,6 @@ class PrescriptionProvider extends ChangeNotifier {
     try {
       await _api.createPatientPrescription(data);
       await fetchPrescriptions();
-      if (onAfterCreate != null) await onAfterCreate();
       return true;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
@@ -152,6 +151,13 @@ class PrescriptionProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+      // Run post-create callback after the loading state is cleared.
+      // Failures here are non-critical (prescription already saved).
+      if (onAfterCreate != null) {
+        try {
+          await onAfterCreate();
+        } catch (_) {}
+      }
     }
   }
 

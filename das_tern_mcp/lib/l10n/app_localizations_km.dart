@@ -21,6 +21,9 @@ class AppLocalizationsKm extends AppLocalizations {
   String get signInWithGoogle => 'ចូលតាមរយៈ Google';
 
   @override
+  String get signInWithTelegram => 'ចូលតាមរយៈ Telegram';
+
+  @override
   String get orDivider => 'ឬ';
 
   @override
@@ -493,6 +496,9 @@ class AppLocalizationsKm extends AppLocalizations {
   String get markAsTaken => 'សម្គាល់ថាបានទទួលទាន';
 
   @override
+  String get markAsPending => 'សម្គាល់ថាមិនទាន់ញ៉ាំ';
+
+  @override
   String get markedAsTaken => 'សម្គាល់ថាបានទទួលទាន';
 
   @override
@@ -779,6 +785,23 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get onePill => '១ គ្រាប់';
+
+  @override
+  String get markAllDone => 'សម្គាល់ទាំងអស់ថាបានប្រើ';
+
+  @override
+  String completedCount(int count) {
+    return 'បានបញ្ចប់ ($count)';
+  }
+
+  @override
+  String get noPendingDoses => 'គ្មានថ្នាំដែលត្រូវប្រើ';
+
+  @override
+  String get selectDosesToMark => 'ជ្រើសរើសថ្នាំដើម្បីសម្គាល់ថាបានប្រើ';
+
+  @override
+  String get timePeriodLabel => 'ពេលវេលា';
 
   @override
   String unresolvedAlerts(int count) {
@@ -1287,7 +1310,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get keepPremiumFeatures => 'ចង់រក្សាមុខងារ Premium?';
 
   @override
-  String get upgradeToPremium => 'ដំឡើងទៅ Premium';
+  String get upgradeToPremium => 'ធ្វើឱ្យប្រសើរជា Premium';
 
   @override
   String get onlyPerMonth => 'គ្រាន់តែ \$0.50/ខែ ឬ \$1 សម្រាប់ 3 ខែ';
@@ -2050,6 +2073,9 @@ class AppLocalizationsKm extends AppLocalizations {
   String get registerWithGoogle => 'ចុះឈ្មោះតាម Google';
 
   @override
+  String get registerWithTelegram => 'ចុះឈ្មោះតាម Telegram';
+
+  @override
   String get orRegisterWith => 'ឬចុះឈ្មោះតាម';
 
   @override
@@ -2319,6 +2345,12 @@ class AppLocalizationsKm extends AppLocalizations {
   String get afterMeal => 'ក្រោយបាយ';
 
   @override
+  String get withFood => 'ជាមួយអាហារ';
+
+  @override
+  String get prnDescription => 'ផឹកតាមការចាំបាច់ គ្មានកាលវិភាគថេរ';
+
+  @override
   String get addMedicineRow => 'បន្ថែមជួរថ្នាំ';
 
   @override
@@ -2545,6 +2577,16 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get confirmPrescription => 'បញ្ជាក់វេជ្ជបញ្ជា';
+
+  @override
+  String get deletePrescription => 'លុបវេជ្ជបញ្ជា';
+
+  @override
+  String get deletePrescriptionConfirm =>
+      'តើអ្នកប្រាកដថាចង់លុបវេជ្ជបញ្ជានេះ? ការរំលឹកថ្នាំដែលបានកំណត់ពេលទាំងអស់នឹងត្រូវដកចេញ។';
+
+  @override
+  String get prescriptionDeleted => 'វេជ្ជបញ្ជាត្រូវបានលុប';
 
   @override
   String get pendingPrescriptions => 'វេជ្ជបញ្ជារង់ចាំ';
@@ -2903,4 +2945,112 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get yearsUnit => 'ឆ្នាំ';
+
+  @override
+  String get premiumBadge => 'Premium';
+
+  @override
+  String get familyAlertsRequirePremium =>
+      'ការជូនដំណឹងគ្រួសារត្រូវការគម្រោង Premium។ ដំឡើងដើម្បីទទួលបានការជូនដំណឹងនៅពេលអ្នកជិតស្និទ្ធមិនបានផឹកថ្នាំ។';
+
+  @override
+  String get upgradeToPremiumForFamilyAlerts => 'ដំឡើងទៅ Premium';
+
+  @override
+  String get notifReminderTitle => 'ការរំលឹកថ្នាំ';
+
+  @override
+  String get notifReminderRetryTag => ' (រំលឹក)';
+
+  @override
+  String get notifSnoozedTitle => 'ការរំលឹកថ្នាំ (ពន្យារ)';
+
+  @override
+  String get notifPeriodMorning => 'ពេលព្រឹក';
+
+  @override
+  String get notifPeriodAfternoon => 'ពេលរសៀល';
+
+  @override
+  String get notifPeriodEvening => 'ពេលល្ងាច';
+
+  @override
+  String get notifPeriodNight => 'ពេលយប់';
+
+  @override
+  String get notifPeriodDose => 'ថ្នាំ';
+
+  @override
+  String notifSingleBody(String name, String dosage, String period) {
+    return 'ដល់ពេលញ៉ាំ $name ($dosage) - $period';
+  }
+
+  @override
+  String notifBatchBody(String period) {
+    return 'ថ្នាំ$period:';
+  }
+
+  @override
+  String get notifSnoozedBodySingle =>
+      'អ្នកបានពន្យារការរំលឹកថ្នាំ។ សូមផឹកថ្នាំឥឡូវនេះ។';
+
+  @override
+  String get notifSnoozedBodyBatch =>
+      'អ្នកបានពន្យារការរំលឹកថ្នាំ។ សូមផឹកថ្នាំទាំងអស់ឥឡូវនេះ។';
+
+  @override
+  String get notifActionMarkTaken => 'សម្គាល់ថាបានទទួលទាន';
+
+  @override
+  String get notifActionSnooze => 'ពន្យារ ១០ នាទី';
+
+  @override
+  String get notifActionSkip => 'រំលង';
+
+  @override
+  String get notifChannelDoseRemindersName => 'ការរំលឹកថ្នាំ';
+
+  @override
+  String get notifChannelDoseRemindersDesc => 'ការរំលឹកដើម្បីផឹកថ្នាំ';
+
+  @override
+  String get notifChannelBatchRemindersName => 'ការរំលឹកក្រុម';
+
+  @override
+  String get notifChannelBatchRemindersDesc => 'ការរំលឹកសម្រាប់ក្រុមថ្នាំ';
+
+  @override
+  String get notifChannelGeneralName => 'ទូទៅ';
+
+  @override
+  String get notifChannelGeneralDesc => 'ការជូនដំណឹងទូទៅ';
+
+  @override
+  String get notifTestTitle => 'ការរំលឹកសាកល្បង';
+
+  @override
+  String get notifTestBody =>
+      'នេះជាការរំលឹកសាកល្បង។ ប៊ូតុងសកម្មភាពដំណើរការបានត្រឹមត្រូវ។';
+
+  @override
+  String get sendTestNotification => 'ផ្ញើការរំលឹកសាកល្បង';
+
+  @override
+  String get testNotificationSent => 'បានផ្ញើការរំលឹកសាកល្បង!';
+
+  @override
+  String get downloadPdf => 'ទាញយក PDF';
+
+  @override
+  String get downloadReportDescription =>
+      'ទាញយករបាយការណ៍សកម្មភាពរបស់អ្នកជា PDF។ មានតែសម្រាប់គម្រោង Premium ប៉ុណ្ណោះ។';
+
+  @override
+  String get maybeLater => 'ពេលក្រោយ';
+
+  @override
+  String get generatingPdf => 'កំពុងបង្កើត PDF...';
+
+  @override
+  String get pdfReady => 'PDF របាយការណ៍រួចរាល់';
 }

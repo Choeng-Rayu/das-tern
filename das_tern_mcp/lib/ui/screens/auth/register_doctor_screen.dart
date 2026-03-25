@@ -154,6 +154,23 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
     }
   }
 
+  Future<void> _handleTelegramRegister() async {
+    final auth = context.read<AuthProvider>();
+    final success = await auth.signInWithTelegram(userRole: 'DOCTOR');
+
+    if (!mounted) return;
+    if (success) {
+      Navigator.of(context).pushReplacementNamed('/doctor');
+    } else if (auth.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.error!),
+          backgroundColor: AppColors.alertRed,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -298,6 +315,36 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
               icon: const Icon(Icons.g_mobiledata, color: Colors.red, size: 22),
               label: Text(
                 l10n.registerWithGoogle,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF333333),
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF333333),
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton.icon(
+              onPressed: _handleTelegramRegister,
+              icon: const Icon(
+                Icons.send_rounded,
+                color: Color(0xFF229ED9),
+                size: 20,
+              ),
+              label: Text(
+                l10n.registerWithTelegram,
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

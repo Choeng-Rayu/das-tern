@@ -5,6 +5,7 @@ import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Shows connection history with filter options.
 class ConnectionHistoryScreen extends StatefulWidget {
@@ -50,22 +51,25 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.connectionHistory), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.connectionHistory), centerTitle: true, actions: const [LanguageSwitcherButton(lightBackground: true)]),
       body: Column(
         children: [
           // Filter chips
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              children: [
-                _buildFilterChip('all', l10n.all),
-                const SizedBox(width: AppSpacing.sm),
-                _buildFilterChip('ACCEPTED', l10n.filterAccepted),
-                const SizedBox(width: AppSpacing.sm),
-                _buildFilterChip('REVOKED', l10n.filterRevoked),
-                const SizedBox(width: AppSpacing.sm),
-                _buildFilterChip('PENDING', l10n.pending),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildFilterChip('all', l10n.all),
+                  const SizedBox(width: AppSpacing.sm),
+                  _buildFilterChip('ACCEPTED', l10n.filterAccepted),
+                  const SizedBox(width: AppSpacing.sm),
+                  _buildFilterChip('REVOKED', l10n.filterRevoked),
+                  const SizedBox(width: AppSpacing.sm),
+                  _buildFilterChip('PENDING', l10n.pending),
+                ],
+              ),
             ),
           ),
 
@@ -149,10 +153,8 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
 
     final initiator = item['initiator'] ?? {};
     final recipient = item['recipient'] ?? {};
-    final initiatorName =
-        '${initiator['firstName'] ?? ''} ${initiator['lastName'] ?? ''}'.trim();
-    final recipientName =
-        '${recipient['firstName'] ?? ''} ${recipient['lastName'] ?? ''}'.trim();
+    final initiatorName = _displayName(initiator);
+    final recipientName = _displayName(recipient);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -206,5 +208,14 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
         ),
       ),
     );
+  }
+
+  String _displayName(Map<String, dynamic> person) {
+    final fullName = person['fullName']?.toString().trim() ?? '';
+    if (fullName.isNotEmpty) return fullName;
+    final first = person['firstName']?.toString() ?? '';
+    final last = person['lastName']?.toString() ?? '';
+    final joined = '$first $last'.trim();
+    return joined;
   }
 }

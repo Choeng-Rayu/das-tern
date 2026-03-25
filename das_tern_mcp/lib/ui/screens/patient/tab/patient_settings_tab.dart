@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
+import '../../../../services/notification_service.dart';
 import '../../../screens/patient/screens/activity_report_screen.dart';
 import '../../../screens/support/contact_support_screen.dart';
 import '../../../screens/support/privacy_policy_screen.dart';
@@ -77,7 +78,8 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 context,
                 icon: Icons.person_outline,
                 label: l10n.editProfile,
-                onTap: () => Navigator.pushNamed(context, '/patient/edit-profile'),
+                onTap: () =>
+                    Navigator.pushNamed(context, '/patient/edit-profile'),
               ),
               _divider(isDark),
               _buildNavRow(
@@ -95,8 +97,10 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                   bottomRight: Radius.circular(14),
                 ),
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   child: Row(
                     children: [
                       const Icon(
@@ -108,9 +112,9 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                       Text(
                         l10n.logout,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppColors.statusError,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          color: AppColors.statusError,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -125,7 +129,8 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 icon: Icons.workspace_premium_outlined,
                 label: l10n.manageSubscriptions,
                 isLast: true,
-                onTap: () => Navigator.pushNamed(context, '/subscription/upgrade'),
+                onTap: () =>
+                    Navigator.pushNamed(context, '/subscription/upgrade'),
               ),
             ]),
             const SizedBox(height: AppSpacing.md),
@@ -207,55 +212,61 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
     required AuthProvider auth,
     required AppLocalizations l10n,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.12),
-              child: const Icon(
-                Icons.person_outline,
-                color: AppColors.primaryBlue,
-                size: 26,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _patientName(auth.user),
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    l10n.patientRole,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: AppColors.textSecondary),
-                  ),
-                ],
-              ),
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, '/patient/edit-profile'),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.12),
+                child: const Icon(
+                  Icons.person_outline,
+                  color: AppColors.primaryBlue,
+                  size: 26,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _patientName(auth.user),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.patientRole,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                color: AppColors.textSecondary,
+                size: 20,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -329,8 +340,10 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 );
               },
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primaryBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppRadius.xl),
@@ -398,16 +411,16 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                   Text(
                     l10n.notificationPermission,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     l10n.permissionGranted,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.statusSuccess,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      color: AppColors.statusSuccess,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
@@ -415,7 +428,63 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
           ],
         ),
       ),
+      _divider(isDark),
+      InkWell(
+        onTap: () => _sendTestNotification(context, l10n),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(14),
+          bottomRight: Radius.circular(14),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.send_outlined,
+                  color: AppColors.primaryBlue,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  l10n.sendTestNotification,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
+            ],
+          ),
+        ),
+      ),
     ]);
+  }
+
+  Future<void> _sendTestNotification(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    await NotificationService.instance.showTestNotification();
+    if (!mounted) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l10n.testNotificationSent),
+        backgroundColor: AppColors.statusSuccess,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   String _patientName(Map<String, dynamic>? user) {
@@ -534,16 +603,16 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                   Text(
                     label,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
-                        ),
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
@@ -588,7 +657,11 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             onPressed: () {
               Navigator.pop(dialogContext);
               auth.logout();
-              Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (_) => false,
+              );
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.statusError),
             child: Text(l10n.logout),

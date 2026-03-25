@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/subscription_provider.dart';
 import '../../../theme/app_colors.dart';
+import '../../../widgets/language_switcher.dart';
 
 class UpgradePlanScreen extends StatefulWidget {
   const UpgradePlanScreen({super.key});
@@ -42,6 +43,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
         elevation: 0,
         backgroundColor: bg,
         surfaceTintColor: Colors.transparent,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
       ),
       body: Column(
         children: [
@@ -71,7 +73,7 @@ class _UpgradePlanScreenState extends State<UpgradePlanScreen> {
                     onClaimed: () => setState(() => _trialClaimed = true),
                   ),
 
-                if (_trialClaimed || sub.isPremium || sub.isOnTrial) ...[
+                if (_trialClaimed || sub.isOnTrial) ...[
                   const SizedBox(height: 8),
                   _TrialCountdown(
                     daysRemaining: _trialClaimed ? 30 : sub.trialDaysRemaining,
@@ -267,6 +269,8 @@ class _StatusCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   _displayName(tier),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 22,
@@ -343,7 +347,7 @@ class _TrialCTA extends StatefulWidget {
 }
 
 class _TrialCTAState extends State<_TrialCTA> {
-  final bool _busy = false;
+  bool _busy = false;
 
   Future<void> _claim() async {
     if (_busy) return;
@@ -353,16 +357,34 @@ class _TrialCTAState extends State<_TrialCTA> {
     );
     if (confirmed != true || !mounted) return;
 
-    widget.onClaimed?.call();
-    if (!mounted) return;
+    // Capture context-dependent values before the async gap
+    final sub = context.read<SubscriptionProvider>();
+    final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.trialClaimedSuccess),
-        backgroundColor: AppColors.successGreen,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+
+    setState(() => _busy = true);
+    final success = await sub.claimFreeTrial();
+    if (!mounted) return;
+    setState(() => _busy = false);
+
+    if (success) {
+      widget.onClaimed?.call();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.trialClaimedSuccess),
+          backgroundColor: AppColors.successGreen,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(sub.errorMessage ?? l10n.trialClaimFailed),
+          backgroundColor: AppColors.alertRed,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
@@ -474,11 +496,14 @@ class _TrialCountdown extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(
-                    l10n.yourTrialPeriod,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                  Flexible(
+                    child: Text(
+                      l10n.yourTrialPeriod,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   const Spacer(),

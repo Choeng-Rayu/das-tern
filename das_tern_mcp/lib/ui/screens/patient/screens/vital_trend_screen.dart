@@ -7,6 +7,7 @@ import '../../../../models/health_model/health_vital.dart';
 import '../../../../providers/health_monitoring_provider.dart';
 import '../../../../ui/theme/app_colors.dart';
 import '../../../../ui/theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 class VitalTrendScreen extends StatefulWidget {
   final VitalType vitalType;
@@ -41,32 +42,36 @@ class _VitalTrendScreenState extends State<VitalTrendScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<HealthMonitoringProvider>();
+    final axisLabelStyle = Theme.of(context).textTheme.labelSmall;
     final vitals =
         provider.vitals.where((v) => v.vitalType == widget.vitalType).toList()
           ..sort((a, b) => a.measuredAt.compareTo(b.measuredAt));
 
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.vitalType.displayName} Trends')),
+      appBar: AppBar(title: Text('${widget.vitalType.displayName} Trends'), actions: const [LanguageSwitcherButton(lightBackground: true)]),
       body: Column(
         children: [
           // Period selector
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              children: ['7', '30', '90'].map((d) {
-                final selected = _period == d;
-                return Padding(
-                  padding: const EdgeInsets.only(right: AppSpacing.sm),
-                  child: ChoiceChip(
-                    label: Text(l10n.daysCount(d)),
-                    selected: selected,
-                    onSelected: (_) {
-                      setState(() => _period = d);
-                      _loadData();
-                    },
-                  ),
-                );
-              }).toList(),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: ['7', '30', '90'].map((d) {
+                  final selected = _period == d;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: AppSpacing.sm),
+                    child: ChoiceChip(
+                      label: Text(l10n.daysCount(d)),
+                      selected: selected,
+                      onSelected: (_) {
+                        setState(() => _period = d);
+                        _loadData();
+                      },
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
           ),
 
@@ -77,7 +82,7 @@ class _VitalTrendScreenState extends State<VitalTrendScreen> {
             Expanded(child: Center(child: Text(l10n.noDataAvailable)))
           else ...[
             SizedBox(
-              height: 250,
+              height: MediaQuery.of(context).size.height * 0.30,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 child: LineChart(
@@ -102,7 +107,7 @@ class _VitalTrendScreenState extends State<VitalTrendScreen> {
                             final d = vitals[idx].measuredAt;
                             return Text(
                               '${d.day}/${d.month}',
-                              style: const TextStyle(fontSize: 10),
+                              style: axisLabelStyle,
                             );
                           },
                           interval: (vitals.length / 5).ceilToDouble().clamp(

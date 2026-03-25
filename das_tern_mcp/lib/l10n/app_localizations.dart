@@ -122,6 +122,12 @@ abstract class AppLocalizations {
   /// **'Sign in with Google'**
   String get signInWithGoogle;
 
+  /// No description provided for @signInWithTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Telegram'**
+  String get signInWithTelegram;
+
   /// No description provided for @orDivider.
   ///
   /// In en, this message translates to:
@@ -1046,6 +1052,12 @@ abstract class AppLocalizations {
   /// **'Mark as Taken'**
   String get markAsTaken;
 
+  /// No description provided for @markAsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Pending'**
+  String get markAsPending;
+
   /// No description provided for @markedAsTaken.
   ///
   /// In en, this message translates to:
@@ -1609,6 +1621,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'1 pill'**
   String get onePill;
+
+  /// No description provided for @markAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark All Done'**
+  String get markAllDone;
+
+  /// No description provided for @completedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed ({count})'**
+  String completedCount(int count);
+
+  /// No description provided for @noPendingDoses.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending doses'**
+  String get noPendingDoses;
+
+  /// No description provided for @selectDosesToMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Select doses to mark as taken'**
+  String get selectDosesToMark;
+
+  /// No description provided for @timePeriodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get timePeriodLabel;
 
   /// No description provided for @unresolvedAlerts.
   ///
@@ -3998,6 +4040,12 @@ abstract class AppLocalizations {
   /// **'Register with Google'**
   String get registerWithGoogle;
 
+  /// No description provided for @registerWithTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'Register with Telegram'**
+  String get registerWithTelegram;
+
   /// No description provided for @orRegisterWith.
   ///
   /// In en, this message translates to:
@@ -4496,6 +4544,18 @@ abstract class AppLocalizations {
   /// **'After meal'**
   String get afterMeal;
 
+  /// No description provided for @withFood.
+  ///
+  /// In en, this message translates to:
+  /// **'With food'**
+  String get withFood;
+
+  /// No description provided for @prnDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Take as needed, no fixed schedule'**
+  String get prnDescription;
+
   /// No description provided for @addMedicineRow.
   ///
   /// In en, this message translates to:
@@ -4933,6 +4993,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm Prescription'**
   String get confirmPrescription;
+
+  /// No description provided for @deletePrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Prescription'**
+  String get deletePrescription;
+
+  /// No description provided for @deletePrescriptionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this prescription? All scheduled dose reminders will be removed.'**
+  String get deletePrescriptionConfirm;
+
+  /// No description provided for @prescriptionDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription deleted'**
+  String get prescriptionDeleted;
 
   /// No description provided for @pendingPrescriptions.
   ///
@@ -5587,6 +5665,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'years'**
   String get yearsUnit;
+
+  /// No description provided for @premiumBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get premiumBadge;
+
+  /// No description provided for @familyAlertsRequirePremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Family alerts require a Premium plan. Upgrade to get notified when your loved ones miss a dose.'**
+  String get familyAlertsRequirePremium;
+
+  /// No description provided for @upgradeToPremiumForFamilyAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Premium'**
+  String get upgradeToPremiumForFamilyAlerts;
+
+  /// No description provided for @notifReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Reminder'**
+  String get notifReminderTitle;
+
+  /// No description provided for @notifReminderRetryTag.
+  ///
+  /// In en, this message translates to:
+  /// **' (Reminder)'**
+  String get notifReminderRetryTag;
+
+  /// No description provided for @notifSnoozedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Reminder (Snoozed)'**
+  String get notifSnoozedTitle;
+
+  /// No description provided for @notifPeriodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get notifPeriodMorning;
+
+  /// No description provided for @notifPeriodAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Afternoon'**
+  String get notifPeriodAfternoon;
+
+  /// No description provided for @notifPeriodEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening'**
+  String get notifPeriodEvening;
+
+  /// No description provided for @notifPeriodNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get notifPeriodNight;
+
+  /// No description provided for @notifPeriodDose.
+  ///
+  /// In en, this message translates to:
+  /// **'Dose'**
+  String get notifPeriodDose;
+
+  /// No description provided for @notifSingleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to take {name} ({dosage}) - {period}'**
+  String notifSingleBody(String name, String dosage, String period);
+
+  /// No description provided for @notifBatchBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{period} medicines:'**
+  String notifBatchBody(String period);
+
+  /// No description provided for @notifSnoozedBodySingle.
+  ///
+  /// In en, this message translates to:
+  /// **'You snoozed your medication reminder. Please take your medicine now.'**
+  String get notifSnoozedBodySingle;
+
+  /// No description provided for @notifSnoozedBodyBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'You snoozed your medication reminder. Please take your medicines now.'**
+  String get notifSnoozedBodyBatch;
+
+  /// No description provided for @notifActionMarkTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Taken'**
+  String get notifActionMarkTaken;
+
+  /// No description provided for @notifActionSnooze.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze 10min'**
+  String get notifActionSnooze;
+
+  /// No description provided for @notifActionSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get notifActionSkip;
+
+  /// No description provided for @notifChannelDoseRemindersName.
+  ///
+  /// In en, this message translates to:
+  /// **'Dose Reminders'**
+  String get notifChannelDoseRemindersName;
+
+  /// No description provided for @notifChannelDoseRemindersDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders to take your medication'**
+  String get notifChannelDoseRemindersDesc;
+
+  /// No description provided for @notifChannelBatchRemindersName.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch Reminders'**
+  String get notifChannelBatchRemindersName;
+
+  /// No description provided for @notifChannelBatchRemindersDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders for medication batch groups'**
+  String get notifChannelBatchRemindersDesc;
+
+  /// No description provided for @notifChannelGeneralName.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get notifChannelGeneralName;
+
+  /// No description provided for @notifChannelGeneralDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'General app notifications'**
+  String get notifChannelGeneralDesc;
+
+  /// No description provided for @notifTestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Notification'**
+  String get notifTestTitle;
+
+  /// No description provided for @notifTestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a test reminder. Action buttons work correctly.'**
+  String get notifTestBody;
+
+  /// No description provided for @sendTestNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Test Notification'**
+  String get sendTestNotification;
+
+  /// No description provided for @testNotificationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Test notification sent!'**
+  String get testNotificationSent;
+
+  /// No description provided for @downloadPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Download PDF'**
+  String get downloadPdf;
+
+  /// No description provided for @downloadReportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Download your activity report as a PDF. Available on Premium plans.'**
+  String get downloadReportDescription;
+
+  /// No description provided for @maybeLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe Later'**
+  String get maybeLater;
+
+  /// No description provided for @generatingPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating PDF...'**
+  String get generatingPdf;
+
+  /// No description provided for @pdfReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Report PDF is ready'**
+  String get pdfReady;
 }
 
 class _AppLocalizationsDelegate

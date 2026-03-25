@@ -4,6 +4,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/dose_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// History tab – dose adherence history with date range.
 class PatientHistoryTab extends StatefulWidget {
@@ -36,6 +37,7 @@ class _PatientHistoryTabState extends State<PatientHistoryTab> {
       appBar: AppBar(
         title: Text(l10n.history),
         automaticallyImplyLeading: false,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
       ),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())

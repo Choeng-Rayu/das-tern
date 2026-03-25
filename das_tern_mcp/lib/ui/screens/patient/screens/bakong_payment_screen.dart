@@ -4,6 +4,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/subscription_provider.dart';
 import '../../../../ui/theme/app_colors.dart';
 import '../../../../ui/theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// Bakong payment description screen with plan summary and upgrade button.
 /// When user taps "Confirm & Get QR Code", creates payment and navigates to QR screen.
@@ -23,7 +24,7 @@ class BakongPaymentScreen extends StatelessWidget {
     final sub = context.watch<SubscriptionProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.bakongPaymentTitle), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.bakongPaymentTitle), centerTitle: true, actions: const [LanguageSwitcherButton(lightBackground: true)]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
@@ -166,7 +167,6 @@ class BakongPaymentScreen extends StatelessWidget {
             // Confirm button
             SizedBox(
               width: double.infinity,
-              height: 52,
               child: ElevatedButton(
                 onPressed: sub.isLoading
                     ? null
@@ -183,6 +183,7 @@ class BakongPaymentScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0066CC),
                   foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -199,8 +200,8 @@ class BakongPaymentScreen extends StatelessWidget {
                       )
                     : Text(
                         l10n.confirmAndGetQR,
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

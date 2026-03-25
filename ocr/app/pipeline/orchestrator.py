@@ -13,16 +13,15 @@ Flow:
 """
 import logging
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from app.pipeline.layout import BBox, LayoutResult, TableRowReconstructor, analyze_layout
 from app.pipeline.ocr_engine import KiriOCREngine, LineResult
-from app.pipeline.preprocessor import PreprocessResult, preprocess
+from app.pipeline.preprocessor import preprocess
 from app.pipeline.text_parser import (
-    ParsedPrescription,
+    recompute_prescription_confidence,
     parse_prescription,
     parse_table_medications,
-    _fill_default_time_slots,
 )
 
 logger = logging.getLogger(__name__)
@@ -42,6 +41,8 @@ class PipelineOrchestrator:
         processing_time_ms, and pipeline_metadata.
         """
         start = time.time()
+        if filename:
+            logger.info("Processing image: %s", filename)
 
         try:
             # Layer 1: Preprocess
@@ -70,6 +71,7 @@ class PipelineOrchestrator:
             # (row clustering + content-based cell classification)
             if table_meds:
                 parsed.medications = table_meds
+                parsed.confidence = recompute_prescription_confidence(parsed, line_results)
                 logger.info("Using table-extracted medications: %d items", len(table_meds))
 
             processing_time_ms = (time.time() - start) * 1000
@@ -147,7 +149,7 @@ class PipelineOrchestrator:
     # Footer patterns — lines that are NOT medication data
     _FOOTER_PATS = [
         r'រាជធានី',         # "Phnom Penh" (city name in dates)
-        r'គ្រពេទ្យព្យាបាល',  # "treating doctor"
+        r'គ្រូពេទ្យព្យាបាល',  # "treating doctor"
         r'វេជ្ជបណ្ឌិត',      # "doctor"
         r'សូមយក',           # "please bring"
         r'ថ្ងៃទី.*\d{4}',    # date pattern
@@ -169,6 +171,7 @@ class PipelineOrchestrator:
         """
         if not table_lines or len(table_lines) < 2:
             return None
+        _ = layout
 
         # Convert LineResults to BBox for row clustering
         boxes = []
@@ -221,6 +224,7 @@ class PipelineOrchestrator:
 
         # Extract data rows, filtering out footer rows
         data_rows = []
+        row_confidences = []
         for row in rows[data_start_idx:]:
             texts = [b.text for b in row]
             # Skip single-cell rows (likely misaligned fragments)
@@ -230,6 +234,8 @@ class PipelineOrchestrator:
             if self._is_footer_row(texts):
                 continue
             data_rows.append(texts)
+            confidences = [float(b.confidence) for b in row if isinstance(getattr(b, "confidence", None), (int, float))]
+            row_confidences.append(sum(confidences) / len(confidences) if confidences else 0.0)
 
         if not data_rows:
             return None
@@ -237,6 +243,7 @@ class PipelineOrchestrator:
         meds = parse_table_medications(
             data_rows,
             header_labels=header_labels if header_labels else None,
+            row_confidences=row_confidences,
         )
 
         if meds:

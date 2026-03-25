@@ -7,6 +7,7 @@ import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/language_switcher.dart';
 
 /// Detail screen for a caregiver viewing a specific patient.
 /// Shows patient info, access level, alerts toggle, and today's dose schedule.
@@ -148,7 +149,10 @@ class _CaregiverPatientDetailScreenState
 
     if (_connection == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(l10n.patient)),
+        appBar: AppBar(
+          title: Text(l10n.patient),
+          actions: const [LanguageSwitcherButton(lightBackground: true)],
+        ),
         body: Center(child: Text(l10n.connectionNotFound)),
       );
     }
@@ -160,6 +164,7 @@ class _CaregiverPatientDetailScreenState
         title: Text(patientName.isEmpty ? l10n.patient : patientName),
         centerTitle: true,
         actions: [
+          const LanguageSwitcherButton(lightBackground: true),
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'disconnect') {
@@ -696,7 +701,19 @@ class _CaregiverPatientDetailScreenState
     final messenger = ScaffoldMessenger.of(context);
     final provider = context.read<ConnectionProvider>();
     final patientId = _getPatientId() ?? _connection!.recipientId;
-    final success = await provider.sendNudge(patientId, dose?['id'] as String?);
+    final doseId = _resolveDoseIdForNudge(dose);
+
+    if (doseId == null) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.noPendingDoses),
+          backgroundColor: AppColors.alertRed,
+        ),
+      );
+      return;
+    }
+
+    final success = await provider.sendNudge(patientId, doseId);
 
     if (mounted) {
       messenger.showSnackBar(
@@ -712,6 +729,31 @@ class _CaregiverPatientDetailScreenState
         ),
       );
     }
+  }
+
+  String? _resolveDoseIdForNudge(Map<String, dynamic>? selectedDose) {
+    final selectedId = selectedDose?['id']?.toString().trim();
+    if (selectedId != null && selectedId.isNotEmpty) {
+      return selectedId;
+    }
+
+    final doses = (_doseData?['doses'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    for (final d in doses) {
+      final status = d['status']?.toString();
+      final id = d['id']?.toString().trim();
+      if (id != null && id.isNotEmpty && (status == 'MISSED' || status == 'DUE')) {
+        return id;
+      }
+    }
+
+    for (final d in doses) {
+      final id = d['id']?.toString().trim();
+      if (id != null && id.isNotEmpty) {
+        return id;
+      }
+    }
+
+    return null;
   }
 
   void _showDisconnectDialog(BuildContext context) {

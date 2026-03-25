@@ -1,5 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { AuditService } from '../audit/audit.service';
 import { PermissionLevel } from '@prisma/client';
 import * as crypto from 'crypto';
 
@@ -13,7 +15,11 @@ export interface TokenValidationResult {
 
 @Injectable()
 export class ConnectionTokenService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+    private auditService: AuditService,
+  ) {}
 
   /**
    * Generate a unique connection token for a patient.
@@ -154,6 +160,42 @@ export class ConnectionTokenService {
         },
       }),
     ]);
+
+    const initiatorName =
+      connection.initiator.fullName || connection.initiator.firstName || 'A user';
+    await this.notificationsService.send(
+      tokenRecord.patientId,
+      'CONNECTION_REQUEST',
+      'Connection Request',
+      `${initiatorName} wants to connect with you.`,
+      { connectionId: connection.id, initiatorId: caregiverId },
+    );
+
+    await this.auditService.log({
+      actorId: caregiverId,
+      actorRole: connection.initiator.role,
+      actionType: 'CONNECTION_REQUEST',
+      resourceType: 'Connection',
+      resourceId: connection.id,
+      details: {
+        status: 'PENDING',
+        connectionId: connection.id,
+        initiatorId: connection.initiatorId,
+        recipientId: connection.recipientId,
+        initiator: {
+          id: connection.initiator.id,
+          firstName: connection.initiator.firstName,
+          lastName: connection.initiator.lastName,
+          fullName: connection.initiator.fullName,
+        },
+        recipient: {
+          id: connection.recipient.id,
+          firstName: connection.recipient.firstName,
+          lastName: connection.recipient.lastName,
+          fullName: connection.recipient.fullName,
+        },
+      },
+    });
 
     return connection;
   }

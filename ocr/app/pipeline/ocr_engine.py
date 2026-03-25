@@ -62,8 +62,8 @@ class KiriOCREngine:
             for row_y in range(20, 180, 28):
                 arr[row_y:row_y + 10, 20:300] = 30  # dark bar
             dummy = Image.fromarray(arr)
-            with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
-                dummy.save(tmp, format="JPEG", quality=90)
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                dummy.save(tmp, format="PNG")
                 tmp_path = tmp.name
             try:
                 self._ocr.extract_text(tmp_path)
@@ -96,8 +96,8 @@ class KiriOCREngine:
         if img.mode != "RGB":
             img = img.convert("RGB")
 
-        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
-            img.save(tmp, format="JPEG", quality=95)
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+            img.save(tmp, format="PNG")
             tmp_path = tmp.name
 
         try:
