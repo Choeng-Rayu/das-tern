@@ -1,4 +1,4 @@
-package com.example.das_tern_mcp
+package com.dastern.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,33 +1,38 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as sgMail from '@sendgrid/mail';
+import * as nodemailer from 'nodemailer';
 import * as validator from 'validator';
 
 @Injectable()
 export class EmailService {
+  private transporter;
   private readonly logger = new Logger(EmailService.name);
   private readonly emailConfigured: boolean;
   private readonly fromEmail: string;
   private readonly fromName: string;
 
-  constructor(configService: ConfigService) {
-    const apiKey = configService.get<string>('SENDGRID_API_KEY', '');
-    this.fromEmail = configService.get<string>('SENDGRID_FROM_EMAIL', 'noreply@dastern.com');
-    this.fromName = configService.get<string>('SENDGRID_FROM_NAME', 'Das Tern');
+  constructor(private configService: ConfigService) {
+    const emailUser = configService.get<string>('GMAIL_USER', '');
+    const emailPass = configService.get<string>('GMAIL_APP_PASSWORD', '');
+    this.fromEmail = emailUser || 'noreply@dastern.com';
+    this.fromName = configService.get<string>('EMAIL_FROM_NAME', 'Das Tern');
 
-    // Valid SendGrid HTTP API key always starts with 'SG.'
-    // DigitalOcean blocks SMTP ports (25, 465, 587), so we use
-    // SendGrid's HTTP API (HTTPS port 443) to bypass port blocking.
-    this.emailConfigured = apiKey.startsWith('SG.');
+    this.emailConfigured = !!emailUser && !!emailPass;
 
     if (this.emailConfigured) {
-      sgMail.setApiKey(apiKey);
-      this.logger.log('✅ SendGrid HTTP API configured — emails will be sent via HTTPS');
+      this.transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: emailUser,
+          pass: emailPass,
+        },
+      });
+      this.logger.log('✅ Gmail SMTP configured — emails will be sent via Gmail');
     } else {
       this.logger.warn(
-        '⚠️  SendGrid API key not set or invalid (must start with SG.) — ' +
-        'emails will be logged to console only. ' +
-        'Get a free key at https://app.sendgrid.com/settings/api_keys',
+        '⚠️  Gmail credentials not configured — emails will be logged to console only.',
       );
     }
   }
@@ -39,13 +44,18 @@ export class EmailService {
     return validator.normalizeEmail(email) || email;
   }
 
-  /** Send an email via SendGrid HTTP API (bypasses SMTP port blocks on cloud VPS). */
-  private async send(msg: sgMail.MailDataRequired): Promise<void> {
+  private async send(to: string, subject: string, html: string): Promise<void> {
     if (!this.emailConfigured) {
-      this.logger.warn(`[NO-EMAIL] Would have sent "${msg.subject}" to ${msg.to} — SendGrid key not configured`);
+      this.logger.warn(`[NO-EMAIL] Would have sent "${subject}" to ${to} — Gmail not configured`);
+      console.log(`\n📧 Email Preview:\nTo: ${to}\nSubject: ${subject}\n`);
       return;
     }
-    await sgMail.send(msg);
+    await this.transporter.sendMail({
+      from: `"${this.fromName}" <${this.fromEmail}>`,
+      to,
+      subject,
+      html,
+    });
   }
 
   async sendOTP(email: string, otp: string) {
@@ -57,11 +67,10 @@ export class EmailService {
       return;
     }
 
-    await this.send({
-      from: { email: this.fromEmail, name: this.fromName },
-      to: sanitizedEmail,
-      subject: 'Your OTP Code - Das Tern',
-      html: `
+    await this.send(
+      sanitizedEmail,
+      'Your OTP Code - Das Tern',
+      `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2D5BFF;">Das Tern - OTP Verification</h2>
           <p>Your verification code is:</p>
@@ -70,17 +79,16 @@ export class EmailService {
           <p style="color: #666; font-size: 12px;">If you didn't request this code, please ignore this email.</p>
         </div>
       `,
-    });
+    );
   }
 
   async sendTestEmail(email: string) {
     const sanitizedEmail = this.validateAndSanitizeEmail(email);
 
-    await this.send({
-      from: { email: this.fromEmail, name: this.fromName },
-      to: sanitizedEmail,
-      subject: 'Test Email - Das Tern',
-      html: `
+    await this.send(
+      sanitizedEmail,
+      'Test Email - Das Tern',
+      `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #2D5BFF;">✅ Test Email Successful!</h1>
           <p>Email configuration is working correctly.</p>
@@ -88,18 +96,17 @@ export class EmailService {
           <p>To: ${sanitizedEmail}</p>
         </div>
       `,
-    });
+    );
   }
 
   async sendWelcomeEmail(email: string, name: string) {
     const sanitizedEmail = this.validateAndSanitizeEmail(email);
     const sanitizedName = validator.escape(name);
 
-    await this.send({
-      from: { email: this.fromEmail, name: this.fromName },
-      to: sanitizedEmail,
-      subject: 'Welcome to Das Tern!',
-      html: `
+    await this.send(
+      sanitizedEmail,
+      'Welcome to Das Tern!',
+      `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #2D5BFF;">Welcome to Das Tern, ${sanitizedName}! 🎉</h1>
           <p>Thank you for registering with Das Tern - your medication management companion.</p>
@@ -107,17 +114,16 @@ export class EmailService {
           <p>Get started by adding your first medication.</p>
         </div>
       `,
-    });
+    );
   }
 
   async sendPasswordResetEmail(email: string, resetLink: string, otp: string) {
     const sanitizedEmail = this.validateAndSanitizeEmail(email);
 
-    await this.send({
-      from: { email: this.fromEmail, name: this.fromName },
-      to: sanitizedEmail,
-      subject: 'Password Reset - Das Tern',
-      html: `
+    await this.send(
+      sanitizedEmail,
+      'Password Reset - Das Tern',
+      `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2D5BFF;">Das Tern - Password Reset</h2>
           <p>We received a request to reset your password.</p>
@@ -129,6 +135,6 @@ export class EmailService {
           <p style="color: #666; font-size: 12px;">If you didn't request this, please ignore this email. Your password will remain unchanged.</p>
         </div>
       `,
-    });
+    );
   }
 }
