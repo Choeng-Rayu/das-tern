@@ -47,52 +47,54 @@ class _PatientHistoryTabState extends State<PatientHistoryTab> {
             child: provider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : provider.history.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.history, size: 64, color: AppColors.neutral300),
-                            const SizedBox(height: AppSpacing.md),
-                            Text(
-                              l10n.noHistoryYet,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: AppSpacing.sm),
-                            Text(
-                              l10n.doseHistoryAppearHere,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.history,
+                          size: 64,
+                          color: AppColors.neutral300,
                         ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(AppSpacing.md),
-                        itemCount: provider.history.length,
-                        itemBuilder: (context, index) {
-                          final dose = provider.history[index];
-                          final isTaken = dose.status.contains('TAKEN');
-                          return ListTile(
-                            leading: Icon(
-                              isTaken ? Icons.check_circle : Icons.cancel,
-                              color: isTaken
-                                  ? AppColors.successGreen
-                                  : AppColors.alertRed,
-                            ),
-                            title: Text(dose.medicationName),
-                            subtitle: Text(
-                              '${dose.scheduledTime.hour}:${dose.scheduledTime.minute.toString().padLeft(2, '0')} – ${dose.status}',
-                            ),
-                            trailing: Text(
-                              '${dose.scheduledTime.day}/${dose.scheduledTime.month}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          l10n.noHistoryYet,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          l10n.doseHistoryAppearHere,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    itemCount: provider.history.length,
+                    itemBuilder: (context, index) {
+                      final dose = provider.history[index];
+                      final isTaken = dose.status.contains('TAKEN');
+                      return ListTile(
+                        leading: Icon(
+                          isTaken ? Icons.check_circle : Icons.cancel,
+                          color: isTaken
+                              ? AppColors.successGreen
+                              : AppColors.alertRed,
+                        ),
+                        title: Text(dose.medicationName),
+                        subtitle: Text(
+                          '${dose.scheduledTime.hour}:${dose.scheduledTime.minute.toString().padLeft(2, '0')} – ${dose.status}',
+                        ),
+                        trailing: Text(
+                          '${dose.scheduledTime.day}/${dose.scheduledTime.month}',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
