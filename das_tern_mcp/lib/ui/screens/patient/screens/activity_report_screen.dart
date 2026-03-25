@@ -1,25 +1,29 @@
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../models/dose_event_model/dose_event.dart';
 import '../../../../models/prescription_model/prescription.dart';
 import '../../../../models/health_model/health_vital.dart';
+import '../../../../models/patient_report_data.dart';
 import '../../../../providers/adherence_provider.dart';
 import '../../../../providers/dose_provider.dart';
 import '../../../../providers/subscription_provider.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/prescription_provider.dart';
 import '../../../../providers/health_monitoring_provider.dart';
+import '../../../../services/patient_report_pdf_service.dart';
 import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
-import 'package:intl/intl.dart';
+import '../../../widgets/language_switcher.dart';
 
 /// Displays a comprehensive patient health report and activity summary.
 /// Sections:
@@ -40,6 +44,8 @@ class ActivityReportScreen extends StatefulWidget {
 
 class _ActivityReportScreenState extends State<ActivityReportScreen> {
   bool _generatingPdf = false;
+  bool _isLoadingReportData = true;
+  PatientReportData? _reportData;
 
   @override
   void initState() {
@@ -56,18 +62,204 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
       context.read<PrescriptionProvider>().fetchPrescriptions(status: 'ACTIVE');
       // Fetch latest health vitals
       context.read<HealthMonitoringProvider>().fetchLatestVitals();
+      // Load report data for print/save functionality
+      _loadReportData();
     });
   }
 
-  // ── PDF logic ───────────────────────────────────────────────────────────────
+  /// Loads all required data for the report
+  Future<void> _loadReportData() async {
+    setState(() {
+      _isLoadingReportData = true;
+    });
 
-  Future<void> _onDownloadTapped() async {
+    try {
+      final auth = context.read<AuthProvider>();
+      final prescriptionProvider = context.read<PrescriptionProvider>();
+      final doseProvider = context.read<DoseProvider>();
+      final healthProvider = context.read<HealthMonitoringProvider>();
+      final adherenceProvider = context.read<AdherenceProvider>();
+
+      // Fetch prescriptions if not already loaded
+      if (prescriptionProvider.prescriptions.isEmpty) {
+        await prescriptionProvider.fetchPrescriptions();
+      }
+
+      // Fetch dose history (last 30 days)
+      final now = DateTime.now();
+      final thirtyDaysAgo = now.subtract(const Duration(days: 30));
+      await doseProvider.fetchHistory(
+        startDate: DateFormat('yyyy-MM-dd').format(thirtyDaysAgo),
+        endDate: DateFormat('yyyy-MM-dd').format(now),
+      );
+
+      // Fetch health vitals if not already loaded
+      if (healthProvider.vitals.isEmpty) {
+        await healthProvider.fetchVitals();
+      }
+
+      // Fetch adherence data
+      await adherenceProvider.fetchAll();
+
+      // Construct PatientReportData
+      _reportData = PatientReportData.fromProviders(
+        userMap: auth.user,
+        doctorMap: null,
+        prescriptions: prescriptionProvider.prescriptions,
+        doses: doseProvider.history,
+        healthVitals: healthProvider.vitals,
+        adherenceData: {
+          'weeklyPercentage': (adherenceProvider.weeklyAdherence?['percentage'] as num?)?.toDouble(),
+          'monthlyPercentage': (adherenceProvider.monthlyAdherence?['percentage'] as num?)?.toDouble(),
+          'todayTaken': adherenceProvider.todayTaken,
+          'todayTotal': adherenceProvider.todayTotal,
+          'weeklyDays': adherenceProvider.weeklyAdherence?['days'],
+        },
+      );
+
+      setState(() {
+        _isLoadingReportData = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingReportData = false;
+      });
+    }
+  }
+
+  /// Generates PDF and opens print preview dialog
+  Future<void> _handlePrint() async {
+    if (_reportData == null) return;
     final isPremium = context.read<SubscriptionProvider>().isPremium;
     if (!isPremium) {
       _showUpgradeDialog();
       return;
     }
-    await _generateAndSharePdf();
+
+    setState(() => _generatingPdf = true);
+
+    try {
+      final pdfService = PatientReportPdfService();
+      final pdfBytes = await pdfService.generateReport(_reportData!);
+
+      await Printing.layoutPdf(
+        onLayout: (format) async => pdfBytes,
+        name: _generateFileName(),
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Print preview opened'),
+          backgroundColor: AppColors.statusSuccess,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to generate PDF: $e'),
+          backgroundColor: AppColors.statusError,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      setState(() => _generatingPdf = false);
+    }
+  }
+
+  /// Generates PDF, saves to device, and opens share sheet
+  Future<void> _handleSavePdf() async {
+    if (_reportData == null) return;
+    final isPremium = context.read<SubscriptionProvider>().isPremium;
+    if (!isPremium) {
+      _showUpgradeDialog();
+      return;
+    }
+
+    setState(() => _generatingPdf = true);
+
+    try {
+      final pdfService = PatientReportPdfService();
+      final pdfBytes = await pdfService.generateReport(_reportData!);
+
+      // Get app documents directory
+      final directory = await getApplicationDocumentsDirectory();
+      final fileName = _generateFileName();
+      final file = File('${directory.path}/$fileName');
+
+      // Write PDF to file
+      await file.writeAsBytes(pdfBytes);
+
+      if (!mounted) return;
+
+      // Share the file
+      final box = context.findRenderObject() as RenderBox?;
+      final result = await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: 'DasTern Health Report',
+        text: 'My health report from DasTern',
+        sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+      );
+
+      if (!mounted) return;
+
+      if (result.status == ShareResultStatus.success) {
+        final theme = Theme.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Report saved successfully'),
+            backgroundColor: AppColors.statusSuccess,
+            duration: const Duration(seconds: 2),
+            action: SnackBarAction(
+              label: 'Open',
+              textColor: theme.colorScheme.onPrimary,
+              onPressed: () async {
+                // Open the file using the system default app
+                final box = context.findRenderObject() as RenderBox?;
+                await Share.shareXFiles(
+                  [XFile(file.path)],
+                  sharePositionOrigin: box != null
+                    ? (box.localToGlobal(Offset.zero) & box.size)
+                    : null,
+                );
+              },
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Share cancelled'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save report: $e'),
+          backgroundColor: AppColors.statusError,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      setState(() => _generatingPdf = false);
+    }
+  }
+
+  /// Generates a filename for the PDF report
+  String _generateFileName() {
+    final patientName = _reportData?.patient.fullName ?? 'Patient';
+    final date = DateFormat('yyyyMMdd').format(DateTime.now());
+    // Clean patient name for filename (remove spaces and special characters)
+    final cleanName = patientName.replaceAll(RegExp(r'[^\w]'), '_').toLowerCase();
+    return 'dastern_report_${cleanName}_$date.pdf';
   }
 
   void _showUpgradeDialog() {
@@ -122,146 +314,6 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
     );
   }
 
-  Future<void> _generateAndSharePdf() async {
-    if (_generatingPdf) return;
-    setState(() => _generatingPdf = true);
-
-    final adherence = context.read<AdherenceProvider>();
-    final dose = context.read<DoseProvider>();
-
-    try {
-      final doc = pw.Document();
-      final now = DateTime.now();
-      final dateStr =
-          '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
-
-      final weekly =
-          (adherence.weeklyAdherence?['percentage'] as num?)?.toDouble() ?? 0.0;
-      final monthly =
-          (adherence.monthlyAdherence?['percentage'] as num?)?.toDouble() ??
-          0.0;
-      final taken = adherence.todayTaken;
-      final total = adherence.todayTotal;
-      final days = (adherence.weeklyAdherence?['days'] as List<dynamic>?) ?? [];
-
-      doc.addPage(
-        pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(32),
-          build: (pw.Context pdfCtx) => [
-            // Header
-            pw.Text(
-              'DasTern – Activity Report',
-              style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
-            ),
-            pw.SizedBox(height: 4),
-            pw.Text(
-              'Generated on $dateStr',
-              style: const pw.TextStyle(fontSize: 11, color: PdfColors.grey600),
-            ),
-            pw.Divider(height: 24),
-
-            // Summary
-            pw.Text(
-              'Adherence Summary',
-              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
-            ),
-            pw.SizedBox(height: 8),
-            pw.TableHelper.fromTextArray(
-              headers: ['Metric', 'Value'],
-              data: [
-                ['Today – Taken / Total', '$taken / $total'],
-                [
-                  'Today – Adherence',
-                  total > 0 ? '${(taken / total * 100).round()}%' : '0%',
-                ],
-                ['Weekly Adherence', '${weekly.round()}%'],
-                ['Monthly Adherence', '${monthly.round()}%'],
-              ],
-              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-              cellAlignment: pw.Alignment.centerLeft,
-              border: pw.TableBorder.all(color: PdfColors.grey300),
-              cellPadding: const pw.EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
-            ),
-
-            // Weekly breakdown
-            if (days.isNotEmpty) ...[
-              pw.SizedBox(height: 16),
-              pw.Text(
-                'Weekly Breakdown',
-                style: pw.TextStyle(
-                  fontSize: 14,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 8),
-              pw.TableHelper.fromTextArray(
-                headers: ['Day', 'Adherence'],
-                data: days.map((d) {
-                  final m = d as Map<String, dynamic>;
-                  final label =
-                      (m['dayLabel'] as String?) ??
-                      (m['date'] as String? ?? '').split('-').last;
-                  final pct = (m['percentage'] as num?)?.toDouble() ?? 0.0;
-                  return [label, '${pct.round()}%'];
-                }).toList(),
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                cellAlignment: pw.Alignment.centerLeft,
-                border: pw.TableBorder.all(color: PdfColors.grey300),
-                cellPadding: const pw.EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-              ),
-            ],
-
-            // Dose history
-            if (dose.history.isNotEmpty) ...[
-              pw.SizedBox(height: 16),
-              pw.Text(
-                'Dose History (Last 30 Days)',
-                style: pw.TextStyle(
-                  fontSize: 14,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 8),
-              pw.TableHelper.fromTextArray(
-                headers: ['Medication', 'Date', 'Time', 'Status'],
-                data: dose.history.map((d) {
-                  final t = d.scheduledTime;
-                  return [
-                    d.medicationName,
-                    '${t.day}/${t.month}/${t.year}',
-                    '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}',
-                    d.status,
-                  ];
-                }).toList(),
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                cellAlignment: pw.Alignment.centerLeft,
-                border: pw.TableBorder.all(color: PdfColors.grey300),
-                cellPadding: const pw.EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 4,
-                ),
-              ),
-            ],
-          ],
-        ),
-      );
-
-      await Printing.layoutPdf(
-        onLayout: (_) async => doc.save(),
-        name: 'DasTern_Report_$dateStr.pdf',
-      );
-    } finally {
-      if (mounted) setState(() => _generatingPdf = false);
-    }
-  }
-
   // ── Build ────────────────────────────────────────────────────────────────────
 
   @override
@@ -291,6 +343,22 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
         elevation: 0,
         backgroundColor: cs.surface,
         foregroundColor: cs.onSurface,
+        actions: [
+          if (_reportData != null && !_generatingPdf) ...[
+            IconButton(
+              icon: const Icon(Icons.print),
+              tooltip: l10n.print,
+              onPressed: _handlePrint,
+            ),
+            IconButton(
+              icon: const Icon(Icons.save_alt),
+              tooltip: l10n.saveAsPdf,
+              onPressed: _handleSavePdf,
+            ),
+          ],
+          const LanguageSwitcherButton(lightBackground: true),
+          const SizedBox(width: 8),
+        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -334,28 +402,88 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
                   _WeeklyBreakdown(adherence: adherence, l10n: l10n),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // 6. Download PDF Button
-                  _DownloadPdfButton(
-                    generatingPdf: _generatingPdf,
-                    onTap: _onDownloadTapped,
-                    l10n: l10n,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-
-                  // 7. Dose History Section (grouped by date)
+                  // 6. Dose History Section (grouped by date)
                   _DoseHistorySection(dose: dose, l10n: l10n),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // 8. Health Vitals Section
+                  // 7. Health Vitals Section
                   _HealthVitalsSection(health: health, l10n: l10n),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // 9. Report Timestamp Footer
+                  // 8. Report Timestamp Footer
                   _ReportTimestampFooter(),
-                  const SizedBox(height: AppSpacing.xl),
+                  const SizedBox(height: 100), // Space for bottom action bar
                 ],
               ),
             ),
+      bottomNavigationBar: _reportData != null && !_isLoadingReportData && !isLoading
+          ? _buildBottomActionBar(l10n)
+          : null,
+    );
+  }
+
+  Widget _buildBottomActionBar(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.shadow.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _generatingPdf ? null : _handlePrint,
+                icon: _generatingPdf
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.print),
+                label: Text(l10n.print),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  side: const BorderSide(color: AppColors.primaryBlue),
+                  foregroundColor: AppColors.primaryBlue,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: _generatingPdf ? null : _handleSavePdf,
+                icon: _generatingPdf
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            theme.colorScheme.onPrimary,
+                          ),
+                        ),
+                      )
+                    : const Icon(Icons.save_alt),
+                label: Text(l10n.saveAsPdf),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: AppColors.primaryBlue,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1242,88 +1370,6 @@ class DoseDetailScreen extends StatelessWidget {
 }
 
 // ── Download PDF Button ───────────────────────────────────────────────────────
-
-class _DownloadPdfButton extends StatelessWidget {
-  const _DownloadPdfButton({
-    required this.generatingPdf,
-    required this.onTap,
-    required this.l10n,
-  });
-
-  final bool generatingPdf;
-  final VoidCallback onTap;
-  final AppLocalizations l10n;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Material(
-      color: cs.primaryContainer,
-      borderRadius: BorderRadius.circular(16),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: generatingPdf ? null : onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: cs.primary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: generatingPdf
-                    ? Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: cs.onPrimary,
-                        ),
-                      )
-                    : Icon(
-                        Icons.picture_as_pdf_rounded,
-                        color: cs.onPrimary,
-                        size: 24,
-                      ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      generatingPdf ? l10n.generatingPdf : l10n.downloadPdf,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: cs.onPrimaryContainer,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Premium feature · Tap to export',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: cs.onPrimaryContainer.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-                color: cs.onPrimaryContainer.withValues(alpha: 0.6),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ── Adherence Detail Screen ───────────────────────────────────────────────────
 

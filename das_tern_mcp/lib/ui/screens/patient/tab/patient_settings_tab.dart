@@ -52,22 +52,13 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 context,
                 icon: Icons.bar_chart_outlined,
                 label: l10n.activityReport,
+                isLast: true,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => const ActivityReportScreen(),
                     ),
                   );
-                },
-              ),
-              _divider(isDark),
-              _buildNavRow(
-                context,
-                icon: Icons.picture_as_pdf_outlined,
-                label: l10n.exportHealthReport,
-                isLast: true,
-                onTap: () {
-                  Navigator.pushNamed(context, AppRouter.patientHealthReport);
                 },
               ),
             ]),
