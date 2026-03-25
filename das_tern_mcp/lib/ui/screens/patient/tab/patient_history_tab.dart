@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/dose_provider.dart';
+import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/language_switcher.dart';
@@ -39,55 +40,81 @@ class _PatientHistoryTabState extends State<PatientHistoryTab> {
         automaticallyImplyLeading: false,
         actions: const [LanguageSwitcherButton(lightBackground: true)],
       ),
-      body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : provider.history.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.history, size: 64, color: AppColors.neutral300),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    l10n.noHistoryYet,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    l10n.doseHistoryAppearHere,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
+      body: Column(
+        children: [
+          // Export Report Button
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRouter.patientHealthReport);
+                },
+                icon: const Icon(Icons.picture_as_pdf),
+                label: Text(l10n.exportReport),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBlue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              itemCount: provider.history.length,
-              itemBuilder: (context, index) {
-                final dose = provider.history[index];
-                final isTaken = dose.status.contains('TAKEN');
-                return ListTile(
-                  leading: Icon(
-                    isTaken ? Icons.check_circle : Icons.cancel,
-                    color: isTaken
-                        ? AppColors.successGreen
-                        : AppColors.alertRed,
-                  ),
-                  title: Text(dose.medicationName),
-                  subtitle: Text(
-                    '${dose.scheduledTime.hour}:${dose.scheduledTime.minute.toString().padLeft(2, '0')} – ${dose.status}',
-                  ),
-                  trailing: Text(
-                    '${dose.scheduledTime.day}/${dose.scheduledTime.month}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                );
-              },
             ),
+          ),
+          // History List
+          Expanded(
+            child: provider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : provider.history.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.history, size: 64, color: AppColors.neutral300),
+                            const SizedBox(height: AppSpacing.md),
+                            Text(
+                              l10n.noHistoryYet,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              l10n.doseHistoryAppearHere,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        itemCount: provider.history.length,
+                        itemBuilder: (context, index) {
+                          final dose = provider.history[index];
+                          final isTaken = dose.status.contains('TAKEN');
+                          return ListTile(
+                            leading: Icon(
+                              isTaken ? Icons.check_circle : Icons.cancel,
+                              color: isTaken
+                                  ? AppColors.successGreen
+                                  : AppColors.alertRed,
+                            ),
+                            title: Text(dose.medicationName),
+                            subtitle: Text(
+                              '${dose.scheduledTime.hour}:${dose.scheduledTime.minute.toString().padLeft(2, '0')} – ${dose.status}',
+                            ),
+                            trailing: Text(
+                              '${dose.scheduledTime.day}/${dose.scheduledTime.month}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
     );
   }
 }

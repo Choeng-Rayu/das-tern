@@ -1226,5 +1226,12 @@
   "loadingOperationCompleted": "ប្រតិបត្តិការបានបញ្ចប់!",
   "loadingAllVariantsInline": "គ្រប់វ៉ារ្យ៉ង់ (ក្នុងបន្ទាត់)",
   "loadingUsageExample": "គំរូការប្រើប្រាស់",
-  "loadingSimulatingOperation": "កំពុងធ្វើត្រាប់តាមប្រតិបត្តិការអសមកាលកម្ម..."
+  "loadingSimulatingOperation": "កំពុងធ្វើត្រាប់តាមប្រតិបត្តិការអសមកាលកម្ម...",
+  "healthReport": "របាយការណ៍សុខភាព",
+  "print": "បោះពុម្ព",
+  "saveAsPdf": "រក្សាទុកជា PDF",
+  "exportReport": "នាំចេញរបាយការណ៍",
+  "exportHealthReport": "នាំចេញរបាយការណ៍សុខភាព",
+  "name": "ឈ្មោះ",
+  "years": "ឆ្នាំ"
 }

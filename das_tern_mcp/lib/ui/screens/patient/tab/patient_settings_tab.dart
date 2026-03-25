@@ -7,6 +7,7 @@ import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
 import '../../../../providers/subscription_provider.dart';
 import '../../../../services/notification_service.dart';
+import '../../../../utils/app_router.dart';
 import '../../../screens/patient/screens/activity_report_screen.dart';
 import '../../../screens/support/contact_support_screen.dart';
 import '../../../screens/support/privacy_policy_screen.dart';
@@ -51,13 +52,22 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
                 context,
                 icon: Icons.bar_chart_outlined,
                 label: l10n.activityReport,
-                isLast: true,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => const ActivityReportScreen(),
                     ),
                   );
+                },
+              ),
+              _divider(isDark),
+              _buildNavRow(
+                context,
+                icon: Icons.picture_as_pdf_outlined,
+                label: l10n.exportHealthReport,
+                isLast: true,
+                onTap: () {
+                  Navigator.pushNamed(context, AppRouter.patientHealthReport);
                 },
               ),
             ]),

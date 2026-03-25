@@ -3176,4 +3176,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loadingSimulatingOperation => 'Simulating async operation...';
+
+  @override
+  String get healthReport => 'Health Report';
+
+  @override
+  String get print => 'Print';
+
+  @override
+  String get saveAsPdf => 'Save as PDF';
+
+  @override
+  String get exportReport => 'Export Report';
+
+  @override
+  String get exportHealthReport => 'Export Health Report';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get years => 'years';
 }

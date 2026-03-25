@@ -1329,5 +1329,12 @@
   "loadingOperationCompleted": "Operation completed!",
   "loadingAllVariantsInline": "All Variants (Inline)",
   "loadingUsageExample": "Usage Example",
-  "loadingSimulatingOperation": "Simulating async operation..."
+  "loadingSimulatingOperation": "Simulating async operation...",
+  "healthReport": "Health Report",
+  "print": "Print",
+  "saveAsPdf": "Save as PDF",
+  "exportReport": "Export Report",
+  "exportHealthReport": "Export Health Report",
+  "name": "Name",
+  "years": "years"
 }

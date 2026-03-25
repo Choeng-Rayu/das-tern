@@ -3175,4 +3175,25 @@ class AppLocalizationsKm extends AppLocalizations {
   @override
   String get loadingSimulatingOperation =>
       'កំពុងធ្វើត្រាប់តាមប្រតិបត្តិការអសមកាលកម្ម...';
+
+  @override
+  String get healthReport => 'របាយការណ៍សុខភាព';
+
+  @override
+  String get print => 'បោះពុម្ព';
+
+  @override
+  String get saveAsPdf => 'រក្សាទុកជា PDF';
+
+  @override
+  String get exportReport => 'នាំចេញរបាយការណ៍';
+
+  @override
+  String get exportHealthReport => 'នាំចេញរបាយការណ៍សុខភាព';
+
+  @override
+  String get name => 'ឈ្មោះ';
+
+  @override
+  String get years => 'ឆ្នាំ';
 }
