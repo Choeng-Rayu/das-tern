@@ -73,6 +73,7 @@ dependencies:
   # PDF generation & sharing
   pdf: ^3.11.1
   printing: ^5.13.2
+  init: ^1.0.0
 
   # Clipboard
   # (already available via Flutter SDK)
