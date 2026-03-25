@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
@@ -7,6 +8,62 @@ import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/auth_widgets.dart';
 import '../../widgets/language_switcher.dart';
 import '../../widgets/telegram_phone_field.dart';
+import '../../widgets/app_button.dart';
+
+// ── Google logo widget (same as login screen) ───────────────────────────────
+class _GoogleIcon extends StatelessWidget {
+  final double size;
+  const _GoogleIcon({this.size = 20});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: CustomPaint(painter: _GoogleIconPainter()),
+    );
+  }
+}
+
+class _GoogleIconPainter extends CustomPainter {
+  static const _blue = Color(0xFF4285F4);
+  static const _red = Color(0xFFEA4335);
+  static const _yellow = Color(0xFFFBBC05);
+  static const _green = Color(0xFF34A853);
+
+  static double _rad(double deg) => deg * math.pi / 180;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double r = size.width / 2;
+    final Offset c = Offset(r, r);
+    final double sw = r * 0.36;
+    final double mr = r - sw / 2;
+
+    Paint arc(Color color) => Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = sw
+      ..strokeCap = StrokeCap.butt;
+
+    final Rect rect = Rect.fromCircle(center: c, radius: mr);
+
+    canvas.drawArc(rect, _rad(14), _rad(91), false, arc(_yellow));
+    canvas.drawArc(rect, _rad(105), _rad(91), false, arc(_green));
+    canvas.drawArc(rect, _rad(196), _rad(150), false, arc(_blue));
+    canvas.drawArc(rect, _rad(346), _rad(28), false, arc(_red));
+
+    canvas.drawRect(
+      Rect.fromLTRB(c.dx - 1, c.dy - sw / 2, c.dx + r, c.dy + sw / 2),
+      Paint()
+        ..color = _blue
+        ..style = PaintingStyle.fill,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 /// Patient registration – two-step form with step indicator.
 /// Step 1: Personal info (lastName, firstName, gender, dateOfBirth, idCardNumber).
@@ -315,7 +372,15 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           const SizedBox(height: AppSpacing.xl),
 
           // Continue button
-          AuthPrimaryButton(onPressed: _nextStep, label: l10n.continueButton),
+          AppButton(
+            text: l10n.continueButton,
+            onPressed: _nextStep,
+            gradient: const LinearGradient(
+              colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
+            ),
+            shape: AppButtonShape.pill,
+            size: AppButtonSize.large,
+          ),
           const SizedBox(height: AppSpacing.md),
 
           // ── OR divider ──
@@ -343,18 +408,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
             height: 48,
             child: OutlinedButton.icon(
               onPressed: _handleGoogleRegister,
-              icon: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Icon(
-                  Icons.g_mobiledata,
-                  color: Colors.red,
-                  size: 20,
-                ),
-              ),
+              icon: const _GoogleIcon(size: 20),
               label: Text(
                 l10n.registerWithGoogle,
                 style: const TextStyle(
@@ -543,10 +597,15 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           const SizedBox(height: AppSpacing.lg),
 
           // Register button
-          AuthPrimaryButton(
+          AppButton(
+            text: l10n.createAccount,
             onPressed: _agreedToTerms ? _handleRegister : null,
             isLoading: auth.isLoading,
-            label: l10n.createAccount,
+            gradient: const LinearGradient(
+              colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
+            ),
+            shape: AppButtonShape.pill,
+            size: AppButtonSize.large,
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -575,18 +634,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
             height: 48,
             child: OutlinedButton.icon(
               onPressed: auth.isLoading ? null : _handleGoogleRegister,
-              icon: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Icon(
-                  Icons.g_mobiledata,
-                  color: Colors.red,
-                  size: 20,
-                ),
-              ),
+              icon: const _GoogleIcon(size: 20),
               label: Text(
                 l10n.registerWithGoogle,
                 style: const TextStyle(

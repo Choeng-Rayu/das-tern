@@ -34,7 +34,6 @@ class AppButton extends StatefulWidget {
     this.variant = AppButtonVariant.primary,
     this.isLoading = false,
     this.isFullWidth = false,
-    this.icon,
   });
 
   final String label;

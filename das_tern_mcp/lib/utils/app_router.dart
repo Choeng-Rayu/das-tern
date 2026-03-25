@@ -25,6 +25,7 @@ import '../ui/screens/family_ui/grace_period_settings_screen.dart';
 import '../ui/screens/family_ui/connection_history_screen.dart';
 import '../ui/screens/family_ui/caregiver_patient_detail_screen.dart';
 import '../ui/screens/patient/screens/upgrade_plan_screen.dart';
+import '../ui/screens/patient/screens/subscription_management_screen.dart';
 import '../ui/screens/patient/screens/payment_method_screen.dart';
 import '../ui/screens/patient/screens/bakong_payment_screen.dart';
 import '../ui/screens/patient/screens/payment_qr_screen.dart';
@@ -80,6 +81,7 @@ class AppRouter {
   static const String familyPatientDetail = '/family/patient-detail';
 
   // Subscription/payment routes
+  static const String subscriptionManage = '/subscription/manage';
   static const String subscriptionUpgrade = '/subscription/upgrade';
   static const String subscriptionPaymentMethod =
       '/subscription/payment-method';
@@ -185,6 +187,8 @@ class AppRouter {
         );
 
       // Subscription/payment routes
+      case subscriptionManage:
+        return _buildRoute(const SubscriptionManagementScreen());
       case subscriptionUpgrade:
         return _buildRoute(const UpgradePlanScreen());
       case subscriptionPaymentMethod:
