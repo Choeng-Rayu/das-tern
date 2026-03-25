@@ -37,7 +37,17 @@ class _DoctorShellState extends State<DoctorShell> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _tabs),
+      extendBody: true,
+      body: MediaQuery.removePadding(
+        context: context,
+        removeBottom: true,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom + 92,
+          ),
+          child: IndexedStack(index: _currentIndex, children: _tabs),
+        ),
+      ),
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
@@ -48,18 +58,18 @@ class _DoctorShellState extends State<DoctorShell> {
             label: l10n.home,
           ),
           AppNavItem(
-            icon: Icons.people_outline,
-            activeIcon: Icons.people,
+            icon: Icons.personal_injury_outlined,
+            activeIcon: Icons.personal_injury,
             label: l10n.doctorPatientsTab,
           ),
           AppNavItem(
-            icon: Icons.note_add_outlined,
-            activeIcon: Icons.note_add,
+            icon: Icons.medication_outlined,
+            activeIcon: Icons.medication,
             label: l10n.doctorPrescriptionsTab,
           ),
           AppNavItem(
-            icon: Icons.history_outlined,
-            activeIcon: Icons.history,
+            icon: Icons.fact_check_outlined,
+            activeIcon: Icons.fact_check,
             label: l10n.doctorPrescriptionHistoryTab,
           ),
           AppNavItem(

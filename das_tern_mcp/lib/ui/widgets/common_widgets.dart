@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
@@ -464,10 +465,12 @@ class AppNavItem {
   final IconData activeIcon;
   final String label;
 
+
   const AppNavItem({
     required this.icon,
     required this.activeIcon,
-    required this.label,
+    required this.label, 
+
   });
 }
 
@@ -488,47 +491,201 @@ class AppNavItem {
 ///   ),
 /// )
 /// ```
-class AppBottomNavBar extends StatelessWidget {
+// app_bottom_nav_bar.dart
+
+// app_bottom_nav_bar.dart
+
+class AppBottomNavBar extends StatefulWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
   final List<AppNavItem> items;
-  final Color? selectedColor;
-  final Color? unselectedColor;
-  final double selectedFontSize;
-  final double unselectedFontSize;
-  final BottomNavigationBarType type;
 
   const AppBottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
     required this.items,
-    this.selectedColor,
-    this.unselectedColor,
-    this.selectedFontSize = 11,
-    this.unselectedFontSize = 10,
-    this.type = BottomNavigationBarType.fixed,
   });
 
   @override
+  State<AppBottomNavBar> createState() => _AppBottomNavBarState();
+}
+
+class _AppBottomNavBarState extends State<AppBottomNavBar>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pillController;
+  late Animation<double> _pillPosition;
+  int _previousIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _previousIndex = widget.currentIndex;
+    _pillController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _pillPosition = Tween<double>(
+      begin: widget.currentIndex.toDouble(),
+      end: widget.currentIndex.toDouble(),
+    ).animate(
+      CurvedAnimation(parent: _pillController, curve: Curves.easeInOutCubic),
+    );
+  }
+
+  @override
+  void didUpdateWidget(AppBottomNavBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentIndex != widget.currentIndex) {
+      _pillPosition = Tween<double>(
+        begin: _previousIndex.toDouble(),
+        end: widget.currentIndex.toDouble(),
+      ).animate(
+        CurvedAnimation(parent: _pillController, curve: Curves.easeInOutCubic),
+      );
+      _pillController
+        ..reset()
+        ..forward();
+      _previousIndex = widget.currentIndex;
+    }
+  }
+
+  @override
+  void dispose() {
+    _pillController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: onTap,
-      type: type,
-      selectedItemColor: selectedColor ?? AppColors.primaryBlue,
-      unselectedItemColor: unselectedColor ?? AppColors.neutral400,
-      selectedFontSize: selectedFontSize,
-      unselectedFontSize: unselectedFontSize,
-      items: items
-          .map(
-            (item) => BottomNavigationBarItem(
-              icon: Icon(item.icon),
-              activeIcon: Icon(item.activeIcon),
-              label: item.label,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final selectedColor = isDark ? AppColors.darkPrimary : AppColors.primaryBlue;
+    final unselectedColor = isDark ? AppColors.neutralGray : AppColors.neutral400;
+    final bgColor = isDark ? AppColors.darkSurface : AppColors.white;
+    final borderColor = isDark
+        ? AppColors.white.withOpacity(0.08)
+        : AppColors.black.withOpacity(0.1);
+    final shadowColor = isDark
+        ? AppColors.black.withOpacity(0.4)
+        : AppColors.neutral400.withOpacity(0.5);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        0,
+        AppSpacing.md,
+        AppSpacing.lg,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            height: 68,
+            decoration: BoxDecoration(
+              color: bgColor.withOpacity(isDark ? 0.85 : 0.92),
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+              border: Border.all(color: borderColor, width: 1.2),
+              boxShadow: [
+                BoxShadow(
+                  color: shadowColor,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
+                  spreadRadius: 5
+                ),
+                BoxShadow(
+                  color: selectedColor.withOpacity(0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          )
-          .toList(),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final itemWidth = constraints.maxWidth / widget.items.length;
+
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Sliding pill indicator
+                    AnimatedBuilder(
+                      animation: _pillPosition,
+                      builder: (context, _) {
+                        return Positioned(
+                          left: _pillPosition.value * itemWidth +
+                              itemWidth * 0.15,
+                          child: Container(
+                            width: itemWidth * 0.7,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: selectedColor.withOpacity(
+                                isDark ? 0.18 : 0.12,
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(AppRadius.xl),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
+                    // Nav items
+                    Row(
+                      children: List.generate(widget.items.length, (i) {
+                        final isActive = widget.currentIndex == i;
+                        final item = widget.items[i];
+
+                        return Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => widget.onTap(i),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  transitionBuilder: (child, anim) =>
+                                      FadeTransition(
+                                    opacity: anim,
+                                    child: child,
+                                  ),
+                                  child: Icon(
+                                    isActive ? item.activeIcon : item.icon,
+                                    key: ValueKey(isActive),
+                                    color: isActive
+                                        ? selectedColor
+                                        : unselectedColor,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(height: AppSpacing.xs - 1),
+                                AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 200),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: isActive
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                    color: isActive
+                                        ? selectedColor
+                                        : unselectedColor,
+                                  ),
+                                  child: Text(item.label),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
