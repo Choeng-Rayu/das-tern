@@ -1292,5 +1292,13 @@
   "upgradeToPremium": "Upgrade to Premium",
   "maybeLater": "Maybe Later",
   "generatingPdf": "Generating PDF...",
-  "pdfReady": "Report PDF is ready"
+  "pdfReady": "Report PDF is ready",
+
+  "healthReport": "Health Report",
+  "print": "Print",
+  "saveAsPdf": "Save as PDF",
+  "exportReport": "Export Report",
+  "exportHealthReport": "Export Health Report",
+  "name": "Name",
+  "years": "years"
 }

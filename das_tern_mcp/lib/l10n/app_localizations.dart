@@ -5875,6 +5875,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report PDF is ready'**
   String get pdfReady;
+
+  /// No description provided for @healthReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Report'**
+  String get healthReport;
+
+  /// No description provided for @print.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get print;
+
+  /// No description provided for @saveAsPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as PDF'**
+  String get saveAsPdf;
+
+  /// No description provided for @exportReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Report'**
+  String get exportReport;
+
+  /// No description provided for @exportHealthReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Health Report'**
+  String get exportHealthReport;
+
+  /// No description provided for @name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// No description provided for @years.
+  ///
+  /// In en, this message translates to:
+  /// **'years'**
+  String get years;
 }
 
 class _AppLocalizationsDelegate

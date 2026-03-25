@@ -1189,5 +1189,13 @@
   "upgradeToPremium": "ធ្វើឱ្យប្រសើរជា Premium",
   "maybeLater": "ពេលក្រោយ",
   "generatingPdf": "កំពុងបង្កើត PDF...",
-  "pdfReady": "PDF របាយការណ៍រួចរាល់"
+  "pdfReady": "PDF របាយការណ៍រួចរាល់",
+
+  "healthReport": "របាយការណ៍សុខភាព",
+  "print": "បោះពុម្ព",
+  "saveAsPdf": "រក្សាទុកជា PDF",
+  "exportReport": "នាំចេញរបាយការណ៍",
+  "exportHealthReport": "នាំចេញរបាយការណ៍សុខភាព",
+  "name": "ឈ្មោះ",
+  "years": "ឆ្នាំ"
 }
