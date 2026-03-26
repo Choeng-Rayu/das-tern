@@ -73,14 +73,30 @@ class KiriOCREngine(OCREngine):
     def __init__(self):
         # Set HF_TOKEN before loading so HuggingFace uses authenticated requests
         from app.config import settings
+
+        self._decode_method = (settings.KIRI_DECODE_METHOD or "fast").strip().lower()
+        if self._decode_method not in {"fast", "accurate"}:
+            logger.warning(
+                f"Invalid KIRI_DECODE_METHOD '{settings.KIRI_DECODE_METHOD}', defaulting to 'fast'"
+            )
+            self._decode_method = "fast"
+
+        self._max_ocr_dimension = max(1, int(settings.KIRI_MAX_OCR_DIMENSION))
+        self._png_compress_level = min(9, max(0, int(settings.KIRI_PNG_COMPRESS_LEVEL)))
+        self._conf_blend_det = min(1.0, max(0.0, float(settings.KIRI_CONF_BLEND_DET)))
+        self._conf_textlen_boost = max(0.0, float(settings.KIRI_CONF_TEXTLEN_BOOST))
+
         if settings.HF_TOKEN:
             os.environ.setdefault("HF_TOKEN", settings.HF_TOKEN)
             logger.info("HuggingFace token configured")
 
-        logger.info("Loading Kiri-OCR model (mrrtmob/kiri-ocr)...")
+        logger.info(
+            "Loading Kiri-OCR model (mrrtmob/kiri-ocr) "
+            f"with decode_method={self._decode_method}..."
+        )
         start = time.time()
         from kiri_ocr import OCR
-        self._ocr = OCR(device="cpu", det_method="db", decode_method="accurate")
+        self._ocr = OCR(device="cpu", det_method="db", decode_method=self._decode_method)
         elapsed = time.time() - start
         logger.info(f"Kiri-OCR model loaded in {elapsed:.1f}s")
 
@@ -121,38 +137,101 @@ class KiriOCREngine(OCREngine):
             img = img.convert("RGB")
         return self.extract_from_pil(img)
 
+    def _downscale_for_ocr(self, img: Image.Image) -> Image.Image:
+        """Downscale image for OCR speed when it exceeds configured max dimension."""
+        width, height = img.size
+        max_dim = max(width, height)
+
+        if max_dim <= self._max_ocr_dimension:
+            return img
+
+        scale = self._max_ocr_dimension / float(max_dim)
+        new_size = (
+            max(1, int(round(width * scale))),
+            max(1, int(round(height * scale))),
+        )
+        resample = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
+        logger.debug(
+            "Downscaling OCR image from %sx%s to %sx%s",
+            width,
+            height,
+            new_size[0],
+            new_size[1],
+        )
+        return img.resize(new_size, resample=resample)
+
+    @staticmethod
+    def _text_length_boost(text: str, max_boost: float) -> float:
+        """Compute a small confidence boost for medium/long clean text."""
+        clean_len = sum(1 for ch in text if ch.isalnum())
+        if clean_len < 8 or max_boost <= 0:
+            return 0.0
+
+        # Ramp up from 8 chars to 40 chars.
+        ratio = min(1.0, (clean_len - 8) / 32.0)
+        return max_boost * ratio
+
     def extract_from_pil(self, img: Image.Image) -> Tuple[str, List[LineResult]]:
         """Run OCR on a PIL Image (already preprocessed).
 
         Returns:
             (full_text, line_results)
         """
-        start = time.time()
+        total_start = time.perf_counter()
+        io_ms = 0.0
+        ocr_ms = 0.0
+
         if img.mode != "RGB":
             img = img.convert("RGB")
 
+        img = self._downscale_for_ocr(img)
+
+        io_start = time.perf_counter()
         with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-            img.save(tmp, format="PNG")
+            img.save(tmp, format="PNG", compress_level=self._png_compress_level)
             tmp_path = tmp.name
+        io_ms += (time.perf_counter() - io_start) * 1000
 
         try:
+            ocr_start = time.perf_counter()
             full_text, results = self._ocr.extract_text(tmp_path)
+            ocr_ms = (time.perf_counter() - ocr_start) * 1000
         finally:
+            io_cleanup_start = time.perf_counter()
             os.unlink(tmp_path)
+            io_ms += (time.perf_counter() - io_cleanup_start) * 1000
 
-        elapsed_ms = (time.time() - start) * 1000
+        total_ms = (time.perf_counter() - total_start) * 1000
 
         # Convert result dicts to LineResult objects
         line_results = []
         for r in results:
+            base_conf = float(r.get("confidence", 0.0) or 0.0)
+            conf = base_conf
+
+            det_conf = r.get("det_confidence")
+            if det_conf is not None:
+                det_conf = float(det_conf)
+                conf = ((1.0 - self._conf_blend_det) * base_conf) + (self._conf_blend_det * det_conf)
+
+            text = r.get("text", "")
+            conf += self._text_length_boost(text, self._conf_textlen_boost)
+            conf = min(1.0, max(0.0, conf))
+
             line_results.append(LineResult(
-                text=r.get("text", ""),
-                confidence=r.get("confidence", 0.0),
+                text=text,
+                confidence=conf,
                 bbox=r.get("box", []),
                 line_number=r.get("line_number", 0),
             ))
 
-        logger.info(f"Kiri-OCR extracted {len(line_results)} lines in {elapsed_ms:.0f}ms")
+        logger.info(
+            "Kiri-OCR extracted %s lines in %.0fms (ocr=%.0fms, io=%.0fms)",
+            len(line_results),
+            total_ms,
+            ocr_ms,
+            io_ms,
+        )
         return full_text, line_results
 
     def extract_from_numpy(self, img_bgr: np.ndarray) -> Tuple[str, List[LineResult]]:
@@ -329,4 +408,3 @@ def create_ocr_engine() -> OCREngine:
     else:
         logger.warning(f"Unknown OCR_MODEL '{ocr_model}', defaulting to Tesseract")
         return TesseractOCREngine()
-
