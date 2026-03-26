@@ -6,6 +6,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/medicine_form_widget.dart';
 import '../../../widgets/language_switcher.dart';
+import '../../../../services/loading_overlay_service.dart';
 
 class OcrPreviewScreen extends StatefulWidget {
   final Map<String, dynamic> extractedData;
@@ -416,6 +417,22 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
 
     setState(() => _isSubmitting = true);
 
+    try {
+      await LoadingOverlayService.showWhile(
+        context,
+        future: _submitPrescription(),
+        message: l10n.loadingProcessing,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  Future<void> _submitPrescription() async {
+    final l10n = AppLocalizations.of(context)!;
+
     // Build medicines array matching PatientMedicationDto
     final medicines = _medicines.asMap().entries.map((e) {
       final med = e.value;
@@ -498,18 +515,15 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
         .read<PrescriptionProvider>()
         .createPatientPrescription(data);
 
-    if (mounted) {
-      setState(() => _isSubmitting = false);
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.medicineAddedSuccessfully),
-            backgroundColor: AppColors.successGreen,
-          ),
-        );
-        // Pop back to the patient home safely
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
+    if (mounted && success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.medicineAddedSuccessfully),
+          backgroundColor: AppColors.successGreen,
+        ),
+      );
+      // Pop back to the patient home safely
+      Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
 

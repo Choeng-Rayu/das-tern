@@ -11,6 +11,7 @@ import '../../../../utils/app_router.dart';
 import '../../../widgets/common_widgets.dart';
 import '../../../widgets/dose_task_card.dart';
 import '../../../widgets/header_widgets.dart';
+import '../../../widgets/loading/health_loading_indicator.dart';
 
 /// Medications tab – lists active prescriptions, batch groups, and their medications.
 class PatientMedicationsTab extends StatefulWidget {
@@ -84,8 +85,14 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
 
             // ── Content ──
             if (provider.isLoading && batchProvider.isLoading)
-              const SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
+              SliverFillRemaining(
+                child: Center(
+                  child: HealthLoadingIndicator(
+                    variant: HealthLoadingVariant.pills,
+                    size: HealthLoadingSize.large,
+                    message: l10n.loadingMedications,
+                  ),
+                ),
               )
             else
               SliverToBoxAdapter(
@@ -252,9 +259,9 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                                           GestureDetector(
                                             onTap: () =>
                                                 _confirmDeletePrescription(
-                                              context,
-                                              rx.id ?? '',
-                                            ),
+                                                  context,
+                                                  rx.id ?? '',
+                                                ),
                                             child: const Icon(
                                               Icons.delete_outline,
                                               size: 18,
@@ -321,133 +328,148 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
 
                       // If opened for a specific period, show filtered doses list
                       if (period != null) ...[
-                        Builder(builder: (context) {
-                          final allPeriodDoses = periodDoses ?? [];
-                          final pending = allPeriodDoses
-                              .where((d) =>
-                                  d.status != 'TAKEN_ON_TIME' &&
-                                  d.status != 'TAKEN_LATE' &&
-                                  d.status != 'SKIPPED')
-                              .toList();
-                          final done = allPeriodDoses
-                              .where((d) =>
-                                  d.status == 'TAKEN_ON_TIME' ||
-                                  d.status == 'TAKEN_LATE' ||
-                                  d.status == 'SKIPPED')
-                              .toList();
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      l10n.medications,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                  ),
-                                  if (pending.isNotEmpty)
-                                    TextButton(
-                                      onPressed: () =>
-                                          _showMarkAllDoneSheet(context, pending),
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: AppColors.primaryBlue,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                        ),
-                                        minimumSize: const Size(0, 32),
-                                      ),
-                                      child: Text(
-                                        l10n.markAllDone,
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: AppSpacing.sm),
-
-                              if (periodDoses == null)
-                                const Center(child: CircularProgressIndicator())
-                              else if (allPeriodDoses.isEmpty)
-                                Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: AppSpacing.xxl,
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        const Icon(
-                                          Icons.check_circle_outline,
-                                          size: 48,
-                                          color: AppColors.successGreen,
-                                        ),
-                                        const SizedBox(height: AppSpacing.sm),
-                                        Text(
-                                          l10n.noMoreMedicationsToday,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                        Builder(
+                          builder: (context) {
+                            final allPeriodDoses = periodDoses ?? [];
+                            final pending = allPeriodDoses
+                                .where(
+                                  (d) =>
+                                      d.status != 'TAKEN_ON_TIME' &&
+                                      d.status != 'TAKEN_LATE' &&
+                                      d.status != 'SKIPPED',
                                 )
-                              else ...[
-                                if (pending.isEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      bottom: AppSpacing.sm,
+                                .toList();
+                            final done = allPeriodDoses
+                                .where(
+                                  (d) =>
+                                      d.status == 'TAKEN_ON_TIME' ||
+                                      d.status == 'TAKEN_LATE' ||
+                                      d.status == 'SKIPPED',
+                                )
+                                .toList();
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        l10n.medications,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
                                     ),
-                                    child: Text(
-                                      l10n.noPendingDoses,
-                                      style: const TextStyle(
-                                        color: AppColors.textSecondary,
-                                        fontSize: 13,
+                                    if (pending.isNotEmpty)
+                                      TextButton(
+                                        onPressed: () => _showMarkAllDoneSheet(
+                                          context,
+                                          pending,
+                                        ),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor:
+                                              AppColors.primaryBlue,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                          minimumSize: const Size(0, 32),
+                                        ),
+                                        child: Text(
+                                          l10n.markAllDone,
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+
+                                if (periodDoses == null)
+                                  Center(
+                                    child: HealthLoadingIndicator(
+                                      variant: HealthLoadingVariant.pills,
+                                      size: HealthLoadingSize.medium,
+                                      message: l10n.loadingMedications,
+                                    ),
+                                  )
+                                else if (allPeriodDoses.isEmpty)
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: AppSpacing.xxl,
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          const Icon(
+                                            Icons.check_circle_outline,
+                                            size: 48,
+                                            color: AppColors.successGreen,
+                                          ),
+                                          const SizedBox(height: AppSpacing.sm),
+                                          Text(
+                                            l10n.noMoreMedicationsToday,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.titleMedium,
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   )
-                                else
-                                  ...pending.map(
-                                    (dose) => DoseTaskCard(dose: dose),
-                                  ),
-
-                                // ── Collapsible completed section ──
-                                if (done.isNotEmpty)
-                                  Theme(
-                                    data: Theme.of(context).copyWith(
-                                      dividerColor: Colors.transparent,
-                                    ),
-                                    child: ExpansionTile(
-                                      tilePadding: EdgeInsets.zero,
-                                      childrenPadding: EdgeInsets.zero,
-                                      title: Text(
-                                        l10n.completedCount(done.length),
+                                else ...[
+                                  if (pending.isEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: AppSpacing.sm,
+                                      ),
+                                      child: Text(
+                                        l10n.noPendingDoses,
                                         style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
                                           color: AppColors.textSecondary,
+                                          fontSize: 13,
                                         ),
                                       ),
-                                      children: done
-                                          .map(
-                                            (dose) => DoseTaskCard(
-                                              dose: dose,
-                                              readOnly: true,
-                                            ),
-                                          )
-                                          .toList(),
+                                    )
+                                  else
+                                    ...pending.map(
+                                      (dose) => DoseTaskCard(dose: dose),
                                     ),
-                                  ),
+
+                                  // ── Collapsible completed section ──
+                                  if (done.isNotEmpty)
+                                    Theme(
+                                      data: Theme.of(context).copyWith(
+                                        dividerColor: Colors.transparent,
+                                      ),
+                                      child: ExpansionTile(
+                                        tilePadding: EdgeInsets.zero,
+                                        childrenPadding: EdgeInsets.zero,
+                                        title: Text(
+                                          l10n.completedCount(done.length),
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                        children: done
+                                            .map(
+                                              (dose) => DoseTaskCard(
+                                                dose: dose,
+                                                readOnly: true,
+                                              ),
+                                            )
+                                            .toList(),
+                                      ),
+                                    ),
+                                ],
                               ],
-                            ],
-                          );
-                        }),
+                            );
+                          },
+                        ),
                       ] else
                       // Empty state
                       if (provider.prescriptions
@@ -590,16 +612,17 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                                 Navigator.pop(ctx);
                                 for (int i = 0; i < pending.length; i++) {
                                   if (selected[i]) {
-                                    await doseProvider
-                                        .markTaken(pending[i].id ?? '');
+                                    await doseProvider.markTaken(
+                                      pending[i].id ?? '',
+                                    );
                                   }
                                 }
                               },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.successGreen,
                           foregroundColor: Colors.white,
-                          disabledBackgroundColor:
-                              AppColors.successGreen.withValues(alpha: 0.4),
+                          disabledBackgroundColor: AppColors.successGreen
+                              .withValues(alpha: 0.4),
                           padding: const EdgeInsets.symmetric(
                             vertical: AppSpacing.md,
                           ),
@@ -634,7 +657,11 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
         ),
         title: Row(
           children: [
-            const Icon(Icons.delete_outline, color: AppColors.alertRed, size: 22),
+            const Icon(
+              Icons.delete_outline,
+              color: AppColors.alertRed,
+              size: 22,
+            ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(child: Text(l10n.deletePrescription)),
           ],
@@ -744,10 +771,8 @@ class _PatientMedicationsTabState extends State<PatientMedicationsTab> {
                     ),
                     const SizedBox(width: 4),
                     GestureDetector(
-                      onTap: () => _confirmDeletePrescription(
-                        context,
-                        rx.id ?? '',
-                      ),
+                      onTap: () =>
+                          _confirmDeletePrescription(context, rx.id ?? ''),
                       child: const Icon(
                         Icons.delete_outline,
                         size: 18,

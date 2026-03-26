@@ -594,10 +594,17 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            Icon(Icons.workspace_premium_outlined, size: 20, color: isPlatinum ? const Color(0xFF8B5CF6) : null),
+            Icon(
+              Icons.workspace_premium_outlined,
+              size: 20,
+              color: isPlatinum ? const Color(0xFF8B5CF6) : null,
+            ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(l10n.manageSubscriptions, style: Theme.of(context).textTheme.bodyLarge),
+              child: Text(
+                l10n.manageSubscriptions,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -615,7 +622,11 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
               ),
             ),
             const SizedBox(width: 6),
-            const Icon(Icons.chevron_right, size: 18, color: AppColors.textSecondary),
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
           ],
         ),
       ),

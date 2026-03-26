@@ -20,14 +20,8 @@ class WelcomeScreen extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: isDark
-                ? [
-                    const Color(0xFF4A9FBF),
-                    const Color(0xFF3A8FAF),
-                  ]
-                : [
-                    const Color(0xFF5DADE2),
-                    const Color(0xFF3498DB),
-                  ],
+                ? [const Color(0xFF4A9FBF), const Color(0xFF3A8FAF)]
+                : [const Color(0xFF5DADE2), const Color(0xFF3498DB)],
           ),
         ),
         child: SafeArea(
@@ -42,7 +36,7 @@ class WelcomeScreen extends StatelessWidget {
                   height: 300,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                   ),
                 ),
               ),
@@ -54,11 +48,11 @@ class WelcomeScreen extends StatelessWidget {
                   height: 400,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.08),
+                    color: Colors.white.withValues(alpha: 0.08),
                   ),
                 ),
               ),
-              
+
               // Main content
               Center(
                 child: SingleChildScrollView(
@@ -68,7 +62,7 @@ class WelcomeScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(height: 60),
-                      
+
                       // Welcome Title
                       Text(
                         l10n.welcomeTitle,
@@ -89,7 +83,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Subtitle
                       Text(
                         l10n.welcomeScreenSubtitle,
@@ -109,9 +103,9 @@ class WelcomeScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 80),
-                      
+
                       // Buttons container
                       Container(
                         padding: const EdgeInsets.all(24),
@@ -135,7 +129,8 @@ class WelcomeScreen extends StatelessWidget {
                             // Sign In button
                             AppButton(
                               text: l10n.signIn,
-                              onPressed: () => Navigator.of(context).pushNamed('/login'),
+                              onPressed: () =>
+                                  Navigator.of(context).pushNamed('/login'),
                               backgroundColor: Colors.white,
                               textColor: const Color(0xFF3498DB),
                               shape: AppButtonShape.pill,
@@ -143,11 +138,13 @@ class WelcomeScreen extends StatelessWidget {
                               elevation: 0,
                             ),
                             const SizedBox(height: 16),
-                            
+
                             // Create Account button
                             AppButton(
                               text: l10n.createAccount,
-                              onPressed: () => Navigator.of(context).pushNamed('/register-role'),
+                              onPressed: () => Navigator.of(
+                                context,
+                              ).pushNamed('/register-role'),
                               style: AppButtonStyle.outlined,
                               borderColor: Colors.white,
                               textColor: Colors.white,
@@ -158,9 +155,9 @@ class WelcomeScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 32),
-                      
+
                       // Emergency Access
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -170,9 +167,7 @@ class WelcomeScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: const Color(0x1AFFFFFF),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: const Color(0x33FFFFFF),
-                          ),
+                          border: Border.all(color: const Color(0x33FFFFFF)),
                         ),
                         child: TextButton(
                           onPressed: () {},
@@ -199,13 +194,13 @@ class WelcomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 60),
                     ],
                   ),
                 ),
               ),
-              
+
               // Language switcher
               Positioned(
                 top: 16,

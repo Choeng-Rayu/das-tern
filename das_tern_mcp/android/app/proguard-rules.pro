@@ -6,6 +6,10 @@
 -keep class io.flutter.**  { *; }
 -keep class io.flutter.plugins.**  { *; }
 
+# Google Play Core (Fix R8 missing classes)
+-dontwarn com.google.android.play.core.**
+-keep class com.google.android.play.core.** { *; }
+
 # Keep Google Sign In
 -keep class com.google.android.gms.auth.** { *; }
 -keep class com.google.api.** { *; }

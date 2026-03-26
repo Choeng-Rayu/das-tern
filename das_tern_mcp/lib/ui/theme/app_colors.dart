@@ -5,7 +5,7 @@ class AppColors {
   AppColors._();
 
   // ── Primary ──
-  static const Color primaryBlue = Color(0xFF2D5BFF);
+  static const Color primaryBlue = Color.fromARGB(255, 85, 117, 232);
   static const Color darkBlue = Color(0xFF1A2744);
 
   // ── Alert & Status ──

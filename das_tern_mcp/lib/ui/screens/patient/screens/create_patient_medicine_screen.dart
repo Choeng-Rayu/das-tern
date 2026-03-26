@@ -7,6 +7,8 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../../ui/widgets/medicine_form_widget.dart';
 import '../../../widgets/language_switcher.dart';
+import '../../../widgets/loading/health_loading_indicator.dart';
+import '../../../../services/loading_overlay_service.dart';
 
 class CreatePatientMedicineScreen extends StatefulWidget {
   const CreatePatientMedicineScreen({super.key});
@@ -45,13 +47,15 @@ class _CreatePatientMedicineScreenState
       'medicines': _medicines.toList(),
     };
 
-    final success = await context
-        .read<PrescriptionProvider>()
-        .createPatientPrescription(
-          data,
-          onAfterCreate: () =>
-              context.read<DoseProvider>().fetchTodaySchedule(),
-        );
+    final success = await LoadingOverlayService.showWhile(
+      context,
+      variant: HealthLoadingVariant.pills,
+      message: l10n.loadingProcessing,
+      future: context.read<PrescriptionProvider>().createPatientPrescription(
+        data,
+        onAfterCreate: () => context.read<DoseProvider>().fetchTodaySchedule(),
+      ),
+    );
 
     if (mounted && success) {
       ScaffoldMessenger.of(
@@ -59,7 +63,9 @@ class _CreatePatientMedicineScreenState
       ).showSnackBar(SnackBar(content: Text(l10n.medicineAddedSuccessfully)));
       Navigator.pop(context);
     } else if (mounted) {
-      final errMsg = context.read<PrescriptionProvider>().error ?? 'Failed to save medicine';
+      final errMsg =
+          context.read<PrescriptionProvider>().error ??
+          'Failed to save medicine';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errMsg), backgroundColor: Colors.red),
       );
@@ -69,7 +75,6 @@ class _CreatePatientMedicineScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final provider = context.watch<PrescriptionProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -128,22 +133,13 @@ class _CreatePatientMedicineScreenState
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: provider.isLoading ? null : _submit,
+                onPressed: _submit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                 ),
-                child: provider.isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(l10n.saveWithCount(_medicines.length)),
+                child: Text(l10n.saveWithCount(_medicines.length)),
               ),
             ),
           ],

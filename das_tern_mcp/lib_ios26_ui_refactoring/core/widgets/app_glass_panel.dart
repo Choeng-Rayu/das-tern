@@ -92,10 +92,7 @@ class AppGlassPanel extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(borderRadius),
           child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: blurRadius,
-              sigmaY: blurRadius,
-            ),
+            filter: ImageFilter.blur(sigmaX: blurRadius, sigmaY: blurRadius),
             child: DecoratedBox(
               decoration: BoxDecoration(
                 // Gradient fill — transparent tint skips the gradient (ghost)
@@ -105,22 +102,16 @@ class AppGlassPanel extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          resolvedTint.withOpacity(isDark ? 0.18 : 0.60),
-                          resolvedTint.withOpacity(isDark ? 0.06 : 0.40),
+                          resolvedTint.withValues(alpha: isDark ? 0.18 : 0.60),
+                          resolvedTint.withValues(alpha: isDark ? 0.06 : 0.40),
                         ],
                       ),
                 // Specular top-edge border (Req 4.2)
                 border: Border(
-                  top: BorderSide(
-                    color: colors.glassBorder,
-                    width: 0.8,
-                  ),
+                  top: BorderSide(color: colors.glassBorder, width: 0.8),
                 ),
               ),
-              child: Padding(
-                padding: padding ?? EdgeInsets.zero,
-                child: child,
-              ),
+              child: Padding(padding: padding ?? EdgeInsets.zero, child: child),
             ),
           ),
         ),

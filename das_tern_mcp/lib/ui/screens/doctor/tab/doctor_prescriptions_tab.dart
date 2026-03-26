@@ -6,6 +6,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../../utils/app_router.dart';
 import '../../../widgets/common_widgets.dart';
+import '../../../widgets/loading/health_loading_indicator.dart';
 
 /// Doctor prescriptions tab – manage all prescriptions.
 class DoctorPrescriptionsTab extends StatefulWidget {
@@ -44,7 +45,13 @@ class _DoctorPrescriptionsTabState extends State<DoctorPrescriptionsTab> {
       body: RefreshIndicator(
         onRefresh: () => provider.fetchPrescriptions(),
         child: provider.isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? Center(
+                child: HealthLoadingIndicator(
+                  variant: HealthLoadingVariant.medicalCross,
+                  size: HealthLoadingSize.medium,
+                  message: l10n.loadingPleaseWait,
+                ),
+              )
             : provider.prescriptions.isEmpty
             ? Center(
                 child: Column(

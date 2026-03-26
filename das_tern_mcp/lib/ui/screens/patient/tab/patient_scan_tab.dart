@@ -8,6 +8,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../../utils/app_router.dart';
 import '../../../widgets/common_widgets.dart';
+import '../../../widgets/loading/health_loading_indicator.dart';
 
 /// Scan Prescription tab – captures/picks prescription image, extracts via OCR,
 /// then navigates to an editable preview screen before saving.
@@ -313,16 +314,12 @@ class _PatientScanTabState extends State<PatientScanTab> {
         Expanded(
           child: Center(
             child: _isProcessing
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircularProgressIndicator(),
-                      const SizedBox(height: AppSpacing.lg),
-                      Text(
-                        l10n.scanProcessing,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ],
+                ? Center(
+                    child: HealthLoadingIndicator(
+                      variant: HealthLoadingVariant.pills,
+                      size: HealthLoadingSize.large,
+                      message: l10n.scanProcessing,
+                    ),
                   )
                 : SingleChildScrollView(
                     child: Column(

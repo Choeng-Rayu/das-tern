@@ -7,6 +7,7 @@ import '../../../providers/connection_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/medicine_form_widget.dart';
+import '../../widgets/loading/health_loading_indicator.dart';
 
 class CreatePrescriptionScreen extends StatefulWidget {
   const CreatePrescriptionScreen({super.key});
@@ -191,13 +192,10 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                       ? null
                       : _submit,
                   child: _isSubmitting || prescriptionProvider.isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
+                      ? const HealthLoadingIndicator.inline(
+                          variant: HealthLoadingVariant.progressRing,
+                          size: HealthLoadingSize.small,
+                          color: Colors.white,
                         )
                       : Text(l10n.submitPrescription),
                 ),
@@ -216,7 +214,13 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
     final patients = _getPatients(connProvider);
 
     if (connProvider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: HealthLoadingIndicator(
+          variant: HealthLoadingVariant.medicalCross,
+          size: HealthLoadingSize.small,
+          message: l10n.loadingPleaseWait,
+        ),
+      );
     }
 
     return Column(
@@ -307,8 +311,9 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                                 height: 20,
                                 child: Padding(
                                   padding: EdgeInsets.all(12),
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                                  child: HealthLoadingIndicator.inline(
+                                    variant: HealthLoadingVariant.progressRing,
+                                    size: HealthLoadingSize.small,
                                   ),
                                 ),
                               )
@@ -420,13 +425,10 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                             }
                           },
                     child: sending
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
+                        ? const HealthLoadingIndicator.inline(
+                            variant: HealthLoadingVariant.progressRing,
+                            size: HealthLoadingSize.small,
+                            color: Colors.white,
                           )
                         : Text(l10n.sendConnectionRequest),
                   ),
