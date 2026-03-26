@@ -1,9 +1,10 @@
-"""Kiri-OCR engine wrapper — loads model once, provides extract method."""
+"""OCR engine wrapper — supports multiple OCR backends (Kiri-OCR, Tesseract)."""
 import io
 import logging
 import os
 import tempfile
 import time
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import List, Tuple
 
@@ -22,7 +23,41 @@ class LineResult:
     line_number: int = 0
 
 
-class KiriOCREngine:
+class OCREngine(ABC):
+    """Abstract base class for OCR engines."""
+    
+    @abstractmethod
+    def extract(self, image_bytes: bytes) -> Tuple[str, List[LineResult]]:
+        """Run OCR on raw image bytes.
+        
+        Returns:
+            (full_text, line_results) where full_text is the concatenated text
+            and line_results is a list of per-line LineResult objects.
+        """
+        pass
+    
+    @abstractmethod
+    def extract_from_pil(self, img: Image.Image) -> Tuple[str, List[LineResult]]:
+        """Run OCR on a PIL Image (already preprocessed).
+        
+        Returns:
+            (full_text, line_results)
+        """
+        pass
+    
+    @abstractmethod
+    def extract_from_numpy(self, img_bgr: np.ndarray) -> Tuple[str, List[LineResult]]:
+        """Run OCR on a preprocessed OpenCV BGR numpy array."""
+        pass
+    
+    @property
+    @abstractmethod
+    def engine_name(self) -> str:
+        """Return the name of the OCR engine."""
+        pass
+
+
+class KiriOCREngine(OCREngine):
     """Wrapper around the kiri-ocr library.
 
     The kiri_ocr.OCR.extract_text() returns:
@@ -126,4 +161,172 @@ class KiriOCREngine:
         rgb = img_bgr[:, :, ::-1] if len(img_bgr.shape) == 3 else np.stack([img_bgr] * 3, axis=-1)
         pil_img = _PILImage.fromarray(rgb)
         return self.extract_from_pil(pil_img)
+    
+    @property
+    def engine_name(self) -> str:
+        """Return the name of the OCR engine."""
+        return "kiri-ocr"
+
+
+class TesseractOCREngine(OCREngine):
+    """Wrapper around Tesseract OCR via pytesseract library.
+    
+    Tesseract supports multiple languages including English and can handle
+    mixed-language content. Configure languages via pytesseract.
+    """
+    
+    def __init__(self, lang: str = "eng+script/Khmer"):
+        """Initialize Tesseract OCR engine.
+        
+        Args:
+            lang: Tesseract language(s) to use. Examples:
+                - "eng" for English only
+                - "eng+script/Khmer" for English + Khmer
+                - "eng+khm" for English + Khmer (if trained data available)
+        """
+        logger.info(f"Initializing Tesseract OCR with languages: {lang}")
+        start = time.time()
+        
+        try:
+            import pytesseract
+            self._pytesseract = pytesseract
+            self.lang = lang
+            
+            # Test Tesseract installation
+            version = pytesseract.get_tesseract_version()
+            logger.info(f"Tesseract version: {version}")
+            
+        except ImportError:
+            logger.error("pytesseract not installed. Install with: pip install pytesseract")
+            raise
+        except Exception as e:
+            logger.error(f"Failed to initialize Tesseract: {e}")
+            raise
+        
+        elapsed = time.time() - start
+        logger.info(f"Tesseract OCR initialized in {elapsed:.1f}s")
+    
+    def extract(self, image_bytes: bytes) -> Tuple[str, List[LineResult]]:
+        """Run OCR on raw image bytes.
+        
+        Returns:
+            (full_text, line_results) where full_text is the concatenated text
+            and line_results is a list of per-line LineResult objects.
+        """
+        img = Image.open(io.BytesIO(image_bytes))
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        return self.extract_from_pil(img)
+    
+    def extract_from_pil(self, img: Image.Image) -> Tuple[str, List[LineResult]]:
+        """Run OCR on a PIL Image (already preprocessed).
+        
+        Returns:
+            (full_text, line_results)
+        """
+        start = time.time()
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        
+        # Get detailed OCR data from Tesseract
+        # data contains: level, page_num, block_num, par_num, line_num, word_num,
+        #                left, top, width, height, conf, text
+        ocr_data = self._pytesseract.image_to_data(
+            img, 
+            lang=self.lang,
+            output_type=self._pytesseract.Output.DICT
+        )
+        
+        # Also get full text
+        full_text = self._pytesseract.image_to_string(img, lang=self.lang)
+        
+        elapsed_ms = (time.time() - start) * 1000
+        
+        # Group words into lines based on line_num
+        lines_dict = {}
+        for i in range(len(ocr_data['text'])):
+            text = ocr_data['text'][i].strip()
+            if not text:  # Skip empty text
+                continue
+            
+            line_num = ocr_data['line_num'][i]
+            conf = float(ocr_data['conf'][i]) / 100.0 if ocr_data['conf'][i] != -1 else 0.0
+            left = ocr_data['left'][i]
+            top = ocr_data['top'][i]
+            width = ocr_data['width'][i]
+            height = ocr_data['height'][i]
+            
+            if line_num not in lines_dict:
+                lines_dict[line_num] = {
+                    'texts': [],
+                    'confs': [],
+                    'left': left,
+                    'top': top,
+                    'right': left + width,
+                    'bottom': top + height
+                }
+            
+            lines_dict[line_num]['texts'].append(text)
+            lines_dict[line_num]['confs'].append(conf)
+            lines_dict[line_num]['left'] = min(lines_dict[line_num]['left'], left)
+            lines_dict[line_num]['top'] = min(lines_dict[line_num]['top'], top)
+            lines_dict[line_num]['right'] = max(lines_dict[line_num]['right'], left + width)
+            lines_dict[line_num]['bottom'] = max(lines_dict[line_num]['bottom'], top + height)
+        
+        # Convert to LineResult objects
+        line_results = []
+        for line_num in sorted(lines_dict.keys()):
+            line_data = lines_dict[line_num]
+            line_text = ' '.join(line_data['texts'])
+            line_conf = sum(line_data['confs']) / len(line_data['confs']) if line_data['confs'] else 0.0
+            
+            bbox = [
+                line_data['left'],
+                line_data['top'],
+                line_data['right'] - line_data['left'],  # width
+                line_data['bottom'] - line_data['top']   # height
+            ]
+            
+            line_results.append(LineResult(
+                text=line_text,
+                confidence=line_conf,
+                bbox=bbox,
+                line_number=line_num,
+            ))
+        
+        logger.info(f"Tesseract extracted {len(line_results)} lines in {elapsed_ms:.0f}ms")
+        return full_text, line_results
+    
+    def extract_from_numpy(self, img_bgr: np.ndarray) -> Tuple[str, List[LineResult]]:
+        """Run OCR on a preprocessed OpenCV BGR numpy array."""
+        from PIL import Image as _PILImage
+        rgb = img_bgr[:, :, ::-1] if len(img_bgr.shape) == 3 else np.stack([img_bgr] * 3, axis=-1)
+        pil_img = _PILImage.fromarray(rgb)
+        return self.extract_from_pil(pil_img)
+    
+    @property
+    def engine_name(self) -> str:
+        """Return the name of the OCR engine."""
+        return "tesseract"
+
+
+def create_ocr_engine() -> OCREngine:
+    """Factory function to create the appropriate OCR engine based on configuration.
+    
+    Returns:
+        OCREngine instance (either KiriOCREngine or TesseractOCREngine)
+    """
+    from app.config import settings
+    
+    ocr_model = settings.OCR_MODEL.lower()
+    
+    if ocr_model == "tesseract":
+        logger.info("Creating Tesseract OCR engine")
+        return TesseractOCREngine()
+    elif ocr_model == "kiri-ocr":
+        logger.info("Creating Kiri-OCR engine")
+        return KiriOCREngine()
+    else:
+        logger.warning(f"Unknown OCR_MODEL '{ocr_model}', defaulting to Tesseract")
+        return TesseractOCREngine()
 

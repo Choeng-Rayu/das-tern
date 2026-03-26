@@ -37,5 +37,8 @@ class Settings(BaseSettings):
     # Optional HuggingFace token for authenticated requests (higher rate limits)
     HF_TOKEN: Optional[str] = None
 
+    # OCR Model Selection: "kiri-ocr" or "tesseract"
+    OCR_MODEL: str = "tesseract"
+
 settings = Settings()
 

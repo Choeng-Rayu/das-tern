@@ -10,7 +10,7 @@ class ExtractionSummary(BaseModel):
     needs_review: bool = False
     fields_needing_review: List[str] = Field(default_factory=list)
     processing_time_ms: float = 0.0
-    engines_used: List[str] = Field(default_factory=lambda: ["kiri-ocr"])
+    engines_used: List[str] = Field(default_factory=list)
 
 
 class ExtractionResponse(BaseModel):
@@ -36,8 +36,8 @@ class HealthResponse(BaseModel):
     """Health check response."""
     status: str = "healthy"
     version: str = "1.0.0"
-    ocr_engine: str = "kiri-ocr"
-    model_name: str = "mrrtmob/kiri-ocr"
+    ocr_engine: str = "unknown"
+    model_name: str = "unknown"
     models_loaded: bool = True
 
 
@@ -46,6 +46,6 @@ class ConfigResponse(BaseModel):
     auto_accept_threshold: float = 0.80
     flag_review_threshold: float = 0.60
     max_upload_size_mb: int = 10
-    ocr_engine: str = "kiri-ocr"
+    ocr_engine: str = "unknown"
     max_image_dimension: int = 4000
 

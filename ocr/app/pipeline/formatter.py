@@ -91,6 +91,7 @@ def build_dynamic_universal(
     image_format: str = "unknown",
     file_size_bytes: int = 0,
     preprocessing_applied: list | None = None,
+    ocr_engine: str = "unknown",
 ) -> Dict[str, Any]:
     med_items = [_build_medication_item(m) for m in rx.medications]
     max_duration = max((m.duration_days for m in rx.medications if m.duration_days), default=0)
@@ -103,7 +104,7 @@ def build_dynamic_universal(
             "metadata": {
                 "extraction_info": {
                     "extracted_at": _timestamp(),
-                    "ocr_engine": "kiri-ocr",
+                    "ocr_engine": ocr_engine,
                     "confidence_score": rx.confidence,
                     "processing_time_ms": round(processing_time_ms, 1),
                     "preprocessing_applied": preprocessing_applied or [],
@@ -178,7 +179,7 @@ def build_dynamic_universal(
     }
 
 
-def build_extraction_summary(result: Dict[str, Any], processing_time_ms: float) -> Dict[str, Any]:
+def build_extraction_summary(result: Dict[str, Any], processing_time_ms: float, ocr_engine: str = "unknown") -> Dict[str, Any]:
     prescription = result.get("prescription", {})
     confidence = prescription.get("metadata", {}).get("extraction_info", {}).get("confidence_score", 0.0)
     meds = prescription.get("medications", {}).get("summary", {}).get("total_medications", 0)
@@ -196,5 +197,5 @@ def build_extraction_summary(result: Dict[str, Any], processing_time_ms: float) 
         "needs_review": confidence < 0.80 or meds == 0,
         "fields_needing_review": fields_needing_review,
         "processing_time_ms": round(processing_time_ms, 1),
-        "engines_used": ["kiri-ocr"],
+        "engines_used": [ocr_engine],
     }
