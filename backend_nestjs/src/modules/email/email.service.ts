@@ -1,65 +1,30 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import { MailService } from '@sendgrid/mail';
 import * as validator from 'validator';
 
 @Injectable()
 export class EmailService {
-  private transporter;
   private readonly logger = new Logger(EmailService.name);
-  private readonly emailConfigured: boolean;
   private readonly fromEmail: string;
   private readonly fromName: string;
+  private mailService: MailService | null;
 
   constructor(private configService: ConfigService) {
-    // SendGrid Configuration (Primary - recommended for production/VPS)
-    const sendgridApiKey = configService.get<string>('SENDGRID_API_KEY', '');
-    
-    // Gmail Fallback
-    const gmailUser = configService.get<string>('GMAIL_USER', '');
-    const gmailAppPassword = configService.get<string>('GMAIL_APP_PASSWORD', '');
-    
-    this.fromEmail = configService.get<string>('SENDGRID_FROM_EMAIL', 
-      (gmailUser && gmailAppPassword) ? gmailUser : 'noreply@dastern.com');
+    // Get SendGrid configuration
+    const apiKey = configService.get<string>('SENDGRID_API_KEY', '');
+    this.fromEmail = configService.get<string>('SENDGRID_FROM_EMAIL', 'noreply@dastern.com');
     this.fromName = configService.get<string>('SENDGRID_FROM_NAME', 'Das Tern');
 
-    // Prioritize SendGrid for production (works better on cloud/VPS)
-    if (sendgridApiKey) {
-      this.emailConfigured = true;
-      this.transporter = nodemailer.createTransport({
-        host: 'smtp.sendgrid.net',
-        port: 587,
-        secure: false,
-        auth: {
-          user: 'apikey',
-          pass: sendgridApiKey,
-        },
-        // Add timeouts for better reliability
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
-      });
-      this.logger.log('✅ SendGrid SMTP configured — emails will be sent via SendGrid');
-    } else if (gmailUser && gmailAppPassword) {
-      // Gmail fallback (if SendGrid not configured)
-      this.emailConfigured = true;
-      this.transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: gmailUser,
-          pass: gmailAppPassword,
-        },
-        tls: {
-          rejectUnauthorized: true,
-        },
-      });
-      this.logger.log('✅ Gmail SMTP configured — emails will be sent via Gmail');
+    // Configure SendGrid
+    if (apiKey) {
+      this.mailService = new MailService();
+      this.mailService.setApiKey(apiKey);
+      this.logger.log('✅ SendGrid configured — emails will be sent via SendGrid API');
     } else {
-      this.emailConfigured = false;
+      this.mailService = null;
       this.logger.warn(
-        '⚠️  Email credentials not configured — emails will be logged to console only.',
+        '⚠️  SendGrid API key not configured — emails will be logged to console only.',
       );
     }
   }
@@ -71,57 +36,32 @@ export class EmailService {
     return validator.normalizeEmail(email) || email;
   }
 
-  private async send(to: string, subject: string, html: string, text?: string): Promise<void> {
-    if (!this.emailConfigured) {
-      this.logger.warn(`[NO-EMAIL] Would have sent "${subject}" to ${to} — Email not configured`);
+  private async send(to: string, subject: string, html: string): Promise<void> {
+    if (!this.mailService) {
+      this.logger.warn(`[NO-EMAIL] Would have sent "${subject}" to ${to} — SendGrid not configured`);
       console.log(`\n📧 Email Preview:\nTo: ${to}\nSubject: ${subject}\n`);
       return;
     }
 
-    if (!this.transporter) {
-      this.logger.error('Email transporter not initialized');
-      throw new BadRequestException('Email service unavailable');
-    }
-
     try {
-      const info = await this.transporter.sendMail({
-        from: {
-          name: this.fromName,
-          address: this.fromEmail,
-        },
+      await this.mailService.send({
         to,
+        from: { email: this.fromEmail, name: this.fromName },
         subject,
-        text: text || this.htmlToText(html),
         html,
-        headers: {
-          'X-Mailer': 'Das Tern App',
-          'X-Priority': '3',
-          'Precedence': 'bulk',
-        },
       });
       
-      this.logger.log(`✅ Email sent successfully to ${to}`);
-      this.logger.debug(`Message ID: ${info.messageId}`);
+      this.logger.log(`✅ Email sent successfully to ${to} via SendGrid API`);
     } catch (error) {
-      this.logger.error(`Failed to send email to ${to}:`, error.message);
-      throw new BadRequestException(`Failed to send email: ${error.message}`);
+      this.logger.error(`Failed to send email to ${to}:`, error.response?.body || error.message);
+      throw new BadRequestException(`Failed to send email: ${error.response?.body || error.message}`);
     }
-  }
-
-  private htmlToText(html: string): string {
-    return html
-      .replace(/<[^>]*>/g, '')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .trim();
   }
 
   async sendOTP(email: string, otp: string) {
     const sanitizedEmail = this.validateAndSanitizeEmail(email);
 
-    if (!this.emailConfigured) {
+    if (!this.mailService) {
       this.logger.log(`[DEV] OTP for ${sanitizedEmail}: ${otp}`);
       console.log(`\n📧 OTP Email to ${sanitizedEmail}:\n🔐 OTP Code: ${otp}\n`);
       return;
@@ -154,9 +94,7 @@ export class EmailService {
       </div>
     `;
 
-    const text = `Das Tern - Verification Code\n\nYour verification code is: ${otp}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this code, you can safely ignore this email.`;
-
-    await this.send(sanitizedEmail, 'Your Verification Code - Das Tern', html, text);
+    await this.send(sanitizedEmail, 'Your Verification Code - Das Tern', html);
   }
 
   async sendTestEmail(email: string) {
@@ -189,9 +127,7 @@ export class EmailService {
       </div>
     `;
 
-    const text = `Das Tern - Test Email\n\nTest email successful!\n\nFrom: ${this.fromEmail}\nTo: ${sanitizedEmail}\nSent: ${new Date().toLocaleString()}\n\nYou're all set to receive important notifications.`;
-
-    await this.send(sanitizedEmail, 'Test Email - Das Tern Configuration', html, text);
+    await this.send(sanitizedEmail, 'Test Email - Das Tern Configuration', html);
   }
 
   async sendWelcomeEmail(email: string, name: string) {
@@ -230,9 +166,7 @@ export class EmailService {
       </div>
     `;
 
-    const text = `Welcome to Das Tern, ${sanitizedName}!\n\nThank you for joining Das Tern - your personal medication management companion.\n\nWhat's next?\n- Add your medications\n- Set up reminders\n- Track your adherence\n- Connect with healthcare providers\n\nWe're here to help you never miss a dose!`;
-
-    await this.send(sanitizedEmail, 'Welcome to Das Tern!', html, text);
+    await this.send(sanitizedEmail, 'Welcome to Das Tern!', html);
   }
 
   async sendPasswordResetEmail(email: string, resetLink: string, otp: string) {
@@ -256,7 +190,7 @@ export class EmailService {
           </div>
           <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0;">
             <p style="margin: 0; color: #e65100; font-size: 14px;">
-              <strong>⚠️ Security:</strong> This link and code will expire in <strong>15 minutes</strong>.
+              <strong>⚠� Security:</strong> This link and code will expire in <strong>15 minutes</strong>.
             </p>
           </div>
           <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
@@ -273,8 +207,6 @@ export class EmailService {
       </div>
     `;
 
-    const text = `Das Tern - Password Reset\n\nWe received a request to reset your password.\n\nYour reset code is: ${otp}\n\nOr use this link: ${resetLink}\n\n⚠️ This link and code will expire in 15 minutes.\n\nIf you didn't request this reset, please ignore this email. Your password will remain unchanged.`;
-
-    await this.send(sanitizedEmail, 'Password Reset - Das Tern', html, text);
+    await this.send(sanitizedEmail, 'Password Reset - Das Tern', html);
   }
 }
