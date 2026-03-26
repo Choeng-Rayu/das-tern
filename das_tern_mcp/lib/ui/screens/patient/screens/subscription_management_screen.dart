@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/subscription_provider.dart';
-import '../../../theme/app_colors.dart';
 import '../../../widgets/language_switcher.dart';
 
 /// Subscription Management Screen
@@ -59,11 +58,7 @@ class _SubscriptionManagementScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Current Plan Card
-                  _CurrentPlanCard(
-                    tier: tier,
-                    isDark: isDark,
-                    card: card,
-                  ),
+                  _CurrentPlanCard(tier: tier, isDark: isDark, card: card),
                   const SizedBox(height: 20),
 
                   // Trial Countdown (if on trial)
@@ -104,8 +99,8 @@ class _SubscriptionManagementScreenState
                     isFreemium
                         ? l10n.choosePlan
                         : isPremium
-                            ? 'Upgrade to Platinum'
-                            : 'Available Plans',
+                        ? 'Upgrade to Platinum'
+                        : 'Available Plans',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -117,8 +112,8 @@ class _SubscriptionManagementScreenState
                     isFreemium
                         ? l10n.unlockPremiumFeatures
                         : isPremium
-                            ? 'Get unlimited connections and group plan'
-                            : 'Manage your subscription',
+                        ? 'Get unlimited connections and group plan'
+                        : 'Manage your subscription',
                     style: TextStyle(color: muted, fontSize: 14, height: 1.4),
                   ),
                   const SizedBox(height: 16),
@@ -146,19 +141,19 @@ class _SubscriptionManagementScreenState
                             isCurrentPlan: isPremium,
                             onTap: isFreemium
                                 ? () => Navigator.pushNamed(
-                                      context,
-                                      '/subscription/payment-method',
-                                      arguments: {
-                                        'planType': 'PREMIUM',
-                                        'plan': {
-                                          'id': 'PREMIUM',
-                                          'name': 'Premium',
-                                          'price': 0.5,
-                                          'currency': 'USD',
-                                          'period': 'month',
-                                        },
+                                    context,
+                                    '/subscription/payment-method',
+                                    arguments: {
+                                      'planType': 'PREMIUM',
+                                      'plan': {
+                                        'id': 'PREMIUM',
+                                        'name': 'Premium',
+                                        'price': 0.5,
+                                        'currency': 'USD',
+                                        'period': 'month',
                                       },
-                                    )
+                                    },
+                                  )
                                 : null,
                           ),
                         ),
@@ -231,10 +226,7 @@ class _SubscriptionManagementScreenState
                                 const SizedBox(height: 4),
                                 Text(
                                   'Enjoy all premium features with unlimited access',
-                                  style: TextStyle(
-                                    color: muted,
-                                    fontSize: 13,
-                                  ),
+                                  style: TextStyle(color: muted, fontSize: 13),
                                 ),
                               ],
                             ),
@@ -377,7 +369,10 @@ class _CurrentPlanCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -509,8 +504,9 @@ class _TrialCountdownCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 6,
-              backgroundColor:
-                  isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA),
+              backgroundColor: isDark
+                  ? const Color(0xFF2C2C2E)
+                  : const Color(0xFFE5E5EA),
               color: progress > 0.3
                   ? const Color(0xFF34C759)
                   : const Color(0xFFFF3B30),
@@ -767,11 +763,7 @@ class _PlanCard extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.check_circle,
-                            size: 16,
-                            color: color,
-                          ),
+                          Icon(Icons.check_circle, size: 16, color: color),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(

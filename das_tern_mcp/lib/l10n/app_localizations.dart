@@ -5863,6 +5863,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report PDF is ready'**
   String get pdfReady;
+
+  /// No description provided for @loadingMonitoringHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitoring your health...'**
+  String get loadingMonitoringHealth;
+
+  /// No description provided for @loadingMedications.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading medications...'**
+  String get loadingMedications;
+
+  /// No description provided for @loadingProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing...'**
+  String get loadingProcessing;
+
+  /// No description provided for @loadingPleaseWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait...'**
+  String get loadingPleaseWait;
+
+  /// No description provided for @loadingDemoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading Indicators Demo'**
+  String get loadingDemoTitle;
+
+  /// No description provided for @loadingDemoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Interactive demo of all loading animation variants for the DasTern medication management app.'**
+  String get loadingDemoDescription;
+
+  /// No description provided for @loadingLivePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Preview'**
+  String get loadingLivePreview;
+
+  /// No description provided for @loadingAnimationVariant.
+  ///
+  /// In en, this message translates to:
+  /// **'Animation Variant'**
+  String get loadingAnimationVariant;
+
+  /// No description provided for @loadingVariantHeartbeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Heartbeat Pulse'**
+  String get loadingVariantHeartbeat;
+
+  /// No description provided for @loadingVariantHeartbeatDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'ECG-style heartbeat with pulsing glow'**
+  String get loadingVariantHeartbeatDesc;
+
+  /// No description provided for @loadingVariantPills.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotating Pills'**
+  String get loadingVariantPills;
+
+  /// No description provided for @loadingVariantPillsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pills orbiting around medical icon'**
+  String get loadingVariantPillsDesc;
+
+  /// No description provided for @loadingVariantMedicalCross.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical Cross'**
+  String get loadingVariantMedicalCross;
+
+  /// No description provided for @loadingVariantMedicalCrossDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulsing cross with shimmer particles'**
+  String get loadingVariantMedicalCrossDesc;
+
+  /// No description provided for @loadingVariantProgressRing.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress Ring'**
+  String get loadingVariantProgressRing;
+
+  /// No description provided for @loadingVariantProgressRingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Circular progress with medical bag icon'**
+  String get loadingVariantProgressRingDesc;
+
+  /// No description provided for @loadingSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get loadingSize;
+
+  /// No description provided for @loadingSizeSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get loadingSizeSmall;
+
+  /// No description provided for @loadingSizeMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get loadingSizeMedium;
+
+  /// No description provided for @loadingSizeLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get loadingSizeLarge;
+
+  /// No description provided for @loadingSizeXLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'X-Large'**
+  String get loadingSizeXLarge;
+
+  /// No description provided for @loadingOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get loadingOptions;
+
+  /// No description provided for @loadingShowMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Message'**
+  String get loadingShowMessage;
+
+  /// No description provided for @loadingShowMessageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Display text below indicator'**
+  String get loadingShowMessageDesc;
+
+  /// No description provided for @loadingFullscreenExamples.
+  ///
+  /// In en, this message translates to:
+  /// **'Fullscreen Overlay Examples'**
+  String get loadingFullscreenExamples;
+
+  /// No description provided for @loadingShowHeartbeatOverlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Heartbeat Overlay'**
+  String get loadingShowHeartbeatOverlay;
+
+  /// No description provided for @loadingShowPillsOverlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Pills Overlay'**
+  String get loadingShowPillsOverlay;
+
+  /// No description provided for @loadingShowMedicalCrossOverlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Medical Cross Overlay'**
+  String get loadingShowMedicalCrossOverlay;
+
+  /// No description provided for @loadingShowProgressRingOverlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Progress Ring Overlay'**
+  String get loadingShowProgressRingOverlay;
+
+  /// No description provided for @loadingServiceIntegration.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading Service Integration'**
+  String get loadingServiceIntegration;
+
+  /// No description provided for @loadingServiceIntegrationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The LoadingOverlayService allows you to show loading states from anywhere in your app.'**
+  String get loadingServiceIntegrationDesc;
+
+  /// No description provided for @loadingSimulateAsyncOperation.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate Async Operation'**
+  String get loadingSimulateAsyncOperation;
+
+  /// No description provided for @loadingOperationCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation completed!'**
+  String get loadingOperationCompleted;
+
+  /// No description provided for @loadingAllVariantsInline.
+  ///
+  /// In en, this message translates to:
+  /// **'All Variants (Inline)'**
+  String get loadingAllVariantsInline;
+
+  /// No description provided for @loadingUsageExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage Example'**
+  String get loadingUsageExample;
+
+  /// No description provided for @loadingSimulatingOperation.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulating async operation...'**
+  String get loadingSimulatingOperation;
 }
 
 class _AppLocalizationsDelegate

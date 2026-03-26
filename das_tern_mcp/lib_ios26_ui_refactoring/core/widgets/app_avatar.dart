@@ -64,9 +64,7 @@ class AppAvatar extends StatelessWidget {
               width: 1.5, // specular ring (Req 13.3)
             ),
           ),
-          child: ClipOval(
-            child: _buildContent(context, colors),
-          ),
+          child: ClipOval(child: _buildContent(context, colors)),
         ),
       ),
     );
@@ -85,7 +83,7 @@ class AppAvatar extends StatelessWidget {
       return Image.network(
         imageUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _initialsWidget(context),
+        errorBuilder: (context, error, stackTrace) => _initialsWidget(context),
       );
     }
     return _initialsWidget(context);
@@ -93,7 +91,7 @@ class AppAvatar extends StatelessWidget {
 
   Widget _initialsWidget(BuildContext context) {
     return Container(
-      color: AppColors.primary.withOpacity(0.20),
+      color: AppColors.primary.withValues(alpha: 0.20),
       child: Center(
         child: Text(
           initials ?? '?',

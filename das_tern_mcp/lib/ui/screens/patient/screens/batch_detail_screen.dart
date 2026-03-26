@@ -7,6 +7,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/medicine_form_widget.dart';
 import '../../../widgets/language_switcher.dart';
+import '../../../widgets/loading/health_loading_indicator.dart';
 
 class BatchDetailScreen extends StatefulWidget {
   final String batchId;
@@ -170,7 +171,13 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> {
         ],
       ),
       body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: HealthLoadingIndicator(
+                variant: HealthLoadingVariant.pills,
+                size: HealthLoadingSize.large,
+                message: l10n.loadingMedications,
+              ),
+            )
           : batch == null
           ? Center(child: Text(provider.error ?? l10n.unknown))
           : SingleChildScrollView(

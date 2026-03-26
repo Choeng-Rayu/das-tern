@@ -147,7 +147,7 @@ class _NavItem extends StatelessWidget {
         decoration: BoxDecoration(
           // 15% primary background when selected (Req 8.4)
           color: isSelected
-              ? AppColors.primary.withOpacity(0.15)
+              ? AppColors.primary.withValues(alpha: 0.15)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
         ),
@@ -206,7 +206,7 @@ class _ScanTab extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.40),
+                color: AppColors.primary.withValues(alpha: 0.40),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),

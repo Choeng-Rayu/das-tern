@@ -2,10 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'floating_particles.dart';
 import 'healthcare_painters.dart';
-
-/// Primary color for the DasTern splash animation.
-const Color _kPrimaryBlue = Color(0xFF009DFF);
-const Color _kDarkBg = Color(0xFF0A1628);
+import '../../theme/app_colors.dart';
 
 /// Data for each floating healthcare icon that orbits around the logo.
 class _HealthcareIconData {
@@ -112,10 +109,12 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
     // Generate random scatter positions for letters
     final random = Random(42);
     for (int i = 0; i < _logoText.length; i++) {
-      _letterScatterPositions.add(Offset(
-        (random.nextDouble() - 0.5) * 300,
-        (random.nextDouble() - 0.5) * 400,
-      ));
+      _letterScatterPositions.add(
+        Offset(
+          (random.nextDouble() - 0.5) * 300,
+          (random.nextDouble() - 0.5) * 400,
+        ),
+      );
     }
 
     _mainController.forward();
@@ -166,17 +165,40 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
 
   Widget _buildScene(double t) {
     final size = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    // Determine colors based on theme
+    final primaryColor = isDarkMode
+        ? AppColors.darkPrimary
+        : AppColors.primaryBlue;
+    final bgStartColor = isDarkMode
+        ? AppColors.darkScaffold
+        : const Color(0xFF0A1628);
+    final bgEndColor = isDarkMode
+        ? const Color(0xFF1A1A2E)
+        : const Color(0xFF16213E);
+    final transitionColor = isDarkMode ? AppColors.darkScaffold : Colors.white;
 
     // Phase 1: Background fade in (0.00 – 0.12)
     final bgOpacity = _remap(t, 0, 0.12, 0, 1);
 
-    // Phase 5: White overlay for transition (0.88 – 1.0)
-    final whiteOverlay = _remap(t, 0.88, 1.0, 0, 1);
+    // Phase 5: Transition overlay (0.88 – 1.0)
+    final transitionOverlay = _remap(t, 0.88, 1.0, 0, 1);
 
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: Color.lerp(Colors.black, _kDarkBg, bgOpacity),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.lerp(Colors.black, bgStartColor, bgOpacity) ?? bgStartColor,
+            Color.lerp(Colors.black, bgEndColor, bgOpacity) ?? bgEndColor,
+          ],
+        ),
+      ),
       child: Stack(
         children: [
           // Floating particles
@@ -185,38 +207,33 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
               size: size,
               painter: FloatingParticlesPainter(
                 particles: _particles,
-                color: _kPrimaryBlue,
-                globalOpacity: _remap(t, 0.08, 0.25, 0, 1) *
+                color: primaryColor,
+                globalOpacity:
+                    _remap(t, 0.08, 0.25, 0, 1) *
                     (1 - _remap(t, 0.88, 1.0, 0, 1)),
               ),
             ),
 
           // Radial glow behind the logo area
-          if (t > 0.3)
-            Center(
-              child: _buildRadialGlow(t),
-            ),
+          if (t > 0.3) Center(child: _buildRadialGlow(t, primaryColor)),
 
           // Healthcare icons (floating then converging)
           if (t > 0.12 && t < 0.75)
-            ..._buildHealthcareIcons(t, size),
+            ..._buildHealthcareIcons(t, size, primaryColor),
 
           // Animated letters
-          if (t > 0.15)
-            _buildLetters(t, size),
+          if (t > 0.15) _buildLetters(t, size, primaryColor, isDarkMode),
 
           // ECG line sweep across the formed logo (Phase 4)
-          if (t > 0.65 && t < 0.88)
-            _buildEcgSweep(t, size),
+          if (t > 0.65 && t < 0.88) _buildEcgSweep(t, size, primaryColor),
 
           // Tagline fade in (Phase 4)
-          if (t > 0.68)
-            _buildTagline(t),
+          if (t > 0.68) _buildTagline(t, isDarkMode),
 
-          // White transition overlay (Phase 5)
-          if (whiteOverlay > 0)
+          // Transition overlay (Phase 5)
+          if (transitionOverlay > 0)
             Container(
-              color: Colors.white.withValues(alpha: whiteOverlay),
+              color: transitionColor.withValues(alpha: transitionOverlay),
             ),
         ],
       ),
@@ -224,34 +241,40 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
   }
 
   /// Radial glow background behind the logo.
-  Widget _buildRadialGlow(double t) {
-    final glowOpacity = _remap(t, 0.3, 0.65, 0, 0.3) *
+  Widget _buildRadialGlow(double t, Color primaryColor) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    final glowOpacity =
+        _remap(t, 0.3, 0.65, 0, isDarkMode ? 0.5 : 0.35) *
         (1 - _remap(t, 0.88, 1.0, 0, 1));
 
-    // Pulse effect in Phase 4
+    // Pulse effect in Phase 4 - more dramatic
     double pulse = 1.0;
     if (t > 0.62 && t < 0.88) {
       final pulseT = _remap(t, 0.62, 0.88, 0, 1);
-      pulse = 1.0 + 0.08 * sin(pulseT * pi * 3);
+      pulse = 1.0 + 0.12 * sin(pulseT * pi * 3);
     }
 
     return Container(
-      width: 280 * pulse,
-      height: 280 * pulse,
+      width: 320 * pulse,
+      height: 320 * pulse,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: RadialGradient(
           colors: [
-            _kPrimaryBlue.withValues(alpha: glowOpacity),
-            _kPrimaryBlue.withValues(alpha: 0),
+            primaryColor.withValues(alpha: glowOpacity),
+            primaryColor.withValues(alpha: glowOpacity * 0.5),
+            primaryColor.withValues(alpha: 0),
           ],
+          stops: const [0.0, 0.5, 1.0],
         ),
       ),
     );
   }
 
   /// Builds the floating healthcare icons that orbit and converge.
-  List<Widget> _buildHealthcareIcons(double t, Size size) {
+  List<Widget> _buildHealthcareIcons(double t, Size size, Color primaryColor) {
     final cx = size.width / 2;
     final cy = size.height / 2;
 
@@ -268,8 +291,10 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
     return _healthcareIcons.map((icon) {
       // Orbiting position
       final currentAngle = icon.angle + orbitAngle;
-      final orbitX = cx + cos(currentAngle) * icon.orbitRadius * (1 - convergeT);
-      final orbitY = cy + sin(currentAngle) * icon.orbitRadius * (1 - convergeT);
+      final orbitX =
+          cx + cos(currentAngle) * icon.orbitRadius * (1 - convergeT);
+      final orbitY =
+          cy + sin(currentAngle) * icon.orbitRadius * (1 - convergeT);
 
       // Target position (towards center where the letter will form)
       final targetX = cx;
@@ -288,7 +313,7 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
             height: 32,
             child: CustomPaint(
               painter: icon.painterBuilder(
-                _kPrimaryBlue,
+                primaryColor,
                 iconOpacity.clamp(0.0, 1.0),
               ),
             ),
@@ -299,7 +324,12 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
   }
 
   /// Builds the letter-by-letter assembly animation.
-  Widget _buildLetters(double t, Size size) {
+  Widget _buildLetters(
+    double t,
+    Size size,
+    Color primaryColor,
+    bool isDarkMode,
+  ) {
     // Phase 2: letters scatter/appear (0.15 – 0.38)
     final scatterAppear = _remap(t, 0.15, 0.3, 0, 1);
     // Phase 4: scale up to final size (0.55 – 0.65)
@@ -320,7 +350,13 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
 
               // Stagger each letter's appearance
               final letterDelay = i * 0.02;
-              final letterAppear = _remap(t, 0.15 + letterDelay, 0.3 + letterDelay, 0, 1);
+              final letterAppear = _remap(
+                t,
+                0.15 + letterDelay,
+                0.3 + letterDelay,
+                0,
+                1,
+              );
               final letterAssemble = Curves.easeOutCubic.transform(
                 _remap(t, 0.38 + letterDelay, 0.55 + letterDelay, 0, 1),
               );
@@ -346,13 +382,25 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
                       shadows: t > 0.55
                           ? [
                               Shadow(
-                                color: _kPrimaryBlue.withValues(
-                                  alpha: _remap(t, 0.55, 0.7, 0, 0.6),
+                                color: primaryColor.withValues(
+                                  alpha: _remap(t, 0.55, 0.7, 0, 0.7),
                                 ),
-                                blurRadius: 20,
+                                blurRadius: 24,
+                              ),
+                              Shadow(
+                                color: primaryColor.withValues(
+                                  alpha: _remap(t, 0.55, 0.7, 0, 0.4),
+                                ),
+                                blurRadius: 12,
                               ),
                             ]
-                          : null,
+                          : [
+                              Shadow(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                     ),
                   ),
                 ),
@@ -365,10 +413,10 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
   }
 
   /// ECG line that sweeps across the formed logo.
-  Widget _buildEcgSweep(double t, Size size) {
+  Widget _buildEcgSweep(double t, Size size, Color primaryColor) {
     final ecgProgress = _remap(t, 0.65, 0.82, 0, 1);
-    final ecgOpacity = _remap(t, 0.65, 0.7, 0, 0.7) *
-        (1 - _remap(t, 0.8, 0.88, 0, 1));
+    final ecgOpacity =
+        _remap(t, 0.65, 0.7, 0, 0.7) * (1 - _remap(t, 0.8, 0.88, 0, 1));
 
     return Center(
       child: Opacity(
@@ -379,7 +427,7 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
           child: CustomPaint(
             painter: EcgPainter(
               progress: ecgProgress.clamp(0.0, 1.0),
-              color: _kPrimaryBlue,
+              color: primaryColor,
             ),
           ),
         ),
@@ -388,22 +436,22 @@ class _CinematicSplashAnimationState extends State<CinematicSplashAnimation>
   }
 
   /// Tagline that fades in below the logo.
-  Widget _buildTagline(double t) {
-    final taglineOpacity = _remap(t, 0.68, 0.78, 0, 1) *
-        (1 - _remap(t, 0.88, 1.0, 0, 1));
+  Widget _buildTagline(double t, bool isDarkMode) {
+    final taglineOpacity =
+        _remap(t, 0.68, 0.78, 0, 1) * (1 - _remap(t, 0.88, 1.0, 0, 1));
 
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(top: 100),
         child: Opacity(
           opacity: taglineOpacity.clamp(0.0, 1.0),
-          child: const Text(
+          child: Text(
             'Your Health, Our Priority',
             style: TextStyle(
               fontFamily: 'Serif',
               fontSize: 16,
               fontWeight: FontWeight.w400,
-              color: Colors.white70,
+              color: isDarkMode ? Colors.white60 : Colors.white70,
               letterSpacing: 3,
             ),
           ),

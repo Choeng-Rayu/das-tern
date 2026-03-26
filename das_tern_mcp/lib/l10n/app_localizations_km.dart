@@ -3053,4 +3053,120 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get pdfReady => 'PDF របាយការណ៍រួចរាល់';
+
+  @override
+  String get loadingMonitoringHealth => 'កំពុងត្រួតពិនិត្យសុខភាពរបស់អ្នក...';
+
+  @override
+  String get loadingMedications => 'កំពុងផ្ទុកថ្នាំ...';
+
+  @override
+  String get loadingProcessing => 'កំពុងដំណើរការ...';
+
+  @override
+  String get loadingPleaseWait => 'សូមរង់ចាំ...';
+
+  @override
+  String get loadingDemoTitle => 'ការបង្ហាញសូចនាករផ្ទុក';
+
+  @override
+  String get loadingDemoDescription =>
+      'ការបង្ហាញអន្តរកម្មនៃគ្រប់វ៉ារ្យ៉ង់ចលនាផ្ទុកសម្រាប់កម្មវិធីគ្រប់គ្រងថ្នាំ DasTern។';
+
+  @override
+  String get loadingLivePreview => 'ការមើលផ្ទាល់';
+
+  @override
+  String get loadingAnimationVariant => 'វ៉ារ្យ៉ង់ចលនា';
+
+  @override
+  String get loadingVariantHeartbeat => 'ជីពចរណ៍បេះដូង';
+
+  @override
+  String get loadingVariantHeartbeatDesc =>
+      'ជីពចរណ៍បេះដូងតាមរចនាប័ទ្ម ECG ជាមួយពន្លឺភ្លឺ';
+
+  @override
+  String get loadingVariantPills => 'គ្រាប់ថ្នាំវិល';
+
+  @override
+  String get loadingVariantPillsDesc =>
+      'គ្រាប់ថ្នាំវិលជុំវិញរូបតំណាងវេជ្ជសាស្ត្រ';
+
+  @override
+  String get loadingVariantMedicalCross => 'ឈើឆ្កាងវេជ្ជសាស្ត្រ';
+
+  @override
+  String get loadingVariantMedicalCrossDesc => 'ឈើឆ្កាងពន្លឺជាមួយភាគល្អិតពន្លឺ';
+
+  @override
+  String get loadingVariantProgressRing => 'រង្វង់វឌ្ឍនភាព';
+
+  @override
+  String get loadingVariantProgressRingDesc =>
+      'វឌ្ឍនភាពរង្វង់ជាមួយរូបតំណាងកាបូបថ្នាំ';
+
+  @override
+  String get loadingSize => 'ទំហំ';
+
+  @override
+  String get loadingSizeSmall => 'តូច';
+
+  @override
+  String get loadingSizeMedium => 'មធ្យម';
+
+  @override
+  String get loadingSizeLarge => 'ធំ';
+
+  @override
+  String get loadingSizeXLarge => 'ធំបំផុត';
+
+  @override
+  String get loadingOptions => 'ជម្រើស';
+
+  @override
+  String get loadingShowMessage => 'បង្ហាញសារ';
+
+  @override
+  String get loadingShowMessageDesc => 'បង្ហាញអត្ថបទខាងក្រោមសូចនាករ';
+
+  @override
+  String get loadingFullscreenExamples => 'គំរូផ្ទាំងពេញ';
+
+  @override
+  String get loadingShowHeartbeatOverlay => 'បង្ហាញផ្ទាំងជីពចរណ៍បេះដូង';
+
+  @override
+  String get loadingShowPillsOverlay => 'បង្ហាញផ្ទាំងគ្រាប់ថ្នាំ';
+
+  @override
+  String get loadingShowMedicalCrossOverlay =>
+      'បង្ហាញផ្ទាំងឈើឆ្កាងវេជ្ជសាស្ត្រ';
+
+  @override
+  String get loadingShowProgressRingOverlay => 'បង្ហាញផ្ទាំងរង្វង់វឌ្ឍនភាព';
+
+  @override
+  String get loadingServiceIntegration => 'ការរួមបញ្ចូលសេវាផ្ទុក';
+
+  @override
+  String get loadingServiceIntegrationDesc =>
+      'LoadingOverlayService អនុញ្ញាតឱ្យអ្នកបង្ហាញស្ថានភាពផ្ទុកពីគ្រប់ទីកន្លែងក្នុងកម្មវិធីរបស់អ្នក។';
+
+  @override
+  String get loadingSimulateAsyncOperation =>
+      'ធ្វើត្រាប់តាមប្រតិបត្តិការអសមកាលកម្ម';
+
+  @override
+  String get loadingOperationCompleted => 'ប្រតិបត្តិការបានបញ្ចប់!';
+
+  @override
+  String get loadingAllVariantsInline => 'គ្រប់វ៉ារ្យ៉ង់ (ក្នុងបន្ទាត់)';
+
+  @override
+  String get loadingUsageExample => 'គំរូការប្រើប្រាស់';
+
+  @override
+  String get loadingSimulatingOperation =>
+      'កំពុងធ្វើត្រាប់តាមប្រតិបត្តិការអសមកាលកម្ម...';
 }

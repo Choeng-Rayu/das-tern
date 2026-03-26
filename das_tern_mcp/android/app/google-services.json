@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "265372630808",
+    "project_id": "das-tern",
+    "storage_bucket": "das-tern.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265372630808:android:9b0f2d8d4c5f6a7b",
+        "android_client_info": {
+          "package_name": "com.dastern.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "265372630808-i9ri0iheq0k84chnh0cgm57sc4amf4dh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_client_info": {
+            "package_name": "com.dastern.app"
+          }
+        },
+        {
+          "client_id": "265372630808-fdi2v66tkfi85ful7gvh88r6rdi80h4u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "265372630808-fdi2v66tkfi85ful7gvh88r6rdi80h4u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

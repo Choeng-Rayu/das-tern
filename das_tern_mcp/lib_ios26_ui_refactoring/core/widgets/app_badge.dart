@@ -24,11 +24,7 @@ enum AppBadgeVariant { active, pending, completed, flagged, info }
 /// AppBadge(label: 'Active', variant: AppBadgeVariant.active)
 /// ```
 class AppBadge extends StatelessWidget {
-  const AppBadge({
-    super.key,
-    required this.label,
-    required this.variant,
-  });
+  const AppBadge({super.key, required this.label, required this.variant});
 
   final String label;
   final AppBadgeVariant variant;
@@ -37,15 +33,15 @@ class AppBadge extends StatelessWidget {
   Color _badgeColor() {
     switch (variant) {
       case AppBadgeVariant.active:
-        return AppColors.success;   // #34C759 (Req 12.2)
+        return AppColors.success; // #34C759 (Req 12.2)
       case AppBadgeVariant.pending:
-        return AppColors.warning;   // #FF9500 (Req 12.3)
+        return AppColors.warning; // #FF9500 (Req 12.3)
       case AppBadgeVariant.completed:
-        return AppColors.primary;   // #009DFF (Req 12.4)
+        return AppColors.primary; // #009DFF (Req 12.4)
       case AppBadgeVariant.flagged:
-        return AppColors.danger;    // #FF3B30 (Req 12.5)
+        return AppColors.danger; // #FF3B30 (Req 12.5)
       case AppBadgeVariant.info:
-        return AppColors.info;      // #5AC8FA (Req 12.6)
+        return AppColors.info; // #5AC8FA (Req 12.6)
     }
   }
 
@@ -60,8 +56,12 @@ class AppBadge extends StatelessWidget {
         vertical: 3,
       ),
       decoration: BoxDecoration(
-        color: badgeColor.withOpacity(0.15), // 15% opacity fill (Req 12.8)
-        borderRadius: BorderRadius.circular(AppSpacing.radiusFull), // pill (Req 12.9)
+        color: badgeColor.withValues(
+          alpha: 0.15,
+        ), // 15% opacity fill (Req 12.8)
+        borderRadius: BorderRadius.circular(
+          AppSpacing.radiusFull,
+        ), // pill (Req 12.9)
       ),
       child: Text(
         label.toUpperCase(), // always uppercase (Req 12.7)

@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../ui/theme/app_colors.dart';
-import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/auth_widgets.dart';
 import '../../widgets/language_switcher.dart';
 
@@ -18,29 +14,8 @@ class RegisterRoleScreen extends StatefulWidget {
 }
 
 class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
-  Future<void> _handleTelegramRegister() async {
-    final auth = context.read<AuthProvider>();
-    final success = await auth.signInWithTelegram();
-
-    if (!mounted) return;
-    if (success) {
-      final role = auth.userRole;
-      Navigator.of(
-        context,
-      ).pushReplacementNamed(role == 'DOCTOR' ? '/doctor' : '/patient');
-    } else if (auth.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(auth.error!),
-          backgroundColor: AppColors.alertRed,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
     final l10n = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
     final hPad = (size.width * 0.06).clamp(20.0, 40.0);
@@ -69,7 +44,7 @@ class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1976D2).withOpacity(0.1),
+                      color: const Color(0xFF1976D2).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -118,7 +93,8 @@ class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
                 icon: Icons.person_outline,
                 title: l10n.patientRole,
                 description: l10n.patientRoleDescription,
-                onTap: () => Navigator.of(context).pushNamed('/register/patient'),
+                onTap: () =>
+                    Navigator.of(context).pushNamed('/register/patient'),
               ),
             ),
             const SizedBox(height: 16),
@@ -130,7 +106,8 @@ class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
                 icon: Icons.medical_services_outlined,
                 title: l10n.doctorRole,
                 description: l10n.doctorRoleDescription,
-                onTap: () => Navigator.of(context).pushNamed('/register/doctor'),
+                onTap: () =>
+                    Navigator.of(context).pushNamed('/register/doctor'),
               ),
             ),
             SizedBox(height: isSmallScreen ? 28.0 : 44.0),
@@ -179,7 +156,7 @@ class _RoleCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1B7EDB).withOpacity(0.35),
+              color: const Color(0xFF1B7EDB).withValues(alpha: 0.35),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -192,7 +169,7 @@ class _RoleCard extends StatelessWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(icon, color: Colors.white, size: 26),
@@ -217,7 +194,7 @@ class _RoleCard extends StatelessWidget {
                   Text(
                     description,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.85),
+                      color: Colors.white.withValues(alpha: 0.85),
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
                       height: 1.4,
@@ -233,7 +210,7 @@ class _RoleCard extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(

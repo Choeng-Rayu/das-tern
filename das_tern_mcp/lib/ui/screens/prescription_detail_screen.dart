@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../widgets/ocr_info_section_widget.dart';
+import '../widgets/loading/health_loading_indicator.dart';
 
 class PrescriptionDetailScreen extends StatefulWidget {
   final String prescriptionId;
@@ -36,7 +37,13 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.prescriptionDetails)),
       body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: HealthLoadingIndicator(
+                variant: HealthLoadingVariant.medicalCross,
+                size: HealthLoadingSize.medium,
+                message: l10n.loadingPleaseWait,
+              ),
+            )
           : rx == null
           ? Center(child: Text(l10n.notFound))
           : SingleChildScrollView(
