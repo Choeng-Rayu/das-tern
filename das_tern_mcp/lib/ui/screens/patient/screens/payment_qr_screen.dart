@@ -616,8 +616,7 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children:
- [
+        children: [
           // ── Drag handle ──────────────────────────────────────────────────
           Center(
             child: Container(
@@ -653,22 +652,22 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              mainAxisSpacing: AppSpacing.md,
-              crossAxisSpacing: AppSpacing.sm,
-              childAspectRatio: 0.82,
+                crossAxisCount: 4,
+                mainAxisSpacing: AppSpacing.md,
+                crossAxisSpacing: AppSpacing.sm,
+                childAspectRatio: 0.82,
+              ),
+              itemCount: _khBanks.length,
+              itemBuilder: (_, i) {
+                final bank = _khBanks[i];
+                return _BankGridItem(
+                  bank: bank,
+                  isLoading: _loadingBank == bank.name,
+                  disabled: _loadingBank != null && _loadingBank != bank.name,
+                  onTap: () => _openBank(bank),
+                );
+              },
             ),
-            itemCount: _khBanks.length,
-            itemBuilder: (_, i) {
-              final bank = _khBanks[i];
-              return _BankGridItem(
-                bank: bank,
-                isLoading: _loadingBank == bank.name,
-                disabled: _loadingBank != null && _loadingBank != bank.name,
-                onTap: () => _openBank(bank),
-              );
-            },
-          ),
           ),
         ],
       ),

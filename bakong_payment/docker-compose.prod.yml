@@ -20,7 +20,7 @@ services:
       - bakong_net
     # Don't expose to host - only internal network access
     expose:
-      - "5432"
+      - "5434"
 
   redis:
     image: redis:7-alpine

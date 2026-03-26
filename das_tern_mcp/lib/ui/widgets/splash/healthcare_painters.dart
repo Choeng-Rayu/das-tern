@@ -148,11 +148,7 @@ class StethoscopePainter extends CustomPainter {
 
     // Chest piece (circle at the bottom)
     canvas.drawPath(path, paint);
-    canvas.drawCircle(
-      Offset(w * 0.5, h * 0.75),
-      w * 0.15,
-      paint,
-    );
+    canvas.drawCircle(Offset(w * 0.5, h * 0.75), w * 0.15, paint);
   }
 
   @override
@@ -183,11 +179,7 @@ class ClockPainter extends CustomPainter {
     canvas.drawCircle(Offset(cx, cy), radius, paint);
 
     // Hour hand
-    canvas.drawLine(
-      Offset(cx, cy),
-      Offset(cx, cy - radius * 0.5),
-      paint,
-    );
+    canvas.drawLine(Offset(cx, cy), Offset(cx, cy - radius * 0.5), paint);
 
     // Minute hand
     canvas.drawLine(

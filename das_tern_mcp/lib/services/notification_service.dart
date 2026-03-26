@@ -342,8 +342,7 @@ class NotificationService {
       final id = uniqueId.hashCode.abs() % 2147483647;
 
       final batchBodyHeader = s.batchBodyHeader(period);
-      final medicineLines =
-          medicationNames.map((n) => '  - $n').join('\n');
+      final medicineLines = medicationNames.map((n) => '  - $n').join('\n');
       final body = '$batchBodyHeader\n$medicineLines';
 
       await _plugin.zonedSchedule(
@@ -674,7 +673,9 @@ class NotificationService {
       payload: 'test_dose',
     );
 
-    debugPrint('[NotificationService] Test notification shown (lang: ${s.reminderTitle})');
+    debugPrint(
+      '[NotificationService] Test notification shown (lang: ${s.reminderTitle})',
+    );
   }
 
   // ────────────────────────────────────────────

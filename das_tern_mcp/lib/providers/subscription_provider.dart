@@ -46,7 +46,9 @@ class SubscriptionProvider extends ChangeNotifier {
       currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM';
   bool get isPlatinum => currentTier == 'FAMILY_PREMIUM';
   bool get hasOcrAccess =>
-      currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM' || currentTier == 'PLATINUM';
+      currentTier == 'PREMIUM' ||
+      currentTier == 'FAMILY_PREMIUM' ||
+      currentTier == 'PLATINUM';
   bool get hasGroupPlan => currentTier == 'PLATINUM';
 
   // Trial status
@@ -237,7 +239,9 @@ class SubscriptionProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _log.error('Subscription', 'Failed to upgrade to Platinum', e);
-      _errorMessage = e is ApiException ? e.message : 'Failed to upgrade to Platinum.';
+      _errorMessage = e is ApiException
+          ? e.message
+          : 'Failed to upgrade to Platinum.';
       _isLoading = false;
       notifyListeners();
       return false;

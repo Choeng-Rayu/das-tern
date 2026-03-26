@@ -1131,7 +1131,13 @@ class _ComparisonTable extends StatelessWidget {
     color: border.withValues(alpha: 0.6),
   );
 
-  Widget _row(BuildContext ctx, String label, dynamic free, dynamic premium, dynamic platinum) {
+  Widget _row(
+    BuildContext ctx,
+    String label,
+    dynamic free,
+    dynamic premium,
+    dynamic platinum,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -1170,7 +1176,9 @@ class _ComparisonTable extends StatelessWidget {
           width: 7,
           height: 7,
           decoration: BoxDecoration(
-            color: isPlatinum ? const Color(0xFF8B5CF6) : const Color(0xFF34C759),
+            color: isPlatinum
+                ? const Color(0xFF8B5CF6)
+                : const Color(0xFF34C759),
             shape: BoxShape.circle,
           ),
         ),
@@ -1263,7 +1271,10 @@ class _PlatinumPlanTile extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 7,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: accent.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(6),
@@ -1310,7 +1321,10 @@ class _PlatinumPlanTile extends StatelessWidget {
                 ),
                 if (isCurrent)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: accent.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
@@ -1359,7 +1373,9 @@ class _PlatinumPlanTile extends StatelessWidget {
                               f,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: isDark ? Colors.white70 : const Color(0xFF3C3C43),
+                                color: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF3C3C43),
                                 height: 1.3,
                               ),
                             ),
@@ -1389,7 +1405,10 @@ class _PlatinumPlanTile extends StatelessWidget {
                   ),
                   child: Text(
                     l10n.upgradeNow,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),

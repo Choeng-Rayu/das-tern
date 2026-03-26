@@ -97,7 +97,10 @@ class _RecordVitalScreenState extends State<RecordVitalScreen> {
     final provider = context.watch<HealthMonitoringProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.recordVital), actions: const [LanguageSwitcherButton(lightBackground: true)]),
+      appBar: AppBar(
+        title: Text(l10n.recordVital),
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(

@@ -114,7 +114,5 @@ class AppTextStyles {
 
   /// [labelSmall] resolved, with optional colour override.
   static TextStyle labelSmallResolved(BuildContext context, {Color? color}) =>
-      labelSmall.copyWith(
-        color: color ?? AppColors.of(context).textTertiary,
-      );
+      labelSmall.copyWith(color: color ?? AppColors.of(context).textTertiary);
 }

@@ -48,7 +48,10 @@ class _VitalTrendScreenState extends State<VitalTrendScreen> {
           ..sort((a, b) => a.measuredAt.compareTo(b.measuredAt));
 
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.vitalType.displayName} Trends'), actions: const [LanguageSwitcherButton(lightBackground: true)]),
+      appBar: AppBar(
+        title: Text('${widget.vitalType.displayName} Trends'),
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: Column(
         children: [
           // Period selector
