@@ -6,6 +6,8 @@ import '../../../../ui/theme/app_colors.dart';
 import '../../../../ui/theme/app_spacing.dart';
 import '../../../../ui/widgets/medicine_form_widget.dart';
 import '../../../widgets/language_switcher.dart';
+import '../../../widgets/loading/health_loading_indicator.dart';
+import '../../../../services/loading_overlay_service.dart';
 
 class CreateBatchScreen extends StatefulWidget {
   const CreateBatchScreen({super.key});
@@ -18,7 +20,6 @@ class _CreateBatchScreenState extends State<CreateBatchScreen> {
   final _nameCtrl = TextEditingController();
   TimeOfDay? _selectedTime;
   final List<Map<String, dynamic>> _medicines = [];
-  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -43,7 +44,6 @@ class _CreateBatchScreenState extends State<CreateBatchScreen> {
   }
 
   Future<void> _submit() async {
-    if (_isSubmitting) return;
     final l10n = AppLocalizations.of(context)!;
 
     if (_nameCtrl.text.trim().isEmpty) {
@@ -67,18 +67,20 @@ class _CreateBatchScreenState extends State<CreateBatchScreen> {
       return;
     }
 
-    setState(() => _isSubmitting = true);
-
     final data = <String, dynamic>{
       'name': _nameCtrl.text.trim(),
       'scheduledTime': _formatTimeOfDay(_selectedTime!),
       'medicines': _medicines,
     };
 
-    final success = await context.read<BatchProvider>().createBatch(data);
+    final success = await LoadingOverlayService.showWhile(
+      context,
+      variant: HealthLoadingVariant.pills,
+      message: l10n.loadingProcessing,
+      future: context.read<BatchProvider>().createBatch(data),
+    );
 
     if (mounted) {
-      setState(() => _isSubmitting = false);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -212,17 +214,8 @@ class _CreateBatchScreenState extends State<CreateBatchScreen> {
             SizedBox(
               height: 48,
               child: ElevatedButton.icon(
-                onPressed: _isSubmitting ? null : _submit,
-                icon: _isSubmitting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.check),
+                onPressed: _submit,
+                icon: const Icon(Icons.check),
                 label: Text(l10n.reviewAndSave),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,

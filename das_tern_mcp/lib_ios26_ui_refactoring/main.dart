@@ -30,10 +30,11 @@ class DasTernApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<LocaleProvider>(
-      builder: (_, localeProvider, __) {
+      builder: (context, localeProvider, child) {
         // Apply NotoSansKhmer when locale is Khmer, system default for English
-        final fontFamily =
-            AppTextStyles.fontFamilyForLocale(localeProvider.locale);
+        final fontFamily = AppTextStyles.fontFamilyForLocale(
+          localeProvider.locale,
+        );
 
         return MaterialApp(
           title: 'DasTern — iOS 26',
@@ -125,9 +126,7 @@ class _WidgetShowcaseState extends State<_WidgetShowcase> {
           onTap: localeProvider.toggleLocale,
           child: Text(
             localeProvider.isKhmer ? 'EN' : 'ខ្មែរ',
-            style: AppTextStyles.labelLarge.copyWith(
-              color: AppColors.primary,
-            ),
+            style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary),
           ),
         ),
       ],
@@ -173,7 +172,6 @@ class _ShowcaseBodyState extends State<_ShowcaseBody> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
     final l10n = widget.l10n;
 
     return SingleChildScrollView(
@@ -187,19 +185,12 @@ class _ShowcaseBodyState extends State<_ShowcaseBody> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Section: Avatars ─────────────────────────────────────────────
-          _SectionLabel('Avatars', context),
+          sectionLabel('Avatars', context),
           Row(
             children: [
-              AppAvatar(
-                initials: 'AB',
-                radius: 28,
-                onTap: () {},
-              ),
+              AppAvatar(initials: 'AB', radius: 28, onTap: () {}),
               const SizedBox(width: AppSpacing.md),
-              AppAvatar(
-                initials: 'KH',
-                radius: 24,
-              ),
+              AppAvatar(initials: 'KH', radius: 24),
               const SizedBox(width: AppSpacing.md),
               AppAvatar(
                 imageUrl: 'https://i.pravatar.cc/96',
@@ -212,7 +203,7 @@ class _ShowcaseBodyState extends State<_ShowcaseBody> {
           const SizedBox(height: AppSpacing.lg),
 
           // ── Section: Badges ───────────────────────────────────────────────
-          _SectionLabel('Status Badges', context),
+          sectionLabel('Status Badges', context),
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
@@ -228,7 +219,7 @@ class _ShowcaseBodyState extends State<_ShowcaseBody> {
           const SizedBox(height: AppSpacing.lg),
 
           // ── Section: Cards ────────────────────────────────────────────────
-          _SectionLabel('Cards', context),
+          sectionLabel('Cards', context),
           AppCard(
             onTap: () {},
             child: Row(
@@ -250,7 +241,10 @@ class _ShowcaseBodyState extends State<_ShowcaseBody> {
                     ],
                   ),
                 ),
-                const AppBadge(label: 'Active', variant: AppBadgeVariant.active),
+                const AppBadge(
+                  label: 'Active',
+                  variant: AppBadgeVariant.active,
+                ),
               ],
             ),
           ),
@@ -265,7 +259,7 @@ class _ShowcaseBodyState extends State<_ShowcaseBody> {
           const SizedBox(height: AppSpacing.lg),
 
           // ── Section: Form Fields ──────────────────────────────────────────
-          _SectionLabel('Form Fields', context),
+          sectionLabel('Form Fields', context),
           Form(
             key: _formKey,
             child: Column(
@@ -294,12 +288,12 @@ class _ShowcaseBodyState extends State<_ShowcaseBody> {
           const SizedBox(height: AppSpacing.lg),
 
           // ── Section: Buttons ──────────────────────────────────────────────
-          _SectionLabel('Buttons', context),
+          sectionLabel('Buttons', context),
           AppButton(
             label: l10n?.signIn ?? 'Sign In',
             isFullWidth: true,
             isLoading: _isSubmitting,
-            icon: Icons.login_rounded,
+            // icon: Icons.login_rounded,
             onPressed: () async {
               if (_formKey.currentState?.validate() ?? false) {
                 setState(() => _isSubmitting = true);
@@ -339,7 +333,7 @@ class _ShowcaseBodyState extends State<_ShowcaseBody> {
           const SizedBox(height: AppSpacing.lg),
 
           // ── Section: State Views ──────────────────────────────────────────
-          _SectionLabel('State Views', context),
+          sectionLabel('State Views', context),
           Row(
             children: [
               Expanded(
@@ -377,13 +371,10 @@ class _ShowcaseBodyState extends State<_ShowcaseBody> {
 
 // ── Section label helper ───────────────────────────────────────────────────
 
-Widget _SectionLabel(String label, BuildContext context) => Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Text(
-        label.toUpperCase(),
-        style: AppTextStyles.labelSmallResolved(
-          context,
-          color: AppColors.primary,
-        ),
-      ),
-    );
+Widget sectionLabel(String label, BuildContext context) => Padding(
+  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+  child: Text(
+    label.toUpperCase(),
+    style: AppTextStyles.labelSmallResolved(context, color: AppColors.primary),
+  ),
+);

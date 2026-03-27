@@ -1,25 +1,39 @@
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../models/dose_event_model/dose_event.dart';
+import '../../../../models/prescription_model/prescription.dart';
+import '../../../../models/health_model/health_vital.dart';
+import '../../../../models/patient_report_data.dart';
 import '../../../../providers/adherence_provider.dart';
 import '../../../../providers/dose_provider.dart';
 import '../../../../providers/subscription_provider.dart';
+import '../../../../providers/auth_provider.dart';
+import '../../../../providers/prescription_provider.dart';
+import '../../../../providers/health_monitoring_provider.dart';
+import '../../../../services/patient_report_pdf_service.dart';
 import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
+import '../../../widgets/language_switcher.dart';
 
-/// Displays a comprehensive adherence and activity summary for the patient.
+/// Displays a comprehensive patient health report and activity summary.
 /// Sections:
-///   1. Summary cards (today, weekly, monthly adherence %)
-///   2. Weekly day-by-day breakdown
-///   3. Dose history list (last 30 days)
+///   1. Patient header card (name, DOB, age, gender, assigned doctor)
+///   2. Medication summary (detailed per-medication info)
+///   3. Summary cards (today, weekly, monthly adherence %)
+///   4. Weekly day-by-day breakdown
+///   5. Dose history list (last 30 days) - grouped by date
+///   6. Health vitals section (blood pressure, other vitals)
+///   7. Report timestamp footer
 /// The "Download PDF" button is visible to all users; tapping it checks premium status.
 class ActivityReportScreen extends StatefulWidget {
   const ActivityReportScreen({super.key});
@@ -30,6 +44,8 @@ class ActivityReportScreen extends StatefulWidget {
 
 class _ActivityReportScreenState extends State<ActivityReportScreen> {
   bool _generatingPdf = false;
+  bool _isLoadingReportData = true;
+  PatientReportData? _reportData;
 
   @override
   void initState() {
@@ -42,18 +58,208 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
         startDate: monthAgo.toIso8601String().split('T')[0],
         endDate: now.toIso8601String().split('T')[0],
       );
+      // Fetch prescriptions for medication details and doctor info
+      context.read<PrescriptionProvider>().fetchPrescriptions(status: 'ACTIVE');
+      // Fetch latest health vitals
+      context.read<HealthMonitoringProvider>().fetchLatestVitals();
+      // Load report data for print/save functionality
+      _loadReportData();
     });
   }
 
-  // ── PDF logic ───────────────────────────────────────────────────────────────
+  /// Loads all required data for the report
+  Future<void> _loadReportData() async {
+    setState(() {
+      _isLoadingReportData = true;
+    });
 
-  Future<void> _onDownloadTapped() async {
+    try {
+      final auth = context.read<AuthProvider>();
+      final prescriptionProvider = context.read<PrescriptionProvider>();
+      final doseProvider = context.read<DoseProvider>();
+      final healthProvider = context.read<HealthMonitoringProvider>();
+      final adherenceProvider = context.read<AdherenceProvider>();
+
+      // Fetch prescriptions if not already loaded
+      if (prescriptionProvider.prescriptions.isEmpty) {
+        await prescriptionProvider.fetchPrescriptions();
+      }
+
+      // Fetch dose history (last 30 days)
+      final now = DateTime.now();
+      final thirtyDaysAgo = now.subtract(const Duration(days: 30));
+      await doseProvider.fetchHistory(
+        startDate: DateFormat('yyyy-MM-dd').format(thirtyDaysAgo),
+        endDate: DateFormat('yyyy-MM-dd').format(now),
+      );
+
+      // Fetch health vitals if not already loaded
+      if (healthProvider.vitals.isEmpty) {
+        await healthProvider.fetchVitals();
+      }
+
+      // Fetch adherence data
+      await adherenceProvider.fetchAll();
+
+      // Construct PatientReportData
+      _reportData = PatientReportData.fromProviders(
+        userMap: auth.user,
+        doctorMap: null,
+        prescriptions: prescriptionProvider.prescriptions,
+        doses: doseProvider.history,
+        healthVitals: healthProvider.vitals,
+        adherenceData: {
+          'weeklyPercentage': (adherenceProvider.weeklyAdherence?['percentage'] as num?)?.toDouble(),
+          'monthlyPercentage': (adherenceProvider.monthlyAdherence?['percentage'] as num?)?.toDouble(),
+          'todayTaken': adherenceProvider.todayTaken,
+          'todayTotal': adherenceProvider.todayTotal,
+          'weeklyDays': adherenceProvider.weeklyAdherence?['days'],
+        },
+      );
+
+      setState(() {
+        _isLoadingReportData = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingReportData = false;
+      });
+    }
+  }
+
+  /// Generates PDF and opens print preview dialog
+  Future<void> _handlePrint() async {
+    if (_reportData == null) return;
     final isPremium = context.read<SubscriptionProvider>().isPremium;
     if (!isPremium) {
       _showUpgradeDialog();
       return;
     }
-    await _generateAndSharePdf();
+
+    setState(() => _generatingPdf = true);
+
+    try {
+      final pdfService = PatientReportPdfService();
+      final pdfBytes = await pdfService.generateReport(_reportData!);
+
+      await Printing.layoutPdf(
+        onLayout: (format) async => pdfBytes,
+        name: _generateFileName(),
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Print preview opened'),
+          backgroundColor: AppColors.statusSuccess,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to generate PDF: $e'),
+          backgroundColor: AppColors.statusError,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      setState(() => _generatingPdf = false);
+    }
+  }
+
+  /// Generates PDF, saves to device, and opens share sheet
+  Future<void> _handleSavePdf() async {
+    if (_reportData == null) return;
+    final isPremium = context.read<SubscriptionProvider>().isPremium;
+    if (!isPremium) {
+      _showUpgradeDialog();
+      return;
+    }
+
+    setState(() => _generatingPdf = true);
+
+    try {
+      final pdfService = PatientReportPdfService();
+      final pdfBytes = await pdfService.generateReport(_reportData!);
+
+      // Get app documents directory
+      final directory = await getApplicationDocumentsDirectory();
+      final fileName = _generateFileName();
+      final file = File('${directory.path}/$fileName');
+
+      // Write PDF to file
+      await file.writeAsBytes(pdfBytes);
+
+      if (!mounted) return;
+
+      // Share the file
+      final box = context.findRenderObject() as RenderBox?;
+      final result = await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: 'DasTern Health Report',
+        text: 'My health report from DasTern',
+        sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+      );
+
+      if (!mounted) return;
+
+      if (result.status == ShareResultStatus.success) {
+        final theme = Theme.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Report saved successfully'),
+            backgroundColor: AppColors.statusSuccess,
+            duration: const Duration(seconds: 2),
+            action: SnackBarAction(
+              label: 'Open',
+              textColor: theme.colorScheme.onPrimary,
+              onPressed: () async {
+                // Open the file using the system default app
+                final box = context.findRenderObject() as RenderBox?;
+                await Share.shareXFiles(
+                  [XFile(file.path)],
+                  sharePositionOrigin: box != null
+                    ? (box.localToGlobal(Offset.zero) & box.size)
+                    : null,
+                );
+              },
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Share cancelled'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save report: $e'),
+          backgroundColor: AppColors.statusError,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      setState(() => _generatingPdf = false);
+    }
+  }
+
+  /// Generates a filename for the PDF report
+  String _generateFileName() {
+    final patientName = _reportData?.patient.fullName ?? 'Patient';
+    final date = DateFormat('yyyyMMdd').format(DateTime.now());
+    // Clean patient name for filename (remove spaces and special characters)
+    final cleanName = patientName.replaceAll(RegExp(r'[^\w]'), '_').toLowerCase();
+    return 'dastern_report_${cleanName}_$date.pdf';
   }
 
   void _showUpgradeDialog() {
@@ -108,146 +314,6 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
     );
   }
 
-  Future<void> _generateAndSharePdf() async {
-    if (_generatingPdf) return;
-    setState(() => _generatingPdf = true);
-
-    final adherence = context.read<AdherenceProvider>();
-    final dose = context.read<DoseProvider>();
-
-    try {
-      final doc = pw.Document();
-      final now = DateTime.now();
-      final dateStr =
-          '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
-
-      final weekly =
-          (adherence.weeklyAdherence?['percentage'] as num?)?.toDouble() ?? 0.0;
-      final monthly =
-          (adherence.monthlyAdherence?['percentage'] as num?)?.toDouble() ??
-          0.0;
-      final taken = adherence.todayTaken;
-      final total = adherence.todayTotal;
-      final days = (adherence.weeklyAdherence?['days'] as List<dynamic>?) ?? [];
-
-      doc.addPage(
-        pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(32),
-          build: (pw.Context pdfCtx) => [
-            // Header
-            pw.Text(
-              'DasTern – Activity Report',
-              style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
-            ),
-            pw.SizedBox(height: 4),
-            pw.Text(
-              'Generated on $dateStr',
-              style: const pw.TextStyle(fontSize: 11, color: PdfColors.grey600),
-            ),
-            pw.Divider(height: 24),
-
-            // Summary
-            pw.Text(
-              'Adherence Summary',
-              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
-            ),
-            pw.SizedBox(height: 8),
-            pw.TableHelper.fromTextArray(
-              headers: ['Metric', 'Value'],
-              data: [
-                ['Today – Taken / Total', '$taken / $total'],
-                [
-                  'Today – Adherence',
-                  total > 0 ? '${(taken / total * 100).round()}%' : '0%',
-                ],
-                ['Weekly Adherence', '${weekly.round()}%'],
-                ['Monthly Adherence', '${monthly.round()}%'],
-              ],
-              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-              cellAlignment: pw.Alignment.centerLeft,
-              border: pw.TableBorder.all(color: PdfColors.grey300),
-              cellPadding: const pw.EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
-            ),
-
-            // Weekly breakdown
-            if (days.isNotEmpty) ...[
-              pw.SizedBox(height: 16),
-              pw.Text(
-                'Weekly Breakdown',
-                style: pw.TextStyle(
-                  fontSize: 14,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 8),
-              pw.TableHelper.fromTextArray(
-                headers: ['Day', 'Adherence'],
-                data: days.map((d) {
-                  final m = d as Map<String, dynamic>;
-                  final label =
-                      (m['dayLabel'] as String?) ??
-                      (m['date'] as String? ?? '').split('-').last;
-                  final pct = (m['percentage'] as num?)?.toDouble() ?? 0.0;
-                  return [label, '${pct.round()}%'];
-                }).toList(),
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                cellAlignment: pw.Alignment.centerLeft,
-                border: pw.TableBorder.all(color: PdfColors.grey300),
-                cellPadding: const pw.EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-              ),
-            ],
-
-            // Dose history
-            if (dose.history.isNotEmpty) ...[
-              pw.SizedBox(height: 16),
-              pw.Text(
-                'Dose History (Last 30 Days)',
-                style: pw.TextStyle(
-                  fontSize: 14,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 8),
-              pw.TableHelper.fromTextArray(
-                headers: ['Medication', 'Date', 'Time', 'Status'],
-                data: dose.history.map((d) {
-                  final t = d.scheduledTime;
-                  return [
-                    d.medicationName,
-                    '${t.day}/${t.month}/${t.year}',
-                    '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}',
-                    d.status,
-                  ];
-                }).toList(),
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                cellAlignment: pw.Alignment.centerLeft,
-                border: pw.TableBorder.all(color: PdfColors.grey300),
-                cellPadding: const pw.EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 4,
-                ),
-              ),
-            ],
-          ],
-        ),
-      );
-
-      await Printing.layoutPdf(
-        onLayout: (_) async => doc.save(),
-        name: 'DasTern_Report_$dateStr.pdf',
-      );
-    } finally {
-      if (mounted) setState(() => _generatingPdf = false);
-    }
-  }
-
   // ── Build ────────────────────────────────────────────────────────────────────
 
   @override
@@ -255,7 +321,13 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
     final l10n = AppLocalizations.of(context)!;
     final adherence = context.watch<AdherenceProvider>();
     final dose = context.watch<DoseProvider>();
+    final auth = context.watch<AuthProvider>();
+    final prescription = context.watch<PrescriptionProvider>();
+    final health = context.watch<HealthMonitoringProvider>();
     final cs = Theme.of(context).colorScheme;
+
+    final isLoading = adherence.isLoading || dose.isLoading ||
+                      prescription.isLoading || health.isLoading;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -271,8 +343,24 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
         elevation: 0,
         backgroundColor: cs.surface,
         foregroundColor: cs.onSurface,
+        actions: [
+          if (_reportData != null && !_generatingPdf) ...[
+            IconButton(
+              icon: const Icon(Icons.print),
+              tooltip: l10n.print,
+              onPressed: _handlePrint,
+            ),
+            IconButton(
+              icon: const Icon(Icons.save_alt),
+              tooltip: l10n.saveAsPdf,
+              onPressed: _handleSavePdf,
+            ),
+          ],
+          const LanguageSwitcherButton(lightBackground: true),
+          const SizedBox(width: 8),
+        ],
       ),
-      body: adherence.isLoading && dose.isLoading
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
@@ -282,21 +370,120 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // 1. Patient Header Card
+                  _PatientHeaderCard(auth: auth, l10n: l10n),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // 2. Assigned Doctor Card (if available)
+                  if (prescription.prescriptions.isNotEmpty &&
+                      prescription.prescriptions.first.doctor != null)
+                    ...[
+                      _AssignedDoctorCard(
+                        doctor: prescription.prescriptions.first.doctor!,
+                        l10n: l10n,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                    ],
+
+                  // 3. Medication Summary Section
+                  if (prescription.prescriptions.isNotEmpty) ...[
+                    _MedicationSummarySection(
+                      prescriptions: prescription.prescriptions,
+                      l10n: l10n,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                  ],
+
+                  // 4. Adherence Summary Cards
                   _SummaryCards(adherence: adherence, l10n: l10n),
                   const SizedBox(height: AppSpacing.lg),
+
+                  // 5. Weekly Breakdown
                   _WeeklyBreakdown(adherence: adherence, l10n: l10n),
                   const SizedBox(height: AppSpacing.lg),
-                  _DownloadPdfButton(
-                    generatingPdf: _generatingPdf,
-                    onTap: _onDownloadTapped,
-                    l10n: l10n,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
+
+                  // 6. Dose History Section (grouped by date)
                   _DoseHistorySection(dose: dose, l10n: l10n),
-                  const SizedBox(height: AppSpacing.xl),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // 7. Health Vitals Section
+                  _HealthVitalsSection(health: health, l10n: l10n),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // 8. Report Timestamp Footer
+                  _ReportTimestampFooter(),
+                  const SizedBox(height: 100), // Space for bottom action bar
                 ],
               ),
             ),
+      bottomNavigationBar: _reportData != null && !_isLoadingReportData && !isLoading
+          ? _buildBottomActionBar(l10n)
+          : null,
+    );
+  }
+
+  Widget _buildBottomActionBar(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.shadow.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _generatingPdf ? null : _handlePrint,
+                icon: _generatingPdf
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.print),
+                label: Text(l10n.print),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  side: const BorderSide(color: AppColors.primaryBlue),
+                  foregroundColor: AppColors.primaryBlue,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: _generatingPdf ? null : _handleSavePdf,
+                icon: _generatingPdf
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            theme.colorScheme.onPrimary,
+                          ),
+                        ),
+                      )
+                    : const Icon(Icons.save_alt),
+                label: Text(l10n.saveAsPdf),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: AppColors.primaryBlue,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -707,6 +894,23 @@ class _DoseHistorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
+    // Group doses by date
+    final groupedByDate = <String, List<DoseEvent>>{};
+    for (final event in dose.history) {
+      final dateKey = DateFormat.yMMMd().format(event.scheduledTime);
+      groupedByDate.putIfAbsent(dateKey, () => []);
+      groupedByDate[dateKey]!.add(event);
+    }
+
+    // Sort dates descending (most recent first)
+    final sortedDates = groupedByDate.keys.toList()
+      ..sort((a, b) {
+        final dateA = groupedByDate[a]!.first.scheduledTime;
+        final dateB = groupedByDate[b]!.first.scheduledTime;
+        return dateB.compareTo(dateA);
+      });
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -717,7 +921,7 @@ class _DoseHistorySection extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: const Center(child: CircularProgressIndicator()),
           )
@@ -726,7 +930,7 @@ class _DoseHistorySection extends StatelessWidget {
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               color: cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
               child: Column(
@@ -739,7 +943,9 @@ class _DoseHistorySection extends StatelessWidget {
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     l10n.noHistoryYet,
-                    style: TextStyle(color: cs.onSurfaceVariant),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
                   ),
                 ],
               ),
@@ -747,10 +953,31 @@ class _DoseHistorySection extends StatelessWidget {
           )
         else
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (int i = 0; i < dose.history.length; i++) ...[
-                _DoseHistoryCard(event: dose.history[i], l10n: l10n),
-                if (i < dose.history.length - 1) const SizedBox(height: 8),
+              for (final dateKey in sortedDates) ...[
+                // Date subheader
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 4,
+                    top: AppSpacing.sm,
+                    bottom: AppSpacing.xs,
+                  ),
+                  child: Text(
+                    dateKey,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                  ),
+                ),
+                // Doses for this date
+                ...groupedByDate[dateKey]!.map((event) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _DoseHistoryCard(event: event, l10n: l10n),
+                  );
+                }),
               ],
             ],
           ),
@@ -1144,88 +1371,6 @@ class DoseDetailScreen extends StatelessWidget {
 
 // ── Download PDF Button ───────────────────────────────────────────────────────
 
-class _DownloadPdfButton extends StatelessWidget {
-  const _DownloadPdfButton({
-    required this.generatingPdf,
-    required this.onTap,
-    required this.l10n,
-  });
-
-  final bool generatingPdf;
-  final VoidCallback onTap;
-  final AppLocalizations l10n;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Material(
-      color: cs.primaryContainer,
-      borderRadius: BorderRadius.circular(16),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: generatingPdf ? null : onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: cs.primary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: generatingPdf
-                    ? Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: cs.onPrimary,
-                        ),
-                      )
-                    : Icon(
-                        Icons.picture_as_pdf_rounded,
-                        color: cs.onPrimary,
-                        size: 24,
-                      ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      generatingPdf ? l10n.generatingPdf : l10n.downloadPdf,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: cs.onPrimaryContainer,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Premium feature · Tap to export',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: cs.onPrimaryContainer.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-                color: cs.onPrimaryContainer.withValues(alpha: 0.6),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // ── Adherence Detail Screen ───────────────────────────────────────────────────
 
 class AdherenceDetailScreen extends StatelessWidget {
@@ -1515,6 +1660,640 @@ class _AdherenceStat extends StatelessWidget {
           Text(
             label,
             style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Patient Header Card ───────────────────────────────────────────────────────
+
+class _PatientHeaderCard extends StatelessWidget {
+  const _PatientHeaderCard({required this.auth, required this.l10n});
+
+  final AuthProvider auth;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final user = auth.user;
+
+    if (user == null) {
+      return const SizedBox.shrink();
+    }
+
+    final firstName = user['firstName'] as String? ?? '';
+    final lastName = user['lastName'] as String? ?? '';
+    final fullName = '$firstName $lastName'.trim();
+    final displayName = fullName.isEmpty ? l10n.patient : fullName;
+
+    final dateOfBirth = user['dateOfBirth'] != null
+        ? DateTime.tryParse(user['dateOfBirth'] as String)
+        : null;
+    final age = dateOfBirth != null
+        ? DateTime.now().difference(dateOfBirth).inDays ~/ 365
+        : null;
+
+    final genderStr = user['gender'] as String?;
+    final gender = genderStr != null ? _formatGender(genderStr) : null;
+
+    return Card(
+      elevation: 0,
+      color: cs.surfaceContainerHighest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          children: [
+            // Avatar
+            CircleAvatar(
+              radius: 36,
+              backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.12),
+              child: const Icon(
+                Icons.person_outline,
+                color: AppColors.primaryBlue,
+                size: 36,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            // Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    displayName,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  if (dateOfBirth != null)
+                    Text(
+                      '${l10n.dateOfBirth}: ${DateFormat.yMMMd().format(dateOfBirth)}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                    ),
+                  if (age != null)
+                    Text(
+                      '${l10n.age}: $age ${l10n.yearsUnit}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                    ),
+                  if (gender != null)
+                    Text(
+                      '${l10n.gender}: $gender',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatGender(String gender) {
+    switch (gender.toUpperCase()) {
+      case 'MALE':
+        return 'Male';
+      case 'FEMALE':
+        return 'Female';
+      case 'OTHER':
+        return 'Other';
+      default:
+        return gender;
+    }
+  }
+}
+
+// ── Assigned Doctor Card ──────────────────────────────────────────────────────
+
+class _AssignedDoctorCard extends StatelessWidget {
+  const _AssignedDoctorCard({required this.doctor, required this.l10n});
+
+  final Map<String, dynamic> doctor;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final doctorName = doctor['fullName'] as String? ?? 'Doctor';
+    final specialty = doctor['specialty'] as String? ?? '';
+    final hospitalClinic = doctor['hospitalClinic'] as String? ?? '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(title: l10n.assignedDoctor),
+        const SizedBox(height: AppSpacing.sm),
+        Card(
+          elevation: 0,
+          color: cs.surfaceContainerHighest,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: AppColors.successGreen.withValues(alpha: 0.12),
+                  child: const Icon(
+                    Icons.medical_services_outlined,
+                    color: AppColors.successGreen,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        doctorName,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: cs.onSurface,
+                            ),
+                      ),
+                      if (specialty.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          specialty,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                      if (hospitalClinic.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          hospitalClinic,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Medication Summary Section ────────────────────────────────────────────────
+
+class _MedicationSummarySection extends StatelessWidget {
+  const _MedicationSummarySection({
+    required this.prescriptions,
+    required this.l10n,
+  });
+
+  final List<Prescription> prescriptions;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(title: l10n.medications),
+        const SizedBox(height: AppSpacing.sm),
+        ...prescriptions.expand((prescription) {
+          return prescription.medications.map((med) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: _MedicationCard(
+                medication: med,
+                prescription: prescription,
+                l10n: l10n,
+              ),
+            );
+          });
+        }),
+      ],
+    );
+  }
+}
+
+class _MedicationCard extends StatelessWidget {
+  const _MedicationCard({
+    required this.medication,
+    required this.prescription,
+    required this.l10n,
+  });
+
+  final PrescriptionMedication medication;
+  final Prescription prescription;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    // Build schedule summary
+    final scheduleSlots = <String>[];
+    if (medication.morningDosage != null) scheduleSlots.add(l10n.morning);
+    if (medication.afternoonDosage != null) scheduleSlots.add(l10n.afternoon);
+    if (medication.eveningDosage != null) scheduleSlots.add(l10n.evening);
+    if (medication.nightDosage != null) scheduleSlots.add(l10n.night);
+
+    return Card(
+      elevation: 0,
+      color: cs.surfaceContainerHighest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: AppColors.primaryBlue.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Medication name
+            Text(
+              medication.medicineName,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface,
+                  ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+
+            // Medicine type and unit
+            if (medication.medicineType != null)
+              _InfoRow(
+                icon: Icons.medical_information_outlined,
+                label: l10n.form,
+                value: medication.medicineType!,
+                cs: cs,
+              ),
+            if (medication.dosageAmount != null && medication.unit != null)
+              _InfoRow(
+                icon: Icons.medication_outlined,
+                label: l10n.dosage,
+                value: '${medication.dosageAmount} ${medication.unit}',
+                cs: cs,
+              ),
+
+            // Frequency
+            if (medication.frequency.isNotEmpty)
+              _InfoRow(
+                icon: Icons.schedule,
+                label: l10n.frequency,
+                value: medication.frequency,
+                cs: cs,
+              ),
+
+            // Schedule slots
+            if (scheduleSlots.isNotEmpty)
+              _InfoRow(
+                icon: Icons.access_time,
+                label: l10n.schedule,
+                value: scheduleSlots.join(', '),
+                cs: cs,
+              ),
+
+            // Meal timing
+            if (medication.timing.isNotEmpty)
+              _InfoRow(
+                icon: Icons.restaurant_outlined,
+                label: l10n.timing,
+                value: medication.timing,
+                cs: cs,
+              ),
+
+            // PRN flag
+            if (medication.isPRN)
+              _InfoRow(
+                icon: Icons.info_outline,
+                label: l10n.typeLabel,
+                value: l10n.prn,
+                cs: cs,
+              ),
+
+            // Duration
+            if (medication.duration != null)
+              _InfoRow(
+                icon: Icons.event,
+                label: l10n.durationDays,
+                value: '${medication.duration} ${l10n.days}',
+                cs: cs,
+              ),
+
+            // Start and end dates from prescription
+            if (prescription.startDate != null)
+              _InfoRow(
+                icon: Icons.calendar_today,
+                label: l10n.startDate,
+                value: DateFormat.yMMMd().format(prescription.startDate!),
+                cs: cs,
+              ),
+            if (prescription.endDate != null)
+              _InfoRow(
+                icon: Icons.event_available,
+                label: l10n.endDate,
+                value: DateFormat.yMMMd().format(prescription.endDate!),
+                cs: cs,
+              ),
+
+            // Additional notes
+            if (medication.additionalNote != null &&
+                medication.additionalNote!.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.note_outlined,
+                      size: 16,
+                      color: cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        medication.additionalNote!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.cs,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final ColorScheme cs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: cs.onSurfaceVariant),
+          const SizedBox(width: 8),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                children: [
+                  TextSpan(
+                    text: '$label: ',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  TextSpan(text: value),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Health Vitals Section ─────────────────────────────────────────────────────
+
+class _HealthVitalsSection extends StatelessWidget {
+  const _HealthVitalsSection({required this.health, required this.l10n});
+
+  final HealthMonitoringProvider health;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final vitals = health.latestVitals;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(title: l10n.healthVitals),
+        const SizedBox(height: AppSpacing.sm),
+        Card(
+          elevation: 0,
+          color: cs.surfaceContainerHighest,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: vitals.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.favorite_border,
+                            size: 48,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            l10n.noVitalsRecorded,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : Column(
+                    children: vitals.map((vital) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: _VitalRow(vital: vital, l10n: l10n),
+                      );
+                    }).toList(),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _VitalRow extends StatelessWidget {
+  const _VitalRow({required this.vital, required this.l10n});
+
+  final HealthVital vital;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final formattedDate = DateFormat.yMMMd().add_jm().format(vital.measuredAt);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: _getVitalColor(vital.vitalType).withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            _getVitalIcon(vital.vitalType),
+            color: _getVitalColor(vital.vitalType),
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                vital.vitalType.displayName,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${vital.displayValue} ${vital.unit}',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                formattedDate,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  IconData _getVitalIcon(dynamic vitalType) {
+    final typeStr = vitalType.toString();
+    if (typeStr.contains('bloodPressure')) return Icons.favorite;
+    if (typeStr.contains('glucose')) return Icons.water_drop;
+    if (typeStr.contains('heartRate')) return Icons.monitor_heart;
+    if (typeStr.contains('weight')) return Icons.scale;
+    if (typeStr.contains('temperature')) return Icons.thermostat;
+    if (typeStr.contains('spo2')) return Icons.air;
+    return Icons.health_and_safety;
+  }
+
+  Color _getVitalColor(dynamic vitalType) {
+    final typeStr = vitalType.toString();
+    if (typeStr.contains('bloodPressure')) return AppColors.alertRed;
+    if (typeStr.contains('glucose')) return AppColors.warningOrange;
+    if (typeStr.contains('heartRate')) return AppColors.primaryBlue;
+    if (typeStr.contains('weight')) return AppColors.successGreen;
+    if (typeStr.contains('temperature')) return AppColors.warningOrange;
+    if (typeStr.contains('spo2')) return AppColors.primaryBlue;
+    return AppColors.primaryBlue;
+  }
+}
+
+// ── Report Timestamp Footer ───────────────────────────────────────────────────
+
+class _ReportTimestampFooter extends StatelessWidget {
+  const _ReportTimestampFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final now = DateTime.now();
+    final formattedDate = DateFormat.yMMMMd().add_jm().format(now);
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.access_time, size: 16, color: cs.onSurfaceVariant),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Report generated on:',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                Text(
+                  formattedDate,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            'Das Tern v1.0.0',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),

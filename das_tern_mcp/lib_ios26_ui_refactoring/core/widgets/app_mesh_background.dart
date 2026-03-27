@@ -17,10 +17,7 @@ import '../theme/app_colors.dart';
 /// **Disposal (Req 5.5):** Both controllers are disposed when this widget
 /// is removed from the tree — no memory leaks.
 class AppMeshBackground extends StatefulWidget {
-  const AppMeshBackground({
-    super.key,
-    required this.child,
-  });
+  const AppMeshBackground({super.key, required this.child});
 
   /// Widget rendered above all orb layers.
   final Widget child;
@@ -83,7 +80,7 @@ class _AppMeshBackgroundState extends State<AppMeshBackground>
         // Orb 1 — AppColors.primary, centre (0.2w, 0.3h)
         AnimatedBuilder(
           animation: _anim1,
-          builder: (_, __) => CustomPaint(
+          builder: (context, child) => CustomPaint(
             painter: _OrbPainter(
               color: AppColors.primary,
               // dark: 0.30 / light: 0.12 (Req 5.2, 5.3)
@@ -97,7 +94,7 @@ class _AppMeshBackgroundState extends State<AppMeshBackground>
         // Orb 2 — AppColors.primaryDark, centre (0.8w, 0.6h)
         AnimatedBuilder(
           animation: _anim2,
-          builder: (_, __) => CustomPaint(
+          builder: (context, child) => CustomPaint(
             painter: _OrbPainter(
               color: AppColors.primaryDark,
               opacity: isDark ? 0.22 : 0.08,
@@ -110,7 +107,7 @@ class _AppMeshBackgroundState extends State<AppMeshBackground>
         // Orb 3 — AppColors.primaryLight, centre (0.5w, 0.8h), reuses ctrl1
         AnimatedBuilder(
           animation: _anim3,
-          builder: (_, __) => CustomPaint(
+          builder: (context, child) => CustomPaint(
             painter: _OrbPainter(
               color: AppColors.primaryLight,
               opacity: isDark ? 0.16 : 0.06,
@@ -162,8 +159,8 @@ class _OrbPainter extends CustomPainter {
 
     final gradient = RadialGradient(
       colors: [
-        color.withOpacity(opacity),
-        color.withOpacity(0),
+        color.withValues(alpha: opacity),
+        color.withValues(alpha: 0),
       ],
     );
 
@@ -177,7 +174,5 @@ class _OrbPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_OrbPainter old) =>
-      old.progress != progress ||
-      old.color != color ||
-      old.opacity != opacity;
+      old.progress != progress || old.color != color || old.opacity != opacity;
 }

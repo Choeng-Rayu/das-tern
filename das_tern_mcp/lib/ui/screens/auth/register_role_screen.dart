@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../ui/theme/app_colors.dart';
-import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/auth_widgets.dart';
 import '../../widgets/language_switcher.dart';
 
@@ -18,37 +14,12 @@ class RegisterRoleScreen extends StatefulWidget {
 }
 
 class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
-  Future<void> _handleTelegramRegister() async {
-    final auth = context.read<AuthProvider>();
-    final success = await auth.signInWithTelegram();
-
-    if (!mounted) return;
-    if (success) {
-      final role = auth.userRole;
-      Navigator.of(
-        context,
-      ).pushReplacementNamed(role == 'DOCTOR' ? '/doctor' : '/patient');
-    } else if (auth.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(auth.error!),
-          backgroundColor: AppColors.alertRed,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
     final l10n = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
-    final hPad = (size.width * 0.06).clamp(16.0, 40.0);
+    final hPad = (size.width * 0.06).clamp(20.0, 40.0);
     final isSmallScreen = size.height < 700;
-    final topGap = isSmallScreen ? AppSpacing.lg : AppSpacing.xxl;
-    final iconSize = isSmallScreen ? 56.0 : 72.0;
-    final iconInnerSize = isSmallScreen ? 28.0 : 36.0;
-    final titleFontSize = size.width < 360 ? 18.0 : 22.0;
 
     return AuthGradientScaffold(
       child: SingleChildScrollView(
@@ -61,49 +32,59 @@ class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
               onBack: () => Navigator.of(context).pop(),
               trailing: const LanguageSwitcherButton(lightBackground: true),
             ),
-            SizedBox(height: topGap),
+            SizedBox(height: isSmallScreen ? 24.0 : 40.0),
 
-            // ── Title ──
+            // ── Header section ──
             Padding(
               padding: EdgeInsets.symmetric(horizontal: hPad),
               child: Column(
                 children: [
+                  // Icon
                   Container(
-                    width: iconSize,
-                    height: iconSize,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE3F2FD),
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1976D2).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.people_alt_rounded,
-                      color: const Color(0xFF1976D2),
-                      size: iconInnerSize,
+                      color: Color(0xFF1976D2),
+                      size: 40,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: 20),
+
+                  // Title
                   Text(
                     l10n.selectRoleTitle,
-                    style: TextStyle(
-                      color: const Color(0xFF111111),
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.bold,
+                    style: const TextStyle(
+                      color: Color(0xFF0D1B2A),
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                      height: 1.2,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: 10),
+
+                  // Subtitle
                   Text(
                     l10n.selectRoleSubtitle,
                     style: const TextStyle(
-                      color: Color(0xFF888888),
-                      fontSize: 13,
+                      color: Color(0xFF6B7280),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      height: 1.5,
+                      letterSpacing: 0.1,
                     ),
                     textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
-            SizedBox(height: isSmallScreen ? AppSpacing.md : AppSpacing.xl),
+            SizedBox(height: isSmallScreen ? 28.0 : 44.0),
 
             // ── Patient card ──
             Padding(
@@ -116,7 +97,7 @@ class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
                     Navigator.of(context).pushNamed('/register/patient'),
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: 16),
 
             // ── Doctor card ──
             Padding(
@@ -129,68 +110,7 @@ class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
                     Navigator.of(context).pushNamed('/register/doctor'),
               ),
             ),
-            SizedBox(height: isSmallScreen ? AppSpacing.md : AppSpacing.xl),
-
-            // ── OR section ──
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: hPad),
-              child: Row(
-                children: [
-                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                    ),
-                    child: Text(
-                      l10n.orRegisterWith,
-                      style: const TextStyle(
-                        color: Color(0xFFAAAAAA),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            // ── Telegram quick-register button ──
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: hPad),
-              child: SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: OutlinedButton.icon(
-                  onPressed: auth.isLoading ? null : _handleTelegramRegister,
-                  icon: const Icon(
-                    Icons.send_rounded,
-                    color: Color(0xFF229ED9),
-                    size: 20,
-                  ),
-                  label: Text(
-                    l10n.registerWithTelegram,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF333333),
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF333333),
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(
-                      color: Color(0xFF229ED9),
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: topGap),
+            SizedBox(height: isSmallScreen ? 28.0 : 44.0),
 
             // ── Back to login link ──
             AuthLinkRow(
@@ -198,7 +118,7 @@ class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
               actionText: l10n.signIn,
               onTap: () => Navigator.of(context).pop(),
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -226,24 +146,37 @@ class _RoleCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         decoration: BoxDecoration(
-          color: const Color(0xFF1B7EDB),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFF1565C0), width: 1.5),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
+          ),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1B7EDB).withValues(alpha: 0.35),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Row(
           children: [
+            // Icon container
             Container(
-              width: 42,
-              height: 42,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                color: const Color(0xFF1565C0),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(icon, color: Colors.white, size: 22),
+              child: Icon(icon, color: Colors.white, size: 26),
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: 16),
+
+            // Text
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,22 +185,40 @@ class _RoleCard extends StatelessWidget {
                     title,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 5),
                   Text(
                     description,
-                    style: const TextStyle(
-                      color: Color(0xFFBDD8F5),
-                      fontSize: 11,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      height: 1.4,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Color(0xFFBDD8F5), size: 22),
+            const SizedBox(width: 8),
+
+            // Arrow
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 14,
+              ),
+            ),
           ],
         ),
       ),

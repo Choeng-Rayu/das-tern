@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
+import '../../../../providers/subscription_provider.dart';
 import '../../../../services/notification_service.dart';
 import '../../../screens/patient/screens/activity_report_screen.dart';
 import '../../../screens/support/contact_support_screen.dart';
@@ -124,14 +125,7 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             const SizedBox(height: AppSpacing.md),
             _sectionLabel(l10n.subscription.toUpperCase()),
             _buildGroupCard(isDark, [
-              _buildNavRow(
-                context,
-                icon: Icons.workspace_premium_outlined,
-                label: l10n.manageSubscriptions,
-                isLast: true,
-                onTap: () =>
-                    Navigator.pushNamed(context, '/subscription/upgrade'),
-              ),
+              _buildSubscriptionRow(context, isDark: isDark, l10n: l10n),
             ]),
             const SizedBox(height: AppSpacing.md),
             _sectionLabel(l10n.support.toUpperCase()),
@@ -554,6 +548,80 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
             Expanded(
               child: Text(label, style: Theme.of(context).textTheme.bodyLarge),
             ),
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubscriptionRow(
+    BuildContext context, {
+    required bool isDark,
+    required AppLocalizations l10n,
+  }) {
+    final sub = context.watch<SubscriptionProvider>();
+    final tier = sub.currentTier;
+    final isPlatinum = tier == 'FAMILY_PREMIUM';
+    final isPremium = tier == 'PREMIUM';
+
+    String tierLabel;
+    Color tierColor;
+    if (isPlatinum) {
+      tierLabel = 'Platinum';
+      tierColor = const Color(0xFF8B5CF6);
+    } else if (isPremium) {
+      tierLabel = 'Premium';
+      tierColor = const Color(0xFF007AFF);
+    } else {
+      tierLabel = 'Free';
+      tierColor = AppColors.textSecondary;
+    }
+
+    return InkWell(
+      onTap: () => Navigator.pushNamed(context, '/subscription/manage'),
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(14),
+        bottomRight: Radius.circular(14),
+        topLeft: Radius.circular(14),
+        topRight: Radius.circular(14),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Icon(
+              Icons.workspace_premium_outlined,
+              size: 20,
+              color: isPlatinum ? const Color(0xFF8B5CF6) : null,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                l10n.manageSubscriptions,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: tierColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                tierLabel,
+                style: TextStyle(
+                  color: tierColor,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
             const Icon(
               Icons.chevron_right,
               size: 18,

@@ -64,9 +64,10 @@ class _AppButtonState extends State<AppButton>
       vsync: this,
       duration: const Duration(milliseconds: 160),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.94).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.94,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
   }
 
   @override
@@ -117,8 +118,8 @@ class _AppButtonState extends State<AppButton>
             tint: resolvedTint,
             borderRadius: AppSpacing.radiusFull, // pill shape (Req 9.14)
             padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,  // 24 dp (Req 9.13)
-              vertical: 12,               // 12 dp × 2 + ~20 dp text = 44 dp
+              horizontal: AppSpacing.lg, // 24 dp (Req 9.13)
+              vertical: 12, // 12 dp × 2 + ~20 dp text = 44 dp
             ),
             child: SizedBox(
               width: widget.isFullWidth ? double.infinity : null,

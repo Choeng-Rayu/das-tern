@@ -7,6 +7,7 @@ import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/auth_widgets.dart';
 import '../../widgets/language_switcher.dart';
+import '../../widgets/app_button.dart';
 
 // ── Google logo widget ──────────────────────────────────────────────────────
 class _GoogleIcon extends StatelessWidget {
@@ -295,10 +296,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: AppSpacing.lg),
 
                     // Login button
-                    AuthPrimaryButton(
-                      onPressed: _handleLogin,
+                    AppButton(
+                      text: l10n.signIn,
+                      onPressed: auth.isLoading ? null : _handleLogin,
                       isLoading: auth.isLoading,
-                      label: l10n.signIn,
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
+                      ),
+                      shape: AppButtonShape.pill,
+                      size: AppButtonSize.large,
                     ),
                   ],
                 ),

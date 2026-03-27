@@ -407,7 +407,9 @@ class _CaregiverCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 22,
-                  backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.15),
+                  backgroundColor: AppColors.primaryBlue.withValues(
+                    alpha: 0.15,
+                  ),
                   child: Text(
                     initials,
                     style: const TextStyle(
@@ -450,7 +452,8 @@ class _CaregiverCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () => _handlePendingAction(context, accept: false),
+                      onPressed: () =>
+                          _handlePendingAction(context, accept: false),
                       icon: const Icon(Icons.close, size: 18),
                       label: Text(l10n.rejectConnection),
                       style: OutlinedButton.styleFrom(
@@ -462,7 +465,8 @@ class _CaregiverCard extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => _handlePendingAction(context, accept: true),
+                      onPressed: () =>
+                          _handlePendingAction(context, accept: true),
                       icon: const Icon(Icons.check, size: 18),
                       label: Text(l10n.approveConnection),
                       style: ElevatedButton.styleFrom(

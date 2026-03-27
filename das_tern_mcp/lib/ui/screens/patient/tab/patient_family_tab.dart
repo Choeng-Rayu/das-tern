@@ -8,6 +8,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/common_widgets.dart';
 import '../../../widgets/language_switcher.dart';
+import '../../../widgets/app_button.dart';
 
 /// Family Feature tab – manage family connections and monitor linked patients.
 /// Matches Figma tab: មុខងារគ្រួសារ
@@ -292,59 +293,34 @@ class _FamilyIntroContent extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.xl),
 
-          // ── Start Using button (blue) ──
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/family/connect');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryBlue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.xxl),
-                ),
-                elevation: 0,
-              ),
-              child: Text(
-                l10n.startUsing,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+          // ── Start Using button (blue gradient) ──
+          AppButton(
+            text: l10n.startUsing,
+            onPressed: () {
+              Navigator.pushNamed(context, '/family/connect');
+            },
+            gradient: const LinearGradient(
+              colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
             ),
+            shape: AppButtonShape.pill,
+            size: AppButtonSize.large,
+            elevation: 0,
           ),
 
           const SizedBox(height: AppSpacing.md),
 
-          // ── Learn More button (outlined) ──
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/family/access-list');
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.onSurface,
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.xxl),
-                ),
-              ),
-              child: Text(
-                l10n.learnMore,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+          // ── Learn More button (clean outlined) ──
+          AppButton(
+            text: l10n.learnMore,
+            onPressed: () {
+              Navigator.pushNamed(context, '/family/access-list');
+            },
+            style: AppButtonStyle.outlined,
+            borderColor: const Color(0xFF2196F3),
+            borderWidth: 1.5,
+            textColor: const Color(0xFF2196F3),
+            shape: AppButtonShape.pill,
+            size: AppButtonSize.large,
           ),
 
           const SizedBox(height: AppSpacing.xxl),

@@ -44,8 +44,10 @@ class SubscriptionProvider extends ChangeNotifier {
   String get currentTier => _subscription?['tier'] ?? 'FREEMIUM';
   bool get isPremium =>
       currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM';
+  bool get isPlatinum => currentTier == 'FAMILY_PREMIUM';
   bool get hasOcrAccess =>
-      currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM';
+      currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM' || currentTier == 'PLATINUM';
+  bool get hasGroupPlan => currentTier == 'PLATINUM';
 
   // Trial status
   bool get isOnTrial {
@@ -217,6 +219,29 @@ class SubscriptionProvider extends ChangeNotifier {
     _paymentStatus = '';
     _errorMessage = null;
     notifyListeners();
+  }
+
+  /// Upgrade to Platinum plan via /subscriptions/upgrade.
+  /// Platinum = FAMILY_PREMIUM tier in the backend.
+  Future<bool> upgradeToPlatinum() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _api.upgradeSubscription('FAMILY_PREMIUM');
+      _subscription = result;
+      _isLoading = false;
+      notifyListeners();
+      loadSubscription();
+      return true;
+    } catch (e) {
+      _log.error('Subscription', 'Failed to upgrade to Platinum', e);
+      _errorMessage = e is ApiException ? e.message : 'Failed to upgrade to Platinum.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 
   /// Claim the 1-month free Premium trial.

@@ -1,176 +1,174 @@
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../widgets/language_switcher.dart';
+import '../../widgets/app_button.dart';
 
 /// Welcome/landing screen shown to unauthenticated users.
-/// 70% photo with overlay text, 30% bottom panel with Sign In / Create Account.
+/// Clean, professional design with centered content and buttons.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final imageHeight = constraints.maxHeight * 0.70;
-          final bottomHeight = constraints.maxHeight * 0.30;
-          final isCompactBottomPanel = bottomHeight < 232;
-          final buttonHeight = isCompactBottomPanel ? 48.0 : 50.0;
-          final verticalPadding = isCompactBottomPanel ? 20.0 : 28.0;
-          final buttonSpacing = isCompactBottomPanel ? 10.0 : 12.0;
-          final footerSpacing = isCompactBottomPanel ? 12.0 : 16.0;
-
-          return Stack(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark
+                ? [const Color(0xFF4A9FBF), const Color(0xFF3A8FAF)]
+                : [const Color(0xFF5DADE2), const Color(0xFF3498DB)],
+          ),
+        ),
+        child: SafeArea(
+          child: Stack(
             children: [
-              // ── 70% image section ──────────────────────────────────────────
+              // Decorative circles
               Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: imageHeight,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.asset(
-                      'assets/maximilianovich-doctor-5710159_1920.jpg',
-                      fit: BoxFit.cover,
-                    ),
-                    // Dark gradient overlay so text is readable
-                    Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0x22000000), Color(0xAA000000)],
-                        ),
-                      ),
-                    ),
-                    // Welcome text at bottom of the image area
-                    Positioned(
-                      bottom: 36,
-                      left: 28,
-                      right: 28,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.welcomeTitle,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              height: 1.2,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            l10n.welcomeScreenSubtitle,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.85),
-                              fontSize: 14,
-                              height: 1.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Language switcher top-right
-                    const Positioned(
-                      top: 52,
-                      right: 16,
-                      child: LanguageSwitcherButton(),
-                    ),
-                  ],
+                top: -100,
+                right: -100,
+                child: Container(
+                  width: 300,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -150,
+                left: -150,
+                child: Container(
+                  width: 400,
+                  height: 400,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
                 ),
               ),
 
-              // ── 30% bottom panel ──────────────────────────────────────────
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: bottomHeight,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(28),
-                    ),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 28,
-                    vertical: verticalPadding,
-                  ),
+              // Main content
+              Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Sign In button (filled blue)
-                      SizedBox(
-                        height: buttonHeight,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
+                      const SizedBox(height: 60),
+
+                      // Welcome Title
+                      Text(
+                        l10n.welcomeTitle,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 36,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.5,
+                          height: 1.2,
+                          shadows: [
+                            Shadow(
+                              color: Color(0x4D000000),
+                              offset: Offset(0, 4),
+                              blurRadius: 12,
                             ),
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                          child: TextButton(
-                            onPressed: () =>
-                                Navigator.of(context).pushNamed('/login'),
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(28),
-                              ),
-                            ),
-                            child: Text(
-                              l10n.signIn,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: buttonSpacing),
+                      const SizedBox(height: 16),
 
-                      // Sign Up button (outlined)
-                      SizedBox(
-                        height: buttonHeight,
-                        child: OutlinedButton(
-                          onPressed: () =>
-                              Navigator.of(context).pushNamed('/register-role'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF1B7EDB),
-                            side: const BorderSide(
-                              color: Color(0xFF1B7EDB),
-                              width: 1.5,
+                      // Subtitle
+                      Text(
+                        l10n.welcomeScreenSubtitle,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xF2FFFFFF),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          height: 1.5,
+                          letterSpacing: 0.3,
+                          shadows: [
+                            Shadow(
+                              color: Color(0x33000000),
+                              offset: Offset(0, 2),
+                              blurRadius: 8,
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                          ),
-                          child: Text(
-                            l10n.createAccount,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1B7EDB),
-                            ),
-                          ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: footerSpacing),
 
-                      // Emergency Access link
-                      Center(
+                      const SizedBox(height: 80),
+
+                      // Buttons container
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: const Color(0x26FFFFFF),
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(
+                            color: const Color(0x4DFFFFFF),
+                            width: 1.5,
+                          ),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x33000000),
+                              blurRadius: 30,
+                              offset: Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            // Sign In button
+                            AppButton(
+                              text: l10n.signIn,
+                              onPressed: () =>
+                                  Navigator.of(context).pushNamed('/login'),
+                              backgroundColor: Colors.white,
+                              textColor: const Color(0xFF3498DB),
+                              shape: AppButtonShape.pill,
+                              size: AppButtonSize.large,
+                              elevation: 0,
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Create Account button
+                            AppButton(
+                              text: l10n.createAccount,
+                              onPressed: () => Navigator.of(
+                                context,
+                              ).pushNamed('/register-role'),
+                              style: AppButtonStyle.outlined,
+                              borderColor: Colors.white,
+                              textColor: Colors.white,
+                              borderWidth: 2,
+                              shape: AppButtonShape.pill,
+                              size: AppButtonSize.large,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Emergency Access
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0x1AFFFFFF),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0x33FFFFFF)),
+                        ),
                         child: TextButton(
                           onPressed: () {},
                           style: TextButton.styleFrom(
@@ -181,20 +179,49 @@ class WelcomeScreen extends StatelessWidget {
                           child: Text(
                             l10n.emergencyAccess,
                             style: const TextStyle(
-                              color: Color(0xFF1B7EDB),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                              shadows: [
+                                Shadow(
+                                  color: Color(0x4D000000),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 6,
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
+
+                      const SizedBox(height: 60),
                     ],
                   ),
                 ),
               ),
+
+              // Language switcher
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(24)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const LanguageSwitcherButton(lightBackground: true),
+                ),
+              ),
             ],
-          );
-        },
+          ),
+        ),
       ),
     );
   }

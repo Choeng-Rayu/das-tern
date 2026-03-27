@@ -24,7 +24,9 @@ import '../ui/screens/family_ui/caregiver_dashboard_screen.dart';
 import '../ui/screens/family_ui/grace_period_settings_screen.dart';
 import '../ui/screens/family_ui/connection_history_screen.dart';
 import '../ui/screens/family_ui/caregiver_patient_detail_screen.dart';
+import '../ui/screens/patient/screens/activity_report_screen.dart';
 import '../ui/screens/patient/screens/upgrade_plan_screen.dart';
+import '../ui/screens/patient/screens/subscription_management_screen.dart';
 import '../ui/screens/patient/screens/payment_method_screen.dart';
 import '../ui/screens/patient/screens/bakong_payment_screen.dart';
 import '../ui/screens/patient/screens/payment_qr_screen.dart';
@@ -80,6 +82,7 @@ class AppRouter {
   static const String familyPatientDetail = '/family/patient-detail';
 
   // Subscription/payment routes
+  static const String subscriptionManage = '/subscription/manage';
   static const String subscriptionUpgrade = '/subscription/upgrade';
   static const String subscriptionPaymentMethod =
       '/subscription/payment-method';
@@ -111,6 +114,7 @@ class AppRouter {
   static const String doctorNotifications = '/doctor/notifications';
   static const String patientEditProfile = '/patient/edit-profile';
   static const String patientChangePassword = '/patient/change-password';
+  static const String patientHealthReport = '/patient/health-report';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -185,6 +189,8 @@ class AppRouter {
         );
 
       // Subscription/payment routes
+      case subscriptionManage:
+        return _buildRoute(const SubscriptionManagementScreen());
       case subscriptionUpgrade:
         return _buildRoute(const UpgradePlanScreen());
       case subscriptionPaymentMethod:
@@ -259,6 +265,8 @@ class AppRouter {
         return _buildRoute(const EditProfileScreen());
       case patientChangePassword:
         return _buildRoute(const ChangePasswordScreen());
+      case patientHealthReport:
+        return _buildRoute(const ActivityReportScreen());
 
       default:
         return _buildRoute(
