@@ -15,6 +15,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Ignore LLM model files
+ai-llm-service/models/*.gguf
+
 # OS
 .DS_Store
 
