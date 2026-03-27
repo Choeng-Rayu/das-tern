@@ -1,0 +1,27 @@
+# Ollama Modelfile for Qwen2.5-0.5B-Instruct optimized for prescription OCR enhancement
+# Model: Qwen2.5-0.5B-Instruct quantized to Q4_K_M
+# Optimized for fast inference with small model
+
+FROM /home/rayu/das-tern/ai-llm-service/models/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf
+
+# Parameters optimized for fast inference on small model
+# Low temperature for accuracy and consistency in medical data
+PARAMETER temperature 0.1
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER repeat_penalty 1.1
+PARAMETER num_ctx 2048
+PARAMETER num_predict 1024
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|im_start|>"
+
+# Concise system prompt optimized for 0.5B model (under 300 chars)
+SYSTEM """Extract prescription data as JSON. Include: patient (name, age, gender), medications (name, dose, form, frequency), doctor, date. Fix OCR errors in drug names. Output valid JSON only."""
+
+# Qwen2.5 ChatML template with im_start/im_end tokens
+TEMPLATE """<|im_start|>system
+{{ .System }}<|im_end|>
+<|im_start|>user
+{{ .Prompt }}<|im_end|>
+<|im_start|>assistant
+"""

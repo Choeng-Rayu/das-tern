@@ -18,12 +18,13 @@ class PaymentQrScreen extends StatefulWidget {
 }
 
 class _PaymentQrScreenState extends State<PaymentQrScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _pulseController;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -31,7 +32,17 @@ class _PaymentQrScreenState extends State<PaymentQrScreen>
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      // User likely returned from external banking app.
+      // Trigger immediate status check instead of waiting for next poll tick.
+      context.read<SubscriptionProvider>().refreshPaymentStatusNow();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pulseController.dispose();
     super.dispose();
   }

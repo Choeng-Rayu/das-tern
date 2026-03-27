@@ -47,6 +47,17 @@
                     android:host="auth"
                     android:pathPrefix="/telegram/callback" />
             </intent-filter>
+
+            <!-- Bakong payment return deep-link handler -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Handle payment returns from banking apps -->
+                <data
+                    android:scheme="dastern"
+                    android:host="payment" />
+            </intent-filter>
         </activity>
         <!-- Reschedule notifications after device reboot -->
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
