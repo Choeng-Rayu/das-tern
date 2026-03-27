@@ -21,11 +21,7 @@ import 'app_button.dart';
 /// );
 /// ```
 class AppErrorView extends StatelessWidget {
-  const AppErrorView({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const AppErrorView({super.key, required this.message, this.onRetry});
 
   final String message;
   final VoidCallback? onRetry;
@@ -40,11 +36,7 @@ class AppErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              color: AppColors.danger,
-              size: 48,
-            ),
+            Icon(Icons.error_outline, color: AppColors.danger, size: 48),
             const SizedBox(height: AppSpacing.md),
             Text(
               message,

@@ -95,6 +95,7 @@ async def extract_prescription(file: UploadFile = File(...)) -> ExtractionRespon
             processing_time_ms = (time.time() - start) * 1000
             pipeline_meta = {}
 
+        engine_name = _engine.engine_name if _engine else "unknown"
         data = build_dynamic_universal(
             parsed,
             processing_time_ms=processing_time_ms,
@@ -103,8 +104,9 @@ async def extract_prescription(file: UploadFile = File(...)) -> ExtractionRespon
             image_format=image_format,
             file_size_bytes=len(image_bytes),
             preprocessing_applied=pipeline_meta.get("preprocessing_applied", []),
+            ocr_engine=engine_name,
         )
-        summary = build_extraction_summary(data, processing_time_ms)
+        summary = build_extraction_summary(data, processing_time_ms, ocr_engine=engine_name)
         return ExtractionResponse(success=True, data=data, extraction_summary=summary)
     except HTTPException:
         raise
@@ -119,14 +121,22 @@ async def extract_prescription(file: UploadFile = File(...)) -> ExtractionRespon
 
 @router.get("/health", response_model=HealthResponse)
 async def health_check() -> HealthResponse:
-    return HealthResponse(status="healthy" if _engine else "initializing", models_loaded=_engine is not None)
+    engine_name = _engine.engine_name if _engine else "unknown"
+    return HealthResponse(
+        status="healthy" if _engine else "initializing",
+        models_loaded=_engine is not None,
+        ocr_engine=engine_name,
+        model_name=engine_name,
+    )
 
 
 @router.get("/config", response_model=ConfigResponse)
 async def get_config() -> ConfigResponse:
+    engine_name = _engine.engine_name if _engine else settings.OCR_MODEL
     return ConfigResponse(
         auto_accept_threshold=settings.AUTO_ACCEPT_THRESHOLD,
         flag_review_threshold=settings.FLAG_REVIEW_THRESHOLD,
         max_upload_size_mb=settings.MAX_UPLOAD_SIZE_MB,
         max_image_dimension=settings.MAX_IMAGE_DIMENSION,
+        ocr_engine=engine_name,
     )

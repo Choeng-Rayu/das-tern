@@ -108,10 +108,15 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
             hour: int.tryParse(parts[0]) ?? 0,
             minute: int.tryParse(parts[1]) ?? 0,
           );
-          if (period == 'MORNING') { _morningTime = tod; }
-          else if (period == 'AFTERNOON') { _afternoonTime = tod; }
-          else if (period == 'EVENING') { _eveningTime = tod; }
-          else if (period == 'NIGHT') { _nightTime = tod; }
+          if (period == 'MORNING') {
+            _morningTime = tod;
+          } else if (period == 'AFTERNOON') {
+            _afternoonTime = tod;
+          } else if (period == 'EVENING') {
+            _eveningTime = tod;
+          } else if (period == 'NIGHT') {
+            _nightTime = tod;
+          }
         }
       }
     }
@@ -140,11 +145,24 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
   /// Auto-enable the next unselected default slot when frequency is increased.
   /// Order: Morning → Afternoon → Night → Evening (typical medication pattern).
   void _autoEnableNextSlot() {
-    if (!_morning) { _morning = true; return; }
-    if (!_afternoon) { _afternoon = true; return; }
-    if (!_night) { _night = true; return; }
-    if (!_evening) { _evening = true; return; }
+    if (!_morning) {
+      _morning = true;
+      return;
+    }
+    if (!_afternoon) {
+      _afternoon = true;
+      return;
+    }
+    if (!_night) {
+      _night = true;
+      return;
+    }
+    if (!_evening) {
+      _evening = true;
+      return;
+    }
   }
+
   Future<void> _pickTime(
     TimeOfDay current,
     ValueChanged<TimeOfDay> onPicked,
@@ -186,16 +204,28 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
     final scheduleTimes = <Map<String, String>>[];
     if (!_isPRN) {
       if (_morning) {
-        scheduleTimes.add({'timePeriod': 'MORNING', 'time': _formatTod(_morningTime)});
+        scheduleTimes.add({
+          'timePeriod': 'MORNING',
+          'time': _formatTod(_morningTime),
+        });
       }
       if (_afternoon) {
-        scheduleTimes.add({'timePeriod': 'AFTERNOON', 'time': _formatTod(_afternoonTime)});
+        scheduleTimes.add({
+          'timePeriod': 'AFTERNOON',
+          'time': _formatTod(_afternoonTime),
+        });
       }
       if (_evening) {
-        scheduleTimes.add({'timePeriod': 'EVENING', 'time': _formatTod(_eveningTime)});
+        scheduleTimes.add({
+          'timePeriod': 'EVENING',
+          'time': _formatTod(_eveningTime),
+        });
       }
       if (_night) {
-        scheduleTimes.add({'timePeriod': 'NIGHT', 'time': _formatTod(_nightTime)});
+        scheduleTimes.add({
+          'timePeriod': 'NIGHT',
+          'time': _formatTod(_nightTime),
+        });
       }
       // Fallback: if user set frequency > 0 but selected no slots, auto-fill defaults
       if (scheduleTimes.isEmpty) {
@@ -207,9 +237,12 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
         ];
         for (int i = 0; i < _frequencyPerDay && i < defaultOrder.length; i++) {
           final period = defaultOrder[i][0];
-          final tod = period == 'MORNING' ? _morningTime
-              : period == 'AFTERNOON' ? _afternoonTime
-              : period == 'NIGHT' ? _nightTime
+          final tod = period == 'MORNING'
+              ? _morningTime
+              : period == 'AFTERNOON'
+              ? _afternoonTime
+              : period == 'NIGHT'
+              ? _nightTime
               : _eveningTime;
           scheduleTimes.add({'timePeriod': period, 'time': _formatTod(tod)});
         }
@@ -341,7 +374,9 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
                                       ];
                                       while (slots.length > _frequencyPerDay) {
                                         final excess = slots.removeAt(0);
-                                        if (excess == 'night') { _night = false; }
+                                        if (excess == 'night') {
+                                          _night = false;
+                                        }
                                         if (excess == 'evening') {
                                           _evening = false;
                                         }
@@ -455,10 +490,8 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
                       icon: Icons.wb_sunny_rounded,
                       color: AppColors.primaryBlue,
                       time: _morningTime,
-                      onTap: () => _pickTime(
-                        _morningTime,
-                        (t) => _morningTime = t,
-                      ),
+                      onTap: () =>
+                          _pickTime(_morningTime, (t) => _morningTime = t),
                     ),
                   if (_afternoon)
                     _SlotTimeTile(
@@ -466,10 +499,8 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
                       icon: Icons.wb_twilight,
                       color: const Color(0xFF26C6DA),
                       time: _afternoonTime,
-                      onTap: () => _pickTime(
-                        _afternoonTime,
-                        (t) => _afternoonTime = t,
-                      ),
+                      onTap: () =>
+                          _pickTime(_afternoonTime, (t) => _afternoonTime = t),
                     ),
                   if (_evening)
                     _SlotTimeTile(
@@ -477,10 +508,8 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
                       icon: Icons.wb_cloudy_outlined,
                       color: const Color(0xFFFF7043),
                       time: _eveningTime,
-                      onTap: () => _pickTime(
-                        _eveningTime,
-                        (t) => _eveningTime = t,
-                      ),
+                      onTap: () =>
+                          _pickTime(_eveningTime, (t) => _eveningTime = t),
                     ),
                   if (_night)
                     _SlotTimeTile(
@@ -488,10 +517,7 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
                       icon: Icons.nightlight_round,
                       color: AppColors.primaryBlue,
                       time: _nightTime,
-                      onTap: () => _pickTime(
-                        _nightTime,
-                        (t) => _nightTime = t,
-                      ),
+                      onTap: () => _pickTime(_nightTime, (t) => _nightTime = t),
                     ),
                   const SizedBox(height: AppSpacing.xs),
                 ],
@@ -983,9 +1009,7 @@ class _SlotTimeTile extends StatelessWidget {
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: color.withValues(alpha: 0.30),
-                ),
+                border: Border.all(color: color.withValues(alpha: 0.30)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

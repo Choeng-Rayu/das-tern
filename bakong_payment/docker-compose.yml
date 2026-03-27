@@ -9,10 +9,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: bakong_payment
+    ports:
+      - '127.0.0.1:5434:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,54 +25,56 @@ services:
     image: redis:7-alpine
     container_name: bakong_payment_redis
     restart: unless-stopped
+    ports:
+      - '127.0.0.1:6381:6379'
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 3s
       retries: 5
     networks:
       - bakong_net
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: bakong_payment_app
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    environment:
-      NODE_ENV: production
-      PORT: "3002"
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/bakong_payment?schema=public"
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: ""
-      BAKONG_MERCHANT_ID: "${BAKONG_MERCHANT_ID}"
-      BAKONG_PHONE_NUMBER: "${BAKONG_PHONE_NUMBER}"
-      BAKONG_DEVELOPER_TOKEN: "${BAKONG_DEVELOPER_TOKEN}"
-      BAKONG_API_URL: "${BAKONG_API_URL}"
-      DEFAULT_MERCHANT_NAME: "${DEFAULT_MERCHANT_NAME}"
-      DEFAULT_MERCHANT_CITY: "${DEFAULT_MERCHANT_CITY}"
-      MAIN_BACKEND_API_KEY: "${MAIN_BACKEND_API_KEY}"
-      MAIN_BACKEND_WEBHOOK_URL: "${MAIN_BACKEND_WEBHOOK_URL}"
-      WEBHOOK_SECRET: "${WEBHOOK_SECRET}"
-      ENCRYPTION_KEY: "${ENCRYPTION_KEY}"
-      PREMIUM_PRICE: "${PREMIUM_PRICE}"
-      FAMILY_PREMIUM_PRICE: "${FAMILY_PREMIUM_PRICE}"
-      CORS_ORIGIN: "*"
-    ports:
-      - "127.0.0.1:3002:3002"
-    volumes:
-      - app_public:/app/public
-      - app_logs:/app/logs
-    networks:
-      - bakong_net
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: bakong_payment_app
+  #   restart: unless-stopped
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     NODE_ENV: production
+  #     PORT: "3002"
+  #     DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/bakong_payment?schema=public"
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: "6379"
+  #     REDIS_PASSWORD: ""
+  #     BAKONG_MERCHANT_ID: "${BAKONG_MERCHANT_ID}"
+  #     BAKONG_PHONE_NUMBER: "${BAKONG_PHONE_NUMBER}"
+  #     BAKONG_DEVELOPER_TOKEN: "${BAKONG_DEVELOPER_TOKEN}"
+  #     BAKONG_API_URL: "${BAKONG_API_URL}"
+  #     DEFAULT_MERCHANT_NAME: "${DEFAULT_MERCHANT_NAME}"
+  #     DEFAULT_MERCHANT_CITY: "${DEFAULT_MERCHANT_CITY}"
+  #     MAIN_BACKEND_API_KEY: "${MAIN_BACKEND_API_KEY}"
+  #     MAIN_BACKEND_WEBHOOK_URL: "${MAIN_BACKEND_WEBHOOK_URL}"
+  #     WEBHOOK_SECRET: "${WEBHOOK_SECRET}"
+  #     ENCRYPTION_KEY: "${ENCRYPTION_KEY}"
+  #     PREMIUM_PRICE: "${PREMIUM_PRICE}"
+  #     FAMILY_PREMIUM_PRICE: "${FAMILY_PREMIUM_PRICE}"
+  #     CORS_ORIGIN: "*"
+  #   ports:
+  #     - "127.0.0.1:3002:3002"
+  #   volumes:
+  #     - app_public:/app/public
+  #     - app_logs:/app/logs
+  #   networks:
+  #     - bakong_net
 
 volumes:
   postgres_data:

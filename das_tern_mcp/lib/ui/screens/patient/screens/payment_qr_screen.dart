@@ -18,12 +18,13 @@ class PaymentQrScreen extends StatefulWidget {
 }
 
 class _PaymentQrScreenState extends State<PaymentQrScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _pulseController;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -31,7 +32,17 @@ class _PaymentQrScreenState extends State<PaymentQrScreen>
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      // User likely returned from external banking app.
+      // Trigger immediate status check instead of waiting for next poll tick.
+      context.read<SubscriptionProvider>().refreshPaymentStatusNow();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pulseController.dispose();
     super.dispose();
   }
@@ -616,8 +627,7 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children:
- [
+        children: [
           // ── Drag handle ──────────────────────────────────────────────────
           Center(
             child: Container(
@@ -653,22 +663,22 @@ class _BankChooserSheetState extends State<_BankChooserSheet> {
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              mainAxisSpacing: AppSpacing.md,
-              crossAxisSpacing: AppSpacing.sm,
-              childAspectRatio: 0.82,
+                crossAxisCount: 4,
+                mainAxisSpacing: AppSpacing.md,
+                crossAxisSpacing: AppSpacing.sm,
+                childAspectRatio: 0.82,
+              ),
+              itemCount: _khBanks.length,
+              itemBuilder: (_, i) {
+                final bank = _khBanks[i];
+                return _BankGridItem(
+                  bank: bank,
+                  isLoading: _loadingBank == bank.name,
+                  disabled: _loadingBank != null && _loadingBank != bank.name,
+                  onTap: () => _openBank(bank),
+                );
+              },
             ),
-            itemCount: _khBanks.length,
-            itemBuilder: (_, i) {
-              final bank = _khBanks[i];
-              return _BankGridItem(
-                bank: bank,
-                isLoading: _loadingBank == bank.name,
-                disabled: _loadingBank != null && _loadingBank != bank.name,
-                onTap: () => _openBank(bank),
-              );
-            },
-          ),
           ),
         ],
       ),

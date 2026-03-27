@@ -186,8 +186,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(4, (i) {
                         return Container(
-                          width: 64,
-                          height: 64,
+                          width: 60,
+                          height: 60,
                           margin: const EdgeInsets.symmetric(horizontal: 8),
                           child: TextField(
                             controller: _otpControllers[i],

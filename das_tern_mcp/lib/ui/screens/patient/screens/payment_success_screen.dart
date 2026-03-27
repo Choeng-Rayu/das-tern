@@ -130,8 +130,8 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          sub.currentTier == 'FAMILY_PREMIUM' 
-                              ? 'Platinum' 
+                          sub.currentTier == 'FAMILY_PREMIUM'
+                              ? 'Platinum'
                               : sub.currentTier.replaceAll('_', ' '),
                           style: Theme.of(context).textTheme.titleLarge
                               ?.copyWith(

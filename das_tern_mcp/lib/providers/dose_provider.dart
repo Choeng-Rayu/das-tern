@@ -37,8 +37,7 @@ class DoseProvider extends ChangeNotifier {
   /// taken — so the circular indicator only advances once the full day is done,
   /// not with each individual dose.
   int get effectiveDailyProgressCount =>
-      (_dailyProgress) +
-      (totalDoses > 0 && takenDoses == totalDoses ? 1 : 0);
+      (_dailyProgress) + (totalDoses > 0 && takenDoses == totalDoses ? 1 : 0);
 
   /// Fraction of the 30-day window with full daily completion (0.0–1.0).
   /// Uses [effectiveDailyProgressCount] so it only moves on full-day complete.

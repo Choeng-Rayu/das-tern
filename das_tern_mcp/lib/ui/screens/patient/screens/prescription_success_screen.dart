@@ -38,7 +38,9 @@ class PrescriptionSuccessScreen extends StatelessWidget {
       if (hasPeriod('EVENING')) {
         schedule.putIfAbsent('afternoon', () => []).add(med);
       }
-      if (hasPeriod('NIGHT')) { schedule.putIfAbsent('night', () => []).add(med); }
+      if (hasPeriod('NIGHT')) {
+        schedule.putIfAbsent('night', () => []).add(med);
+      }
     }
     return schedule;
   }

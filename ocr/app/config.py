@@ -37,5 +37,14 @@ class Settings(BaseSettings):
     # Optional HuggingFace token for authenticated requests (higher rate limits)
     HF_TOKEN: Optional[str] = None
 
-settings = Settings()
+    # OCR Model Selection: "kiri-ocr" or "tesseract"
+    OCR_MODEL: str = "tesseract"
 
+    # Kiri-OCR optimization settings
+    KIRI_DECODE_METHOD: str = "fast"  # options: fast/accurate
+    KIRI_MAX_OCR_DIMENSION: int = 2200  # downscale larger images before OCR
+    KIRI_PNG_COMPRESS_LEVEL: int = 3  # lower compress for faster temp save
+    KIRI_CONF_BLEND_DET: float = 0.25  # blend detection confidence
+    KIRI_CONF_TEXTLEN_BOOST: float = 0.03
+
+settings = Settings()

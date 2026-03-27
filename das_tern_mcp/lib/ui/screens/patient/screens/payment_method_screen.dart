@@ -17,12 +17,19 @@ class PaymentMethodScreen extends StatelessWidget {
         {};
     final planType = args['planType'] as String? ?? 'PREMIUM';
     final plan = args['plan'] as Map<String, dynamic>? ?? {};
-    final planName = plan['name'] as String? ??
-        (planType == 'FAMILY_PREMIUM' ? 'Platinum' : planType.replaceAll('_', ' '));
+    final planName =
+        plan['name'] as String? ??
+        (planType == 'FAMILY_PREMIUM'
+            ? 'Platinum'
+            : planType.replaceAll('_', ' '));
     final price = plan['price'] ?? (planType == 'FAMILY_PREMIUM' ? 1.00 : 0.50);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.paymentMethod), centerTitle: true, actions: const [LanguageSwitcherButton(lightBackground: true)]),
+      appBar: AppBar(
+        title: Text(l10n.paymentMethod),
+        centerTitle: true,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
@@ -120,9 +127,9 @@ class _OrderSummaryCard extends StatelessWidget {
                 child: Text(
                   '$planName Plan',
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
