@@ -6,6 +6,8 @@
 // Wires up: AppTheme (light/dark), LocaleProvider (EN/KH), AppLocalizations,
 // and a widget showcase demonstrating all 13 global widgets.
 
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -17,9 +19,12 @@ import 'l10n/app_localizations.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => LocaleProvider()..loadLocalePreference(),
-      child: const DasTernApp(),
+    DevicePreview(
+      enabled: !kReleaseMode, // only in debug/profile builds
+      builder: (context) => ChangeNotifierProvider(
+        create: (_) => LocaleProvider()..loadLocalePreference(),
+        child: const DasTernApp(),
+      ),
     ),
   );
 }
@@ -41,12 +46,14 @@ class DasTernApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
 
           // ── Theme — bilingual font applied here ────────────────────────────
+          useInheritedMediaQuery: true,
+          locale: DevicePreview.locale(context),
+          builder: DevicePreview.appBuilder,
           theme: AppTheme.light(fontFamily: fontFamily),
           darkTheme: AppTheme.dark(fontFamily: fontFamily),
           themeMode: ThemeMode.system,
 
           // ── Locale + l10n ──────────────────────────────────────────────────
-          locale: localeProvider.locale,
           supportedLocales: LocaleProvider.supportedLocales,
           localizationsDelegates: const [
             AppLocalizations.delegate,
