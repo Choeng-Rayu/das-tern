@@ -16,8 +16,7 @@ class NotificationStrings {
 
   // ── Notification titles ───────────────────────────────────────────────────
 
-  String get reminderTitle =>
-      _isKm ? 'ការរំលឹកថ្នាំ' : 'Medication Reminder';
+  String get reminderTitle => _isKm ? 'ការរំលឹកថ្នាំ' : 'Medication Reminder';
 
   String get reminderRetryTag => _isKm ? ' (រំលឹក)' : ' (Reminder)';
 
@@ -27,12 +26,12 @@ class NotificationStrings {
   // ── Time-period labels ────────────────────────────────────────────────────
 
   String periodLabel(String timePeriod) => switch (timePeriod) {
-        'MORNING' => _isKm ? 'ពេលព្រឹក' : 'Morning',
-        'AFTERNOON' => _isKm ? 'ពេលរសៀល' : 'Afternoon',
-        'EVENING' => _isKm ? 'ពេលល្ងាច' : 'Evening',
-        'NIGHT' => _isKm ? 'ពេលយប់' : 'Night',
-        _ => _isKm ? 'ថ្នាំ' : 'Dose',
-      };
+    'MORNING' => _isKm ? 'ពេលព្រឹក' : 'Morning',
+    'AFTERNOON' => _isKm ? 'ពេលរសៀល' : 'Afternoon',
+    'EVENING' => _isKm ? 'ពេលល្ងាច' : 'Evening',
+    'NIGHT' => _isKm ? 'ពេលយប់' : 'Night',
+    _ => _isKm ? 'ថ្នាំ' : 'Dose',
+  };
 
   // ── Notification bodies ───────────────────────────────────────────────────
 
@@ -53,8 +52,7 @@ class NotificationStrings {
 
   // ── Action button labels ──────────────────────────────────────────────────
 
-  String get actionMarkTaken =>
-      _isKm ? 'សម្គាល់ថាបានទទួលទាន' : 'Mark as Taken';
+  String get actionMarkTaken => _isKm ? 'សម្គាល់ថាបានទទួលទាន' : 'Mark as Taken';
 
   String get actionSnooze => _isKm ? 'ពន្យារ ១០ នាទី' : 'Snooze 10min';
 
@@ -71,8 +69,9 @@ class NotificationStrings {
   String get channelBatchRemindersName =>
       _isKm ? 'ការរំលឹកក្រុម' : 'Batch Reminders';
 
-  String get channelBatchRemindersDesc =>
-      _isKm ? 'ការរំលឹកសម្រាប់ក្រុមថ្នាំ' : 'Reminders for medication batch groups';
+  String get channelBatchRemindersDesc => _isKm
+      ? 'ការរំលឹកសម្រាប់ក្រុមថ្នាំ'
+      : 'Reminders for medication batch groups';
 
   String get channelGeneralName => _isKm ? 'ទូទៅ' : 'General';
 
@@ -81,8 +80,7 @@ class NotificationStrings {
 
   // ── Test notification ─────────────────────────────────────────────────────
 
-  String get testTitle =>
-      _isKm ? 'ការរំលឹកសាកល្បង' : 'Test Notification';
+  String get testTitle => _isKm ? 'ការរំលឹកសាកល្បង' : 'Test Notification';
 
   String get testBody => _isKm
       ? 'នេះជាការរំលឹកសាកល្បង។ ប៊ូតុងសកម្មភាពដំណើរការបានត្រឹមត្រូវ។'

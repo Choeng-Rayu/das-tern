@@ -51,7 +51,11 @@ class _ConnectionHistoryScreenState extends State<ConnectionHistoryScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.connectionHistory), centerTitle: true, actions: const [LanguageSwitcherButton(lightBackground: true)]),
+      appBar: AppBar(
+        title: Text(l10n.connectionHistory),
+        centerTitle: true,
+        actions: const [LanguageSwitcherButton(lightBackground: true)],
+      ),
       body: Column(
         children: [
           // Filter chips

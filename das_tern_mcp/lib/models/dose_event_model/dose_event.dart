@@ -69,12 +69,13 @@ class DoseEvent {
                       ? json['medication']['medicineName'] as String
                       : '')
                 : ''),
-      dosage: json['dosage'] is String ? json['dosage'] as String :
-          (json['dosage'] is Map
-              ? (json['dosage']['amount']?.toString() ?? '')
-              : (json['medication'] is Map
-                  ? '${json['medication']['morningDosage'] ?? 0}'
-                  : '')),
+      dosage: json['dosage'] is String
+          ? json['dosage'] as String
+          : (json['dosage'] is Map
+                ? (json['dosage']['amount']?.toString() ?? '')
+                : (json['medication'] is Map
+                      ? '${json['medication']['morningDosage'] ?? 0}'
+                      : '')),
       medication: json['medication'] is Map
           ? Map<String, dynamic>.from(json['medication'] as Map)
           : null,

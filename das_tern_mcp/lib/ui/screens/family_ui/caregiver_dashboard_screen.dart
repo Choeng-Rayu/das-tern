@@ -908,11 +908,14 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
       return selectedId;
     }
 
-    final doses = (_doseData?['doses'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final doses =
+        (_doseData?['doses'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     for (final d in doses) {
       final status = d['status']?.toString();
       final id = d['id']?.toString().trim();
-      if (id != null && id.isNotEmpty && (status == 'MISSED' || status == 'DUE')) {
+      if (id != null &&
+          id.isNotEmpty &&
+          (status == 'MISSED' || status == 'DUE')) {
         return id;
       }
     }

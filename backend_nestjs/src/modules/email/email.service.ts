@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MailService } from '@sendgrid/mail';
+import * as nodemailer from 'nodemailer';
 import * as validator from 'validator';
 
 @Injectable()
@@ -8,23 +8,33 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly fromEmail: string;
   private readonly fromName: string;
-  private mailService: MailService | null;
+  private transporter: nodemailer.Transporter | null;
 
   constructor(private configService: ConfigService) {
-    // Get SendGrid configuration
+    // Get SMTP configuration
     const apiKey = configService.get<string>('SENDGRID_API_KEY', '');
     this.fromEmail = configService.get<string>('SENDGRID_FROM_EMAIL', 'noreply@dastern.com');
     this.fromName = configService.get<string>('SENDGRID_FROM_NAME', 'Das Tern');
 
-    // Configure SendGrid
+    // Configure Gmail SMTP using Nodemailer
     if (apiKey) {
-      this.mailService = new MailService();
-      this.mailService.setApiKey(apiKey);
-      this.logger.log('✅ SendGrid configured — emails will be sent via SendGrid API');
+      this.transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // Use STARTTLS
+        auth: {
+          user: this.fromEmail,
+          pass: apiKey.replace(/\s/g, ''), // Remove any spaces from the app password
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+      this.logger.log('✅ Gmail SMTP configured — emails will be sent via Gmail SMTP');
     } else {
-      this.mailService = null;
+      this.transporter = null;
       this.logger.warn(
-        '⚠️  SendGrid API key not configured — emails will be logged to console only.',
+        '⚠️  SMTP credentials not configured — emails will be logged to console only.',
       );
     }
   }
@@ -37,31 +47,57 @@ export class EmailService {
   }
 
   private async send(to: string, subject: string, html: string): Promise<void> {
-    if (!this.mailService) {
-      this.logger.warn(`[NO-EMAIL] Would have sent "${subject}" to ${to} — SendGrid not configured`);
+    if (!this.transporter) {
+      this.logger.warn(`[NO-EMAIL] Would have sent "${subject}" to ${to} — SMTP not configured`);
       console.log(`\n📧 Email Preview:\nTo: ${to}\nSubject: ${subject}\n`);
       return;
     }
 
     try {
-      await this.mailService.send({
+      const mailOptions = {
+        from: `"${this.fromName}" <${this.fromEmail}>`,
         to,
-        from: { email: this.fromEmail, name: this.fromName },
         subject,
         html,
-      });
+        // Anti-spam headers
+        headers: {
+          'X-Priority': '3',
+          'X-Mailer': 'DasTern-Mailer',
+          'Importance': 'Normal',
+          'List-Unsubscribe': `<mailto:${this.fromEmail}?subject=unsubscribe>`,
+        },
+        // Add text version to improve deliverability
+        text: this.htmlToText(html),
+      };
+
+      await this.transporter.sendMail(mailOptions);
       
-      this.logger.log(`✅ Email sent successfully to ${to} via SendGrid API`);
+      this.logger.log(`✅ Email sent successfully to ${to} via Gmail SMTP`);
     } catch (error) {
-      this.logger.error(`Failed to send email to ${to}:`, error.response?.body || error.message);
-      throw new BadRequestException(`Failed to send email: ${error.response?.body || error.message}`);
+      this.logger.error(`Failed to send email to ${to}:`, error.message);
+      throw new BadRequestException(`Failed to send email: ${error.message}`);
     }
+  }
+
+  // Simple HTML to text converter for plain text version
+  private htmlToText(html: string): string {
+    return html
+      .replace(/<style[^>]*>.*?<\/style>/gs, '')
+      .replace(/<script[^>]*>.*?<\/script>/gs, '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/\s\s+/g, ' ')
+      .trim();
   }
 
   async sendOTP(email: string, otp: string) {
     const sanitizedEmail = this.validateAndSanitizeEmail(email);
 
-    if (!this.mailService) {
+    if (!this.transporter) {
       this.logger.log(`[DEV] OTP for ${sanitizedEmail}: ${otp}`);
       console.log(`\n📧 OTP Email to ${sanitizedEmail}:\n🔐 OTP Code: ${otp}\n`);
       return;
@@ -190,7 +226,7 @@ export class EmailService {
           </div>
           <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0;">
             <p style="margin: 0; color: #e65100; font-size: 14px;">
-              <strong>⚠� Security:</strong> This link and code will expire in <strong>15 minutes</strong>.
+              <strong>⚠️ Security:</strong> This link and code will expire in <strong>15 minutes</strong>.
             </p>
           </div>
           <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">

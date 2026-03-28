@@ -16,7 +16,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 from app.pipeline.layout import BBox, LayoutResult, TableRowReconstructor, analyze_layout
-from app.pipeline.ocr_engine import KiriOCREngine, LineResult
+from app.pipeline.ocr_engine import OCREngine, LineResult
 from app.pipeline.preprocessor import preprocess
 from app.pipeline.text_parser import (
     recompute_prescription_confidence,
@@ -28,9 +28,9 @@ logger = logging.getLogger(__name__)
 
 
 class PipelineOrchestrator:
-    """Full OCR extraction pipeline using Kiri-OCR."""
+    """Full OCR extraction pipeline supporting multiple OCR engines."""
 
-    def __init__(self, engine: KiriOCREngine, max_dimension: int = 3000):
+    def __init__(self, engine: OCREngine, max_dimension: int = 3000):
         self.engine = engine
         self.max_dimension = max_dimension
 

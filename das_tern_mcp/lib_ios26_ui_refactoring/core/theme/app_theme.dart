@@ -36,21 +36,21 @@ class AppTheme {
   /// - App bar: transparent, elevation 0
   /// - [fontFamily]: optional font family override (e.g. NotoSansKhmer for km)
   static ThemeData dark({String? fontFamily}) => ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: AppColors.meshDeep,
-        fontFamily: fontFamily,
-        colorScheme: const ColorScheme.dark(
-          primary: AppColors.primary,
-          surface: AppColors.meshMid,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-        ),
-        textTheme: _buildTextTheme(isDark: true, fontFamily: fontFamily),
-        useMaterial3: true,
-      );
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: AppColors.meshDeep,
+    fontFamily: fontFamily,
+    colorScheme: const ColorScheme.dark(
+      primary: AppColors.primary,
+      surface: AppColors.meshMid,
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+    ),
+    textTheme: _buildTextTheme(isDark: true, fontFamily: fontFamily),
+    useMaterial3: true,
+  );
 
   // ── Light theme (Req 3.2) ──────────────────────────────────────────────────
 
@@ -61,21 +61,21 @@ class AppTheme {
   /// - App bar: transparent, elevation 0
   /// - [fontFamily]: optional font family override (e.g. NotoSansKhmer for km)
   static ThemeData light({String? fontFamily}) => ThemeData(
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: AppColors.lightBackground,
-        fontFamily: fontFamily,
-        colorScheme: const ColorScheme.light(
-          primary: AppColors.primary,
-          surface: AppColors.lightSurface,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-        ),
-        textTheme: _buildTextTheme(isDark: false, fontFamily: fontFamily),
-        useMaterial3: true,
-      );
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: AppColors.lightBackground,
+    fontFamily: fontFamily,
+    colorScheme: const ColorScheme.light(
+      primary: AppColors.primary,
+      surface: AppColors.lightSurface,
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+    ),
+    textTheme: _buildTextTheme(isDark: false, fontFamily: fontFamily),
+    useMaterial3: true,
+  );
 
   // ── Private helper (Req 3.6) ───────────────────────────────────────────────
 
@@ -83,10 +83,7 @@ class AppTheme {
   ///
   /// [fontFamily] propagates to every [TextStyle] so Khmer text renders
   /// with NotoSansKhmer throughout.
-  static TextTheme _buildTextTheme({
-    required bool isDark,
-    String? fontFamily,
-  }) {
+  static TextTheme _buildTextTheme({required bool isDark, String? fontFamily}) {
     final primary = isDark
         ? AppColors.textPrimaryDark
         : AppColors.textPrimaryLight;
@@ -101,15 +98,15 @@ class AppTheme {
         s.copyWith(color: secondary, fontFamily: fontFamily);
 
     return TextTheme(
-      displayLarge:  p(AppTextStyles.displayLarge),
+      displayLarge: p(AppTextStyles.displayLarge),
       displayMedium: p(AppTextStyles.displayMedium),
       headlineLarge: p(AppTextStyles.headlineLarge),
-      headlineMedium:p(AppTextStyles.headlineMedium),
-      bodyLarge:     p(AppTextStyles.bodyLarge),
-      bodyMedium:    sec(AppTextStyles.bodyMedium),
-      bodySmall:     sec(AppTextStyles.bodySmall),
-      labelLarge:    p(AppTextStyles.labelLarge),
-      labelSmall:    sec(AppTextStyles.labelSmall),
+      headlineMedium: p(AppTextStyles.headlineMedium),
+      bodyLarge: p(AppTextStyles.bodyLarge),
+      bodyMedium: sec(AppTextStyles.bodyMedium),
+      bodySmall: sec(AppTextStyles.bodySmall),
+      labelLarge: p(AppTextStyles.labelLarge),
+      labelSmall: sec(AppTextStyles.labelSmall),
     );
   }
 }

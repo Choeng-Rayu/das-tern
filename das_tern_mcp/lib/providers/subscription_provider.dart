@@ -1,5 +1,8 @@
 import 'dart:async';
+
+import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
+
 import '../services/api_service.dart';
 import '../services/logger_service.dart';
 
@@ -13,6 +16,7 @@ import '../services/logger_service.dart';
 class SubscriptionProvider extends ChangeNotifier {
   final _api = ApiService.instance;
   final _log = LoggerService.instance;
+  final AppLinks _appLinks = AppLinks();
 
   // Subscription state
   Map<String, dynamic>? _subscription;
@@ -27,8 +31,10 @@ class SubscriptionProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isPolling = false;
   Timer? _pollingTimer;
+  StreamSubscription<Uri>? _paymentLinkSubscription;
   int _pollAttempts = 0;
   static const int _maxPollAttempts = 180; // 15 min at 5s intervals
+  bool _paymentLinkListenerStarted = false;
 
   // Getters
   Map<String, dynamic>? get subscription => _subscription;
@@ -46,7 +52,9 @@ class SubscriptionProvider extends ChangeNotifier {
       currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM';
   bool get isPlatinum => currentTier == 'FAMILY_PREMIUM';
   bool get hasOcrAccess =>
-      currentTier == 'PREMIUM' || currentTier == 'FAMILY_PREMIUM' || currentTier == 'PLATINUM';
+      currentTier == 'PREMIUM' ||
+      currentTier == 'FAMILY_PREMIUM' ||
+      currentTier == 'PLATINUM';
   bool get hasGroupPlan => currentTier == 'PLATINUM';
 
   // Trial status
@@ -137,6 +145,9 @@ class SubscriptionProvider extends ChangeNotifier {
 
       _log.info('Payment', 'Created payment: md5=$md5Hash');
 
+      // Start listening to payment return deep links once per provider lifecycle.
+      await _initPaymentReturnListener();
+
       // Start polling
       _startPolling();
 
@@ -212,6 +223,53 @@ class SubscriptionProvider extends ChangeNotifier {
     }
   }
 
+  /// Force an immediate status refresh (used on app resume/deep-link return).
+  Future<void> refreshPaymentStatusNow() async {
+    await _pollPaymentStatus();
+  }
+
+  Future<void> _initPaymentReturnListener() async {
+    if (_paymentLinkListenerStarted) {
+      return;
+    }
+    _paymentLinkListenerStarted = true;
+
+    try {
+      final initialUri = await _appLinks.getInitialLink();
+      if (initialUri != null) {
+        _handlePaymentCallbackUri(initialUri);
+      }
+    } catch (error) {
+      _log.warning(
+        'Payment',
+        'Failed reading initial payment deep link',
+        error,
+      );
+    }
+
+    _paymentLinkSubscription = _appLinks.uriLinkStream.listen(
+      (uri) {
+        _handlePaymentCallbackUri(uri);
+      },
+      onError: (error) {
+        _log.warning('Payment', 'Payment deep link stream error', error);
+      },
+    );
+  }
+
+  void _handlePaymentCallbackUri(Uri uri) {
+    if (!_isPaymentCallbackUri(uri)) {
+      return;
+    }
+
+    _log.info('Payment', 'Payment return deep link received', uri.toString());
+    unawaited(_pollPaymentStatus());
+  }
+
+  bool _isPaymentCallbackUri(Uri uri) {
+    return uri.scheme == 'dastern' && uri.host == 'payment';
+  }
+
   /// Reset payment state (e.g. when navigating away).
   void resetPayment() {
     _stopPolling();
@@ -237,7 +295,9 @@ class SubscriptionProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _log.error('Subscription', 'Failed to upgrade to Platinum', e);
-      _errorMessage = e is ApiException ? e.message : 'Failed to upgrade to Platinum.';
+      _errorMessage = e is ApiException
+          ? e.message
+          : 'Failed to upgrade to Platinum.';
       _isLoading = false;
       notifyListeners();
       return false;
@@ -279,6 +339,7 @@ class SubscriptionProvider extends ChangeNotifier {
   @override
   void dispose() {
     _stopPolling();
+    _paymentLinkSubscription?.cancel();
     super.dispose();
   }
 }

@@ -194,10 +194,7 @@ class AppButton extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      height: sizeProps.height,
-      child: button,
-    );
+    return SizedBox(height: sizeProps.height, child: button);
   }
 
   /// Build button content (text + icon + loading)
@@ -215,7 +212,8 @@ class AppButton extends StatelessWidget {
 
     final textWidget = Text(
       text,
-      style: textStyle ??
+      style:
+          textStyle ??
           TextStyle(
             fontSize: styleProps.fontSize,
             fontWeight: styleProps.fontWeight,
@@ -236,16 +234,8 @@ class AppButton extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: iconPosition == IconPosition.leading
-          ? [
-              iconWidget,
-              SizedBox(width: styleProps.iconSpacing),
-              textWidget,
-            ]
-          : [
-              textWidget,
-              SizedBox(width: styleProps.iconSpacing),
-              iconWidget,
-            ],
+          ? [iconWidget, SizedBox(width: styleProps.iconSpacing), textWidget]
+          : [textWidget, SizedBox(width: styleProps.iconSpacing), iconWidget],
     );
   }
 
@@ -270,10 +260,7 @@ class AppButton extends StatelessWidget {
               gradient: isEnabled
                   ? gradient
                   : LinearGradient(
-                      colors: [
-                        Colors.grey.shade300,
-                        Colors.grey.shade300,
-                      ],
+                      colors: [Colors.grey.shade300, Colors.grey.shade300],
                     ),
               borderRadius: BorderRadius.circular(styleProps.borderRadius),
             ),
@@ -318,9 +305,7 @@ class AppButton extends StatelessWidget {
         foregroundColor: styleProps.textColor,
         disabledForegroundColor: Colors.grey.shade600,
         side: BorderSide(
-          color: isEnabled
-              ? styleProps.borderColor
-              : Colors.grey.shade300,
+          color: isEnabled ? styleProps.borderColor : Colors.grey.shade300,
           width: styleProps.borderWidth,
         ),
         padding: styleProps.padding,
@@ -359,7 +344,9 @@ class AppButton extends StatelessWidget {
       case AppButtonSize.small:
         return _SizeProperties(
           height: 36,
-          padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding:
+              padding ??
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           fontSize: 13,
           iconSize: iconSize ?? 16,
           iconSpacing: iconSpacing ?? 6,
@@ -367,7 +354,9 @@ class AppButton extends StatelessWidget {
       case AppButtonSize.medium:
         return _SizeProperties(
           height: 48,
-          padding: padding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding:
+              padding ??
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           fontSize: 15,
           iconSize: iconSize ?? 18,
           iconSpacing: iconSpacing ?? 8,
@@ -375,7 +364,9 @@ class AppButton extends StatelessWidget {
       case AppButtonSize.large:
         return _SizeProperties(
           height: 56,
-          padding: padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding:
+              padding ??
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           fontSize: 17,
           iconSize: iconSize ?? 20,
           iconSpacing: iconSpacing ?? 10,
@@ -393,12 +384,13 @@ class AppButton extends StatelessWidget {
     final sizeProps = _getSizeProperties();
 
     // Get border radius
-    final radius = borderRadius ??
+    final radius =
+        borderRadius ??
         (shape == AppButtonShape.pill
             ? 999.0
             : shape == AppButtonShape.rounded
-                ? 12.0
-                : 4.0);
+            ? 12.0
+            : 4.0);
 
     switch (style) {
       case AppButtonStyle.filled:

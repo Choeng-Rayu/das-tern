@@ -3,6 +3,10 @@ fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 python-multipart>=0.0.6
 
+# OCR Engines
+# Tesseract OCR
+pytesseract>=0.3.10
+
 # Kiri-OCR runtime support
 # Install torch from the PyTorch CPU index and kiri-ocr with --no-deps via
 # scripts/install_cpu_runtime.sh to avoid pulling unnecessary GPU wheels.

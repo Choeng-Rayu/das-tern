@@ -17,19 +17,19 @@ class AppSpacing {
   // ── Spacing scale (dp) ─────────────────────────────────────────────────────
 
   /// 4 dp — smallest nudge, icon gaps, tight padding
-  static const double xs  = 4;
+  static const double xs = 4;
 
   /// 8 dp — compact padding, small gaps
-  static const double sm  = 8;
+  static const double sm = 8;
 
   /// 16 dp — standard content padding
-  static const double md  = 16;
+  static const double md = 16;
 
   /// 24 dp — section spacing, button horizontal padding
-  static const double lg  = 24;
+  static const double lg = 24;
 
   /// 32 dp — large section gaps
-  static const double xl  = 32;
+  static const double xl = 32;
 
   /// 48 dp — extra-large separation
   static const double xxl = 48;
@@ -37,16 +37,16 @@ class AppSpacing {
   // ── Superellipse border-radius tokens (dp) ─────────────────────────────────
 
   /// 12 dp — small elements: chips, compact badges
-  static const double radiusSm   = 12;
+  static const double radiusSm = 12;
 
   /// 20 dp — input fields, smaller cards
-  static const double radiusMd   = 20;
+  static const double radiusMd = 20;
 
   /// 28 dp — standard cards, panels
-  static const double radiusLg   = 28;
+  static const double radiusLg = 28;
 
   /// 36 dp — large panels, sheet headers
-  static const double radiusXl   = 36;
+  static const double radiusXl = 36;
 
   /// 100 dp — pill shape: buttons, bottom nav, full-circle badges
   static const double radiusFull = 100;

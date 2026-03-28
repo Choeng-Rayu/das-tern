@@ -18,9 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CinematicSplashAnimation(
-        onAnimationComplete: _navigateAfterSplash,
-      ),
+      body: CinematicSplashAnimation(onAnimationComplete: _navigateAfterSplash),
     );
   }
 

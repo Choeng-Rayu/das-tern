@@ -254,6 +254,7 @@ class DoseDetailSheet extends StatelessWidget {
   final DoseEvent dose;
   final bool isTaken;
   final VoidCallback onMarkTaken;
+
   /// If provided, a "Mark as Pending" button is shown for taken doses.
   final VoidCallback? onMarkUntaken;
 

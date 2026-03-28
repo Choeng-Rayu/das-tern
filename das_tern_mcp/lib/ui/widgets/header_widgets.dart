@@ -12,6 +12,7 @@ class PatientHeader extends StatelessWidget {
     this.onNotificationTap,
     this.unreadCount = 0,
     this.title,
+
     /// Override back-button visibility.
     /// - `null` (default): show back button only if [Navigator.canPop] is true.
     /// - `false`: never show a back button (use on main tab screens).
