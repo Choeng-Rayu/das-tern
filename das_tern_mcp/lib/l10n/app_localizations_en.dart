@@ -3065,6 +3065,119 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pdfReady => 'Report PDF is ready';
 
   @override
+  String get loadingMonitoringHealth => 'Monitoring your health...';
+
+  @override
+  String get loadingMedications => 'Loading medications...';
+
+  @override
+  String get loadingProcessing => 'Processing...';
+
+  @override
+  String get loadingPleaseWait => 'Please wait...';
+
+  @override
+  String get loadingDemoTitle => 'Loading Indicators Demo';
+
+  @override
+  String get loadingDemoDescription =>
+      'Interactive demo of all loading animation variants for the DasTern medication management app.';
+
+  @override
+  String get loadingLivePreview => 'Live Preview';
+
+  @override
+  String get loadingAnimationVariant => 'Animation Variant';
+
+  @override
+  String get loadingVariantHeartbeat => 'Heartbeat Pulse';
+
+  @override
+  String get loadingVariantHeartbeatDesc =>
+      'ECG-style heartbeat with pulsing glow';
+
+  @override
+  String get loadingVariantPills => 'Rotating Pills';
+
+  @override
+  String get loadingVariantPillsDesc => 'Pills orbiting around medical icon';
+
+  @override
+  String get loadingVariantMedicalCross => 'Medical Cross';
+
+  @override
+  String get loadingVariantMedicalCrossDesc =>
+      'Pulsing cross with shimmer particles';
+
+  @override
+  String get loadingVariantProgressRing => 'Progress Ring';
+
+  @override
+  String get loadingVariantProgressRingDesc =>
+      'Circular progress with medical bag icon';
+
+  @override
+  String get loadingSize => 'Size';
+
+  @override
+  String get loadingSizeSmall => 'Small';
+
+  @override
+  String get loadingSizeMedium => 'Medium';
+
+  @override
+  String get loadingSizeLarge => 'Large';
+
+  @override
+  String get loadingSizeXLarge => 'X-Large';
+
+  @override
+  String get loadingOptions => 'Options';
+
+  @override
+  String get loadingShowMessage => 'Show Message';
+
+  @override
+  String get loadingShowMessageDesc => 'Display text below indicator';
+
+  @override
+  String get loadingFullscreenExamples => 'Fullscreen Overlay Examples';
+
+  @override
+  String get loadingShowHeartbeatOverlay => 'Show Heartbeat Overlay';
+
+  @override
+  String get loadingShowPillsOverlay => 'Show Pills Overlay';
+
+  @override
+  String get loadingShowMedicalCrossOverlay => 'Show Medical Cross Overlay';
+
+  @override
+  String get loadingShowProgressRingOverlay => 'Show Progress Ring Overlay';
+
+  @override
+  String get loadingServiceIntegration => 'Loading Service Integration';
+
+  @override
+  String get loadingServiceIntegrationDesc =>
+      'The LoadingOverlayService allows you to show loading states from anywhere in your app.';
+
+  @override
+  String get loadingSimulateAsyncOperation => 'Simulate Async Operation';
+
+  @override
+  String get loadingOperationCompleted => 'Operation completed!';
+
+  @override
+  String get loadingAllVariantsInline => 'All Variants (Inline)';
+
+  @override
+  String get loadingUsageExample => 'Usage Example';
+
+  @override
+  String get loadingSimulatingOperation => 'Simulating async operation...';
+
+  @override
   String get healthReport => 'Health Report';
 
   @override
