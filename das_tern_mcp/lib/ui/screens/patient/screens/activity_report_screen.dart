@@ -109,12 +109,8 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
         doses: doseProvider.history,
         healthVitals: healthProvider.vitals,
         adherenceData: {
-          'weeklyPercentage':
-              (adherenceProvider.weeklyAdherence?['percentage'] as num?)
-                  ?.toDouble(),
-          'monthlyPercentage':
-              (adherenceProvider.monthlyAdherence?['percentage'] as num?)
-                  ?.toDouble(),
+          'weeklyPercentage': (adherenceProvider.weeklyAdherence?['percentage'] as num?)?.toDouble(),
+          'monthlyPercentage': (adherenceProvider.monthlyAdherence?['percentage'] as num?)?.toDouble(),
           'todayTaken': adherenceProvider.todayTaken,
           'todayTotal': adherenceProvider.todayTotal,
           'weeklyDays': adherenceProvider.weeklyAdherence?['days'],
@@ -227,8 +223,8 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
                 await Share.shareXFiles(
                   [XFile(file.path)],
                   sharePositionOrigin: box != null
-                      ? (box.localToGlobal(Offset.zero) & box.size)
-                      : null,
+                    ? (box.localToGlobal(Offset.zero) & box.size)
+                    : null,
                 );
               },
             ),
@@ -262,9 +258,7 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
     final patientName = _reportData?.patient.fullName ?? 'Patient';
     final date = DateFormat('yyyyMMdd').format(DateTime.now());
     // Clean patient name for filename (remove spaces and special characters)
-    final cleanName = patientName
-        .replaceAll(RegExp(r'[^\w]'), '_')
-        .toLowerCase();
+    final cleanName = patientName.replaceAll(RegExp(r'[^\w]'), '_').toLowerCase();
     return 'dastern_report_${cleanName}_$date.pdf';
   }
 
@@ -332,11 +326,8 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
     final health = context.watch<HealthMonitoringProvider>();
     final cs = Theme.of(context).colorScheme;
 
-    final isLoading =
-        adherence.isLoading ||
-        dose.isLoading ||
-        prescription.isLoading ||
-        health.isLoading;
+    final isLoading = adherence.isLoading || dose.isLoading ||
+                      prescription.isLoading || health.isLoading;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -385,13 +376,14 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
 
                   // 2. Assigned Doctor Card (if available)
                   if (prescription.prescriptions.isNotEmpty &&
-                      prescription.prescriptions.first.doctor != null) ...[
-                    _AssignedDoctorCard(
-                      doctor: prescription.prescriptions.first.doctor!,
-                      l10n: l10n,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                  ],
+                      prescription.prescriptions.first.doctor != null)
+                    ...[
+                      _AssignedDoctorCard(
+                        doctor: prescription.prescriptions.first.doctor!,
+                        l10n: l10n,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                    ],
 
                   // 3. Medication Summary Section
                   if (prescription.prescriptions.isNotEmpty) ...[
@@ -424,8 +416,7 @@ class _ActivityReportScreenState extends State<ActivityReportScreen> {
                 ],
               ),
             ),
-      bottomNavigationBar:
-          _reportData != null && !_isLoadingReportData && !isLoading
+      bottomNavigationBar: _reportData != null && !_isLoadingReportData && !isLoading
           ? _buildBottomActionBar(l10n)
           : null,
     );
@@ -953,8 +944,8 @@ class _DoseHistorySection extends StatelessWidget {
                   Text(
                     l10n.noHistoryYet,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
+                          color: cs.onSurfaceVariant,
+                        ),
                   ),
                 ],
               ),
@@ -975,9 +966,9 @@ class _DoseHistorySection extends StatelessWidget {
                   child: Text(
                     dateKey,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface,
-                    ),
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
                   ),
                 ),
                 // Doses for this date
@@ -1711,7 +1702,9 @@ class _PatientHeaderCard extends StatelessWidget {
     return Card(
       elevation: 0,
       color: cs.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Row(
@@ -1735,31 +1728,31 @@ class _PatientHeaderCard extends StatelessWidget {
                   Text(
                     displayName,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface,
-                    ),
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
                   ),
                   const SizedBox(height: 4),
                   if (dateOfBirth != null)
                     Text(
                       '${l10n.dateOfBirth}: ${DateFormat.yMMMd().format(dateOfBirth)}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
+                            color: cs.onSurfaceVariant,
+                          ),
                     ),
                   if (age != null)
                     Text(
                       '${l10n.age}: $age ${l10n.yearsUnit}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
+                            color: cs.onSurfaceVariant,
+                          ),
                     ),
                   if (gender != null)
                     Text(
                       '${l10n.gender}: $gender',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
+                            color: cs.onSurfaceVariant,
+                          ),
                     ),
                 ],
               ),
@@ -1816,9 +1809,7 @@ class _AssignedDoctorCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundColor: AppColors.successGreen.withValues(
-                    alpha: 0.12,
-                  ),
+                  backgroundColor: AppColors.successGreen.withValues(alpha: 0.12),
                   child: const Icon(
                     Icons.medical_services_outlined,
                     color: AppColors.successGreen,
@@ -1832,8 +1823,7 @@ class _AssignedDoctorCard extends StatelessWidget {
                     children: [
                       Text(
                         doctorName,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: cs.onSurface,
                             ),
@@ -1842,16 +1832,18 @@ class _AssignedDoctorCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           specialty,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: cs.onSurfaceVariant),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
                         ),
                       ],
                       if (hospitalClinic.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
                           hospitalClinic,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: cs.onSurfaceVariant),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
                         ),
                       ],
                     ],
@@ -1942,9 +1934,9 @@ class _MedicationCard extends StatelessWidget {
             Text(
               medication.medicineName,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: cs.onSurface,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface,
+                  ),
             ),
             const SizedBox(height: AppSpacing.sm),
 
@@ -2048,8 +2040,8 @@ class _MedicationCard extends StatelessWidget {
                       child: Text(
                         medication.additionalNote!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
+                              color: cs.onSurfaceVariant,
+                            ),
                       ),
                     ),
                   ],
@@ -2088,9 +2080,9 @@ class _InfoRow extends StatelessWidget {
           Expanded(
             child: RichText(
               text: TextSpan(
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
                 children: [
                   TextSpan(
                     text: '$label: ',
@@ -2148,8 +2140,9 @@ class _HealthVitalsSection extends StatelessWidget {
                           Text(
                             l10n.noVitalsRecorded,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: cs.onSurfaceVariant),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
                           ),
                         ],
                       ),
@@ -2205,24 +2198,24 @@ class _VitalRow extends StatelessWidget {
               Text(
                 vital.vitalType.displayName,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: cs.onSurface,
-                ),
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
+                    ),
               ),
               const SizedBox(height: 2),
               Text(
                 '${vital.displayValue} ${vital.unit}',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: cs.onSurface,
-                  fontWeight: FontWeight.bold,
-                ),
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 2),
               Text(
                 formattedDate,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
               ),
             ],
           ),
@@ -2282,15 +2275,15 @@ class _ReportTimestampFooter extends StatelessWidget {
                 Text(
                   'Report generated on:',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: cs.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 Text(
                   formattedDate,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
                 ),
               ],
             ),
@@ -2298,9 +2291,9 @@ class _ReportTimestampFooter extends StatelessWidget {
           Text(
             'Das Tern v1.0.0',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: cs.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-            ),
+                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),
