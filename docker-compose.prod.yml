@@ -1,8 +1,29 @@
 ##############################################################
 #  docker-compose.prod.yml — Production deployment
 #  Domain: dastern.site  |  VPS: 167.71.194.68
-#  Services: postgres, redis, rabbitmq, minio, backend, ocr, ai-llm
-#  NOT included: bakong_payment, flutter
+#  Architecture: Unified deployment with shared infrastructure
+#
+#  INFRASTRUCTURE (Shared):
+#    - postgres:5432  → Shared database for ALL services
+#    - redis:6379     → Shared cache/sessions for ALL services
+#    - rabbitmq:5672  → Message queue (backend, future services)
+#    - minio:9000     → Object storage (backend)
+#
+  #  APPLICATION SERVICES:
+  #    - backend:3001        → Main NestJS API (api.dastern.site)
+  #    - ocr:8000           → OCR processing (internal only)
+  #    - ai-llm:8001        → AI/LLM service (internal only)
+  #    - bakong-payment:3002 → Bakong payment service (internal only)
+  #
+  #  REVERSE PROXY:
+  #    - nginx:80/443       → Reverse proxy for api.dastern.site
+  #
+  #  NETWORK ARCHITECTURE:
+  #    - All services in 'dastern-network' for internal communication
+  #    - Only Nginx exposes ports 80/443 to public internet
+  #    - Application services only exposed to Docker network (no host binding)
+  #    - Inter-service URLs use Docker service names (e.g., http://bakong-payment:3002)
+  #    - External clients access ONLY api.dastern.site through Nginx
 ##############################################################
 
 services:
@@ -136,13 +157,13 @@ services:
       # OAuth callbacks — production subdomain
       GOOGLE_CALLBACK_URL: "https://api.dastern.site/api/v1/auth/google/callback"
       TELEGRAM_OAUTH_REDIRECT_URI: "https://api.dastern.site/api/v1/auth/telegram/callback"
-      # Bakong payment — separate VPS (payment.dastern.site)
-      BAKONG_SERVICE_URL: "https://payment.dastern.site"
+      # Bakong payment — internal Docker network communication
+      BAKONG_SERVICE_URL: "http://bakong-payment:3002"
       # CORS — allow subdomains
-      ALLOWED_ORIGINS: "https://api.dastern.site,https://ocr.dastern.site,https://ai.dastern.site,https://payment.dastern.site"
+      ALLOWED_ORIGINS: "https://api.dastern.site"
       TZ: Asia/Phnom_Penh
-    ports:
-      - "127.0.0.1:3001:3001"
+    expose:
+      - "3001"
     depends_on:
       postgres:
         condition: service_healthy
@@ -168,8 +189,8 @@ services:
       PORT: "8000"
       MAX_UPLOAD_SIZE_MB: "10"
       TZ: Asia/Phnom_Penh
-    ports:
-      - "127.0.0.1:8000:8000"
+    expose:
+      - "8000"
     networks:
       - dastern-network
     healthcheck:
@@ -191,8 +212,8 @@ services:
       PYTHONUNBUFFERED: "1"
       PYTHONPATH: /app
       TZ: Asia/Phnom_Penh
-    ports:
-      - "127.0.0.1:8001:8001"
+    expose:
+      - "8001"
     networks:
       - dastern-network
     healthcheck:
@@ -202,6 +223,111 @@ services:
       retries: 3
       start_period: 60s
 
+  # ─────────────────────────────────────────────────
+  # Bakong Payment Service
+  # ─────────────────────────────────────────────────
+  # Uses SHARED postgres and redis from infrastructure above
+  # Database: Creates 'bakong_payment' schema in shared postgres
+  # Port: 3002 (exposed via Nginx at payment.dastern.site)
+  # Internal URL: http://bakong-payment:3002 (used by backend)
+
+  bakong-payment:
+    build:
+      context: ./bakong_payment
+      dockerfile: Dockerfile
+    container_name: dastern-bakong-payment
+    restart: unless-stopped
+    env_file:
+      - ./bakong_payment/.env
+    environment:
+      NODE_ENV: production
+      PORT: "3002"
+      # Database — Uses SHARED postgres instance with separate database/schema
+      # Note: Must use service name 'postgres' NOT 'localhost'
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-dastern_user}:${POSTGRES_PASSWORD}@postgres:5432/bakong_payment?schema=public"
+      # Redis — Uses SHARED redis instance
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      # Bakong API credentials (from bakong_payment/.env)
+      BAKONG_MERCHANT_ID: "${BAKONG_MERCHANT_ID}"
+      BAKONG_PHONE_NUMBER: "${BAKONG_PHONE_NUMBER}"
+      BAKONG_DEVELOPER_TOKEN: "${BAKONG_DEVELOPER_TOKEN}"
+      BAKONG_API_URL: "${BAKONG_API_URL}"
+      DEFAULT_MERCHANT_NAME: "${DEFAULT_MERCHANT_NAME}"
+      DEFAULT_MERCHANT_CITY: "${DEFAULT_MERCHANT_CITY}"
+      # Backend integration
+      MAIN_BACKEND_API_KEY: "${MAIN_BACKEND_API_KEY}"
+      MAIN_BACKEND_WEBHOOK_URL: "http://backend:3001/api/v1/webhooks/bakong"
+      WEBHOOK_SECRET: "${WEBHOOK_SECRET}"
+      ENCRYPTION_KEY: "${ENCRYPTION_KEY}"
+      # Pricing
+      PREMIUM_PRICE: "${PREMIUM_PRICE}"
+      FAMILY_PREMIUM_PRICE: "${FAMILY_PREMIUM_PRICE}"
+      # CORS — allow all subdomains
+      CORS_ORIGIN: "https://api.dastern.site,https://dastern.site"
+      TZ: Asia/Phnom_Penh
+    expose:
+      - "3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dastern-network
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('net').createConnection({port:3002}).on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    volumes:
+      - bakong_public:/app/public
+      - bakong_logs:/app/logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ─────────────────────────────────────────────────
+  # Nginx Reverse Proxy
+  # ─────────────────────────────────────────────────
+  # Handles public HTTPS traffic for api.dastern.site
+  # Routes requests to backend:3001 (only public-facing service)
+  # All other services remain internal to Docker network
+
+  nginx:
+    image: nginx:alpine
+    container_name: dastern-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on:
+      - backend
+      - ocr
+      - ai-llm
+      - bakong-payment
+    networks:
+      - dastern-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   postgres_data:
     driver: local
@@ -210,6 +336,10 @@ volumes:
   rabbitmq_data:
     driver: local
   minio_data:
+    driver: local
+  bakong_public:
+    driver: local
+  bakong_logs:
     driver: local
 
 networks:
