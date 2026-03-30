@@ -4,7 +4,10 @@ import '../services/api_service.dart';
 
 /// Manages family connections, tokens, nudges, and caregiver access.
 class ConnectionProvider extends ChangeNotifier {
-  final ApiService _api = ApiService.instance;
+  final ApiService _api;
+
+  ConnectionProvider({ApiService? apiService})
+    : _api = apiService ?? ApiService.instance;
 
   bool _isLoading = false;
   String? _error;

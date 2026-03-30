@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_spacing.dart';
 import '../../widgets/auth_widgets.dart';
 import '../../widgets/language_switcher.dart';
 
@@ -44,22 +46,22 @@ class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1976D2).withValues(alpha: 0.1),
+                      color: AppColors.primaryBlue.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.people_alt_rounded,
-                      color: Color(0xFF1976D2),
+                      color: AppColors.primaryBlue,
                       size: 40,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.md),
 
                   // Title
                   Text(
                     l10n.selectRoleTitle,
                     style: const TextStyle(
-                      color: Color(0xFF0D1B2A),
+                      color: AppColors.textPrimary,
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.5,
@@ -67,13 +69,13 @@ class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: AppSpacing.sm),
 
                   // Subtitle
                   Text(
                     l10n.selectRoleSubtitle,
                     style: const TextStyle(
-                      color: Color(0xFF6B7280),
+                      color: AppColors.textSecondary,
                       fontSize: 15,
                       fontWeight: FontWeight.w400,
                       height: 1.5,
@@ -97,7 +99,7 @@ class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
                     Navigator.of(context).pushNamed('/register/patient'),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
 
             // ── Doctor card ──
             Padding(
@@ -118,7 +120,7 @@ class _RegisterRoleScreenState extends State<RegisterRoleScreen> {
               actionText: l10n.signIn,
               onTap: () => Navigator.of(context).pop(),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: AppSpacing.xl),
           ],
         ),
       ),
@@ -151,12 +153,12 @@ class _RoleCard extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
+            colors: [AppColors.primaryBlue, Color(0xFF4069DE)],
           ),
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1B7EDB).withValues(alpha: 0.35),
+              color: AppColors.primaryBlue.withValues(alpha: 0.35),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),

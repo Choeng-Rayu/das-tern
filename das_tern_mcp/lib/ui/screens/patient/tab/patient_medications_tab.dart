@@ -7,7 +7,7 @@ import '../../../../providers/prescription_provider.dart';
 import '../../../../providers/batch_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
-import '../../../../utils/app_router.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../widgets/common_widgets.dart';
 import '../../../widgets/dose_task_card.dart';
 import '../../../widgets/header_widgets.dart';

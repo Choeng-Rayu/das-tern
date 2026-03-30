@@ -5,7 +5,10 @@ import '../models/health_model/health_alert.dart';
 import '../services/api_service.dart';
 
 class HealthMonitoringProvider extends ChangeNotifier {
-  final ApiService _api = ApiService.instance;
+  HealthMonitoringProvider({ApiService? apiService})
+    : _api = apiService ?? ApiService.instance;
+
+  final ApiService _api;
 
   bool _isLoading = false;
   String? _error;

@@ -179,13 +179,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     width: iconSize,
                     height: iconSize,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE3F2FD),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlue.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.medical_services_rounded,
-                      color: const Color(0xFF1976D2),
+                      color: AppColors.primaryBlue,
                       size: iconInnerSize,
                     ),
                   ),
@@ -193,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     l10n.signIn,
                     style: TextStyle(
-                      color: const Color(0xFF111111),
+                      color: AppColors.textPrimary,
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
                     ),
@@ -203,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     l10n.welcomeMessage,
                     style: const TextStyle(
-                      color: Color(0xFF888888),
+                      color: AppColors.textSecondary,
                       fontSize: 13,
                     ),
                     textAlign: TextAlign.center,
@@ -281,7 +281,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Text(
                           l10n.forgotPassword,
                           style: const TextStyle(
-                            color: Color(0xFF2196F3),
+                            color: AppColors.primaryBlue,
                             fontSize: 12,
                           ),
                         ),
@@ -301,7 +301,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: auth.isLoading ? null : _handleLogin,
                       isLoading: auth.isLoading,
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
+                        colors: [AppColors.primaryBlue, Color(0xFF4069DE)],
                       ),
                       shape: AppButtonShape.pill,
                       size: AppButtonSize.large,
@@ -317,7 +317,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: EdgeInsets.symmetric(horizontal: hPad),
               child: Row(
                 children: [
-                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+                  const Expanded(child: Divider(color: AppColors.neutral300)),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.md,
@@ -325,12 +325,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text(
                       l10n.orDivider,
                       style: const TextStyle(
-                        color: Color(0xFFAAAAAA),
+                        color: AppColors.neutralGray,
                         fontSize: 12,
                       ),
                     ),
                   ),
-                  const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+                  const Expanded(child: Divider(color: AppColors.neutral300)),
                 ],
               ),
             ),
@@ -350,16 +350,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF333333),
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF333333),
+                    foregroundColor: AppColors.textPrimary,
                     backgroundColor: Colors.white,
-                    side: const BorderSide(
-                      color: Color(0xFFE0E0E0),
-                      width: 1.5,
-                    ),
+                    side: const BorderSide(color: AppColors.neutral300, width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
                     ),
@@ -387,16 +384,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF333333),
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF333333),
+                    foregroundColor: AppColors.textPrimary,
                     backgroundColor: Colors.white,
-                    side: const BorderSide(
-                      color: Color(0xFFE0E0E0),
-                      width: 1.5,
-                    ),
+                    side: const BorderSide(color: AppColors.neutral300, width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
                     ),

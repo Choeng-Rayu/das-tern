@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import 'app_glass_panel.dart';
 
 /// Light background scaffold used across all auth screens.
 class AuthGradientScaffold extends StatelessWidget {
@@ -10,9 +12,93 @@ class AuthGradientScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC),
-      body: SafeArea(child: child),
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark
+                ? const [Color(0xFF10131A), Color(0xFF171B24), Color(0xFF0F1218)]
+                : const [Color(0xFFF2F2F7), Color(0xFFEFF3FB), Color(0xFFF6F8FC)],
+          ),
+        ),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              const Positioned(
+                top: -120,
+                right: -80,
+                child: _AuthOrb(
+                  size: 300,
+                  color: AppColors.primaryBlue,
+                  opacity: 0.14,
+                ),
+              ),
+              const Positioned(
+                top: 220,
+                left: -110,
+                child: _AuthOrb(
+                  size: 240,
+                  color: AppColors.successGreen,
+                  opacity: 0.08,
+                ),
+              ),
+              const Positioned(
+                bottom: -130,
+                right: -100,
+                child: _AuthOrb(
+                  size: 280,
+                  color: AppColors.darkBlue,
+                  opacity: 0.1,
+                ),
+              ),
+              child,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AuthOrb extends StatelessWidget {
+  final double size;
+  final Color color;
+  final double opacity;
+
+  const _AuthOrb({
+    required this.size,
+    required this.color,
+    required this.opacity,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              color.withValues(alpha: opacity),
+              color.withValues(alpha: 0.0),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: opacity * 0.8),
+              blurRadius: 64,
+              spreadRadius: 8,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -33,6 +119,8 @@ class AuthHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.lg,
@@ -41,53 +129,63 @@ class AuthHeader extends StatelessWidget {
       child: Row(
         children: [
           if (showBackButton) ...[
-            GestureDetector(
-              onTap: onBack ?? () => Navigator.of(context).pop(),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE0E0E0)),
-                ),
-                child: const Icon(
-                  Icons.arrow_back,
-                  color: Color(0xFF333333),
-                  size: 16,
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: AppGlassPanel(
+                borderRadius: 14,
+                blurRadius: 16,
+                child: GestureDetector(
+                  onTap: onBack ?? () => Navigator.of(context).pop(),
+                  child: Center(
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: isDark ? Colors.white : AppColors.textPrimary,
+                      size: 18,
+                    ),
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
           ],
-          GestureDetector(
-            onTap: () => Navigator.of(
-              context,
-            ).pushNamedAndRemoveUntil('/welcome', (route) => false),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(shape: BoxShape.circle),
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/doctorLogo.png',
-                      fit: BoxFit.cover,
+          AppGlassPanel(
+            borderRadius: 18,
+            blurRadius: 18,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            child: GestureDetector(
+              onTap: () => Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/welcome', (route) => false),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 30,
+                    height: 30,
+                    decoration: const BoxDecoration(shape: BoxShape.circle),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/doctorLogo.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  AppLocalizations.of(context)?.appTitle ?? 'DasTern',
-                  style: const TextStyle(
-                    color: Color(0xFF111111),
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    AppLocalizations.of(context)?.appTitle ?? 'DasTern',
+                    style: TextStyle(
+                      color: isDark ? Colors.white : AppColors.textPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           const Spacer(),
@@ -107,24 +205,41 @@ class AuthFieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          text,
-          style: const TextStyle(
-            color: Color(0xFF666666),
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: AppGlassPanel(
+        borderRadius: 14,
+        blurRadius: 10,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xs,
         ),
-        if (suffix != null) ...[
-          const SizedBox(width: 4),
-          Text(
-            suffix!,
-            style: const TextStyle(color: Color(0xFFBBBBBB), fontSize: 12),
-          ),
-        ],
-      ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              text,
+              style: TextStyle(
+                color: isDark ? Colors.white70 : AppColors.textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (suffix != null) ...[
+              const SizedBox(width: 4),
+              Text(
+                suffix!,
+                style: TextStyle(
+                  color: isDark ? Colors.white54 : AppColors.neutral400,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
@@ -152,40 +267,60 @@ class AuthTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
       maxLength: maxLength,
-      style: const TextStyle(color: Color(0xFF333333), fontSize: 13),
+      style: TextStyle(
+        color: isDark ? Colors.white : AppColors.textPrimary,
+        fontSize: 13,
+      ),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: Color(0xFFBBBBBB), fontSize: 13),
+        hintStyle: TextStyle(
+          color: isDark ? Colors.white54 : AppColors.neutral400,
+          fontSize: 13,
+        ),
         counterText: '',
         filled: true,
-        fillColor: Colors.white,
+        fillColor: isDark
+            ? Colors.white.withValues(alpha: 0.14)
+            : Colors.white.withValues(alpha: 0.55),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE8EAF0), width: 1.5),
+          borderRadius: BorderRadius.circular(AppRadius.full),
+          borderSide: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.25)
+                : AppColors.neutral300,
+            width: 1.2,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE8EAF0), width: 1.5),
+          borderRadius: BorderRadius.circular(AppRadius.full),
+          borderSide: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.25)
+                : AppColors.neutral300,
+            width: 1.2,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF2196F3), width: 1.5),
+          borderRadius: BorderRadius.circular(AppRadius.full),
+          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.5),
+          borderRadius: BorderRadius.circular(AppRadius.full),
+          borderSide: const BorderSide(color: AppColors.alertRed, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.5),
+          borderRadius: BorderRadius.circular(AppRadius.full),
+          borderSide: const BorderSide(color: AppColors.alertRed, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
+          horizontal: AppSpacing.md,
           vertical: 14,
         ),
         suffixIcon: suffixIcon,
@@ -211,18 +346,33 @@ class AuthPrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDisabled = isLoading || onPressed == null;
+
     return SizedBox(
       width: double.infinity,
       height: 48,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: isDisabled
-              ? null
-              : const LinearGradient(
-                  colors: [Color(0xFF2196F3), Color(0xFF1976D2)],
-                ),
-          color: isDisabled ? const Color(0xFF90CAF9) : null,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDisabled
+                ? [
+                    AppColors.primaryBlue.withValues(alpha: 0.35),
+                    AppColors.primaryBlue.withValues(alpha: 0.25),
+                  ]
+                : const [AppColors.primaryBlue, Color(0xFF4069DE)],
+          ),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: isDisabled ? 0.25 : 0.35),
+          ),
           borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryBlue.withValues(alpha: isDisabled ? 0.06 : 0.24),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
         child: ElevatedButton(
           onPressed: isLoading ? null : onPressed,
@@ -273,30 +423,46 @@ class AuthLinkRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          message,
-          style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Center(
+      child: AppGlassPanel(
+        borderRadius: 20,
+        blurRadius: 12,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.xs,
         ),
-        TextButton(
-          onPressed: onTap,
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          child: Text(
-            actionText,
-            style: const TextStyle(
-              color: Color(0xFF2196F3),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              message,
+              style: TextStyle(
+                color: isDark ? Colors.white70 : AppColors.textSecondary,
+                fontSize: 13,
+              ),
             ),
-          ),
+            TextButton(
+              onPressed: onTap,
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                actionText,
+                style: const TextStyle(
+                  color: AppColors.primaryBlue,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -309,21 +475,23 @@ class AuthErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppGlassPanel(
+      borderRadius: 16,
+      blurRadius: 14,
+      tint: AppColors.alertRed.withValues(alpha: 0.22),
       padding: const EdgeInsets.all(AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFEBEE),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: const Color(0xFFEF9A9A)),
-      ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: Color(0xFFE53935), size: 18),
+          const Icon(Icons.error_outline, color: AppColors.alertRed, size: 18),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(color: Color(0xFFE53935), fontSize: 13),
+              style: const TextStyle(
+                color: AppColors.alertRed,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -347,33 +515,46 @@ class AuthStepIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       children: [
         Text(
           stepLabel,
-          style: const TextStyle(
-            color: Color(0xFF888888),
+          style: TextStyle(
+            color: isDark ? Colors.white70 : AppColors.textSecondary,
             fontSize: 11,
             letterSpacing: 0.5,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
-        Row(
-          children: List.generate(totalSteps, (i) {
-            final isActive = i <= currentStep;
-            return Expanded(
-              child: Container(
-                height: 4,
-                margin: EdgeInsets.only(right: i < totalSteps - 1 ? 6 : 0),
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? const Color(0xFF2196F3)
-                      : const Color(0xFFE0E0E0),
-                  borderRadius: BorderRadius.circular(2),
+        AppGlassPanel(
+          borderRadius: 18,
+          blurRadius: 10,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.sm,
+          ),
+          child: Row(
+            children: List.generate(totalSteps, (i) {
+              final isActive = i <= currentStep;
+              return Expanded(
+                child: Container(
+                  height: 6,
+                  margin: EdgeInsets.only(right: i < totalSteps - 1 ? 6 : 0),
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? AppColors.primaryBlue
+                        : (isDark
+                              ? Colors.white24
+                              : AppColors.neutral300),
+                    borderRadius: BorderRadius.circular(AppRadius.full),
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
       ],
     );

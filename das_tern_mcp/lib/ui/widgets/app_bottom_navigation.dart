@@ -1,8 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
-import 'app_glass_panel.dart';
 
 /// Configuration for a navigation tab item.
 ///
@@ -221,8 +222,7 @@ class AppBottomNavigation extends StatelessWidget {
   static const double _maxExpandedWidthCap = 120.0;
 
   /// Visual height of the pill panel including vertical padding.
-  static const double _panelHeight =
-      _prominentButtonSize + (AppSpacing.sm * 2);
+  static const double _panelHeight = _prominentButtonSize + (AppSpacing.sm * 2);
 
   @override
   Widget build(BuildContext context) {
@@ -267,41 +267,89 @@ class AppBottomNavigation extends StatelessWidget {
           left: AppSpacing.md,
           right: AppSpacing.md,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AppGlassPanel(
-              // Pill shape with full border radius
-              borderRadius: _radiusFull,
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.sm,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(items.length, (index) {
-                  final item = items[index];
-                  if (item.isProminent) {
-                    return _ProminentNavItem(
-                      index: index,
-                      item: item,
-                      activeColor: activeColor,
-                      onTap: onTap,
-                    );
-                  }
-                  return _ExpandingNavItem(
+        child: Center(
+          child: _TranslucentGlassBar(
+            // Pill shape with full border radius
+            borderRadius: _radiusFull,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.sm,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(items.length, (index) {
+                final item = items[index];
+                if (item.isProminent) {
+                  return _ProminentNavItem(
                     index: index,
                     item: item,
-                    currentIndex: currentIndex,
                     activeColor: activeColor,
-                    inactiveColor: inactiveColor,
-                    maxExpandedWidth: maxExpandedWidth,
                     onTap: onTap,
                   );
-                }),
-              ),
+                }
+                return _ExpandingNavItem(
+                  index: index,
+                  item: item,
+                  currentIndex: currentIndex,
+                  activeColor: activeColor,
+                  inactiveColor: inactiveColor,
+                  maxExpandedWidth: maxExpandedWidth,
+                  onTap: onTap,
+                );
+              }),
             ),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A highly translucent glass bar for the bottom navigation.
+///
+/// This is a custom variant of [AppGlassPanel] with:
+/// - **Very low opacity fill**: 12% white (light) / 6% white (dark) for maximum transparency
+/// - **High blur**: 30dp blur so content behind is visible but frosted
+/// - **No shadow**: Clean floating glass appearance
+/// - **No outer container**: Direct glass effect without extra wrappers
+class _TranslucentGlassBar extends StatelessWidget {
+  const _TranslucentGlassBar({
+    required this.child,
+    required this.borderRadius,
+    this.padding,
+  });
+
+  final Widget child;
+  final double borderRadius;
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Very low opacity for maximum content visibility through blur
+    final glassFillColor = isDark
+        ? Colors.white.withValues(alpha: 0.06) // 6% white for dark mode
+        : Colors.white.withValues(alpha: 0.12); // 12% white for light mode
+
+    // Very subtle border for glass edge definition
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : Colors.black.withValues(alpha: 0.05);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: BackdropFilter(
+        // High blur so content behind is visible but frosted
+        filter: ImageFilter.blur(sigmaX: 30.0, sigmaY: 30.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: glassFillColor,
+            borderRadius: BorderRadius.circular(borderRadius),
+            border: Border.all(color: borderColor, width: 0.5),
+          ),
+          padding: padding,
+          child: child,
         ),
       ),
     );

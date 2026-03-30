@@ -4,7 +4,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
 import '../../../../providers/subscription_provider.dart';
-import '../../../../utils/app_router.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/theme_provider.dart';

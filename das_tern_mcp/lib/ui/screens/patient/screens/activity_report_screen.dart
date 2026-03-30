@@ -20,7 +20,7 @@ import '../../../../providers/auth_provider.dart';
 import '../../../../providers/prescription_provider.dart';
 import '../../../../providers/health_monitoring_provider.dart';
 import '../../../../services/patient_report_pdf_service.dart';
-import '../../../../utils/app_router.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/language_switcher.dart';

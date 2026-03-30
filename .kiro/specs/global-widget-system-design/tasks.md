@@ -7,7 +7,7 @@ Implement the RxCam global widget system in Flutter — design tokens, 13 reusab
 ## Tasks
 
 - [x] 1. Phase 1 — Design Token System
-  - [x] 1.1 Create `lib/core/theme/app_colors.dart`
+  - [✅] 1.1 Create `lib/core/theme/app_colors.dart`
     - Implement `AppColors` static class with all shared tokens: `primary` (`#009DFF`), `primaryDark`, `primaryLight`, semantic colours (`success`, `danger`, `warning`, `info`), glass tints (`glassPrimary`, `glassDanger`)
     - Add dark-mode tokens: `meshDeep` (`#050A14`), `meshMid`, `glassWhiteDark`, `glassBorderDark`, `glassShadow`, `textPrimaryDark`, `textSecondaryDark`, `textTertiaryDark`
     - Add light-mode tokens: `lightBackground` (`#F2F2F7`), `lightSurface`, `glassWhiteLight`, `glassBorderLight`, `glassShadowLight`, `textPrimaryLight`, `textSecondaryLight`, `textTertiaryLight`
@@ -15,18 +15,18 @@ Implement the RxCam global widget system in Flutter — design tokens, 13 reusab
     - Implement `AppColors.of(BuildContext)` static method resolving to `_AppColorScheme.dark()` or `_AppColorScheme.light()` based on `Theme.of(context).brightness`
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10_
 
-  - [x] 1.2 Create `lib/core/theme/app_spacing.dart`
+  - [✅] 1.2 Create `lib/core/theme/app_spacing.dart`
     - Implement `AppSpacing` static class with spacing scale: `xs=4`, `sm=8`, `md=16`, `lg=24`, `xl=32`, `xxl=48`
     - Add superellipse border-radius tokens: `radiusSm=12`, `radiusMd=20`, `radiusLg=28`, `radiusXl=36`, `radiusFull=100`
     - _Requirements: 2.1, 2.2_
 
-  - [x] 1.3 Create `lib/core/theme/app_text_styles.dart`
+  - [✅] 1.3 Create `lib/core/theme/app_text_styles.dart`
     - Implement `AppTextStyles` static class with 9 base `TextStyle` constants: `displayLarge` (34/700), `displayMedium` (28/600), `headlineLarge` (22/600), `headlineMedium` (18/600), `bodyLarge` (17/400), `bodyMedium` (15/400), `bodySmall` (13/400), `labelLarge` (15/600), `labelSmall` (11/600, letterSpacing 0.5)
     - Implement `resolve(TextStyle base, BuildContext context)` returning `base.copyWith(color: AppColors.of(context).textPrimary)`
     - Add convenience resolvers: `headlineMediumResolved(context)`, `bodyMediumResolved(context)` (uses `textSecondary`), `labelSmallResolved(context, {Color? color})`
     - _Requirements: 2.3, 2.4, 2.5_
 
-  - [x] 1.4 Create `lib/core/theme/app_theme.dart`
+  - [✅] 1.4 Create `lib/core/theme/app_theme.dart`
     - Implement `AppTheme` static class with `dark` getter: `brightness: Brightness.dark`, `scaffoldBackgroundColor: AppColors.meshDeep`, transparent `AppBarTheme`, `colorScheme.primary: AppColors.primary`, `useMaterial3: true`
     - Implement `light` getter: `brightness: Brightness.light`, `scaffoldBackgroundColor: AppColors.lightBackground`, transparent `AppBarTheme`, `colorScheme.primary: AppColors.primary`
     - Implement `_buildTextTheme({required bool isDark})` helper mapping all 9 `AppTextStyles` entries with correct primary/secondary colours

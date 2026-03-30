@@ -14,9 +14,17 @@ import '../services/logger_service.dart';
 /// - Payment status polling (every 5s)
 /// - Success/failure state transitions
 class SubscriptionProvider extends ChangeNotifier {
-  final _api = ApiService.instance;
-  final _log = LoggerService.instance;
-  final AppLinks _appLinks = AppLinks();
+  SubscriptionProvider({
+    ApiService? apiService,
+    LoggerService? loggerService,
+    AppLinks? appLinks,
+  })  : _api = apiService ?? ApiService.instance,
+        _log = loggerService ?? LoggerService.instance,
+        _appLinks = appLinks ?? AppLinks();
+
+  final ApiService _api;
+  final LoggerService _log;
+  final AppLinks _appLinks;
 
   // Subscription state
   Map<String, dynamic>? _subscription;

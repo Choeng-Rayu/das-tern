@@ -6,9 +6,17 @@ import '../services/sync_service.dart';
 
 /// Manages prescription state with offline cache fallback.
 class PrescriptionProvider extends ChangeNotifier {
-  final ApiService _api = ApiService.instance;
-  final DatabaseService _db = DatabaseService.instance;
-  final SyncService _sync = SyncService.instance;
+  PrescriptionProvider({
+    ApiService? apiService,
+    DatabaseService? databaseService,
+    SyncService? syncService,
+  }) : _api = apiService ?? ApiService.instance,
+       _db = databaseService ?? DatabaseService.instance,
+       _sync = syncService ?? SyncService.instance;
+
+  final ApiService _api;
+  final DatabaseService _db;
+  final SyncService _sync;
 
   bool _isLoading = false;
   String? _error;

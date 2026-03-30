@@ -7,10 +7,20 @@ import '../services/sync_service.dart';
 
 /// Manages medication batch state with offline cache fallback.
 class BatchProvider extends ChangeNotifier {
-  final ApiService _api = ApiService.instance;
-  final DatabaseService _db = DatabaseService.instance;
-  final SyncService _sync = SyncService.instance;
-  final NotificationService _notifications = NotificationService.instance;
+  BatchProvider({
+    ApiService? apiService,
+    DatabaseService? databaseService,
+    SyncService? syncService,
+    NotificationService? notificationService,
+  }) : _api = apiService ?? ApiService.instance,
+       _db = databaseService ?? DatabaseService.instance,
+       _sync = syncService ?? SyncService.instance,
+       _notifications = notificationService ?? NotificationService.instance;
+
+  final ApiService _api;
+  final DatabaseService _db;
+  final SyncService _sync;
+  final NotificationService _notifications;
 
   bool _isLoading = false;
   String? _error;

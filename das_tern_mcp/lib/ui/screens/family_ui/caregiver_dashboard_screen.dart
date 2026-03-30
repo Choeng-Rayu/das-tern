@@ -6,7 +6,7 @@ import '../../../providers/connection_provider.dart';
 import '../../../providers/subscription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
-import '../../../utils/app_router.dart';
+import '../../../core/router/app_router.dart';
 import '../../widgets/common_widgets.dart';
 import '../../widgets/language_switcher.dart';
 

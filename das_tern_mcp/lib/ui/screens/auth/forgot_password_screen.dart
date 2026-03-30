@@ -74,16 +74,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   // ── Lock icon ──
                   Center(
                     child: Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
+                       width: 80,
+                       height: 80,
+                       decoration: BoxDecoration(
+                         color: AppColors.primaryBlue.withValues(alpha: 0.12),
+                         shape: BoxShape.circle,
+                       ),
                       child: const Icon(
                         Icons.lock_reset_rounded,
                         size: 40,
-                        color: Colors.white,
+                        color: AppColors.primaryBlue,
                       ),
                     ),
                   ),
@@ -93,7 +93,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   Text(
                     l10n.forgotPasswordTitle,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -103,7 +103,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   Text(
                     l10n.forgotPasswordSubtitle,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
+                      color: AppColors.textSecondary,
                       fontSize: 14,
                     ),
                     textAlign: TextAlign.center,

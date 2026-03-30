@@ -233,7 +233,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                 Text(
                   l10n.createNewAccount,
                   style: TextStyle(
-                    color: const Color(0xFF111111),
+                    color: AppColors.textPrimary,
                     fontSize: titleFontSize,
                     fontWeight: FontWeight.bold,
                   ),
@@ -334,7 +334,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE8EAF0), width: 1.5),
+                border: Border.all(color: AppColors.neutral300, width: 1.5),
               ),
               child: Row(
                 children: [
@@ -345,17 +345,13 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                           : l10n.dateFormatPlaceholder,
                       style: TextStyle(
                         color: _dateOfBirth != null
-                            ? const Color(0xFF333333)
-                            : const Color(0xFFBBBBBB),
+                            ? AppColors.textPrimary
+                            : AppColors.neutral400,
                         fontSize: 13,
                       ),
                     ),
                   ),
-                  const Icon(
-                    Icons.calendar_today,
-                    color: Color(0xFFAAAAAA),
-                    size: 18,
-                  ),
+                  const Icon(Icons.calendar_today, color: AppColors.neutralGray, size: 18),
                 ],
               ),
             ),
@@ -376,7 +372,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
             text: l10n.continueButton,
             onPressed: _nextStep,
             gradient: const LinearGradient(
-              colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
+              colors: [AppColors.primaryBlue, Color(0xFF4069DE)],
             ),
             shape: AppButtonShape.pill,
             size: AppButtonSize.large,
@@ -386,18 +382,18 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           // ── OR divider ──
           Row(
             children: [
-              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+              const Expanded(child: Divider(color: AppColors.neutral300)),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 child: Text(
                   l10n.orRegisterWith,
                   style: const TextStyle(
-                    color: Color(0xFFAAAAAA),
+                    color: AppColors.neutralGray,
                     fontSize: 12,
                   ),
                 ),
               ),
-              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+              const Expanded(child: Divider(color: AppColors.neutral300)),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -414,13 +410,13 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF333333),
+                  color: AppColors.textPrimary,
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF333333),
+                foregroundColor: AppColors.textPrimary,
                 backgroundColor: Colors.white,
-                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                side: const BorderSide(color: AppColors.neutral300, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -444,13 +440,13 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF333333),
+                  color: AppColors.textPrimary,
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF333333),
+                foregroundColor: AppColors.textPrimary,
                 backgroundColor: Colors.white,
-                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                side: const BorderSide(color: AppColors.neutral300, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -556,7 +552,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           const SizedBox(height: AppSpacing.md),
           Text(
             l10n.termsNotice,
-            style: const TextStyle(color: Color(0xFF888888), fontSize: 12),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -570,12 +566,12 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                   onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
                   fillColor: WidgetStateProperty.resolveWith((states) {
                     if (states.contains(WidgetState.selected)) {
-                      return const Color(0xFF2196F3);
+                      return AppColors.primaryBlue;
                     }
                     return Colors.white;
                   }),
                   checkColor: Colors.white,
-                  side: const BorderSide(color: Color(0xFF2196F3)),
+                  side: const BorderSide(color: AppColors.primaryBlue),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -584,7 +580,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
               const SizedBox(width: AppSpacing.sm),
               Text(
                 l10n.termsRead,
-                style: const TextStyle(color: Color(0xFF666666), fontSize: 13),
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
               ),
             ],
           ),
@@ -602,7 +598,7 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
             onPressed: _agreedToTerms ? _handleRegister : null,
             isLoading: auth.isLoading,
             gradient: const LinearGradient(
-              colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
+              colors: [AppColors.primaryBlue, Color(0xFF4069DE)],
             ),
             shape: AppButtonShape.pill,
             size: AppButtonSize.large,
@@ -612,18 +608,18 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           // ── OR divider ──
           Row(
             children: [
-              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+              const Expanded(child: Divider(color: AppColors.neutral300)),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 child: Text(
                   l10n.orRegisterWith,
                   style: const TextStyle(
-                    color: Color(0xFFAAAAAA),
+                    color: AppColors.neutralGray,
                     fontSize: 12,
                   ),
                 ),
               ),
-              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+              const Expanded(child: Divider(color: AppColors.neutral300)),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -640,13 +636,13 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF333333),
+                  color: AppColors.textPrimary,
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF333333),
+                foregroundColor: AppColors.textPrimary,
                 backgroundColor: Colors.white,
-                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                side: const BorderSide(color: AppColors.neutral300, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -670,13 +666,13 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF333333),
+                  color: AppColors.textPrimary,
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF333333),
+                foregroundColor: AppColors.textPrimary,
                 backgroundColor: Colors.white,
-                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                side: const BorderSide(color: AppColors.neutral300, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -719,12 +715,14 @@ class _GenderChip extends StatelessWidget {
         child: Container(
           height: 38,
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFFE8F4FF) : Colors.white,
+            color: selected
+                ? AppColors.primaryBlue.withValues(alpha: 0.12)
+                : Colors.white,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: selected
-                  ? const Color(0xFF2196F3)
-                  : const Color(0xFFE0E0E0),
+                  ? AppColors.primaryBlue
+                  : AppColors.neutral300,
               width: 1.5,
             ),
           ),
@@ -733,8 +731,8 @@ class _GenderChip extends StatelessWidget {
               label,
               style: TextStyle(
                 color: selected
-                    ? const Color(0xFF2196F3)
-                    : const Color(0xFF555555),
+                    ? AppColors.primaryBlue
+                    : AppColors.textSecondary,
                 fontSize: 13,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
               ),

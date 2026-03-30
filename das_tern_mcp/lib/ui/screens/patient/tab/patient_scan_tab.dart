@@ -6,7 +6,7 @@ import '../../../../services/api_service.dart';
 import '../../../../providers/subscription_provider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
-import '../../../../utils/app_router.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../widgets/common_widgets.dart';
 import '../../../widgets/loading/health_loading_indicator.dart';
 

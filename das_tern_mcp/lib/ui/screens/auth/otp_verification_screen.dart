@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../widgets/auth_widgets.dart';
 import '../../widgets/language_switcher.dart';
@@ -119,7 +120,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE3F2FD),
+                        color: AppColors.primaryBlue.withValues(alpha: 0.12),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -127,7 +128,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             ? Icons.email_rounded
                             : Icons.phone_android_rounded,
                         size: 40,
-                        color: const Color(0xFF1976D2),
+                        color: AppColors.primaryBlue,
                       ),
                     ),
                   ),
@@ -137,7 +138,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   Text(
                     l10n.verifyCodeTitle,
                     style: const TextStyle(
-                      color: Color(0xFF111111),
+                      color: AppColors.textPrimary,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -147,7 +148,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   Text(
                     l10n.otpSentMessage,
                     style: const TextStyle(
-                      color: Color(0xFF888888),
+                      color: AppColors.textSecondary,
                       fontSize: 13,
                     ),
                     textAlign: TextAlign.center,
@@ -156,7 +157,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   Text(
                     widget.identifier,
                     style: const TextStyle(
-                      color: Color(0xFF333333),
+                      color: AppColors.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -182,34 +183,34 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF111111),
+                            color: AppColors.textPrimary,
                           ),
                           decoration: InputDecoration(
                             counterText: '',
                             filled: true,
                             fillColor: isFilled
-                                ? const Color(0xFFE8F4FF)
+                                ? AppColors.primaryBlue.withValues(alpha: 0.12)
                                 : Colors.white,
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: BorderSide(
                                 color: isFilled
-                                    ? const Color(0xFF2196F3)
-                                    : const Color(0xFFE0E0E0),
+                                    ? AppColors.primaryBlue
+                                    : AppColors.neutral300,
                                 width: 2,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: const BorderSide(
-                                color: Color(0xFF2196F3),
+                                color: AppColors.primaryBlue,
                                 width: 2,
                               ),
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: const BorderSide(
-                                color: Color(0xFFE0E0E0),
+                                color: AppColors.neutral300,
                                 width: 2,
                               ),
                             ),
@@ -253,8 +254,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             : l10n.resendCode,
                         style: TextStyle(
                           color: _resendSeconds > 0
-                              ? const Color(0xFFAAAAAA)
-                              : const Color(0xFF2196F3),
+                              ? AppColors.neutralGray
+                              : AppColors.primaryBlue,
                           fontSize: 13,
                         ),
                       ),

@@ -9,11 +9,23 @@ import '../services/logger_service.dart';
 /// Manages dose schedule and history state with offline support.
 /// When offline, reads from SQLite and queues actions for sync.
 class DoseProvider extends ChangeNotifier {
-  final ApiService _api = ApiService.instance;
-  final DatabaseService _db = DatabaseService.instance;
-  final NotificationService _notif = NotificationService.instance;
-  final SyncService _sync = SyncService.instance;
-  final LoggerService _log = LoggerService.instance;
+  DoseProvider({
+    ApiService? apiService,
+    DatabaseService? databaseService,
+    NotificationService? notificationService,
+    SyncService? syncService,
+    LoggerService? loggerService,
+  }) : _api = apiService ?? ApiService.instance,
+       _db = databaseService ?? DatabaseService.instance,
+       _notif = notificationService ?? NotificationService.instance,
+       _sync = syncService ?? SyncService.instance,
+       _log = loggerService ?? LoggerService.instance;
+
+  final ApiService _api;
+  final DatabaseService _db;
+  final NotificationService _notif;
+  final SyncService _sync;
+  final LoggerService _log;
 
   bool _isLoading = false;
   String? _error;

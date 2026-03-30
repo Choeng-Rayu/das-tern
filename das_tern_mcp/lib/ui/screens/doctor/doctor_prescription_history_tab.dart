@@ -5,7 +5,7 @@ import '../../../models/prescription_model/prescription.dart';
 import '../../../providers/prescription_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
-import '../../../utils/app_router.dart';
+import '../../../core/router/app_router.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Prescription History tab – matches Figma tab: ប្រវិត្តវេជ្ជបញ្ជារ

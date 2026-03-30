@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
+
+import '../data/repositories/adherence_repository.dart';
+import '../data/services/adherence_service.dart';
 import '../services/api_service.dart';
 
 /// Manages adherence data for the patient dashboard.
 class AdherenceProvider extends ChangeNotifier {
-  final ApiService _api = ApiService.instance;
+  AdherenceProvider({AdherenceRepository? adherenceRepository, ApiService? apiService})
+    : _repository =
+          adherenceRepository ??
+          AdherenceRepositoryImpl(
+            adherenceService: AdherenceService(
+              apiService: apiService ?? ApiService.instance,
+            ),
+          );
+
+  final AdherenceRepository _repository;
 
   bool _isLoading = false;
   String? _error;
@@ -30,7 +42,7 @@ class AdherenceProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _todayAdherence = await _api.getTodayAdherence();
+      _todayAdherence = await _repository.fetchTodayAdherence();
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
     } finally {
@@ -45,7 +57,7 @@ class AdherenceProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _weeklyAdherence = await _api.getWeeklyAdherence();
+      _weeklyAdherence = await _repository.fetchWeeklyAdherence();
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
     } finally {
@@ -60,7 +72,7 @@ class AdherenceProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _monthlyAdherence = await _api.getMonthlyAdherence();
+      _monthlyAdherence = await _repository.fetchMonthlyAdherence();
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
     } finally {
@@ -75,7 +87,7 @@ class AdherenceProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _trends = await _api.getAdherenceTrends(days: days);
+      _trends = await _repository.fetchAdherenceTrends(days: days);
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
     } finally {
@@ -90,14 +102,10 @@ class AdherenceProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      final results = await Future.wait([
-        _api.getTodayAdherence(),
-        _api.getWeeklyAdherence(),
-        _api.getMonthlyAdherence(),
-      ]);
-      _todayAdherence = results[0];
-      _weeklyAdherence = results[1];
-      _monthlyAdherence = results[2];
+      final adherenceData = await _repository.fetchAllAdherence();
+      _todayAdherence = adherenceData.today;
+      _weeklyAdherence = adherenceData.weekly;
+      _monthlyAdherence = adherenceData.monthly;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
     } finally {

@@ -6,8 +6,14 @@ import '../services/logger_service.dart';
 
 /// Manages notification state.
 class NotificationProvider extends ChangeNotifier {
-  final ApiService _api = ApiService.instance;
-  final LoggerService _log = LoggerService.instance;
+  NotificationProvider({
+    ApiService? apiService,
+    LoggerService? loggerService,
+  }) : _api = apiService ?? ApiService.instance,
+       _log = loggerService ?? LoggerService.instance;
+
+  final ApiService _api;
+  final LoggerService _log;
 
   bool _isLoading = false;
   String? _error;

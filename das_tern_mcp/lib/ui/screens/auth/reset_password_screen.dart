@@ -110,6 +110,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final l10n = AppLocalizations.of(context)!;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return AuthGradientScaffold(
       child: Column(
@@ -135,16 +136,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     // ── Lock icon ──
                     Center(
                       child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
+                       width: 80,
+                       height: 80,
+                       decoration: BoxDecoration(
+                         color: AppColors.primaryBlue.withValues(alpha: 0.12),
+                         shape: BoxShape.circle,
+                       ),
                         child: const Icon(
                           Icons.lock_open_rounded,
                           size: 40,
-                          color: Colors.white,
+                          color: AppColors.primaryBlue,
                         ),
                       ),
                     ),
@@ -154,7 +155,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     Text(
                       l10n.resetPasswordTitle,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
@@ -164,7 +165,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     Text(
                       l10n.resetPasswordSubtitle,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: AppColors.textSecondary,
                         fontSize: 14,
                       ),
                       textAlign: TextAlign.center,
@@ -173,7 +174,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     Text(
                       widget.identifier,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -195,9 +196,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             maxLength: 1,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
+                              color: isDarkMode
+                                  ? AppColors.white
+                                  : AppColors.textPrimary,
                             ),
                             decoration: InputDecoration(
                               counterText: '',
@@ -207,7 +211,26 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 borderRadius: BorderRadius.circular(
                                   AppRadius.lg,
                                 ),
-                                borderSide: BorderSide.none,
+                                borderSide: const BorderSide(
+                                  color: AppColors.neutral300,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.lg,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.neutral300,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.lg,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.primaryBlue,
+                                  width: 1.5,
+                                ),
                               ),
                             ),
                             onChanged: (v) {
@@ -233,8 +256,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               : l10n.resendCode,
                           style: TextStyle(
                             color: _resendSeconds > 0
-                                ? Colors.white54
-                                : Colors.white,
+                                ? AppColors.textSecondary
+                                : AppColors.primaryBlue,
                             fontSize: 14,
                           ),
                         ),

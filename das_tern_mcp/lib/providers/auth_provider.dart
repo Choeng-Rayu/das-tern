@@ -17,19 +17,39 @@ import '../core/config/dev_config.dart';
 
 /// Manages authentication state: login, register, logout, token storage.
 class AuthProvider extends ChangeNotifier {
-  AuthProvider({bool enableTelegramDeepLinkListener = true}) {
+  AuthProvider({
+    ApiService? apiService,
+    DatabaseService? databaseService,
+    NotificationService? notificationService,
+    LoggerService? loggerService,
+    AppLinks? appLinks,
+    FlutterSecureStorage? secureStorage,
+    bool enableTelegramDeepLinkListener = true,
+  }) : _api = apiService ?? ApiService.instance,
+       _databaseService = databaseService ?? DatabaseService.instance,
+       _notificationService =
+           notificationService ?? NotificationService.instance,
+       _log = loggerService ?? LoggerService.instance,
+       _appLinks = appLinks ?? AppLinks(),
+       _secureStorage =
+           secureStorage ??
+           const FlutterSecureStorage(
+             aOptions: AndroidOptions(encryptedSharedPreferences: true),
+             iOptions: IOSOptions(
+               accessibility: KeychainAccessibility.first_unlock,
+             ),
+           ) {
     if (enableTelegramDeepLinkListener) {
       _initTelegramAuthListener();
     }
   }
 
-  final ApiService _api = ApiService.instance;
-  final LoggerService _log = LoggerService.instance;
-  final AppLinks _appLinks = AppLinks();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-  );
+  final ApiService _api;
+  final DatabaseService _databaseService;
+  final NotificationService _notificationService;
+  final LoggerService _log;
+  final AppLinks _appLinks;
+  final FlutterSecureStorage _secureStorage;
   late final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
     // serverClientId: the web OAuth 2.0 client ID — used by backend to validate the idToken
@@ -517,8 +537,8 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     _log.info('AuthProvider', 'Logout initiated');
     await _clearTokens();
-    await DatabaseService.instance.clearAll();
-    await NotificationService.instance.cancelAllReminders();
+    await _databaseService.clearAll();
+    await _notificationService.cancelAllReminders();
     _user = null;
     _isAuthenticated = false;
     _log.success('AuthProvider', 'Logout complete');

@@ -261,7 +261,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                 Text(
                   l10n.doctorRegistrationTitle,
                   style: TextStyle(
-                    color: const Color(0xFF111111),
+                    color: AppColors.textPrimary,
                     fontSize: titleFontSize,
                     fontWeight: FontWeight.bold,
                   ),
@@ -347,7 +347,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
             text: l10n.continueButton,
             onPressed: _nextStep,
             gradient: const LinearGradient(
-              colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
+              colors: [AppColors.primaryBlue, Color(0xFF4069DE)],
             ),
             shape: AppButtonShape.pill,
             size: AppButtonSize.large,
@@ -356,18 +356,18 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
 
           Row(
             children: [
-              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+              const Expanded(child: Divider(color: AppColors.neutral300)),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 child: Text(
                   l10n.orRegisterWith,
                   style: const TextStyle(
-                    color: Color(0xFFAAAAAA),
+                    color: AppColors.neutralGray,
                     fontSize: 12,
                   ),
                 ),
               ),
-              const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+              const Expanded(child: Divider(color: AppColors.neutral300)),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -383,13 +383,13 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF333333),
+                  color: AppColors.textPrimary,
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF333333),
+                foregroundColor: AppColors.textPrimary,
                 backgroundColor: Colors.white,
-                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                side: const BorderSide(color: AppColors.neutral300, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -413,13 +413,13 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF333333),
+                  color: AppColors.textPrimary,
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF333333),
+                foregroundColor: AppColors.textPrimary,
                 backgroundColor: Colors.white,
-                side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                side: const BorderSide(color: AppColors.neutral300, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -463,16 +463,19 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(color: const Color(0xFFE8EAF0), width: 1.5),
+              border: Border.all(color: AppColors.neutral300, width: 1.5),
             ),
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedSpecialty,
                 isExpanded: true,
-                hint: const Text(
-                  'Select specialty',
-                  style: TextStyle(color: Color(0xFFBBBBBB), fontSize: 13),
+                hint: Text(
+                  l10n.specialty,
+                  style: const TextStyle(
+                    color: AppColors.neutral400,
+                    fontSize: 13,
+                  ),
                 ),
                 items: _specialtyValues.map((value) {
                   return DropdownMenuItem(
@@ -549,7 +552,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
             onPressed: _handleRegister,
             isLoading: auth.isLoading,
             gradient: const LinearGradient(
-              colors: [Color(0xFF2196F3), Color(0xFF1B7EDB)],
+              colors: [AppColors.primaryBlue, Color(0xFF4069DE)],
             ),
             shape: AppButtonShape.pill,
             size: AppButtonSize.large,
@@ -558,7 +561,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
 
           Text(
             l10n.accountVerificationInfo,
-            style: const TextStyle(color: Color(0xFFAAAAAA), fontSize: 12),
+            style: const TextStyle(color: AppColors.neutralGray, fontSize: 12),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.md),

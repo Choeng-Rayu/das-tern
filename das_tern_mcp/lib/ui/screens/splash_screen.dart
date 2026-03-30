@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../utils/app_router.dart';
+import '../../core/router/app_router.dart';
 import '../widgets/splash/cinematic_splash_animation.dart';
 
 /// Splash screen shown on app launch.

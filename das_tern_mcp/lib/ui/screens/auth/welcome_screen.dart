@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_spacing.dart';
 import '../../widgets/language_switcher.dart';
 import '../../widgets/app_button.dart';
 
@@ -20,8 +22,8 @@ class WelcomeScreen extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: isDark
-                ? [const Color(0xFF4A9FBF), const Color(0xFF3A8FAF)]
-                : [const Color(0xFF5DADE2), const Color(0xFF3498DB)],
+                ? [const Color(0xFF2A3E5E), const Color(0xFF1E2E4A)]
+                : [const Color(0xFF7FA9F8), AppColors.primaryBlue],
           ),
         ),
         child: SafeArea(
@@ -56,12 +58,12 @@ class WelcomeScreen extends StatelessWidget {
               // Main content
               Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(height: 60),
+                      const SizedBox(height: AppSpacing.xxl),
 
                       // Welcome Title
                       Text(
@@ -82,7 +84,7 @@ class WelcomeScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.md),
 
                       // Subtitle
                       Text(
@@ -108,7 +110,7 @@ class WelcomeScreen extends StatelessWidget {
 
                       // Buttons container
                       Container(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(AppSpacing.lg),
                         decoration: BoxDecoration(
                           color: const Color(0x26FFFFFF),
                           borderRadius: BorderRadius.circular(28),
@@ -132,12 +134,12 @@ class WelcomeScreen extends StatelessWidget {
                               onPressed: () =>
                                   Navigator.of(context).pushNamed('/login'),
                               backgroundColor: Colors.white,
-                              textColor: const Color(0xFF3498DB),
+                              textColor: AppColors.primaryBlue,
                               shape: AppButtonShape.pill,
                               size: AppButtonSize.large,
                               elevation: 0,
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: AppSpacing.md),
 
                             // Create Account button
                             AppButton(
@@ -156,7 +158,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: AppSpacing.xl),
 
                       // Emergency Access
                       Container(
@@ -195,7 +197,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 60),
+                      const SizedBox(height: AppSpacing.xxl),
                     ],
                   ),
                 ),
