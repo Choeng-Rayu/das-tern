@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../providers/auth_provider.dart';
 import '../../../../providers/prescription_provider.dart';
+import '../../../../utils/app_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/medicine_form_widget.dart';
@@ -433,6 +435,8 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
   Future<void> _submitPrescription() async {
     final l10n = AppLocalizations.of(context)!;
 
+    debugPrint('[OcrPreview] Starting prescription submission');
+
     // Build medicines array matching PatientMedicationDto
     final medicines = _medicines.asMap().entries.map((e) {
       final med = e.value;
@@ -511,19 +515,51 @@ class _OcrPreviewScreenState extends State<OcrPreviewScreen> {
       },
     };
 
+    debugPrint('[OcrPreview] Calling createPatientPrescription API');
     final success = await context
         .read<PrescriptionProvider>()
         .createPatientPrescription(data);
 
-    if (mounted && success) {
+    debugPrint('[OcrPreview] API call completed. Success: $success');
+
+    if (!mounted) {
+      debugPrint('[OcrPreview] Widget not mounted, aborting navigation');
+      return;
+    }
+
+    if (success) {
+      debugPrint(
+        '[OcrPreview] Prescription created successfully, showing success message',
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.medicineAddedSuccessfully),
           backgroundColor: AppColors.successGreen,
         ),
       );
-      // Pop back to the patient home safely
-      Navigator.of(context).popUntil((route) => route.isFirst);
+
+      // Check auth state before navigation
+      final auth = context.read<AuthProvider>();
+      debugPrint(
+        '[OcrPreview] Auth state before navigation - isAuthenticated: ${auth.isAuthenticated}',
+      );
+
+      // Navigate back to patient home instead of popping to first route
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRouter.patientHome, (route) => false);
+    } else {
+      debugPrint('[OcrPreview] Prescription creation failed');
+      // Show error if there is one
+      final provider = context.read<PrescriptionProvider>();
+      if (provider.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.error!),
+            backgroundColor: AppColors.alertRed,
+          ),
+        );
+      }
     }
   }
 

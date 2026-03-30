@@ -94,7 +94,10 @@ class PatientReportPdfService {
                 ],
               ),
               pw.Container(
-                padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const pw.EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: pw.BoxDecoration(
                   color: PdfColors.white,
                   borderRadius: pw.BorderRadius.circular(4),
@@ -286,13 +289,7 @@ class PatientReportPdfService {
             ),
           ),
           pw.SizedBox(height: 4),
-          pw.Text(
-            label,
-            style: pw.TextStyle(
-              fontSize: 10,
-              color: _textGrey,
-            ),
-          ),
+          pw.Text(label, style: pw.TextStyle(fontSize: 10, color: _textGrey)),
         ],
       ),
     );
@@ -325,10 +322,12 @@ class PatientReportPdfService {
             ),
           )
         else
-          ...medications.expand((prescription) => [
-            _buildPrescriptionCard(prescription),
-            pw.SizedBox(height: 12),
-          ]),
+          ...medications.expand(
+            (prescription) => [
+              _buildPrescriptionCard(prescription),
+              pw.SizedBox(height: 12),
+            ],
+          ),
       ],
     );
   }
@@ -355,7 +354,10 @@ class PatientReportPdfService {
                 ),
               ),
               pw.Container(
-                padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const pw.EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
                 decoration: pw.BoxDecoration(
                   color: _getStatusColor(prescription.status),
                   borderRadius: pw.BorderRadius.circular(4),
@@ -396,7 +398,8 @@ class PatientReportPdfService {
             pw.SizedBox(height: 8),
             _buildInfoRow('Notes:', prescription.notes!),
           ],
-          if (prescription.startDate != null || prescription.endDate != null) ...[
+          if (prescription.startDate != null ||
+              prescription.endDate != null) ...[
             pw.SizedBox(height: 8),
             pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -447,7 +450,10 @@ class PatientReportPdfService {
               ),
               if (med.isPRN)
                 pw.Container(
-                  padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const pw.EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: pw.BoxDecoration(
                     color: _primaryColor,
                     borderRadius: pw.BorderRadius.circular(3),
@@ -500,7 +506,11 @@ class PatientReportPdfService {
             pw.SizedBox(height: 4),
             pw.Text(
               'Note: ${med.additionalNote}',
-              style: pw.TextStyle(fontSize: 9, color: _textGrey, fontStyle: pw.FontStyle.italic),
+              style: pw.TextStyle(
+                fontSize: 9,
+                color: _textGrey,
+                fontStyle: pw.FontStyle.italic,
+              ),
             ),
           ],
         ],
@@ -573,7 +583,10 @@ class PatientReportPdfService {
 
             return [
               pw.Container(
-                padding: const pw.EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                padding: const pw.EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
+                ),
                 decoration: pw.BoxDecoration(
                   color: _background,
                   borderRadius: pw.BorderRadius.circular(6),
@@ -637,10 +650,7 @@ class PatientReportPdfService {
             ),
             child: pw.Text(
               _formatDoseStatus(dose.status),
-              style: const pw.TextStyle(
-                fontSize: 8,
-                color: PdfColors.white,
-              ),
+              style: const pw.TextStyle(fontSize: 8, color: PdfColors.white),
             ),
           ),
         ],
@@ -678,7 +688,10 @@ class PatientReportPdfService {
           pw.Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: vitals.take(6).map((vital) => _buildVitalCard(vital)).toList(),
+            children: vitals
+                .take(6)
+                .map((vital) => _buildVitalCard(vital))
+                .toList(),
           ),
       ],
     );
@@ -689,7 +702,9 @@ class PatientReportPdfService {
       width: 160,
       padding: const pw.EdgeInsets.all(12),
       decoration: pw.BoxDecoration(
-        border: pw.Border.all(color: vital.isAbnormal ? PdfColors.red : _divider),
+        border: pw.Border.all(
+          color: vital.isAbnormal ? PdfColors.red : _divider,
+        ),
         borderRadius: pw.BorderRadius.circular(8),
         color: vital.isAbnormal ? PdfColor.fromInt(0xFFFFEBEE) : null,
       ),
@@ -722,7 +737,11 @@ class PatientReportPdfService {
             pw.SizedBox(height: 4),
             pw.Text(
               vital.notes!,
-              style: pw.TextStyle(fontSize: 8, color: _textGrey, fontStyle: pw.FontStyle.italic),
+              style: pw.TextStyle(
+                fontSize: 8,
+                color: _textGrey,
+                fontStyle: pw.FontStyle.italic,
+              ),
               maxLines: 2,
             ),
           ],
@@ -776,10 +795,7 @@ class PatientReportPdfService {
         pw.Expanded(
           child: pw.Text(
             value,
-            style: pw.TextStyle(
-              fontSize: 10,
-              color: _textDark,
-            ),
+            style: pw.TextStyle(fontSize: 10, color: _textDark),
           ),
         ),
       ],

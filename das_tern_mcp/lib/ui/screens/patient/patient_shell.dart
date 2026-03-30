@@ -1,10 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/shell_tab_controller.dart';
 import '../../../utils/app_router.dart';
 import '../../theme/app_colors.dart';
-import '../../widgets/common_widgets.dart';
+import '../../widgets/app_bottom_navigation.dart';
 import 'tab/patient_home_tab.dart';
 import 'tab/patient_medications_tab.dart';
 import 'tab/patient_scan_tab.dart';
@@ -199,7 +200,7 @@ class _PatientShellState extends State<PatientShell> {
               elevation: 4,
             )
           : null,
-      bottomNavigationBar: AppBottomNavBar(
+      bottomNavigationBar: AppBottomNavigation(
         currentIndex: _currentIndex,
         onTap: (i) {
           setState(() => _currentIndex = i);
@@ -210,29 +211,30 @@ class _PatientShellState extends State<PatientShell> {
           );
         },
         items: [
-          AppNavItem(
-            icon: Icons.home_outlined,
-            activeIcon: Icons.home,
+          NavItem(
+            icon: CupertinoIcons.house,
+            activeIcon: CupertinoIcons.house_fill,
             label: l10n.homeTab,
           ),
-          AppNavItem(
-            icon: Icons.medication_outlined,
-            activeIcon: Icons.medication,
+          NavItem(
+            icon: CupertinoIcons.heart,
+            activeIcon: CupertinoIcons.heart_fill,
             label: l10n.medicationsAnalysis,
           ),
-          AppNavItem(
-            icon: Icons.document_scanner_outlined,
-            activeIcon: Icons.document_scanner,
+          NavItem(
+            icon: CupertinoIcons.camera_fill,
+            activeIcon: CupertinoIcons.camera_fill,
             label: l10n.scanPrescriptionTab,
+            isProminent: true,
           ),
-          AppNavItem(
-            icon: Icons.family_restroom_outlined,
-            activeIcon: Icons.family_restroom,
+          NavItem(
+            icon: CupertinoIcons.person_2,
+            activeIcon: CupertinoIcons.person_2_fill,
             label: l10n.familyFeatures,
           ),
-          AppNavItem(
-            icon: Icons.settings_outlined,
-            activeIcon: Icons.settings,
+          NavItem(
+            icon: CupertinoIcons.settings,
+            activeIcon: CupertinoIcons.settings_solid,
             label: l10n.profile,
           ),
         ],
