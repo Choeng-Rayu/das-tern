@@ -1,0 +1,434 @@
+================================================================================
+DAS-TERN BACKEND ARCHITECTURE EXPLORATION - COMPLETE SUMMARY
+================================================================================
+
+PROJECT OVERVIEW
+================================================================================
+Das-Tern is a comprehensive healthcare management platform designed for:
+- Prescription management with OCR (Optical Character Recognition)
+- Medication adherence tracking
+- Doctor-patient relationships
+- Health vital monitoring
+- Khmer language support
+- Bakong payment integration (Cambodia)
+
+The backend consists of multiple microservices built with NestJS and Python
+FastAPI, all orchestrated with Docker Compose.
+
+BACKEND COMPONENTS EXPLORED
+================================================================================
+
+1. MAIN BACKEND (NestJS)
+   Location: /backend_nestjs
+   Framework: NestJS 10.3.0
+   Language: TypeScript
+   Port: 3001
+   Database: PostgreSQL 17 (Prisma ORM)
+   Cache: Redis 7.4
+   Queue: RabbitMQ 4.0 (Bull integration)
+   
+   Key Modules (16 total):
+   - Auth: Multi-factor authentication, OAuth, JWT
+   - Users: Profile management
+   - Connections: Doctor-patient relationships
+   - Prescriptions: Core medication management
+   - Doses: Medication tracking and adherence
+   - Health-Monitoring: Vital signs tracking
+   - OCR: Image prescription processing
+   - Bakong-Payment: Payment integration
+   - Notifications: Multi-channel messaging
+   - Email: SendGrid integration
+   - Audit: Activity logging
+   - Subscriptions: Freemium model
+   - Doctor-Dashboard: Analytics
+   - Medicines: Drug database
+   - Adherence: Metrics reporting
+   - Batch-Medication: Time-based grouping
+
+2. BAKONG PAYMENT SERVICE (Microservice)
+   Location: /bakong_payment
+   Framework: NestJS 10.3.0
+   Language: TypeScript
+   Port: 3002
+   Database: Separate PostgreSQL instance
+   
+   Functionality:
+   - KHQR code generation (Cambodia payment standard)
+   - QR code image generation and storage
+   - Payment status tracking
+   - Subscription management
+   - Webhook handling for payment confirmations
+   - Multiple payment attempts and retries
+
+3. OCR SERVICE (Python FastAPI)
+   Location: /ocr
+   Framework: FastAPI
+   Language: Python 3.11+
+   Port: 8000 (Docker: 8003)
+   OCR Engine: Kiri-OCR (Khmer + English support)
+   
+   Pipeline:
+   - Image preprocessing (enhancement, orientation)
+   - Text extraction via Kiri-OCR
+   - Layout analysis (table detection, region segmentation)
+   - Text parsing (structured prescription extraction)
+   - JSON response formatting with confidence scores
+   
+   Capabilities:
+   - Extract patient info, medications, dosages, frequencies
+   - Support Khmer drug names
+   - Calculate extraction confidence
+   - Handle PDFs, PNG, JPG, JPEG, WebP formats
+   - 10MB file size limit
+
+4. AI-LLM SERVICE (Python FastAPI)
+   Location: /ai-llm-service
+   Framework: FastAPI
+   Language: Python 3.11+
+   Port: 8001
+   LLM Provider: Ollama (local) or OpenRouter (cloud)
+   
+   Functionality:
+   - OCR result enhancement (correct drug names)
+   - Prescription validation
+   - Medical safety checks
+   - Reminder generation
+   - Chatbot interactions
+   - Language detection (Khmer/English)
+   - Drug advice refusal (safety)
+
+DATABASE ARCHITECTURE
+================================================================================
+
+Main Database Models (21 core models):
+
+USER MANAGEMENT:
+- Users: Multi-role (PATIENT, DOCTOR, FAMILY_MEMBER)
+- Connections: Doctor-patient relationships with permission levels
+- ConnectionToken: Invite tokens for secure connection requests
+
+PRESCRIPTION & MEDICATION:
+- Prescriptions: Main prescription record with versioning
+- Medications: Individual medications within prescriptions
+- PrescriptionVersion: Change history and audit trail
+- MedicationBatch: Batch/time-based grouping (e.g., "Morning Routine")
+
+DOSE TRACKING:
+- DoseEvents: Individual dose records with status tracking
+  Status: DUE, TAKEN_ON_TIME, TAKEN_LATE, MISSED, SKIPPED
+  Periods: MORNING, AFTERNOON, EVENING, NIGHT
+
+HEALTH MONITORING:
+- HealthVitals: Blood pressure, glucose, heart rate, weight, temperature, SPO2
+- VitalThresholds: Alert threshold ranges per vital type
+- HealthAlerts: Anomaly alerts with severity levels (LOW, MEDIUM, HIGH, CRITICAL)
+
+NOTIFICATIONS & COMMUNICATION:
+- Notifications: Multi-channel notifications (in-app, email, push)
+- DoctorNote: Doctor-patient communication/notes
+- AuditLog: Comprehensive action tracking for compliance
+
+SUBSCRIPTION & BILLING:
+- Subscription: Tier management (FREEMIUM, PREMIUM, FAMILY_PREMIUM)
+- FamilyMember: Subscription sharing
+- (Payment data in separate bakong_payment database)
+
+OTHER:
+- MealTimePreference: User meal times for dosage context
+
+Database Constraints:
+- All IDs are UUIDs
+- Timestamps in UTC with timezone support
+- JSON fields for flexible data storage
+- Comprehensive indexing for query performance
+- Foreign key constraints with cascade delete where appropriate
+
+API ENDPOINTS OVERVIEW
+================================================================================
+
+Authentication (8 endpoints):
+- POST /api/v1/auth/login
+- POST /api/v1/auth/register/patient
+- POST /api/v1/auth/register/doctor
+- POST /api/v1/auth/otp/send
+- POST /api/v1/auth/otp/verify
+- POST /api/v1/auth/refresh
+- POST /api/v1/auth/google
+- POST /api/v1/auth/telegram
+
+Prescriptions (11 endpoints):
+- GET/POST /api/v1/prescriptions
+- GET/PATCH/DELETE /api/v1/prescriptions/:id
+- POST /api/v1/prescriptions/:id/urgent-update
+- POST /api/v1/prescriptions/:id/confirm
+- POST /api/v1/prescriptions/:id/pause/resume/reject/retake
+
+Doses (5 endpoints):
+- GET /api/v1/doses/schedule
+- POST /api/v1/doses/:id/mark-taken
+- POST /api/v1/doses/:id/skip
+- GET /api/v1/doses/history
+- GET /api/v1/doses/adherence
+
+Health Monitoring (5 endpoints):
+- POST/GET /api/v1/health-monitoring/vitals
+- POST/GET /api/v1/health-monitoring/thresholds
+- GET /api/v1/health-monitoring/alerts
+- POST /api/v1/health-monitoring/emergency
+
+Connections (7 endpoints):
+- POST/GET /api/v1/connections
+- POST /api/v1/connections/:id/accept
+- POST /api/v1/connections/:id/revoke
+- POST /api/v1/connection-tokens
+- POST /api/v1/connections/token/use
+- GET /api/v1/doctor-search
+
+OCR (3 endpoints):
+- POST /api/v1/ocr/scan (create prescription from image)
+- POST /api/v1/ocr/extract (preview extraction)
+- GET /api/v1/ocr/health
+
+Payment (4 endpoints):
+- POST /api/v1/bakong-payment/create
+- GET /api/v1/bakong-payment/status/:md5
+- GET /api/v1/bakong-payment/history
+- POST /api/v1/bakong-payment/webhook
+
+Notifications (2 endpoints):
+- GET /api/v1/notifications
+- PATCH /api/v1/notifications/:id/read
+
+Users (4 endpoints):
+- GET /api/v1/users/me
+- GET /api/v1/users/:id
+- PATCH /api/v1/users/me
+- GET /api/v1/users/search
+
+INTEGRATION FLOWS
+================================================================================
+
+OCR PRESCRIPTION CREATION FLOW:
+1. Patient uploads prescription image
+2. Backend validates file (size, format)
+3. Python OCR service extracts text and structures data
+4. AI-LLM service enhances results (corrects drug names, validates)
+5. Backend merges OCR + AI results
+6. Frontend shows preview for user review
+7. Patient confirms and creates prescription
+8. Dose events automatically generated from prescription schedule
+9. Doctor connected if prescription from doctor
+
+DOSE MARKING FLOW:
+1. Patient requests daily dose schedule
+2. Backend returns DoseEvents for the day grouped by period
+3. Patient marks dose as taken (with optional timestamp)
+4. Backend calculates if on-time or late
+5. Updates DoseEvent status and records timestamp
+6. Calculates daily progress
+7. If adherence below threshold, alerts connected doctor
+8. Sends notifications to patient and connected users
+
+DOCTOR-PATIENT CONNECTION FLOW:
+1. Patient generates invite token (20-char unique code)
+2. Patient shares via QR code or text
+3. Doctor enters token or uses QR scanner
+4. Connection request created (PENDING)
+5. Patient accepts request
+6. Connection status becomes ACCEPTED
+7. Doctor can now view patient's prescriptions, doses, vitals
+8. Doctor can create/update prescriptions for patient
+
+PAYMENT FLOW:
+1. Patient clicks upgrade to premium
+2. Frontend calls bakong-payment service
+3. Service generates KHQR code and MD5 hash
+4. QR image generated and stored
+5. Returns QR code and deep link to Bakong app
+6. User scans QR with Bakong app and completes payment
+7. Bakong sends webhook to confirm payment
+8. Payment service updates subscription tier
+9. Backend receives update and grants premium access
+10. Frontend shows success message
+
+TECHNOLOGY STACK SUMMARY
+================================================================================
+
+Backend Framework:
+- NestJS 10.3.0 (Node.js framework)
+- TypeScript 5.7.2 (type safety)
+- Express.js (HTTP server)
+
+Database:
+- PostgreSQL 17 (relational database)
+- Prisma 6.2.0 (ORM and query builder)
+- Redis 7.4 (caching and sessions)
+- RabbitMQ 4.0 (message queue)
+
+Authentication:
+- Passport.js (authentication middleware)
+- JWT (JSON Web Tokens)
+- bcryptjs (password hashing)
+- Google OAuth 2.0
+- Telegram OAuth
+
+External Services:
+- SendGrid (email delivery)
+- Firebase Cloud Messaging (push notifications)
+- Bakong API (Cambodian payment processing)
+- OpenRouter (optional LLM provider)
+- Ollama (local LLM inference)
+
+Python Services:
+- FastAPI (modern async web framework)
+- Kiri-OCR (Khmer/English text recognition)
+- Pydantic (data validation)
+- Uvicorn (ASGI server)
+
+Infrastructure:
+- Docker & Docker Compose (containerization)
+- Nginx (reverse proxy, SSL termination)
+- MinIO (S3-compatible storage)
+
+Security:
+- Helmet.js (HTTP security headers)
+- CORS (cross-origin resource sharing)
+- Rate limiting (Throttler)
+- Input validation (class-validator)
+- Password security (bcryptjs + salting)
+- JWT with expiry and refresh tokens
+- Audit logging
+
+CONFIGURATION & DEPLOYMENT
+================================================================================
+
+Environment Variables Categories:
+- Database: DATABASE_URL, POSTGRES_* credentials
+- Redis: REDIS_HOST, REDIS_PORT, REDIS_PASSWORD
+- JWT: JWT_SECRET, JWT_REFRESH_SECRET, expiry times
+- External APIs: SENDGRID_API_KEY, GOOGLE_*, BAKONG_*
+- Service URLs: OCR_SERVICE_URL, AI_SERVICE_URL, BAKONG_SERVICE_URL
+- Application: NODE_ENV, PORT, API_PREFIX, CORS_ORIGIN
+
+Docker Services:
+- PostgreSQL 17 (dastern-postgres:5432)
+- Redis 7.4 (dastern-redis:6379)
+- RabbitMQ 4.0 (dastern-rabbitmq:5672, console:15672)
+- MinIO (dastern-minio:9000, console:9001)
+- Backend NestJS (dastern-backend:3001) [commented in docker-compose]
+- Bakong Payment (dastern-bakong:3002)
+- OCR Service (dastern-kiri-ocr:8003)
+- AI-LLM Service (dastern-ai-llm:8001)
+
+Production Considerations:
+- All services have health checks
+- Restart policies set to "unless-stopped"
+- Persistent volumes for data
+- Bridge network for service communication
+- SSL/TLS termination via Nginx
+- Database backups recommended
+- Log aggregation suggested
+
+DOCUMENTATION PROVIDED
+================================================================================
+
+Two comprehensive documents have been created:
+
+1. BACKEND_ARCHITECTURE.md (1312 lines)
+   - Complete system overview
+   - Detailed database schema with all models and relationships
+   - Full module and controller documentation
+   - API endpoint specifications
+   - Configuration details
+   - Integration flows with diagrams
+   - Technology stack breakdown
+   - Security features
+   - Deployment guidelines
+   - Future enhancement suggestions
+
+2. QUICK_REFERENCE.md
+   - Directory structure map
+   - Database models cheat sheet
+   - API endpoints quick reference
+   - Environment variables quick setup
+   - Common development tasks
+   - Key files by component
+   - Deployment checklist
+   - Troubleshooting guide
+   - Performance optimization tips
+   - File paths reference
+
+KEY FINDINGS
+================================================================================
+
+Architecture Strengths:
+- Modular design with clear separation of concerns
+- Microservices approach for OCR and AI processing
+- Comprehensive database schema with proper constraints
+- Role-based access control for multi-user scenarios
+- Flexible permission system for doctor-patient relationships
+- Robust audit logging for compliance
+- Khmer language support throughout
+- Payment integration optimized for Cambodia
+- Health monitoring with vital tracking and anomaly detection
+
+Scalability Features:
+- Redis caching layer
+- RabbitMQ for async processing
+- Horizontal scaling capability
+- Database indexing for performance
+- Service separation allows independent scaling
+
+Security Features:
+- Multi-factor authentication (password, OTP, OAuth)
+- JWT with refresh tokens
+- Role-based and permission-based access control
+- Rate limiting on sensitive endpoints
+- Comprehensive audit logging
+- Password hashing with bcryptjs
+- CORS restrictions
+- Input validation and sanitization
+
+Data Management:
+- UUID primary keys (distributed system friendly)
+- Timezone-aware timestamps
+- JSON fields for flexible data storage
+- Soft deletes where appropriate
+- Version tracking for prescriptions
+- Complete audit trail
+
+CONCLUSION
+================================================================================
+
+Das-Tern is a well-architected, production-ready healthcare platform with:
+
+1. Clear separation between frontend (Next.js), main backend (NestJS), and
+   specialized services (OCR, AI, Payments)
+
+2. Comprehensive database design supporting complex doctor-patient relationships,
+   medication management, and health monitoring
+
+3. Multiple authentication methods catering to diverse user bases
+
+4. OCR and AI integration for automatic prescription processing
+
+5. Bakong payment integration specific to Cambodia market
+
+6. Audit logging and compliance features
+
+7. Scalable architecture with caching, queuing, and service separation
+
+8. Strong security practices throughout
+
+The backend is well-documented in the code and has been comprehensively
+documented in the generated files for easy onboarding and maintenance.
+
+FILES GENERATED:
+================================================================================
+1. /backend_nestjs/BACKEND_ARCHITECTURE.md - Full technical documentation
+2. /backend_nestjs/QUICK_REFERENCE.md - Quick reference guide
+
+Both files are saved in the repository root for easy access.
+
+END OF EXPLORATION SUMMARY
+================================================================================
