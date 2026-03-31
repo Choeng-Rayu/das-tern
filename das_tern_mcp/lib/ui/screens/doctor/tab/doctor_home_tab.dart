@@ -224,6 +224,17 @@ class _DoctorHomeTabState extends State<DoctorHomeTab> {
                         children: [
                           Expanded(
                             child: _ActionCard(
+                              icon: Icons.qr_code_scanner,
+                              label: l10n.connectWithPatient,
+                              onTap: () => Navigator.pushNamed(
+                                context,
+                                AppRouter.doctorConnect,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _ActionCard(
                               icon: Icons.description_outlined,
                               label: l10n.newPrescription,
                               onTap: () => widget.onSwitchTab?.call(2),

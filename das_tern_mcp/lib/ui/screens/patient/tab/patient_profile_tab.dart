@@ -206,6 +206,15 @@ class PatientProfileTab extends StatelessWidget {
                   ),
                 ),
                 ListTile(
+                  leading: const Icon(Icons.qr_code),
+                  title: Text(l10n.shareWithDoctor),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    AppRouter.patientDoctorToken,
+                  ),
+                ),
+                ListTile(
                   leading: const Icon(Icons.people),
                   title: Text(l10n.myConnections),
                   trailing: const Icon(Icons.chevron_right),

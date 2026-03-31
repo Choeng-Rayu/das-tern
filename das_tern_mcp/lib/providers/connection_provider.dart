@@ -132,6 +132,37 @@ class ConnectionProvider extends ChangeNotifier {
     }
   }
 
+  // ── Doctor Token Operations ──
+
+  /// Generate a connection token for doctor connection.
+  Future<Map<String, dynamic>?> generateDoctorToken(
+    String permissionLevel,
+  ) async {
+    try {
+      _setLoading(true);
+      final result = await _api.generateDoctorConnectionToken(permissionLevel);
+      _setLoading(false);
+      return result;
+    } catch (e) {
+      _handleError(e);
+      return null;
+    }
+  }
+
+  /// Doctor consumes a connection token to create a pending connection.
+  Future<bool> doctorConsumeToken(String token) async {
+    try {
+      _setLoading(true);
+      await _api.doctorConsumeConnectionToken(token);
+      _setLoading(false);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _handleError(e);
+      return false;
+    }
+  }
+
   // ── Family Members ──
 
   /// Fetch caregivers for the current patient.
@@ -318,5 +349,18 @@ class ConnectionProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // ── Private Helpers ──
+
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
+  void _handleError(Object e) {
+    _isLoading = false;
+    _error = e.toString().replaceFirst('Exception: ', '');
+    notifyListeners();
   }
 }

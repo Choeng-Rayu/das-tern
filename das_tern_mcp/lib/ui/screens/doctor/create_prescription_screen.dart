@@ -31,7 +31,10 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<ConnectionProvider>().fetchConnections();
+    // Delay the fetch to avoid calling notifyListeners() during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ConnectionProvider>().fetchConnections();
+    });
   }
 
   @override
