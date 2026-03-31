@@ -1893,6 +1893,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get minutesUnit => 'minutes';
 
   @override
+  String get networkError => 'Network error. Please check your connection.';
+
+  @override
+  String get tokenExpiredMessage =>
+      'This token has expired. Please ask for a new one.';
+
+  @override
+  String get tokenAlreadyUsed => 'This token has already been used.';
+
+  @override
+  String get patientNeedsToApprove =>
+      'The patient will need to approve your connection request.';
+
+  @override
   String get connectionHistory => 'Connection History';
 
   @override
@@ -3197,4 +3211,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get years => 'years';
+
+  @override
+  String get connectWithPatient => 'Connect with Patient';
+
+  @override
+  String get scanPatientQr => 'Scan Patient QR';
+
+  @override
+  String get doctorConnectionStep1 =>
+      'Patient generates a QR code or connection code';
+
+  @override
+  String get doctorConnectionStep2 => 'Scan the code or enter it manually';
+
+  @override
+  String get doctorConnectionStep3 => 'Patient approves the connection request';
+
+  @override
+  String get waitingForApproval => 'Waiting for approval';
+
+  @override
+  String get patientWillReview =>
+      'The patient will review and approve your connection request';
+
+  @override
+  String get shareWithDoctor => 'Share with Doctor';
+
+  @override
+  String get generateDoctorCode => 'Generate Doctor Code';
+
+  @override
+  String get doctorWillScan => 'Your doctor will scan this code to connect';
+
+  @override
+  String get youWillApprove => 'You will need to approve the connection';
 }

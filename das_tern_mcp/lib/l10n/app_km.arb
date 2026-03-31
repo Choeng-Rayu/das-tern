@@ -681,6 +681,10 @@
   "expiresLabel": "ផុតកំណត់",
   "hoursUnit": "ម៉ោង",
   "minutesUnit": "នាទី",
+  "networkError": "បញ្ហាបណ្តាញ។ សូមពិនិត្យមើលការតភ្ជាប់របស់អ្នក។",
+  "tokenExpiredMessage": "កូដនេះបានផុតកំណត់។ សូមស្នើសុំកូដថ្មី។",
+  "tokenAlreadyUsed": "កូដនេះត្រូវបានប្រើរួចហើយ។",
+  "patientNeedsToApprove": "អ្នកជំងឺនឹងត្រូវយល់ព្រមការស្នើសុំភ្ជាប់របស់អ្នក។",
 
   "connectionHistory": "ប្រវត្តិការតភ្ជាប់",
   "filterAccepted": "បានទទួល",
@@ -1233,5 +1237,17 @@
   "exportReport": "នាំចេញរបាយការណ៍",
   "exportHealthReport": "នាំចេញរបាយការណ៍សុខភាព",
   "name": "ឈ្មោះ",
-  "years": "ឆ្នាំ"
+  "years": "ឆ្នាំ",
+
+  "connectWithPatient": "ភ្ជាប់ជាមួយអ្នកជំងឺ",
+  "scanPatientQr": "ស្កេន QR អ្នកជំងឺ",
+  "doctorConnectionStep1": "អ្នកជំងឺបង្កើតកូដ QR ឬកូដភ្ជាប់",
+  "doctorConnectionStep2": "ស្កេនកូដ ឬបញ្ចូលដោយដៃ",
+  "doctorConnectionStep3": "អ្នកជំងឺយល់ព្រមសំណើភ្ជាប់",
+  "waitingForApproval": "កំពុងរង់ចាំការយល់ព្រម",
+  "patientWillReview": "អ្នកជំងឺនឹងពិនិត្យ និងយល់ព្រមសំណើភ្ជាប់របស់អ្នក",
+  "shareWithDoctor": "ចែករំលែកជាមួយវេជ្ជបណ្ឌិត",
+  "generateDoctorCode": "បង្កើតកូដវេជ្ជបណ្ឌិត",
+  "doctorWillScan": "វេជ្ជបណ្ឌិតរបស់អ្នកនឹងស្កេនកូដនេះដើម្បីភ្ជាប់",
+  "youWillApprove": "អ្នកត្រូវយល់ព្រមការភ្ជាប់"
 }

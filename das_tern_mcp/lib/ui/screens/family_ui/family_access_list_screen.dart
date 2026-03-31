@@ -8,6 +8,7 @@ import '../../../providers/connection_provider.dart';
 import '../../../ui/theme/app_colors.dart';
 import '../../../ui/theme/app_spacing.dart';
 import '../../../utils/app_router.dart';
+import '../../widgets/app_page_header.dart';
 import '../../widgets/common_widgets.dart';
 import '../../widgets/language_switcher.dart';
 
@@ -56,24 +57,22 @@ class _FamilyAccessListScreenState extends State<FamilyAccessListScreen>
       body: Column(
         children: [
           // Blue gradient header
-          AppGradientHeader(
-            greeting: l10n.myFamily,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.history, color: Colors.white),
-                  onPressed: () {
-                    Navigator.pushNamed(context, AppRouter.familyHistory);
-                  },
-                  tooltip: l10n.connectionHistory,
-                ),
-                const LanguageSwitcherButton(lightBackground: false),
-                const SizedBox(width: 8),
-              ],
-            ),
+          AppPageHeader(
+            title: l10n.myFamily,
+            showBackButton: false,
+            showLogo: true,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.history, color: Colors.white),
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRouter.familyHistory);
+                },
+                tooltip: l10n.connectionHistory,
+              ),
+              const LanguageSwitcherButton(lightBackground: false),
+              const SizedBox(width: 8),
+            ],
             extraContent: [
-              const SizedBox(height: AppSpacing.md),
               // Search bar
               Container(
                 height: 42,

@@ -24,6 +24,11 @@ import '../ui/screens/family_ui/caregiver_dashboard_screen.dart';
 import '../ui/screens/family_ui/grace_period_settings_screen.dart';
 import '../ui/screens/family_ui/connection_history_screen.dart';
 import '../ui/screens/family_ui/caregiver_patient_detail_screen.dart';
+import '../ui/screens/doctor_ui/doctor_connect_intro_screen.dart';
+import '../ui/screens/doctor_ui/doctor_qr_scanner_screen.dart';
+import '../ui/screens/doctor_ui/doctor_code_entry_screen.dart';
+import '../ui/screens/doctor_ui/doctor_connection_preview_screen.dart';
+import '../ui/screens/patient_ui/patient_doctor_token_screen.dart';
 import '../ui/screens/patient/screens/activity_report_screen.dart';
 import '../ui/screens/patient/screens/upgrade_plan_screen.dart';
 import '../ui/screens/patient/screens/subscription_management_screen.dart';
@@ -67,6 +72,13 @@ class AppRouter {
   static const String doctorPatientDetail = '/doctor/patient-detail';
   static const String doctorMedPatients = '/doctor/med-patients';
   static const String doctorPendingPatients = '/doctor/pending-patients';
+
+  // Doctor connection routes
+  static const String doctorConnect = '/doctor/connect';
+  static const String doctorScan = '/doctor/scan';
+  static const String doctorEnterCode = '/doctor/enter-code';
+  static const String doctorConnectionPreview = '/doctor/connection-preview';
+  static const String patientDoctorToken = '/patient/doctor-token';
 
   // Family feature routes
   static const String familyConnect = '/family/connect';
@@ -157,6 +169,29 @@ class AppRouter {
         return _buildRoute(const MedPatientListScreen());
       case doctorPendingPatients:
         return _buildRoute(const PendingPatientListScreen());
+
+      // Doctor connection routes
+      case doctorConnect:
+        return MaterialPageRoute(
+          builder: (_) => const DoctorConnectIntroScreen(),
+        );
+      case doctorScan:
+        return MaterialPageRoute(
+          builder: (_) => const DoctorQRScannerScreen(),
+        );
+      case doctorEnterCode:
+        return MaterialPageRoute(
+          builder: (_) => const DoctorCodeEntryScreen(),
+        );
+      case doctorConnectionPreview:
+        return MaterialPageRoute(
+          builder: (_) => const DoctorConnectionPreviewScreen(),
+          settings: settings,
+        );
+      case patientDoctorToken:
+        return MaterialPageRoute(
+          builder: (_) => const PatientDoctorTokenScreen(),
+        );
 
       // Family routes
       case familyConnect:

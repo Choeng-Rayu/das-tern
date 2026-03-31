@@ -1,6 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../widgets/common_widgets.dart';
+import '../../widgets/app_bottom_navigation.dart';
 import 'tab/doctor_home_tab.dart';
 import 'doctor_patients_tab.dart';
 import 'tab/doctor_prescriptions_tab.dart';
@@ -37,44 +38,34 @@ class _DoctorShellState extends State<DoctorShell> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      extendBody: true,
-      body: MediaQuery.removePadding(
-        context: context,
-        removeBottom: true,
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).padding.bottom + 92,
-          ),
-          child: IndexedStack(index: _currentIndex, children: _tabs),
-        ),
-      ),
-      bottomNavigationBar: AppBottomNavBar(
+      body: IndexedStack(index: _currentIndex, children: _tabs),
+      bottomNavigationBar: AppBottomNavigation(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
         items: [
-          AppNavItem(
-            icon: Icons.home_outlined,
-            activeIcon: Icons.home,
+          NavItem(
+            icon: CupertinoIcons.house,
+            activeIcon: CupertinoIcons.house_fill,
             label: l10n.home,
           ),
-          AppNavItem(
-            icon: Icons.personal_injury_outlined,
-            activeIcon: Icons.personal_injury,
+          NavItem(
+            icon: CupertinoIcons.person_2,
+            activeIcon: CupertinoIcons.person_2_fill,
             label: l10n.doctorPatientsTab,
           ),
-          AppNavItem(
-            icon: Icons.medication_outlined,
-            activeIcon: Icons.medication,
+          NavItem(
+            icon: CupertinoIcons.doc_text,
+            activeIcon: CupertinoIcons.doc_text_fill,
             label: l10n.doctorPrescriptionsTab,
           ),
-          AppNavItem(
-            icon: Icons.fact_check_outlined,
-            activeIcon: Icons.fact_check,
+          NavItem(
+            icon: CupertinoIcons.clock,
+            activeIcon: CupertinoIcons.clock_fill,
             label: l10n.doctorPrescriptionHistoryTab,
           ),
-          AppNavItem(
-            icon: Icons.settings_outlined,
-            activeIcon: Icons.settings,
+          NavItem(
+            icon: CupertinoIcons.settings,
+            activeIcon: CupertinoIcons.settings_solid,
             label: l10n.settings,
           ),
         ],

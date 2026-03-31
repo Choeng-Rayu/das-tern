@@ -1,10 +1,14 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../l10n/app_localizations.dart';
 import '../../models/dose_event_model/dose_event.dart';
 import '../../providers/dose_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import 'app_glass_dialog.dart';
 import 'common_widgets.dart';
 
 /// Animated dose task card – shared by home tab and medications period view.
@@ -83,25 +87,23 @@ class _DoseTaskCardState extends State<DoseTaskCard>
   }
 
   void _openDetail(BuildContext context) {
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      isScrollControlled: true,
-      builder: (_) => DoseDetailSheet(
-        dose: widget.dose,
-        isTaken: _isTaken,
-        onMarkTaken: () async {
-          Navigator.pop(context);
-          await handleCheck();
-        },
-        onMarkUntaken: _isTaken
-            ? () async {
-                Navigator.pop(context);
-                await handleCheck();
-              }
-            : null,
+      builder: (_) => AppGlassBottomSheetContent(
+        child: DoseDetailSheet(
+          dose: widget.dose,
+          isTaken: _isTaken,
+          onMarkTaken: () async {
+            Navigator.pop(context);
+            await handleCheck();
+          },
+          onMarkUntaken: _isTaken
+              ? () async {
+                  Navigator.pop(context);
+                  await handleCheck();
+                }
+              : null,
+        ),
       ),
     );
   }
@@ -114,6 +116,21 @@ class _DoseTaskCardState extends State<DoseTaskCard>
     final timeStr =
         '${st.hour.toString().padLeft(2, '0')}:${st.minute.toString().padLeft(2, '0')}';
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Glass styling - more opaque since this is a list item
+    final glassFillColor = isDark
+        ? Colors.white.withValues(alpha: 0.25)
+        : Colors.white.withValues(alpha: 0.85);
+
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.white.withValues(alpha: 0.80);
+
+    final shadowColor = isDark
+        ? Colors.black.withValues(alpha: 0.15)
+        : Colors.black.withValues(alpha: 0.06);
+
     return AnimatedOpacity(
       opacity: showAsDone ? 0.65 : 1.0,
       duration: const Duration(milliseconds: 400),
@@ -122,107 +139,121 @@ class _DoseTaskCardState extends State<DoseTaskCard>
         onTap: () => _openDetail(context),
         child: Container(
           margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(AppRadius.lg),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 6,
+                color: shadowColor,
+                blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
-          child: Row(
-            children: [
-              // ── Animated circular checkbox ──
-              GestureDetector(
-                onTap: handleCheck,
-                behavior: HitTestBehavior.opaque,
-                child: AnimatedBuilder(
-                  animation: _fill,
-                  builder: (ctx, _) {
-                    final t = _fill.value;
-                    final fillColor = _isSkipped
-                        ? AppColors.alertRed
-                        : AppColors.successGreen;
-                    final bg = Color.lerp(Colors.white, fillColor, t)!;
-                    final border = Color.lerp(
-                      AppColors.primaryBlue,
-                      fillColor,
-                      t,
-                    )!;
-                    return Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: bg,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: border, width: 2),
-                      ),
-                      child: t > 0.5
-                          ? Icon(
-                              _isSkipped ? Icons.close : Icons.check,
-                              color: Colors.white,
-                              size: 16,
-                            )
-                          : null,
-                    );
-                  },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.sm,
                 ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-
-              // ── Med name + dosage ──
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                decoration: BoxDecoration(
+                  color: glassFillColor,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  border: Border.all(color: borderColor, width: 1.0),
+                ),
+                child: Row(
                   children: [
-                    Text(
-                      widget.dose.medicationName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        decoration: showAsDone
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                        color: showAsDone ? AppColors.textSecondary : null,
-                        decorationColor: AppColors.textSecondary,
+                    // ── Animated circular checkbox ──
+                    GestureDetector(
+                      onTap: handleCheck,
+                      behavior: HitTestBehavior.opaque,
+                      child: AnimatedBuilder(
+                        animation: _fill,
+                        builder: (ctx, _) {
+                          final t = _fill.value;
+                          final fillColor = _isSkipped
+                              ? AppColors.alertRed
+                              : AppColors.successGreen;
+                          final bg = Color.lerp(Colors.white, fillColor, t)!;
+                          final border = Color.lerp(
+                            AppColors.primaryBlue,
+                            fillColor,
+                            t,
+                          )!;
+                          return Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: bg,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: border, width: 2),
+                            ),
+                            child: t > 0.5
+                                ? Icon(
+                                    _isSkipped ? Icons.close : Icons.check,
+                                    color: Colors.white,
+                                    size: 16,
+                                  )
+                                : null,
+                          );
+                        },
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      widget.dose.dosage,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 12,
+                    const SizedBox(width: AppSpacing.md),
+
+                    // ── Med name + dosage ──
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.dose.medicationName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              decoration: showAsDone
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                              color: showAsDone
+                                  ? AppColors.textSecondary
+                                  : null,
+                              decorationColor: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.dose.dosage,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+
+                    // ── Time + status badge ──
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          timeStr,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        _buildBadge(l10n),
+                      ],
                     ),
                   ],
                 ),
               ),
-
-              // ── Time + status badge ──
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    timeStr,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  _buildBadge(l10n),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -269,108 +300,88 @@ class DoseDetailSheet extends StatelessWidget {
         dose.status == 'TAKEN_ON_TIME' || dose.status == 'TAKEN_LATE';
     final isSkipped = dose.status == 'SKIPPED';
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    // Content is wrapped by AppGlassBottomSheetContent in _openDetail,
+    // which provides SafeArea, padding, and drag handle.
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        dose.medicationName,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    dose.medicationName,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (khmerName != null && khmerName.isNotEmpty)
+                    Text(
+                      khmerName,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
                       ),
-                      if (khmerName != null && khmerName.isNotEmpty)
-                        Text(
-                          khmerName,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: AppColors.textSecondary),
-                        ),
-                    ],
-                  ),
-                ),
-                if (isDone)
-                  StatusBadge(label: l10n.done, color: AppColors.successGreen)
-                else if (isSkipped)
-                  StatusBadge(label: l10n.skipped, color: AppColors.alertRed)
-                else
-                  StatusBadge(
-                    label: l10n.dueToday,
-                    color: AppColors.primaryBlue,
-                  ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            const Divider(),
-            const SizedBox(height: AppSpacing.sm),
-            _InfoRow(icon: Icons.access_time, label: l10n.time, value: timeStr),
-            const SizedBox(height: AppSpacing.sm),
-            _InfoRow(
-              icon: Icons.medication,
-              label: l10n.dosage,
-              value: dose.dosage.isEmpty ? '-' : dose.dosage,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _InfoRow(
-              icon: Icons.wb_sunny_outlined,
-              label: l10n.timePeriodLabel,
-              value: _periodLabel(dose.timePeriod),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (!isDone && !isSkipped)
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: onMarkTaken,
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: Text(l10n.markAsTaken),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.successGreen,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.md,
                     ),
-                  ),
-                ),
+                ],
               ),
-            if (isDone && onMarkUntaken != null)
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: onMarkUntaken,
-                  icon: const Icon(Icons.undo),
-                  label: Text(l10n.markAsPending),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.warningOrange,
-                    side: const BorderSide(color: AppColors.warningOrange),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.md,
-                    ),
-                  ),
-                ),
-              ),
+            ),
+            if (isDone)
+              StatusBadge(label: l10n.done, color: AppColors.successGreen)
+            else if (isSkipped)
+              StatusBadge(label: l10n.skipped, color: AppColors.alertRed)
+            else
+              StatusBadge(label: l10n.dueToday, color: AppColors.primaryBlue),
           ],
         ),
-      ),
+        const SizedBox(height: AppSpacing.md),
+        const Divider(),
+        const SizedBox(height: AppSpacing.sm),
+        _InfoRow(icon: Icons.access_time, label: l10n.time, value: timeStr),
+        const SizedBox(height: AppSpacing.sm),
+        _InfoRow(
+          icon: Icons.medication,
+          label: l10n.dosage,
+          value: dose.dosage.isEmpty ? '-' : dose.dosage,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        _InfoRow(
+          icon: Icons.wb_sunny_outlined,
+          label: l10n.timePeriodLabel,
+          value: _periodLabel(dose.timePeriod),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        if (!isDone && !isSkipped)
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: onMarkTaken,
+              icon: const Icon(Icons.check_circle_outline),
+              label: Text(l10n.markAsTaken),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.successGreen,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+              ),
+            ),
+          ),
+        if (isDone && onMarkUntaken != null)
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: onMarkUntaken,
+              icon: const Icon(Icons.undo),
+              label: Text(l10n.markAsPending),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.warningOrange,
+                side: const BorderSide(color: AppColors.warningOrange),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+              ),
+            ),
+          ),
+      ],
     );
   }
 

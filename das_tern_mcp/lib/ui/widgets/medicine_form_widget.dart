@@ -254,15 +254,32 @@ class _MedicineFormWidgetState extends State<MedicineFormWidget> {
       'medicineNameKhmer': _nameKhmerController.text.trim(),
       'medicineType': _medicineType.toJson(),
       'unit': _unit.toJson(),
-      // Required by backend DTO
-      'dosageUnit': _unit.displayName,
-      'form': _medicineType.displayName,
       'dosageAmount': double.tryParse(_dosageController.text) ?? 1,
       'frequency': '${_frequencyPerDay}x/day',
       'durationDays': int.tryParse(_durationController.text) ?? 30,
-      'scheduleTimes': scheduleTimes,
       'beforeMeal': beforeMeal,
       'isPRN': _isPRN,
+      // Add period-specific dosages for backend
+      if (_morning && !_isPRN)
+        'morningDosage': {
+          'amount': _dosageController.text.trim(),
+          'beforeMeal': beforeMeal,
+        },
+      if (_afternoon && !_isPRN)
+        'afternoonDosage': {
+          'amount': _dosageController.text.trim(),
+          'beforeMeal': beforeMeal,
+        },
+      if (_evening && !_isPRN)
+        'eveningDosage': {
+          'amount': _dosageController.text.trim(),
+          'beforeMeal': beforeMeal,
+        },
+      if (_night && !_isPRN)
+        'nightDosage': {
+          'amount': _dosageController.text.trim(),
+          'beforeMeal': beforeMeal,
+        },
       if (_descriptionController.text.isNotEmpty)
         'description': _descriptionController.text.trim(),
       if (_noteController.text.isNotEmpty)

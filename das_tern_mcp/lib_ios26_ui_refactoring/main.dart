@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'core/theme/theme.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/widgets/widgets.dart';
-import 'l10n/app_localizations.dart';
+
 
 void main() {
   runApp(

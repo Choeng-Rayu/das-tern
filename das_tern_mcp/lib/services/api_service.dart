@@ -724,18 +724,31 @@ class ApiService {
   // ────────────────────────────────────────────
 
   /// POST /connections/tokens/generate
+  /// Optionally pass [targetRole] to specify connection target (e.g., 'DOCTOR')
   Future<Map<String, dynamic>> generateConnectionToken(
-    String permissionLevel,
-  ) async {
+    String permissionLevel, {
+    String? targetRole,
+  }) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.post(
           Uri.parse('$baseUrl/connections/tokens/generate'),
           headers: h,
-          body: jsonEncode({'permissionLevel': permissionLevel}),
+          body: jsonEncode({
+            'permissionLevel': permissionLevel,
+            'targetRole': ?targetRole,
+          }),
         ),
       ),
     );
+  }
+
+  /// Generate a connection token specifically for doctor connection
+  /// POST /connections/tokens/generate with targetRole='DOCTOR'
+  Future<Map<String, dynamic>> generateDoctorConnectionToken(
+    String permissionLevel,
+  ) async {
+    return generateConnectionToken(permissionLevel, targetRole: 'DOCTOR');
   }
 
   /// POST /connections/tokens/validate
@@ -757,6 +770,20 @@ class ApiService {
       await _authenticatedRequest(
         (h) => http.post(
           Uri.parse('$baseUrl/connections/tokens/consume'),
+          headers: h,
+          body: jsonEncode({'token': token}),
+        ),
+      ),
+    );
+  }
+
+  /// Doctor consumes a connection token
+  /// POST /connections/tokens/doctor-consume
+  Future<Map<String, dynamic>> doctorConsumeConnectionToken(String token) async {
+    return Map<String, dynamic>.from(
+      await _authenticatedRequest(
+        (h) => http.post(
+          Uri.parse('$baseUrl/connections/tokens/doctor-consume'),
           headers: h,
           body: jsonEncode({'token': token}),
         ),
