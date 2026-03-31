@@ -267,41 +267,38 @@ class AppBottomNavigation extends StatelessWidget {
           left: AppSpacing.md,
           right: AppSpacing.md,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AppGlassPanel(
-              // Pill shape with full border radius
-              borderRadius: _radiusFull,
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.sm,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(items.length, (index) {
-                  final item = items[index];
-                  if (item.isProminent) {
-                    return _ProminentNavItem(
-                      index: index,
-                      item: item,
-                      activeColor: activeColor,
-                      onTap: onTap,
-                    );
-                  }
-                  return _ExpandingNavItem(
+        child: Center(
+          child: AppGlassPanel(
+            // Pill shape with full border radius
+            borderRadius: _radiusFull,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.sm,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(items.length, (index) {
+                final item = items[index];
+                if (item.isProminent) {
+                  return _ProminentNavItem(
                     index: index,
                     item: item,
-                    currentIndex: currentIndex,
                     activeColor: activeColor,
-                    inactiveColor: inactiveColor,
-                    maxExpandedWidth: maxExpandedWidth,
                     onTap: onTap,
                   );
-                }),
-              ),
+                }
+                return _ExpandingNavItem(
+                  index: index,
+                  item: item,
+                  currentIndex: currentIndex,
+                  activeColor: activeColor,
+                  inactiveColor: inactiveColor,
+                  maxExpandedWidth: maxExpandedWidth,
+                  onTap: onTap,
+                );
+              }),
             ),
-          ],
+          ),
         ),
       ),
     );

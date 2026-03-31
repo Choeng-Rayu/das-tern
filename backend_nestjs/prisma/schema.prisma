@@ -299,6 +299,7 @@ model ConnectionToken {
   patientId       String          @db.Uuid
   token           String          @unique @db.VarChar(20)
   permissionLevel PermissionLevel @default(ALLOWED)
+  targetRole      String          @default("FAMILY_MEMBER") @db.VarChar(20)
   expiresAt       DateTime        @db.Timestamptz(3)
   usedAt          DateTime?       @db.Timestamptz(3)
   usedById        String?         @db.Uuid

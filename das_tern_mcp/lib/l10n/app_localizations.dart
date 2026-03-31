@@ -3698,6 +3698,30 @@ abstract class AppLocalizations {
   /// **'minutes'**
   String get minutesUnit;
 
+  /// No description provided for @networkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Network error. Please check your connection.'**
+  String get networkError;
+
+  /// No description provided for @tokenExpiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This token has expired. Please ask for a new one.'**
+  String get tokenExpiredMessage;
+
+  /// No description provided for @tokenAlreadyUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'This token has already been used.'**
+  String get tokenAlreadyUsed;
+
+  /// No description provided for @patientNeedsToApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'The patient will need to approve your connection request.'**
+  String get patientNeedsToApprove;
+
   /// No description provided for @connectionHistory.
   ///
   /// In en, this message translates to:
@@ -6133,6 +6157,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'years'**
   String get years;
+
+  /// No description provided for @connectWithPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect with Patient'**
+  String get connectWithPatient;
+
+  /// No description provided for @scanPatientQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Patient QR'**
+  String get scanPatientQr;
+
+  /// No description provided for @doctorConnectionStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient generates a QR code or connection code'**
+  String get doctorConnectionStep1;
+
+  /// No description provided for @doctorConnectionStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the code or enter it manually'**
+  String get doctorConnectionStep2;
+
+  /// No description provided for @doctorConnectionStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient approves the connection request'**
+  String get doctorConnectionStep3;
+
+  /// No description provided for @waitingForApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for approval'**
+  String get waitingForApproval;
+
+  /// No description provided for @patientWillReview.
+  ///
+  /// In en, this message translates to:
+  /// **'The patient will review and approve your connection request'**
+  String get patientWillReview;
+
+  /// No description provided for @shareWithDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Share with Doctor'**
+  String get shareWithDoctor;
+
+  /// No description provided for @generateDoctorCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Doctor Code'**
+  String get generateDoctorCode;
+
+  /// No description provided for @doctorWillScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Your doctor will scan this code to connect'**
+  String get doctorWillScan;
+
+  /// No description provided for @youWillApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need to approve the connection'**
+  String get youWillApprove;
 }
 
 class _AppLocalizationsDelegate
