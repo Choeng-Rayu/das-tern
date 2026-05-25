@@ -1032,126 +1032,140 @@ class _TimePeriodCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 90),
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: colors,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          boxShadow: [
+            BoxShadow(
+              color: colors[0].withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
-          ),
-          child: Stack(
-            children: [
-              // decorative circle top-right
-              Positioned(
-                top: -16,
-                right: -16,
-                child: Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.12),
-                  ),
-                ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 90),
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: colors,
               ),
-              // decorative circle bottom-left
-              Positioned(
-                bottom: -20,
-                left: -10,
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.08),
-                  ),
-                ),
-              ),
-              // large + cross
-              Positioned(
-                top: 6,
-                right: 10,
-                child: Opacity(
-                  opacity: 0.18,
-                  child: CustomPaint(
-                    size: const Size(26, 26),
-                    painter: _CrossPainter(color: Colors.white),
-                  ),
-                ),
-              ),
-              // small + cross
-              Positioned(
-                bottom: 10,
-                right: 38,
-                child: Opacity(
-                  opacity: 0.12,
-                  child: CustomPaint(
-                    size: const Size(16, 16),
-                    painter: _CrossPainter(color: Colors.white),
-                  ),
-                ),
-              ),
-              // pill shape
-              Positioned(
-                bottom: 8,
-                right: 8,
-                child: Opacity(
-                  opacity: 0.13,
-                  child: CustomPaint(
-                    size: const Size(30, 13),
-                    painter: _PillPainter(color: Colors.white),
-                  ),
-                ),
-              ),
-              // main content
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, color: Colors.white, size: 24),
-                  const SizedBox(height: 4),
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    l10n.medicineCountLabel(doseCount),
-                    style: const TextStyle(color: Colors.white70, fontSize: 10),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
+            ),
+            child: Stack(
+              children: [
+                // decorative circle top-right
+                Positioned(
+                  top: -16,
+                  right: -16,
+                  child: Container(
+                    width: 72,
+                    height: 72,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(AppRadius.full),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.5),
-                      ),
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.12),
                     ),
-                    child: Text(
-                      badgeText,
+                  ),
+                ),
+                // decorative circle bottom-left
+                Positioned(
+                  bottom: -20,
+                  left: -10,
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
+                  ),
+                ),
+                // large + cross
+                Positioned(
+                  top: 6,
+                  right: 10,
+                  child: Opacity(
+                    opacity: 0.18,
+                    child: CustomPaint(
+                      size: const Size(26, 26),
+                      painter: _CrossPainter(color: Colors.white),
+                    ),
+                  ),
+                ),
+                // small + cross
+                Positioned(
+                  bottom: 10,
+                  right: 38,
+                  child: Opacity(
+                    opacity: 0.12,
+                    child: CustomPaint(
+                      size: const Size(16, 16),
+                      painter: _CrossPainter(color: Colors.white),
+                    ),
+                  ),
+                ),
+                // pill shape
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Opacity(
+                    opacity: 0.13,
+                    child: CustomPaint(
+                      size: const Size(30, 13),
+                      painter: _PillPainter(color: Colors.white),
+                    ),
+                  ),
+                ),
+                // main content
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, color: Colors.white, size: 24),
+                    const SizedBox(height: 4),
+                    Text(
+                      label,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    Text(
+                      l10n.medicineCountLabel(doseCount),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.35),
+                        borderRadius: BorderRadius.circular(AppRadius.full),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.6),
+                        ),
+                      ),
+                      child: Text(
+                        badgeText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

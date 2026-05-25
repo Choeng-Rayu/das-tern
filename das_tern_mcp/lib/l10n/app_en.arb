@@ -784,6 +784,10 @@
   "expiresLabel": "Expires",
   "hoursUnit": "hours",
   "minutesUnit": "minutes",
+  "networkError": "Network error. Please check your connection.",
+  "tokenExpiredMessage": "This token has expired. Please ask for a new one.",
+  "tokenAlreadyUsed": "This token has already been used.",
+  "patientNeedsToApprove": "The patient will need to approve your connection request.",
 
   "connectionHistory": "Connection History",
   "filterAccepted": "Accepted",
@@ -1336,5 +1340,17 @@
   "exportReport": "Export Report",
   "exportHealthReport": "Export Health Report",
   "name": "Name",
-  "years": "years"
+  "years": "years",
+
+  "connectWithPatient": "Connect with Patient",
+  "scanPatientQr": "Scan Patient QR",
+  "doctorConnectionStep1": "Patient generates a QR code or connection code",
+  "doctorConnectionStep2": "Scan the code or enter it manually",
+  "doctorConnectionStep3": "Patient approves the connection request",
+  "waitingForApproval": "Waiting for approval",
+  "patientWillReview": "The patient will review and approve your connection request",
+  "shareWithDoctor": "Share with Doctor",
+  "generateDoctorCode": "Generate Doctor Code",
+  "doctorWillScan": "Your doctor will scan this code to connect",
+  "youWillApprove": "You will need to approve the connection"
 }

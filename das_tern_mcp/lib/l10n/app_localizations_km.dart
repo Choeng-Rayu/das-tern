@@ -1895,6 +1895,19 @@ class AppLocalizationsKm extends AppLocalizations {
   String get minutesUnit => 'នាទី';
 
   @override
+  String get networkError => 'បញ្ហាបណ្តាញ។ សូមពិនិត្យមើលការតភ្ជាប់របស់អ្នក។';
+
+  @override
+  String get tokenExpiredMessage => 'កូដនេះបានផុតកំណត់។ សូមស្នើសុំកូដថ្មី។';
+
+  @override
+  String get tokenAlreadyUsed => 'កូដនេះត្រូវបានប្រើរួចហើយ។';
+
+  @override
+  String get patientNeedsToApprove =>
+      'អ្នកជំងឺនឹងត្រូវយល់ព្រមការស្នើសុំភ្ជាប់របស់អ្នក។';
+
+  @override
   String get connectionHistory => 'ប្រវត្តិការតភ្ជាប់';
 
   @override
@@ -3196,4 +3209,38 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get years => 'ឆ្នាំ';
+
+  @override
+  String get connectWithPatient => 'ភ្ជាប់ជាមួយអ្នកជំងឺ';
+
+  @override
+  String get scanPatientQr => 'ស្កេន QR អ្នកជំងឺ';
+
+  @override
+  String get doctorConnectionStep1 => 'អ្នកជំងឺបង្កើតកូដ QR ឬកូដភ្ជាប់';
+
+  @override
+  String get doctorConnectionStep2 => 'ស្កេនកូដ ឬបញ្ចូលដោយដៃ';
+
+  @override
+  String get doctorConnectionStep3 => 'អ្នកជំងឺយល់ព្រមសំណើភ្ជាប់';
+
+  @override
+  String get waitingForApproval => 'កំពុងរង់ចាំការយល់ព្រម';
+
+  @override
+  String get patientWillReview =>
+      'អ្នកជំងឺនឹងពិនិត្យ និងយល់ព្រមសំណើភ្ជាប់របស់អ្នក';
+
+  @override
+  String get shareWithDoctor => 'ចែករំលែកជាមួយវេជ្ជបណ្ឌិត';
+
+  @override
+  String get generateDoctorCode => 'បង្កើតកូដវេជ្ជបណ្ឌិត';
+
+  @override
+  String get doctorWillScan => 'វេជ្ជបណ្ឌិតរបស់អ្នកនឹងស្កេនកូដនេះដើម្បីភ្ជាប់';
+
+  @override
+  String get youWillApprove => 'អ្នកត្រូវយល់ព្រមការភ្ជាប់';
 }

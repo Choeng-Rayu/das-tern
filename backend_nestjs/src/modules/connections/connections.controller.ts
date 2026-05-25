@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, ForbiddenException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ConnectionsService } from './connections.service';
-import { ConnectionTokenService } from './connection-token.service';
+import { ConnectionTokenService, TargetRole } from './connection-token.service';
 import { NudgeService } from './nudge.service';
-import { CreateConnectionDto, AcceptConnectionDto, GenerateTokenDto, ValidateTokenDto, ConsumeTokenDto, SendNudgeDto, NudgeResponseDto } from './dto';
+import { CreateConnectionDto, AcceptConnectionDto, GenerateTokenDto, ValidateTokenDto, ConsumeTokenDto, DoctorConsumeTokenDto, SendNudgeDto, NudgeResponseDto } from './dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { PermissionLevel } from '@prisma/client';
 
@@ -49,18 +49,49 @@ export class ConnectionsController {
   // Token Endpoints
   // ============================
 
+  /**
+   * Generate a connection token for a patient.
+   * The token is ROLE-AGNOSTIC - whoever scans it (doctor or family member)
+   * will create the appropriate connection type based on THEIR role.
+   * @param targetRole - DEPRECATED: Kept for backward compatibility but ignored
+   */
   @Post('tokens/generate')
   async generateToken(@CurrentUser() user: any, @Body() dto: GenerateTokenDto) {
-    return this.tokenService.generateToken(user.id, dto.permissionLevel);
+    const targetRole = (dto.targetRole as TargetRole) || 'FAMILY_MEMBER';
+    return this.tokenService.generateToken(user.id, dto.permissionLevel, targetRole);
   }
 
+  /**
+   * Validate a connection token and return its details.
+   * Returns token info - the consuming app uses this to show patient preview.
+   */
   @Post('tokens/validate')
   async validateToken(@Body() dto: ValidateTokenDto) {
     return this.tokenService.validateToken(dto.token);
   }
 
+  /**
+   * Consume a token to create a pending connection.
+   * The connection type is determined by the CONSUMER'S role:
+   * - DOCTOR -> creates doctor connection (limited access)
+   * - FAMILY_MEMBER -> creates family connection (permission level from token)
+   */
   @Post('tokens/consume')
   async consumeToken(@CurrentUser() user: any, @Body() dto: ConsumeTokenDto) {
+    return this.tokenService.consumeToken(dto.token, user.id);
+  }
+
+  /**
+   * Doctor-specific endpoint to consume a patient-generated token.
+   * This is an alias for /tokens/consume but validates the user is a DOCTOR first.
+   * Flow: Patient generates token/QR -> Doctor scans and consumes -> Patient approves
+   */
+  @Post('tokens/doctor-consume')
+  async doctorConsumeToken(@CurrentUser() user: any, @Body() dto: DoctorConsumeTokenDto) {
+    // Verify the user is a DOCTOR
+    if (user.role !== 'DOCTOR') {
+      throw new ForbiddenException('Only doctors can use this endpoint');
+    }
     return this.tokenService.consumeToken(dto.token, user.id);
   }
 
