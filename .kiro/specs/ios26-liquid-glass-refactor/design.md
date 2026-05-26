@@ -1,5 +1,24 @@
 # Design Document — iOS 26 Liquid Glass Refactor (RxCam)
 
+> ⚠️ **v2 status note (2026-05-26).** This file documents the v1 RxCam refactor design. The v2 design concept now lives at **[`/.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/design.md`](../../specs-v2-flutter-supabase/10-frontend-liquid-glass/design.md)** and inherits the visual primitives below while replacing the v1-specific architecture. The standalone [`frontend-concept-v2.md`](./frontend-concept-v2.md) in this folder is the original draft snapshot kept for reference.
+>
+> Sections of this document remain canonical for v2:
+>
+> - § "Design Token System" (the AppColors, AppSpacing, AppTextStyles structure — values are remapped per v2).
+> - All `AppGlassPanel`, `AppMeshBackground`, `AppButton` spring-scale, `AppBottomNav` expand-on-select definitions describe the **visual contract** that v2 still uses.
+>
+> Sections of this document are **superseded** by v2:
+>
+> - The MVVM + Provider four-layer architecture diagram (replaced by Riverpod + Drift + repository pattern in `00-overview/design.md`).
+> - The data model definitions (replaced by `01-supabase-data-layer/design.md`).
+> - The 5-tab bottom-nav layout (replaced by role-aware nav in `10-frontend-liquid-glass/design.md` § 5).
+> - The brand colour `#009DFF` (replaced by `#1A8E5F`).
+> - All references to RxCam, NestJS endpoints, and the v1 services list.
+>
+> Read the v2 spec folder first; come back here only for the deeper visual contract details that did not need to change.
+
+---
+
 ## Overview
 
 RxCam is a Flutter prescription and medication management app for Cambodian healthcare users.

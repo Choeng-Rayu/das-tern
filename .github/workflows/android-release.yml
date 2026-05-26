@@ -1,0 +1,50 @@
+name: Android Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build signed AAB
+    runs-on: ubuntu-latest
+    environment: production   # manual approval gate
+    defaults:
+      run:
+        working-directory: dastern
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.jks
+
+      - name: Build release AAB
+        run: |
+          flutter build appbundle --release \
+            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL_PROD }} \
+            --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY_PROD }} \
+            --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }} \
+            --dart-define=APP_ENV=prod
+        env:
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload to Play Console (internal track)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.dastern.app
+          releaseFiles: dastern/build/app/outputs/bundle/release/*.aab
+          track: internal

@@ -39,13 +39,15 @@ cd dastern
 # 2. Install pinned dependencies
 flutter pub get
 
-# 3. Generate localisations (creates lib/l10n/app_localizations*.dart)
-flutter gen-l10n
+# 3. (Optional) Spin up local Supabase — requires Supabase CLI
+#    https://supabase.com/docs/guides/cli/getting-started
+#    supabase start   ← run from the repo root, not dastern/
+#    This prints the local URL and anon key to use in step 4.
 
 # 4. Run on a connected device or emulator
 flutter run \
   --dart-define=SUPABASE_URL=http://127.0.0.1:54321 \
-  --dart-define=SUPABASE_ANON_KEY=<local-anon-key> \
+  --dart-define=SUPABASE_ANON_KEY=<local-anon-key-from-supabase-start> \
   --dart-define=APP_ENV=dev
 ```
 
@@ -61,10 +63,10 @@ restarts.
 lib/
 ├── main.dart                  # entry point
 ├── app.dart                   # root MaterialApp.router
-├── core/                      # cross-cutting infra (theme, i18n, logging, …)
+├── core/                      # cross-cutting infra (theme, l10n controller, logging, …)
 ├── features/                  # one folder per spec module
 ├── shared/widgets/            # reusable UI catalog
-└── l10n/                      # ARB files + generated AppLocalizations
+└── l10n/                      # pre-generated AppLocalizations (copied from das_tern_mcp)
 ```
 
 See [`AGENTS.md` §2](./AGENTS.md) for the full map and rules.
@@ -83,15 +85,17 @@ dart format .
 # Tests with coverage
 flutter test --coverage
 
-# Regenerate ARB localisations (auto-runs on flutter run, but explicit is fine)
-flutter gen-l10n
-
 # Debug Android build
 flutter build apk --debug --dart-define=SUPABASE_URL=… --dart-define=SUPABASE_ANON_KEY=…
 
 # iOS (macOS host only)
 flutter build ios --debug --dart-define=…
 ```
+
+> **Do NOT run `flutter gen-l10n` here.** `lib/l10n/` contains
+> pre-generated files copied from `das_tern_mcp/lib/l10n/`. To add or
+> change strings: edit the ARBs in `das_tern_mcp/lib/l10n/`, run
+> `flutter gen-l10n` there, then copy the five files into `dastern/lib/l10n/`.
 
 ---
 
@@ -136,7 +140,7 @@ See [`AGENTS.md` §5–§7](./AGENTS.md) for the full design-system + i18n rules
 | New reusable widget (≥ 2 features) | `lib/shared/widgets/<group>/` |
 | New design token | `lib/core/theme/tokens/` |
 | New shared infra (logging, network, …) | `lib/core/<area>/` |
-| New strings | `lib/l10n/app_km.arb` **and** `lib/l10n/app_en.arb` |
+| New strings | Edit ARBs in `das_tern_mcp/lib/l10n/`, run `flutter gen-l10n` there, copy 5 files to `dastern/lib/l10n/` |
 | New top-level route | `lib/core/routing/app_router.dart` |
 
 ---

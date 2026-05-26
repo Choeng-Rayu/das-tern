@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/home/presentation/home_page.dart';
 import '../../features/settings/presentation/appearance_settings_page.dart';
+import '../../features/settings/presentation/diagnostics_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
 
 /// Named routes — keep them as `static const` paths so call-sites use the
@@ -14,6 +15,7 @@ class AppRoute {
   static const String home = '/';
   static const String settings = '/settings';
   static const String settingsAppearance = '/settings/appearance';
+  static const String settingsDiagnostics = '/settings/diagnostics';
 }
 
 /// Top-level [GoRouter] configuration.
@@ -46,6 +48,12 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
             name: 'settings.appearance',
             builder: (BuildContext context, GoRouterState state) =>
                 const AppearanceSettingsPage(),
+          ),
+          GoRoute(
+            path: 'diagnostics',
+            name: 'settings.diagnostics',
+            builder: (BuildContext context, GoRouterState state) =>
+                const DiagnosticsPage(),
           ),
         ],
       ),

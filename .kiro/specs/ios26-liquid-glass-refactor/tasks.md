@@ -1,5 +1,35 @@
 # Implementation Plan: iOS 26 Liquid Glass Refactor (RxCam)
 
+> ⚠️ **v2 status note (2026-05-26).** This task list was authored against v1 (RxCam, MVVM + Provider, NestJS backend). For v2, follow the task list at **[`/.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/tasks.md`](../../specs-v2-flutter-supabase/10-frontend-liquid-glass/tasks.md)** plus each feature spec in [`/.kiro/specs-v2-flutter-supabase/`](../../specs-v2-flutter-supabase/). The standalone [`frontend-concept-v2.md`](./frontend-concept-v2.md) in this folder is the original draft snapshot kept for reference.
+>
+> ### v2 quick re-mapping
+>
+> | v1 Phase | v2 owner |
+> |---|---|
+> | Phase 1 — Foundation (theme, router, DI) | `00-overview/tasks.md` Phase 2 + `09-design-system-localization/tasks.md` |
+> | Phase 2 — Global Widget System | `09-design-system-localization/tasks.md` (base widgets) + `10-frontend-liquid-glass/tasks.md` (glass widgets) |
+> | Phase 3 — Data Layer (services / repositories) | `01-supabase-data-layer/tasks.md` (replaces with RLS-protected Supabase calls) |
+> | Phase 4 — Domain Use Cases | Folded into each v2 feature spec's domain layer |
+> | Phase 5 — UI Screens | Each v2 feature spec owns its screens; visual treatment per `10-frontend-liquid-glass/design.md` |
+> | Phase 6 — Cleanup & QA | Each v2 spec's "Sign-off" section |
+>
+> ### v2-only Liquid Glass tasks (now formally tracked in `10-frontend-liquid-glass/tasks.md`)
+>
+> 1. Implement `lib/shared/widgets/effects/frosted_surface.dart`.
+> 2. Register `GlassTokens` ThemeExtension on `lightTheme()` and `darkTheme()`.
+> 3. Implement `AppMeshBackground` with three orbs animated via two controllers.
+> 4. Build `AppGlassHeader`, `AppGlassNavBar`, `AppGlassFab`, `AppGlassCard`, `AppGlassChip`, `AppGlassDialog`, `AppGlassBottomSheet`.
+> 5. Refactor v2 `AppScaffold` (from `09-design-system-localization`) to compose mesh + glass header + role-aware nav.
+> 6. Add the role-aware bottom nav (Patient: Today/Prescriptions/QR-FAB/Connections/Settings; Doctor: Home/Patients/Compose/Settings + QR icon in app bar).
+> 7. Add `BackdropKeys` (named keys: `shellHeader`, `contentList`, `modal`, `qrSurface`) and the CI lint rule that blocks unkeyed `BackdropFilter`.
+> 8. Add `AdaptiveGlassOpacity` provider that increases tint when Reduced Transparency is on or frame-time exceeds 18 ms.
+> 9. Add the `PerformanceProbe` that downgrades the global glass profile on slow devices.
+> 10. Cover every glass widget with golden tests in light + dark.
+>
+> Below is the original v1 task list, kept for reference of what each glass widget needs to render.
+
+---
+
 ## Overview
 
 Migrate RxCam to the iOS 26 Liquid Glass aesthetic with strict MVVM Clean Architecture and a fully

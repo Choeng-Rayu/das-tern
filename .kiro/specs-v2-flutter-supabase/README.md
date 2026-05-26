@@ -46,6 +46,7 @@ The v1 specs in `.kiro/specs/` remain intact as historical reference. The v2 spe
 | 07 | `07-ocr-prescription-scanning/` | Hybrid OCR pipeline (ML Kit Latin → Tesseract Khmer → Cloud Vision Edge Function fallback), confidence routing, prescription draft generation |
 | 08 | `08-google-play-billing/` | `in_app_purchase` plugin integration, server-side verification via Edge Function, RTDN webhook, subscription state machine, family-plan member management |
 | 09 | `09-design-system-localization/` | Bilingual (Khmer/English) i18n, light/dark theme, design tokens, reusable widget catalog |
+| 10 | `10-frontend-liquid-glass/` | iOS 26 Liquid Glass visual layer — `GlassTokens` ThemeExtension, `FrostedSurface`, mesh background, role-aware `AppScaffold` (Patient: Today/Prescriptions/QR-FAB/Connections/Settings; Doctor: Home/Patients/Compose/Settings + QR icon), motion catalogue, screen-by-screen visual contract |
 
 Each folder contains:
 - `requirements.md` — User stories + EARS-style acceptance criteria
@@ -93,7 +94,7 @@ For every v1 spec, here's where its content lives in v2:
 | `ocr-prescription-scanning/` | `07-ocr-prescription-scanning/` | Python kiri_ocr microservice removed. Replaced with on-device ML Kit (Latin) + Tesseract (Khmer) + Edge Function → Google Cloud Vision (handwriting / low-confidence fallback). |
 | `bakong-payment` (in v1 docs) | `08-google-play-billing/` | Bakong replaced by Google Play Billing for store-policy compliance. Bakong path can be reintroduced as a side channel for KHR top-ups in a later phase. |
 | `global-widget-system-design/` | `09-design-system-localization/` | Carries over with minor cleanup. |
-| `ios26-liquid-glass-refactor/` | Folded into `09-design-system-localization/` § "Visual language" | Optional / aesthetic, not blocking MVP. |
+| `ios26-liquid-glass-refactor/` | `10-frontend-liquid-glass/` | The full visual contract carries over (mesh background, FrostedSurface, glass widgets, motion catalogue) and is restated in v2 with the new tokens, role-aware navigation, and Riverpod patterns. The original v1 folder is kept for historical reference. |
 
 ## 7. Out of scope for v2 MVP
 

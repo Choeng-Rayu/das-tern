@@ -1,5 +1,21 @@
 # Requirements Document
 
+> ⚠️ **v2 status note (2026-05-26).** The v2 frontend visual layer has been folded into the canonical spec set at **[`/.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/`](../../specs-v2-flutter-supabase/10-frontend-liquid-glass/)**. The standalone [`frontend-concept-v2.md`](./frontend-concept-v2.md) in this folder is the original draft snapshot kept for reference; the v2 spec folder is the source of truth.
+>
+> When this v1 document conflicts with v2, v2 wins. The Liquid Glass visual values below remain valid; the v1 specifics noted below are superseded:
+>
+> - The app brand name is **Das Tern**, not "RxCam".
+> - The state management is **Riverpod + Drift** (per v2), not MVVM + Provider.
+> - The user roles are **PATIENT and DOCTOR only** (per ADDENDUM-001); FAMILY_MEMBER is gone.
+> - The brand seed colour is **`#1A8E5F` (Das Tern green)**, not `#009DFF`.
+> - The bottom-nav layout is **role-aware** (see `10-frontend-liquid-glass/design.md` § 5), not the static 5-tab v1 layout.
+> - Auth methods are **Google OAuth, Telegram OIDC, and email/phone + password** (per `02-authentication`), not the v1 OTP flow alluded to in some screens.
+> - Data services are replaced by **Supabase + RLS-protected tables and Edge Functions**; references to NestJS endpoints below are historical.
+>
+> The Liquid Glass visual primitives (BackdropFilter, specular borders, mesh background, spring physics, glass tab bar) are kept and refined in the new v2 location.
+
+---
+
 ## Introduction
 
 RxCam is a Flutter-based prescription and medication management app targeting Cambodian healthcare users.

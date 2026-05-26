@@ -14,7 +14,7 @@
 The Das Tern Flutter app is a **single codebase** with **Supabase as the
 only backend**, written **offline-first** with **Riverpod + Drift**, organised
 into **feature folders**, themed via **Material 3 design tokens**, localised
-to **Khmer (default) + English**, and styled with the **iOS-26-inspired
+to **Khmer + English **, and styled with the **iOS-26-inspired
 visual language** documented in `09-design-system-localization`. Every
 mutation goes Drift → Outbox → Supabase. Every patient action must work
 offline. Every screen ships in two languages and two themes.
@@ -32,7 +32,7 @@ lib/
 ├── core/                             # cross-cutting infra (NEVER feature code)
 │   ├── config/
 │   ├── error/
-│   ├── i18n/
+│   ├── i18n/                         # locale controller only (no codegen)
 │   ├── logging/
 │   ├── network/
 │   ├── routing/
@@ -49,7 +49,7 @@ lib/
 │   └── presentation/                 # widgets + Riverpod providers
 ├── shared/widgets/                   # reusable UI (AppButton, AppCard, …)
 ├── platform/{android,ios}/           # platform-only glue
-└── l10n/                             # ARB files + generated AppLocalizations
+└── l10n/                             # pre-generated AppLocalizations (do NOT run gen-l10n)
 ```
 
 **Hard rules:**
@@ -60,7 +60,8 @@ lib/
 3. A reusable widget moves into `shared/widgets/` only when at least two
    features use it.
 4. Generated code (`*.g.dart`, `*.freezed.dart`, `app_localizations*.dart`)
-   is committed.
+   is committed. **Never delete or regenerate `lib/l10n/app_localizations*.dart`** —
+   these files are the source of truth, copied from `das_tern_mcp/lib/l10n/`.
 
 ---
 
@@ -146,14 +147,15 @@ Add the route to `core/routing/app_router.dart`. Do **not** create a new
 
 ### Step 6: Strings
 
-Add bilingual ARB entries to **both** `lib/l10n/app_km.arb` and
-`lib/l10n/app_en.arb`. Khmer is the template — add it first.
+Add keys to **both** `lib/l10n/app_km.arb` and `lib/l10n/app_en.arb`, then
+copy the updated files (and the regenerated `app_localizations*.dart`) from
+`das_tern_mcp/lib/l10n/` into `dastern/lib/l10n/`. **Do not run
+`flutter gen-l10n` inside this project** — codegen is owned by
+`das_tern_mcp`; we consume its output.
 
 ```json
-"prescriptionsListTitle": "វេជ្ជបញ្ជារបស់ខ្ញុំ",
+"prescriptionsListTitle": "វេជ្ជបញ្ជារបស់ខ្ញុំ"
 ```
-
-Then run `flutter gen-l10n` (or just `flutter run` — it's automatic).
 
 ### Step 7: UI
 
@@ -257,8 +259,8 @@ value. Document the addition in the spec.
 | `DoseStatusBadge` | `due`, `takenOnTime`, `takenLate`, `missed`, `skipped`. |
 | `LifecycleBadge` | Prescription lifecycle pill. |
 | `PermissionChip` | Connection permission level chip. |
-| `FrostedSurface` | iOS-26 glass surface — sticky headers, modal sheets only. |
-| `AdaptiveScaffold` | Top-level navigation that switches bottom-bar / rail / drawer by breakpoint. |
+| `FrostedSurface` | iOS-26 glass primitive. Always go through this (or one of the glass composites in §6.5) — never `BackdropFilter` directly. |
+| `AdaptiveScaffold` | Breakpoint-aware navigation; **the role-aware glass `AppScaffold` (§6.5.3) is the production wrapper** — `AdaptiveScaffold` is the underlying responsive primitive. |
 
 Before building a new component:
 
@@ -268,27 +270,137 @@ Before building a new component:
 
 ---
 
-## 7. i18n rules
+## 6.5 Liquid Glass — visual layer
+
+> Source of truth: [`.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/`](../.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/) (`requirements.md`, `design.md`, `tasks.md`).
+
+The app's visual identity is iOS-26 Liquid Glass. Three promises:
+
+- **Glass that breathes** — `BackdropFilter` blurs content **behind** the surface, never the surface itself. Specular border on top, soft shadow underneath.
+- **Motion with intent** — every interaction uses tokens from `lib/core/theme/tokens/motion.dart` (press 0.94 spring, tab expand `easeOutCubic`, page transition 320 ms slide+fade, mesh orbs 9/13/17 s reverse loops).
+- **Tokens, not opinions** — every glass value is a `GlassTokens` field on `Theme.of(context).extension<GlassTokens>()!`.
+
+### 6.5.1 Glass widgets you must compose with
+
+| Widget | Where it lives | Compose with |
+|---|---|---|
+| `FrostedSurface` | `lib/shared/widgets/effects/frosted_surface.dart` | The atomic primitive. Every other glass widget builds on it. |
+| `AppMeshBackground` | `lib/shared/widgets/glass/app_mesh_background.dart` | Always at the root of `AppScaffold`. Three orbs over a tuned base color. |
+| `AppGlassHeader` | `lib/shared/widgets/glass/app_glass_header.dart` | `PreferredSizeWidget`; large title + subtitle slot; blurs scroll-under content. |
+| `AppGlassNavBar` | `lib/shared/widgets/glass/app_glass_nav_bar.dart` | Floating glass pill at the bottom of patient screens; selected pill expands with label. |
+| `AppGlassFab` | `lib/shared/widgets/glass/app_glass_fab.dart` | Round glass action button (e.g., the patient QR FAB). |
+| `AppGlassCard` | `lib/shared/widgets/glass/app_glass_card.dart` | Tappable list / detail surface. |
+| `AppGlassChip` | `lib/shared/widgets/glass/app_glass_chip.dart` | Pill-radius glass — status badges, filter chips. |
+| `AppGlassDialog` / `AppGlassBottomSheet` | `lib/shared/widgets/glass/...` | Confirm dialogs and approval sheets. |
+
+Don't compose `BackdropFilter` directly inside a feature — always go through `FrostedSurface` or one of the composites above.
+
+### 6.5.2 BackdropFilter coalescing — share keys
+
+Every `BackdropFilter` inside the app must carry a `BackdropKey`. We share keys per scope so the engine performs **one** blur pass per screen.
+
+```dart
+// lib/shared/widgets/effects/backdrop_keys.dart
+abstract class BackdropKeys {
+  static final shellHeader  = BackdropKey();
+  static final contentList  = BackdropKey();
+  static final modal        = BackdropKey();
+  static final qrSurface    = BackdropKey();
+}
+```
+
+CI fails if any `BackdropFilter` outside `frosted_surface.dart` is missing a `key`.
+
+### 6.5.3 Role-aware navigation shell
+
+`AppScaffold` reads `currentUserProfileProvider` and switches its layout:
+
+- **Patient bottom nav** — five entries: `Today`, `Prescriptions`, **center QR FAB** (action sheet for *Show my QR* / *Scan QR*), `Connections`, `Settings`.
+- **Doctor bottom nav** — four tabs: `Home`, `Patients`, `Compose`, `Settings`. The QR action lives as a glass icon in the app bar trailing area (doctors typically scan a patient's QR face-to-face).
+- **Auth shell** — Welcome → Method chooser → Sign-up/Sign-in. No bottom nav. Mesh dialed to 70% opacity, orbs at 60% speed.
+- **Tablet / desktop breakpoints** — auto-switch from bottom nav to a left rail (`medium`) or permanent drawer (`expanded`).
+
+When you implement a screen, **never wrap it in a raw `Scaffold`**. Use `AppScaffold` (extended in `09-design-system-localization` and composed with mesh + glass header + role-aware nav per `10-frontend-liquid-glass`).
+
+### 6.5.4 Adaptive opacity
+
+`AdaptiveGlassOpacity` increases tint α whenever:
+
+- `MediaQuery.accessibleNavigation` or `MediaQuery.disableAnimations` is true,
+- The caller passes `textHeavy: true` (long-form content inside a glass card),
+- The `PerformanceProbe` flips to the `'reduced'` profile (p90 frame time ≥ 18 ms).
+
+You don't read this directly — `FrostedSurface` consumes it. Just pass `textHeavy: true` when you put a big block of body text inside a glass card.
+
+### 6.5.5 Motion tokens
+
+```dart
+// lib/core/theme/tokens/motion.dart  (already exists)
+abstract class AppMotion {
+  static const pressDown      = Duration(milliseconds: 160);
+  static const pressUp        = Duration(milliseconds: 200);
+  static const tabExpand      = Duration(milliseconds: 260);
+  static const pageTransition = Duration(milliseconds: 320);
+  static const bottomSheet    = Duration(milliseconds: 360);
+  static const dialog         = Duration(milliseconds: 220);
+  static const toast          = Duration(milliseconds: 280);
+  // mesh orb cycles are configured in AppMeshBackground
+}
+```
+
+Always use these tokens. Never hardcode `Duration(...)` literals in widget bodies.
+
+When `MediaQuery.disableAnimations` is true, durations collapse to `Duration.zero` automatically inside the helpers we ship in `lib/core/theme/tokens/motion.dart`.
+
+### 6.5.6 Performance budget
+
+| Device class | Frame target | Blur sigma | Mesh orbs |
+|---|---|---|---|
+| iPhone 12+, Pixel 7+ | 60 fps | 24/28 (light/dark) | 3 |
+| iPhone 11, Pixel 5–6 | 60 fps | 20/22 | 3 |
+| Pre-2020 Android (Skia) | 50 fps | 16 | 2 (orb C dropped) |
+
+The `PerformanceProbe` watches p90 frame time and downgrades the `glass_profile` automatically. You don't write to this; you just don't fight it. If a screen needs a special-case lower blur, use the `blurSigma` override on `FrostedSurface` — but document why in a code comment.
+
+### 6.5.7 Accessibility on glass
+
+- Every glass surface that contains text must pass `meets_text_contrast_guideline` over the worst-case bright orb position (covered by golden tests).
+- Tap targets ≥ 44×44 dp.
+- `MediaQuery.textScaler` up to 200% — surfaces grow vertically; never clip.
+- When iOS / Android Reduced Transparency is on, glass surfaces become near-opaque (handled by `AdaptiveGlassOpacity`).
+
+### 6.5.8 Recipe: "I'm building a screen"
+
+1. Wrap the page in `AppScaffold(role: ..., title: l.someTitle, body: ...)`. Never `Scaffold` directly.
+2. For elevated content, use `AppGlassCard` (tappable) or `FrostedSurface` (custom).
+3. For status pills, use `AppGlassChip` styled by your domain `Variant` enum.
+4. For confirmation flows, use `AppGlassDialog`; for approval / action menus, use `AppGlassBottomSheet`.
+5. Never `BackdropFilter(...)` inline.
+6. Reference motion via `AppMotion.*` tokens.
+7. Run a golden test in light **and** dark before opening a PR.
+
+---
+
+## 7. l10n rules (pre-generated, no codegen)
+
+> **We do NOT use `flutter gen-l10n` or `l10n.yaml` in this project.**
+> The `AppLocalizations` class and its per-locale files are pre-generated
+> in `das_tern_mcp/lib/l10n/` and copied here. Treat `lib/l10n/` as
+> read-only output, not a codegen input.
 
 - **Every** user-visible string lives in `lib/l10n/*.arb`. Never inline a
   literal in a widget.
-- Keys are `camelCase`. Group by feature prefix: `prescriptionsListTitle`,
-  `doseTakeAction`, `connectionsRequestSent`. (Dots aren't allowed in
-  Flutter ARB keys.)
-- Khmer (`app_km.arb`) is the template. Add the Khmer string first; if you
-  don't have a translation yet, use a placeholder and tag it with
-  `@<key>: { "description": "TRANSLATION NEEDED" }`.
-- Plural / placeholder messages use ICU syntax with metadata:
-
-  ```json
-  "doseDueIn": "{minutes, plural, =1{១នាទីទៀត} other{{minutes} នាទីទៀត}}",
-  "@doseDueIn": {
-    "description": "How many minutes until the next dose.",
-    "placeholders": { "minutes": { "type": "int" } }
-  }
+- Keys are `camelCase` (e.g. `prescriptionsListTitle`, `doseTakeAction`).
+- To add a new string:
+  1. Add the key to `das_tern_mcp/lib/l10n/app_km.arb` (Khmer first) and
+     `app_en.arb`.
+  2. Run `flutter gen-l10n` **inside `das_tern_mcp/`**.
+  3. Copy the five updated files into `dastern/lib/l10n/`.
+- Plural / placeholder messages use ICU syntax with `@<key>` metadata.
+- `AppLocalizations.of(context)` returns nullable — always use `!`:
+  ```dart
+  final l = AppLocalizations.of(context)!;
   ```
-- After editing ARBs, run `flutter gen-l10n`. CI fails if generated code is
-  stale.
 
 ---
 
@@ -380,6 +492,7 @@ Example prompt:
    `lib/platform/`.
 - ❌ Don't store auth tokens in `SharedPreferences`. Use `flutter_secure_storage`.
 - ❌ Don't ship a string that isn't in both `app_km.arb` and `app_en.arb`.
+- ❌ Don't run `flutter gen-l10n` inside this project — codegen lives in `das_tern_mcp`.
 - ❌ Don't introduce a new top-level `MaterialApp` in a test or page —
    one app shell, full stop.
 - ❌ Don't `git push` to `main`. PR + review (per CI baseline).
@@ -396,12 +509,9 @@ flutter analyze --fatal-warnings --fatal-infos
 flutter test --coverage
 ```
 
-If you added/changed ARB keys:
-
-```bash
-flutter gen-l10n
-git diff --exit-code lib/l10n/app_localizations*.dart
-```
+**Do not run `flutter gen-l10n`** — `lib/l10n/` is pre-generated output.
+To update strings, edit ARBs in `das_tern_mcp/lib/l10n/`, run codegen
+there, then copy the five files here.
 
 If any of these fail, fix before requesting review. The AI assistant is
 expected to run them itself.
@@ -413,7 +523,8 @@ expected to run them itself.
 - Architecture decisions → `.kiro/specs-v2-flutter-supabase/00-overview/design.md`
 - Data layer + RLS → `.kiro/specs-v2-flutter-supabase/01-supabase-data-layer/design.md`
 - Offline reminder lifecycle → `.kiro/specs-v2-flutter-supabase/04-reminder-adherence/design.md`
-- Design system + i18n → `.kiro/specs-v2-flutter-supabase/09-design-system-localization/design.md`
+- Design system + l10n → `.kiro/specs-v2-flutter-supabase/09-design-system-localization/design.md`
+- **Liquid Glass visual layer → `.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/design.md`** (mesh background, FrostedSurface, glass widgets, role-aware nav, motion catalogue, screen-by-screen visual contract)
 - Account & connection model refinement → `.kiro/specs-v2-flutter-supabase/ADDENDUM-001-account-and-connection-refinement.md`
 
 When in doubt, the spec wins. When the spec is silent, this file wins.

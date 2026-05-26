@@ -1,5 +1,7 @@
 # Requirements: Design System & Localization
 
+> **Liquid Glass extension:** The detailed glass-surface visual contract (mesh background, FrostedSurface, glass header / nav / FAB / cards, GlassTokens ThemeExtension, motion catalogue, role-aware bottom nav, screen-by-screen redesign) lives in [`/.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/`](../10-frontend-liquid-glass/). This spec ships the **token foundation and base widgets**; the Liquid Glass spec ships the **glass-flavoured composites that consume those tokens**.
+
 ## Introduction
 
 This spec defines the cross-cutting design system, theming, and localization that every other v2 feature consumes. It consolidates v1's `global-widget-system-design` and `ios26-liquid-glass-refactor` requirements with a clear set of design tokens, reusable widgets, and a fully bilingual (Khmer/English) i18n setup.

@@ -1,0 +1,12 @@
+# CODEOWNERS
+# Require review from a senior engineer for high-impact paths.
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Supabase migrations — schema changes affect all clients
+supabase/migrations/   @das-tern/senior-engineers
+
+# v2 specs — spec changes affect implementation direction
+.kiro/specs-v2-flutter-supabase/   @das-tern/senior-engineers
+
+# CI/CD workflows
+.github/workflows/   @das-tern/senior-engineers

@@ -38,17 +38,24 @@ dependencies:
   # Logging
   logger: ^2.5.0
 
+  # Offline-first storage
+  drift: ^2.22.1
+  drift_flutter: ^0.2.4
+  sqlite3_flutter_libs: ^0.5.27
+  flutter_secure_storage: ^9.2.2
+  connectivity_plus: ^6.1.0
+
+  # Supabase
+  supabase_flutter: ^2.8.4
+
   # UI helpers
   cupertino_icons: ^1.0.8
   material_symbols_icons: ^4.2843.0
   flutter_svg: ^2.0.16
+  package_info_plus: ^8.3.0
 
 # ──────────────────────────────────────────────────────────────────────
 # Planned dependencies — added by the feature spec that owns them.
-#
-#   01-supabase-data-layer:
-#     supabase_flutter: ^2.8.4
-#     flutter_secure_storage: ^9.2.2
 #
 #   reminder / sync foundation:
 #     drift: ^2.22.1
@@ -89,6 +96,9 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   mocktail: ^1.0.4
+  drift_dev: ^2.22.1
+  build_runner: ^2.4.13
+  sqlite3: any # needed to open system libsqlite3 in Linux unit tests
 
 # Generated build outputs are committed (per spec Req 3.3); build_runner is
 # only needed when regenerating. Will be added by the first freezed/drift task.
@@ -99,9 +109,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # Enables flutter_localizations ARB → AppLocalizations codegen.
-  # See l10n.yaml at the project root for input/output paths.
-  generate: true
 
   # Asset folders — currently empty placeholders. Drop SVG illustrations
   # into assets/illustrations/ and PNG/SVG icons into assets/icons/ as the

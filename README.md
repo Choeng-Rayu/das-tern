@@ -7,6 +7,18 @@
 
 ---
 
+> ⚠️ **v2 is the active development branch.**
+> The v2 specification and implementation guide lives at
+> **[`.kiro/specs-v2-flutter-supabase/README.md`](.kiro/specs-v2-flutter-supabase/README.md)**.
+> The Flutter app is in **[`dastern/`](dastern/)** — see
+> [`dastern/README.md`](dastern/README.md) for the quickstart and
+> [`dastern/AGENTS.md`](dastern/AGENTS.md) for the AI working guide.
+>
+> The v1 services (`backend_nestjs/`, `bakong_payment/`, `ocr/`,
+> `ai-llm-service/`) are kept for historical reference only.
+
+---
+
 ## 📖 Overview
 
 Das Tern is a comprehensive medication management platform that puts patients in control of their health data while enabling seamless collaboration with doctors and family caregivers. The platform works both online and offline, ensuring medication adherence is never compromised.
