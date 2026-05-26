@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'tokens/colors.dart';
+import 'tokens/glass_tokens.dart';
 import 'tokens/radii.dart';
 import 'tokens/spacing.dart';
 import 'tokens/typography.dart';
@@ -27,6 +28,9 @@ ThemeData buildAppTheme(Brightness brightness) {
     fontFamilyFallback: AppTypography.fallback,
     textTheme: texts,
     primaryTextTheme: texts,
+    extensions: <ThemeExtension<dynamic>>[
+      brightness == Brightness.light ? GlassTokens.light : GlassTokens.dark,
+    ],
 
     appBarTheme: AppBarTheme(
       backgroundColor: cs.surface,

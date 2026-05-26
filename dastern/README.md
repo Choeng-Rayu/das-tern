@@ -45,10 +45,7 @@ flutter pub get
 #    This prints the local URL and anon key to use in step 4.
 
 # 4. Run on a connected device or emulator
-flutter run \
-  --dart-define=SUPABASE_URL=http://127.0.0.1:54321 \
-  --dart-define=SUPABASE_ANON_KEY=<local-anon-key-from-supabase-start> \
-  --dart-define=APP_ENV=dev
+flutter run --dart-define-from-file=.env
 ```
 
 The first run launches a Khmer home screen. Open the gear icon → Appearance

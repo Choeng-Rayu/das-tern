@@ -6,12 +6,9 @@ import '../../../core/config/app_config.dart';
 import '../../../core/sync/sync_engine.dart';
 import '../../../core/sync/sync_providers.dart';
 import '../../../core/theme/tokens/spacing.dart';
-import '../../../shared/widgets/cards/app_card.dart';
+import '../../../shared/widgets/glass/app_glass_card.dart';
+import '../../../shared/widgets/glass/app_scaffold.dart';
 
-/// Diagnostics screen — build info, environment, sync state.
-/// Developer-facing only; strings are intentionally English.
-///
-/// Spec ref: 00-overview/tasks.md Phase 5 §5.4.
 class DiagnosticsPage extends ConsumerWidget {
   const DiagnosticsPage({super.key});
 
@@ -21,47 +18,41 @@ class DiagnosticsPage extends ConsumerWidget {
     final engine = ref.watch(syncEngineProvider);
     final isOnline = ref.watch(isOnlineProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Diagnostics')),
+    return AppScaffold(
+      title: 'Diagnostics',
       body: FutureBuilder<_DiagData>(
         future: _load(engine),
         builder: (context, snap) {
           final data = snap.data;
           return ListView(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            children: [
-              _Section(
-                title: 'App',
-                rows: [
-                  _Row('Version', data?.version ?? '…'),
-                  _Row('Build', data?.buildNumber ?? '…'),
-                  _Row('Environment', config.environment),
-                ],
-              ),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              kToolbarHeight + AppSpacing.md,
+              AppSpacing.md,
+              AppSpacing.md,
+            ),
+            children: <Widget>[
+              _Section(title: 'App', rows: <_Row>[
+                _Row('Version', data?.version ?? '…'),
+                _Row('Build', data?.buildNumber ?? '…'),
+                _Row('Environment', config.environment),
+              ]),
               const SizedBox(height: AppSpacing.md),
-              _Section(
-                title: 'Sync',
-                rows: [
-                  _Row('Online', isOnline ? '✓' : '✗'),
-                  _Row('Outbox depth', '${data?.outboxDepth ?? '…'}'),
-                  _Row(
-                    'Last sync',
-                    engine.lastSyncAt?.toLocal().toString() ?? 'never',
-                  ),
-                ],
-              ),
+              _Section(title: 'Sync', rows: <_Row>[
+                _Row('Online', isOnline ? '✓' : '✗'),
+                _Row('Outbox depth', '${data?.outboxDepth ?? '…'}'),
+                _Row(
+                  'Last sync',
+                  engine.lastSyncAt?.toLocal().toString() ?? 'never',
+                ),
+              ]),
               const SizedBox(height: AppSpacing.md),
-              _Section(
-                title: 'Supabase',
-                rows: [
-                  _Row(
-                    'URL',
-                    config.supabaseUrl.isEmpty
-                        ? '(not set)'
-                        : config.supabaseUrl,
-                  ),
-                ],
-              ),
+              _Section(title: 'Supabase', rows: <_Row>[
+                _Row(
+                  'URL',
+                  config.supabaseUrl.isEmpty ? '(not set)' : config.supabaseUrl,
+                ),
+              ]),
             ],
           );
         },
@@ -100,31 +91,29 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         Padding(
           padding: const EdgeInsets.only(bottom: AppSpacing.sm),
           child: Text(
             title,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-            ),
+            style: Theme.of(context)
+                .textTheme
+                .labelLarge
+                ?.copyWith(color: Theme.of(context).colorScheme.primary),
           ),
         ),
-        AppCard(
+        AppGlassCard(
           child: Column(
             children: rows
                 .map(
                   (r) => Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.xs,
-                    ),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          r.label,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
+                      children: <Widget>[
+                        Text(r.label,
+                            style: Theme.of(context).textTheme.bodyMedium),
                         Flexible(
                           child: Text(
                             r.value,

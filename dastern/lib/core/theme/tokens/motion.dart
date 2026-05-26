@@ -1,26 +1,30 @@
-import 'package:flutter/animation.dart';
+import 'package:flutter/widgets.dart';
 
 /// Motion tokens — durations + curves used across the app.
 ///
-/// Material 3 motion vocabulary: emphasised vs. standard vs. quick.
-/// Page transitions use `standard`; in-screen state changes use `quick`;
-/// hero / large surface changes use `emphasised`.
+/// Always honour [MediaQuery.disableAnimations]; use [AppMotion.resolve]
+/// to collapse to zero when the OS requests reduced motion.
 ///
-/// Always honour [MediaQuery.disableAnimations] in widgets that animate;
-/// the app sets durations to zero in that case (see `app.dart`).
-///
-/// Spec ref: 09-design-system-localization §Requirement 10.
-class AppMotion {
-  const AppMotion._();
-
+/// Spec ref: liquid-glass-flutter SKILL.md §"Motion tokens".
+abstract class AppMotion {
   // Durations
-  static const Duration quick = Duration(milliseconds: 150);
-  static const Duration standard = Duration(milliseconds: 220);
-  static const Duration emphasised = Duration(milliseconds: 320);
+  static const Duration pressDown = Duration(milliseconds: 160);
+  static const Duration pressUp = Duration(milliseconds: 200);
+  static const Duration tabExpand = Duration(milliseconds: 260);
+  static const Duration pageTransition = Duration(milliseconds: 320);
+  static const Duration bottomSheet = Duration(milliseconds: 360);
+  static const Duration dialog = Duration(milliseconds: 220);
+  static const Duration toast = Duration(milliseconds: 280);
 
   // Curves
   static const Curve standardCurve = Curves.easeInOut;
   static const Curve emphasisedCurve = Curves.easeInOutCubicEmphasized;
   static const Curve enterCurve = Curves.easeOutCubic;
   static const Curve exitCurve = Curves.easeInCubic;
+
+  /// Returns [duration] or [Duration.zero] when the OS requests reduced motion.
+  static Duration resolve(BuildContext context, Duration duration) {
+    if (MediaQuery.of(context).disableAnimations) return Duration.zero;
+    return duration;
+  }
 }

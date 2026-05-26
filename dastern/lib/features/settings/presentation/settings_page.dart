@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/app_router.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/glass/app_scaffold.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -10,9 +11,14 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(title: Text(l.settings)),
+    return AppScaffold(
+      title: l.settings,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => context.go(AppRoute.home),
+      ),
       body: ListView(
+        padding: const EdgeInsets.only(top: kToolbarHeight + 8),
         children: <Widget>[
           ListTile(
             leading: const Icon(Icons.palette_outlined),

@@ -7,9 +7,9 @@ Each task is sized to a half-day to one day for an experienced Flutter developer
 ## Phase 0 — Decisions and prerequisites (1 day)
 
 - [x] **0.1** Decide Supabase region (Singapore recommended for Cambodia latency). Update `00-overview/design.md` § "Open decisions".
-- [ ] **0.2** Decide crash reporting tool (Sentry vs Crashlytics). Add to dependency list.
-- [ ] **0.3** Confirm whether Telegram auth and iOS IAP are in MVP scope (default: Telegram in MVP, iOS IAP deferred).
-- [ ] **0.4** Provision Supabase projects for `dev`, `staging`, `prod`.
+- [x] **0.2** Decide crash reporting tool (Sentry vs Crashlytics). Add to dependency list. → **Sentry** chosen.
+- [x] **0.3** Confirm whether Telegram auth and iOS IAP are in MVP scope. → **Telegram in MVP, iOS IAP deferred**.
+- [x] **0.4** Provision Supabase projects. → Project `epextungmzestfnnccgu` (ap-southeast-1 / Singapore) provisioned. Credentials in `dastern/.env`.
 - [ ] **0.5** Provision Firebase project (FCM only, no Firestore/Auth).
 - [ ] **0.6** Create Google Play Console developer account, internal test track app.
 - [ ] **0.7** Create Google Cloud Vision API project + service account, store JSON in 1Password (or similar).

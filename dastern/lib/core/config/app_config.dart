@@ -18,6 +18,8 @@ class AppConfig {
     required this.supabaseAnonKey,
     required this.environment,
     required this.sentryDsn,
+    required this.googleWebClientId,
+    required this.telegramBotClientId,
   });
 
   factory AppConfig.fromEnvironment() {
@@ -26,6 +28,8 @@ class AppConfig {
       supabaseAnonKey: String.fromEnvironment('SUPABASE_ANON_KEY'),
       environment: String.fromEnvironment('APP_ENV', defaultValue: 'dev'),
       sentryDsn: String.fromEnvironment('SENTRY_DSN'),
+      googleWebClientId: String.fromEnvironment('GOOGLE_WEB_CLIENT_ID'),
+      telegramBotClientId: String.fromEnvironment('TELEGRAM_BOT_CLIENT_ID'),
     );
   }
 
@@ -33,6 +37,8 @@ class AppConfig {
   final String supabaseAnonKey;
   final String environment;
   final String sentryDsn;
+  final String googleWebClientId;
+  final String telegramBotClientId;
 
   bool get isProduction => environment == 'prod';
   bool get isStaging => environment == 'staging';

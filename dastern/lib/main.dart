@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/config/app_config.dart';
@@ -35,7 +36,14 @@ Future<void> main() async {
     );
   }
 
-  // TODO(supabase): Supabase.initialize(...) — added in 01-supabase-data-layer.
+  // Supabase initialization.
+  if (config.hasSupabaseConfig) {
+    await Supabase.initialize(
+      url: config.supabaseUrl,
+      anonKey: config.supabaseAnonKey,
+    );
+  }
+
   // TODO(sentry):   sentry_flutter init — added in Phase 5 observability.
 
   runApp(

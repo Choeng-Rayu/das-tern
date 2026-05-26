@@ -36,6 +36,10 @@ class DasTernApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       routerConfig: ref.watch(appRouterProvider),
+      builder: (context, child) => ColoredBox(
+        color: Theme.of(context).colorScheme.surface,
+        child: child ?? const SizedBox.shrink(),
+      ),
     );
   }
 }

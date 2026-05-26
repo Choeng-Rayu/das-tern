@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/i18n/locale_controller.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/glass/app_scaffold.dart';
 
 class AppearanceSettingsPage extends ConsumerWidget {
   const AppearanceSettingsPage({super.key});
@@ -14,9 +15,10 @@ class AppearanceSettingsPage extends ConsumerWidget {
     final mode = ref.watch(themeModeControllerProvider);
     final locale = ref.watch(localeControllerProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l.appearance)),
+    return AppScaffold(
+      title: l.appearance,
       body: ListView(
+        padding: const EdgeInsets.only(top: kToolbarHeight + 8),
         children: <Widget>[
           _Header(l.theme),
           RadioGroup<ThemeMode>(
@@ -74,12 +76,13 @@ class _Header extends StatelessWidget {
   final String label;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-    child: Text(
-      label,
-      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-        color: Theme.of(context).colorScheme.primary,
-      ),
-    ),
-  );
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Text(
+          label,
+          style: Theme.of(context)
+              .textTheme
+              .labelLarge
+              ?.copyWith(color: Theme.of(context).colorScheme.primary),
+        ),
+      );
 }

@@ -9,12 +9,72 @@
 
 ---
 
+## ⚓ STEERING DIRECTIVE — auto-apply the Liquid Glass concept on every UI task
+
+> **This is a hard rule, not a suggestion.** Any task that creates, modifies, or
+> reviews UI code in `dastern/lib/` **MUST** load the
+> [`liquid-glass-flutter`](../.agents/skills/liquid-glass-flutter/SKILL.md)
+> skill **before writing any code** and follow its workflow. The skill fuses
+> the project's layered architecture (Riverpod + Drift + Repository + feature
+> folders) with the iOS-26 Liquid Glass visual language (FrostedSurface, mesh
+> background, role-aware AppScaffold, glass widget catalog, motion catalogue).
+>
+> If the skill is absent or fails to load, **stop and surface the problem**
+> rather than improvising — improvised UI will violate the visual contract,
+> the layered architecture, or both.
+>
+> ### Triggers that automatically invoke this directive
+>
+> The directive applies whenever any of the following is true:
+>
+> - You are touching anything under `dastern/lib/features/*/presentation/`,
+>   `dastern/lib/shared/widgets/`, or `dastern/lib/core/theme/`.
+> - You are creating or editing a `*Page`, `*View`, `*Sheet`, `*Dialog`,
+>   `*Card`, `*Chip`, `*Banner`, or any `Widget` subclass.
+> - You are adding, changing, or styling: navigation, an app bar, a bottom
+>   sheet, a dialog, a button, a card, a chip, a list row, a form field,
+>   a status badge, an empty / loading / error state, or a glass surface.
+> - You are wiring a route, screen transition, or `GoRouter` entry.
+> - You are working from any task in `.kiro/specs-v2-flutter-supabase/02-…`
+>   through `08-…` that lists a UI sub-task.
+> - You are working from any task in
+>   `.kiro/specs-v2-flutter-supabase/09-design-system-localization/` or
+>   `.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/`.
+> - You are reviewing or refactoring an existing widget file.
+>
+> ### What "auto-apply" means in practice
+>
+> 1. **Read the skill first.** Open
+>    `/home/rayu/das-tern/.agents/skills/liquid-glass-flutter/SKILL.md` and
+>    skim its **Hard rules** and **Workflow** sections before writing code.
+> 2. **Wrap every page in `AppScaffold`.** Never `Scaffold(...)` directly.
+> 3. **Use the glass widgets** (`AppGlassCard`, `AppGlassChip`, `AppGlassDialog`,
+>    `AppGlassBottomSheet`, `AppGlassFab`, `AppGlassHeader`, `AppGlassNavBar`)
+>    rather than raw Material equivalents.
+> 4. **Never call `BackdropFilter(...)` outside
+>    `lib/shared/widgets/effects/frosted_surface.dart`** — go through
+>    `FrostedSurface` or one of its composites instead.
+> 5. **Reference tokens** for every color, spacing, radius, blur sigma,
+>    duration, and curve. No magic numbers in widget bodies.
+> 6. **Localise every string** through `app_km.arb` + `app_en.arb` (Khmer first).
+> 7. **Run the verification commands** in §14 before requesting review.
+>
+> ### Triggers that do **not** invoke this directive
+>
+> The directive does not apply when you are working purely on:
+> non-UI Dart logic (repositories, services, sync engine, time helpers),
+> Supabase SQL migrations, Edge Functions (Deno), Play Console / GCP
+> configuration, or fastlane / CI workflow files. Those have their own specs
+> and skills.
+
+---
+
 ## 1. The contract in one paragraph
 
 The Das Tern Flutter app is a **single codebase** with **Supabase as the
 only backend**, written **offline-first** with **Riverpod + Drift**, organised
 into **feature folders**, themed via **Material 3 design tokens**, localised
-to **Khmer + English **, and styled with the **iOS-26-inspired
+to **Khmer + English (defualt) **, and styled with the **iOS-26-inspired
 visual language** documented in `09-design-system-localization`. Every
 mutation goes Drift → Outbox → Supabase. Every patient action must work
 offline. Every screen ships in two languages and two themes.
@@ -32,7 +92,6 @@ lib/
 ├── core/                             # cross-cutting infra (NEVER feature code)
 │   ├── config/
 │   ├── error/
-│   ├── i18n/                         # locale controller only (no codegen)
 │   ├── logging/
 │   ├── network/
 │   ├── routing/
@@ -272,7 +331,11 @@ Before building a new component:
 
 ## 6.5 Liquid Glass — visual layer
 
-> Source of truth: [`.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/`](../.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/) (`requirements.md`, `design.md`, `tasks.md`).
+> **Canonical agent entrypoint:** [`liquid-glass-flutter`](../.agents/skills/liquid-glass-flutter/SKILL.md) skill (auto-applied per the Steering Directive at the top of this file).
+>
+> **Spec source of truth:** [`.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/`](../.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/) (`requirements.md`, `design.md`, `tasks.md`).
+>
+> The summary below is a quick-reference when the skill cannot be loaded. **The skill is authoritative when the two disagree.**
 
 The app's visual identity is iOS-26 Liquid Glass. Three promises:
 
@@ -520,11 +583,12 @@ expected to run them itself.
 
 ## 15. Pointers to deeper docs
 
+- **Auto-applied UI skill** → `.agents/skills/liquid-glass-flutter/SKILL.md` (load this before any UI task — see Steering Directive at the top)
 - Architecture decisions → `.kiro/specs-v2-flutter-supabase/00-overview/design.md`
 - Data layer + RLS → `.kiro/specs-v2-flutter-supabase/01-supabase-data-layer/design.md`
 - Offline reminder lifecycle → `.kiro/specs-v2-flutter-supabase/04-reminder-adherence/design.md`
 - Design system + l10n → `.kiro/specs-v2-flutter-supabase/09-design-system-localization/design.md`
-- **Liquid Glass visual layer → `.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/design.md`** (mesh background, FrostedSurface, glass widgets, role-aware nav, motion catalogue, screen-by-screen visual contract)
+- **Liquid Glass visual layer** → `.kiro/specs-v2-flutter-supabase/10-frontend-liquid-glass/design.md` (mesh background, FrostedSurface, glass widgets, role-aware nav, motion catalogue, screen-by-screen visual contract)
 - Account & connection model refinement → `.kiro/specs-v2-flutter-supabase/ADDENDUM-001-account-and-connection-refinement.md`
 
 When in doubt, the spec wins. When the spec is silent, this file wins.

@@ -6,8 +6,8 @@
 
 - [ ] **1.1** In Supabase dashboard, enable **Email** provider with email confirmation off (MVP) or on (post-MVP). Customise the confirmation template (Khmer + English).
 - [ ] **1.2** Enable **Phone** provider; configure SMS provider (Twilio or Supabase managed). OTP length 6, expiry 60s.
-- [ ] **1.3** Enable **Google** provider in Supabase Auth: paste Web Client ID + Client Secret. Set redirect URL `https://<project>.supabase.co/auth/v1/callback`.
-- [ ] **1.4** Configure custom Telegram OIDC integration via Edge Function (no provider toggle in Supabase Dashboard for Telegram).
+- [x] **1.3** Enable **Google** provider in Supabase Auth: Web Client ID `265372630808-fdi2v66tkfi85ful7gvh88r6rdi80h4u.apps.googleusercontent.com` + secret already available. Redirect URL: `https://epextungmzestfnnccgu.supabase.co/auth/v1/callback`.
+- [x] **1.4** Configure custom Telegram OIDC integration via Edge Function. Bot ID: `8764946066`, username: `dasternbot`. Secrets to set in Supabase: `TELEGRAM_BOT_CLIENT_ID`, `TELEGRAM_BOT_CLIENT_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`.
 - [ ] **1.5** Apple provider: leave disabled in v2 MVP. Add to backlog for the iOS phase.
 - [ ] **1.6** Set JWT settings: `JWT_EXP=3600`, `REFRESH_TOKEN_EXP=2592000`, refresh rotation on.
 - [ ] **1.7** Configure rate limits: 60 OTP/hour per IP, 30 sign-up attempts/hour per IP, 10 password resets/hour per identifier.
@@ -19,7 +19,7 @@
 - [ ] **2.2** Android: declare deep-link `<intent-filter>` for `dastern://auth/telegram/callback`, `dastern://auth/confirm`, `dastern://auth/reset` in `AndroidManifest.xml`.
 - [ ] **2.3** Android: add Google services configuration; register debug + release SHA-1 in Firebase + Google Cloud.
 - [ ] **2.4** iOS: configure URL schemes in `Info.plist`: `dastern` and Google reverse-client-id.
-- [ ] **2.5** Wire `Supabase.initialize` with `--dart-define` URL and anon key, plus `--dart-define=GOOGLE_WEB_CLIENT_ID` and `--dart-define=TELEGRAM_BOT_CLIENT_ID`.
+- [x] **2.5** Wire `Supabase.initialize` with `--dart-define` URL and anon key, plus `--dart-define=GOOGLE_WEB_CLIENT_ID` and `--dart-define=TELEGRAM_BOT_CLIENT_ID`. Credentials stored in `dastern/.env`; run with `flutter run --dart-define-from-file=.env`.
 
 ## Phase 3 — Shared infrastructure (1 day)
 
