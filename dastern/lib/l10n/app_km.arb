@@ -1,0 +1,43 @@
+{
+  "@@locale": "km",
+
+  "appName": "ដាស់ធើន",
+  "@appName": {
+    "description": "App brand name shown on splash, sign-in, and Android launcher."
+  },
+
+  "commonContinue": "បន្ត",
+  "commonCancel": "បោះបង់",
+  "commonSave": "រក្សាទុក",
+  "commonRetry": "សាកល្បងម្តងទៀត",
+  "commonOk": "យល់ព្រម",
+  "commonLoading": "កំពុងផ្ទុក...",
+  "commonOffline": "មិនមានបណ្តាញ",
+
+  "homeTitle": "ផ្ទាំងគ្រប់គ្រង",
+  "homeWelcome": "សូមស្វាគមន៍មកកាន់ ដាស់ធើន",
+  "homeWelcomeSubtitle": "ការគ្រប់គ្រងវេជ្ជបញ្ជារបស់អ្នក នៅក្រោមការគ្រប់គ្រងរបស់អ្នក។",
+  "homePlaceholder": "មុខងារផ្សេងៗកំពុងត្រូវបានសាងសង់។",
+
+  "settingsTitle": "ការកំណត់",
+  "settingsAppearance": "ការបង្ហាញ",
+  "settingsThemeLight": "ពន្លឺ",
+  "settingsThemeDark": "ងងឹត",
+  "settingsThemeSystem": "តាមប្រព័ន្ធ",
+  "settingsLanguage": "ភាសា",
+  "settingsLanguageKm": "ខ្មែរ",
+  "settingsLanguageEn": "English",
+
+  "dosesTaken": "បានទទួល",
+  "dosesMissed": "ខានទទួល",
+  "dosesSkipped": "បានរំលង",
+  "dosesSnooze": "ពន្យារ",
+
+  "adherenceGreenZone": "≥៩០%",
+  "adherenceYellowZone": "៧០–៨៩%",
+  "adherenceRedZone": "<៧០%",
+
+  "errorsNetwork": "មិនមានបណ្តាញ — សាកល្បងម្តងទៀត",
+  "errorsPermissionDenied": "អនុញ្ញាតមិនបានគ្រប់គ្រាន់",
+  "errorsUnknown": "មានបញ្ហាមិនស្គាល់ — សូមសាកល្បងម្តងទៀត"
+}

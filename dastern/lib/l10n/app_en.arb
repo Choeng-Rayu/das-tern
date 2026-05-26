@@ -1,0 +1,40 @@
+{
+  "@@locale": "en",
+
+  "appName": "Das Tern",
+
+  "commonContinue": "Continue",
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonRetry": "Retry",
+  "commonOk": "OK",
+  "commonLoading": "Loading…",
+  "commonOffline": "Offline",
+
+  "homeTitle": "Home",
+  "homeWelcome": "Welcome to Das Tern",
+  "homeWelcomeSubtitle": "Your medication management, under your control.",
+  "homePlaceholder": "Feature modules are still being scaffolded.",
+
+  "settingsTitle": "Settings",
+  "settingsAppearance": "Appearance",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsThemeSystem": "System default",
+  "settingsLanguage": "Language",
+  "settingsLanguageKm": "ខ្មែរ",
+  "settingsLanguageEn": "English",
+
+  "dosesTaken": "Taken",
+  "dosesMissed": "Missed",
+  "dosesSkipped": "Skipped",
+  "dosesSnooze": "Snooze",
+
+  "adherenceGreenZone": "≥90%",
+  "adherenceYellowZone": "70–89%",
+  "adherenceRedZone": "<70%",
+
+  "errorsNetwork": "No connection — please retry",
+  "errorsPermissionDenied": "Permission denied",
+  "errorsUnknown": "Something went wrong — please try again"
+}

@@ -1,0 +1,18 @@
+# Flutter `gen-l10n` configuration.
+#
+# Spec ref: 09-design-system-localization §Requirement 6.
+#
+# - Khmer is the template (default) language; every key must be present
+#   here first. English (and any future language) translates from this.
+# - The synthetic-package option is disabled so the generated code lives
+#   inside `lib/l10n/` and is committed (per global Req 3.3).
+
+arb-dir: lib/l10n
+template-arb-file: app_km.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/l10n
+nullable-getter: false
+preferred-supported-locales:
+  - km
+  - en
