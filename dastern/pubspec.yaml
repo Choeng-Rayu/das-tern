@@ -32,7 +32,7 @@ dependencies:
   # Persistence (lightweight prefs only; Drift comes with the sync task)
   shared_preferences: ^2.3.4
 
-  # Formatting / i18n
+  # Formatting / l10n
   intl: ^0.20.0
 
   # Logging
@@ -47,6 +47,12 @@ dependencies:
 
   # Backend
   supabase_flutter: ^2.8.4
+
+  # Authentication
+  google_sign_in: ^6.2.2
+  flutter_web_auth_2: ^4.0.1
+  crypto: ^3.0.6
+  url_launcher: ^6.3.1
 
   # UI helpers
   cupertino_icons: ^1.0.8

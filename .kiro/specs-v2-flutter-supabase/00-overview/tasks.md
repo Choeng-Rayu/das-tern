@@ -29,7 +29,7 @@ Each task is sized to a half-day to one day for an experienced Flutter developer
 
 - [x] **2.1** Flutter 3.44 stable, Dart 3.12. `pubspec.yaml` updated.
 - [x] **2.2** Dependency versions locked: `flutter_riverpod`, `go_router`, `drift`, `drift_flutter`, `sqlite3_flutter_libs`, `flutter_secure_storage`, `connectivity_plus`, `shared_preferences`, `intl`, `logger`, `sentry_flutter` (placeholder), `package_info_plus`.
-- [x] **2.3** `lib/core/` subfolders created: `config`, `error`, `i18n`, `logging`, `routing`, `storage/{drift,secure}`, `sync`, `theme`, `time`.
+- [x] **2.3** `lib/core/` subfolders created: `config`, `error`, `logging`, `routing`, `storage/{drift,secure}`, `sync`, `theme`, `time`. (Localization assets — ARB files, generated `AppLocalizations`, and `locale_controller.dart` — live under `lib/l10n/`.)
 - [x] **2.4** `lib/features/<name>/` folders created: `auth`, `prescriptions`, `reminders`, `connections`, `doctor_dashboard`, `ocr`, `billing`, `settings`, `home`.
 - [x] **2.5** `AppConfig.fromEnvironment()` reads `SUPABASE_URL` and `SUPABASE_ANON_KEY` from `--dart-define`. Supabase.initialize() wired in `main.dart` (TODO comment; lands in 01-supabase-data-layer).
 - [x] **2.6** Sentry/Crashlytics init placeholder in `main.dart` (TODO comment; lands in Phase 5).

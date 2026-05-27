@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/i18n/locale_controller.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../l10n/locale_controller.dart';
 import '../../../shared/widgets/glass/app_scaffold.dart';
 
 class AppearanceSettingsPage extends ConsumerWidget {

@@ -16,15 +16,12 @@ lib/core/theme/
 ├── dark_theme.dart
 └── theme_controller.dart       # Riverpod provider for selected ThemeMode
 
-lib/core/i18n/
-├── l10n.yaml
+lib/l10n/                       # all localization assets live here
+├── l10n.yaml                   # codegen config (used in das_tern_mcp/, output copied here)
 ├── locale_controller.dart      # Riverpod provider for active Locale
-└── (generated AppLocalizations)
-
-lib/l10n/
-├── app_en.arb
-├── app_km.arb
-└── app_localizations.dart      # generated
+├── app_en.arb                  # English source ARB
+├── app_km.arb                  # Khmer source ARB
+└── app_localizations*.dart     # generated AppLocalizations (committed)
 
 lib/shared/widgets/
 ├── buttons/

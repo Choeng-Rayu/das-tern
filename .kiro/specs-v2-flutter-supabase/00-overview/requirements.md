@@ -49,7 +49,7 @@ This spec defines the foundational architecture, technology choices, and project
 #### Acceptance Criteria
 
 1. THE Flutter_App SHALL organize code under `das_tern_mcp/lib/` using feature-first folders: `lib/features/<feature_name>/{data,domain,presentation}/`.
-2. THE Flutter_App SHALL place cross-cutting code under `lib/core/` (theme, i18n, networking, error handling, logging) and `lib/shared/widgets/` for reusable widgets.
+2. THE Flutter_App SHALL place cross-cutting code under `lib/core/` (theme, networking, error handling, logging) and `lib/shared/widgets/` for reusable widgets. Localization assets (ARB sources, the generated `AppLocalizations`, and `locale_controller.dart`) live under `lib/l10n/`.
 3. THE Flutter_App SHALL keep generated code (`*.g.dart`, `*.freezed.dart`) committed to the repo so CI builds do not need code generation by default.
 4. THE Supabase_Project SQL SHALL live under `supabase/migrations/` with timestamped filenames (`YYYYMMDDHHMMSS_<description>.sql`).
 5. THE Supabase_Project Edge Functions SHALL live under `supabase/functions/<function_name>/index.ts` with a `_shared/` folder for code reused across functions.
@@ -105,7 +105,7 @@ This spec defines the foundational architecture, technology choices, and project
 5. THE Flutter_App SHALL store the active Supabase session in `flutter_secure_storage` only.
 6. THE Flutter_App SHALL request only the minimum Android permissions: camera (OCR), notifications (reminders), `POST_NOTIFICATIONS` (Android 13+), `SCHEDULE_EXACT_ALARM` (reminder accuracy on Android 12+).
 
-### Requirement 8: Internationalization & theming foundation
+### Requirement 8: Localization & theming foundation
 
 **User Story:** As a patient in Cambodia, I want the app in Khmer with a dark mode, so that it matches my language and lighting.
 

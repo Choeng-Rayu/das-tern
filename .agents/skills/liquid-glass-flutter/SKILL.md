@@ -78,7 +78,6 @@ dastern/lib/
 ├── core/                              # cross-cutting infra (NEVER feature code)
 │   ├── config/
 │   ├── error/
-│   ├── i18n/                          # locale controller only (no codegen here)
 │   ├── logging/
 │   ├── network/
 │   ├── routing/
@@ -99,7 +98,7 @@ dastern/lib/
 │   ├── buttons/  cards/  inputs/  states/  badges/  adherence/
 │   └── adaptive_scaffold.dart
 ├── platform/{android,ios}/            # platform-only glue
-└── l10n/                              # pre-generated AppLocalizations (do NOT run gen-l10n here)
+└── l10n/                              # ARB sources (app_km.arb / app_en.arb), pre-generated AppLocalizations, and locale_controller.dart (do NOT run gen-l10n inside dastern/)
 ```
 
 Hard structure rules:

@@ -125,7 +125,7 @@ supabase start
   (e.g., `prescriptionsListTitle`). Both files must stay in sync — CI
   fails if a key exists in only one.
 
-See [`AGENTS.md` §5–§7](./AGENTS.md) for the full design-system + i18n rules.
+See [`AGENTS.md` §5–§7](./AGENTS.md) for the full design-system + l10n rules.
 
 ---
 

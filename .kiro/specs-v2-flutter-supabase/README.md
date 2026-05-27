@@ -45,7 +45,7 @@ The v1 specs in `.kiro/specs/` remain intact as historical reference. The v2 spe
 | 06 | `06-doctor-dashboard/` | Doctor patient list, adherence indicators, prescription authoring, doctor notes, urgent auto-apply |
 | 07 | `07-ocr-prescription-scanning/` | Hybrid OCR pipeline (ML Kit Latin → Tesseract Khmer → Cloud Vision Edge Function fallback), confidence routing, prescription draft generation |
 | 08 | `08-google-play-billing/` | `in_app_purchase` plugin integration, server-side verification via Edge Function, RTDN webhook, subscription state machine, family-plan member management |
-| 09 | `09-design-system-localization/` | Bilingual (Khmer/English) i18n, light/dark theme, design tokens, reusable widget catalog |
+| 09 | `09-design-system-localization/` | Bilingual (Khmer/English) l10n, light/dark theme, design tokens, reusable widget catalog |
 | 10 | `10-frontend-liquid-glass/` | iOS 26 Liquid Glass visual layer — `GlassTokens` ThemeExtension, `FrostedSurface`, mesh background, role-aware `AppScaffold` (Patient: Today/Prescriptions/QR-FAB/Connections/Settings; Doctor: Home/Patients/Compose/Settings + QR icon), motion catalogue, screen-by-screen visual contract |
 
 Each folder contains:

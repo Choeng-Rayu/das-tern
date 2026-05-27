@@ -86,7 +86,6 @@ das-tern/
 │   │   ├── core/
 │   │   │   ├── config/              # Env, Supabase keys, feature flags
 │   │   │   ├── error/               # AppFailure, error mappers
-│   │   │   ├── i18n/                # arb generation, translation helpers
 │   │   │   ├── logging/
 │   │   │   ├── network/             # Connectivity, retry policies
 │   │   │   ├── routing/             # GoRouter config
@@ -111,9 +110,11 @@ das-tern/
 │   │   ├── platform/                # Platform-specific glue
 │   │   │   ├── android/
 │   │   │   └── ios/
-│   │   └── l10n/                    # Generated ARB-based localizations
+│   │   └── l10n/                    # ARB sources, generated AppLocalizations, and locale_controller
 │   │       ├── app_en.arb
-│   │       └── app_km.arb
+│   │       ├── app_km.arb
+│   │       ├── app_localizations*.dart  # generated, committed
+│   │       └── locale_controller.dart   # Riverpod provider for active Locale
 │   ├── test/
 │   ├── integration_test/
 │   ├── android/
@@ -326,7 +327,7 @@ npx skills add dart-lang/skills --skill '*' --agent universal
 
 Each skill is a folder with a `SKILL.md` and supporting files. We ship four to start:
 
-1. **`add-feature/`** — How to scaffold a new feature module (`features/<name>/{data,domain,presentation}` + Riverpod providers + GoRouter route + i18n entries).
+1. **`add-feature/`** — How to scaffold a new feature module (`features/<name>/{data,domain,presentation}` + Riverpod providers + GoRouter route + l10n entries).
 2. **`add-supabase-migration/`** — How to add an SQL migration (`supabase migration new <name>`), declare the table, write RLS policies, and add a corresponding Drift table.
 3. **`add-riverpod-provider/`** — Conventions for naming, scoping, family providers, async providers, and invalidation.
 4. **`add-edge-function/`** — How to scaffold an Edge Function (`supabase functions new <name>`), wire secrets, write a Deno test, and document it in this spec set.

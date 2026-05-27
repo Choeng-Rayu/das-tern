@@ -4,14 +4,14 @@
 
 ## Introduction
 
-This spec defines the cross-cutting design system, theming, and localization that every other v2 feature consumes. It consolidates v1's `global-widget-system-design` and `ios26-liquid-glass-refactor` requirements with a clear set of design tokens, reusable widgets, and a fully bilingual (Khmer/English) i18n setup.
+This spec defines the cross-cutting design system, theming, and localization that every other v2 feature consumes. It consolidates v1's `global-widget-system-design` and `ios26-liquid-glass-refactor` requirements with a clear set of design tokens, reusable widgets, and a fully bilingual (Khmer/English) l10n setup.
 
 ## Glossary
 
 - **Design_Token** — A named value (color, spacing, radius, typography size) that components reference instead of hard-coding.
 - **Token_Set** — A complete collection of design tokens for a specific theme (light or dark).
 - **Reusable_Widget** — A general-purpose Flutter widget shipped under `lib/shared/widgets/` that any feature can compose.
-- **i18n_Bundle** — An ARB file that maps message keys to translated strings.
+- **l10n_Bundle** — An ARB file that maps message keys to translated strings.
 - **Type_Scale** — The font-size + line-height steps applied across the app.
 
 ## Requirements
@@ -64,7 +64,7 @@ This spec defines the cross-cutting design system, theming, and localization tha
 3. THE Flutter_App SHALL render SVG illustrations via `flutter_svg`.
 4. THE Flutter_App SHALL include a simple animated success/failure illustration for completed actions.
 
-### Requirement 5: Internationalization (i18n)
+### Requirement 5: Localization (l10n)
 
 **User Story:** As a Khmer-speaking user, I want all UI in Khmer, so that I can use the app naturally.
 
