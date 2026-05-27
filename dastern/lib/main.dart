@@ -46,6 +46,13 @@ Future<void> main() async {
 
   // TODO(sentry):   sentry_flutter init — added in Phase 5 observability.
 
+  if (config.hasSupabaseConfig) {
+    await Supabase.initialize(
+      url: config.supabaseUrl,
+      anonKey: config.supabaseAnonKey,
+    );
+  }
+
   runApp(
     ProviderScope(
       overrides: <Override>[sharedPreferencesProvider.overrideWithValue(prefs)],

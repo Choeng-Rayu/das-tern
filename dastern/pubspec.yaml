@@ -45,7 +45,7 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   connectivity_plus: ^6.1.0
 
-  # Supabase
+  # Backend
   supabase_flutter: ^2.8.4
 
   # UI helpers

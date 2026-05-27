@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:dastern/core/storage/drift/app_database.dart';
 import 'package:dastern/core/storage/drift/daos/outbox_dao.dart';
-import 'package:dastern/core/storage/drift/tables/outbox.dart';
 import 'package:dastern/core/sync/sync_engine.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';

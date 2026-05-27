@@ -1,10 +1,20 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../logging/app_logger.dart';
 import '../storage/drift/app_database.dart';
 import '../storage/secure/secure_storage.dart';
+import '../storage/supabase_storage.dart';
+import '../sync/realtime_subscriber.dart';
 import '../sync/sync_engine.dart';
+
+// ── Supabase client ──────────────────────────────────────────────────
+
+/// Provides the singleton [SupabaseClient].
+/// Requires [Supabase.initialize] to have been called in [main].
+final Provider<SupabaseClient> supabaseClientProvider =
+    Provider<SupabaseClient>((Ref ref) => Supabase.instance.client);
 
 // ── Database ─────────────────────────────────────────────────────────
 
@@ -21,6 +31,23 @@ final Provider<AppDatabase> appDatabaseProvider = Provider<AppDatabase>((
 
 final Provider<SecureStorage> secureStorageProvider = Provider<SecureStorage>(
   (Ref ref) => const SecureStorage(),
+);
+
+// ── Supabase Storage helper ───────────────────────────────────────────
+
+final Provider<SupabaseStorageHelper> supabaseStorageProvider =
+    Provider<SupabaseStorageHelper>(
+  (Ref ref) => SupabaseStorageHelper(ref.watch(supabaseClientProvider)),
+);
+
+// ── Realtime subscriber ───────────────────────────────────────────────
+
+final Provider<RealtimeSubscriber> realtimeSubscriberProvider =
+    Provider<RealtimeSubscriber>(
+  (Ref ref) => RealtimeSubscriber(
+    supabase: ref.watch(supabaseClientProvider),
+    db: ref.watch(appDatabaseProvider),
+  ),
 );
 
 // ── Connectivity ─────────────────────────────────────────────────────

@@ -4,26 +4,26 @@
 
 ## Phase 1 — Migrations (3 days)
 
-- [ ] **1.1** `supabase/migrations/20260601000000_enums.sql` — all enums per § 2 of design.
-- [ ] **1.2** `supabase/migrations/20260601000001_profiles.sql` — table, indexes, `handle_new_auth_user` trigger, `tg_set_updated_at` trigger.
-- [ ] **1.3** `supabase/migrations/20260601000002_connections.sql` — table + policies.
-- [ ] **1.4** `supabase/migrations/20260601000003_connection_tokens.sql` — table + policies.
-- [ ] **1.5** `supabase/migrations/20260601000004_prescriptions.sql` — `prescriptions` + `prescription_versions` + RLS.
-- [ ] **1.6** `supabase/migrations/20260601000005_medications.sql` — table + RLS.
-- [ ] **1.7** `supabase/migrations/20260601000006_dose_events.sql` — table + indexes + RLS.
-- [ ] **1.8** `supabase/migrations/20260601000007_notifications.sql` — table + RLS (no client insert).
-- [ ] **1.9** `supabase/migrations/20260601000008_audit_logs.sql` — append-only + RLS.
-- [ ] **1.10** `supabase/migrations/20260601000009_subscriptions.sql` — `subscriptions` + `family_members` + Play columns.
-- [ ] **1.11** `supabase/migrations/20260601000010_other.sql` — `meal_time_preferences`, `doctor_notes`, `medication_batches`.
-- [ ] **1.12** `supabase/migrations/20260601000100_policy_helpers.sql` — `is_connected_with`, `is_connected_doctor_for`, `is_connected_peer_patient_for` (per ADDENDUM-001; replaces `is_connected_family_for`).
-- [ ] **1.13** `supabase/migrations/20260601000200_functions.sql` — `consume_connection_token`, `accept_connection`, `mark_dose`, `create_audit_log`, `get_adherence`, `expire_missed_doses`.
-- [ ] **1.14** `supabase/migrations/20260601000300_realtime.sql` — publication add tables.
-- [ ] **1.15** `supabase/migrations/20260601000400_storage.sql` — buckets + storage policies + storage usage tracker.
-- [ ] **1.16** `supabase/migrations/20260601000500_pg_cron.sql` — schedule `expire_missed_doses` every 5 minutes; schedule daily token cleanup.
+- [x] **1.1** `supabase/migrations/20260601000000_enums.sql`
+- [x] **1.2** `supabase/migrations/20260601000001_profiles.sql`
+- [x] **1.3** `supabase/migrations/20260601000002_connections.sql`
+- [x] **1.4** `supabase/migrations/20260601000003_connection_tokens.sql`
+- [x] **1.5** `supabase/migrations/20260601000004_prescriptions.sql`
+- [x] **1.6** `supabase/migrations/20260601000005_medications.sql`
+- [x] **1.7** `supabase/migrations/20260601000006_dose_events.sql`
+- [x] **1.8** `supabase/migrations/20260601000007_notifications.sql`
+- [x] **1.9** `supabase/migrations/20260601000008_audit_logs.sql`
+- [x] **1.10** `supabase/migrations/20260601000009_subscriptions.sql`
+- [x] **1.11** `supabase/migrations/20260601000010_other.sql`
+- [x] **1.12** `supabase/migrations/20260601000100_policy_helpers.sql`
+- [x] **1.13** `supabase/migrations/20260601000200_functions.sql`
+- [x] **1.14** `supabase/migrations/20260601000300_realtime.sql`
+- [x] **1.15** `supabase/migrations/20260601000400_storage.sql`
+- [x] **1.16** `supabase/migrations/20260601000500_pg_cron.sql`
 
 ## Phase 2 — Seed data (0.5 day)
 
-- [ ] **2.1** `supabase/seed.sql`:
+- [x] **2.1** `supabase/seed.sql` — 1 doctor, 2 patients, connections, prescription, medications, 7 dose events, subscriptions, meal_time_preferences.
   - 1 doctor profile (with hospital, license).
   - 1 patient profile (Khmer language, Asia/Phnom_Penh).
   - 1 second patient profile (the "family/peer" — also role = 'PATIENT' per ADDENDUM-001).
@@ -52,38 +52,38 @@
 
 ## Phase 4 — Drift schema mirror (2 days)
 
-- [ ] **4.1** `lib/core/storage/drift/tables/profiles_table.dart`.
-- [ ] **4.2** `lib/core/storage/drift/tables/connections_table.dart` + `connection_tokens_table.dart`.
-- [ ] **4.3** `lib/core/storage/drift/tables/prescriptions_table.dart` + `prescription_versions_table.dart`.
-- [ ] **4.4** `lib/core/storage/drift/tables/medications_table.dart`.
-- [ ] **4.5** `lib/core/storage/drift/tables/dose_events_table.dart`.
-- [ ] **4.6** `lib/core/storage/drift/tables/notifications_table.dart`.
-- [ ] **4.7** `lib/core/storage/drift/tables/audit_logs_table.dart` (read-only mirror).
-- [ ] **4.8** `lib/core/storage/drift/tables/subscriptions_table.dart` + `family_members_table.dart`.
-- [ ] **4.9** `lib/core/storage/drift/tables/meal_time_preferences_table.dart` + `doctor_notes_table.dart` + `medication_batches_table.dart`.
-- [ ] **4.10** `lib/core/storage/drift/tables/outbox_entries_table.dart` (already in 00-overview).
-- [ ] **4.11** Generate Drift code: `dart run build_runner build --delete-conflicting-outputs`.
-- [ ] **4.12** DAO classes for each table with `watch*()` reactive queries and CRUD.
-- [ ] **4.13** Drift schema test: create empty DB → run migrations → verify schema.
+- [x] **4.1** `lib/core/storage/drift/tables/profiles_table.dart`.
+- [x] **4.2** `lib/core/storage/drift/tables/connections_table.dart` + `connection_tokens_table.dart`.
+- [x] **4.3** `lib/core/storage/drift/tables/prescriptions_table.dart` + `prescription_versions_table.dart`.
+- [x] **4.4** `lib/core/storage/drift/tables/medications_table.dart`.
+- [x] **4.5** `lib/core/storage/drift/tables/dose_events_table.dart`.
+- [x] **4.6** `lib/core/storage/drift/tables/notifications_table.dart`.
+- [x] **4.7** `lib/core/storage/drift/tables/audit_logs_table.dart` (read-only mirror).
+- [x] **4.8** `lib/core/storage/drift/tables/subscriptions_table.dart` + `family_members_table.dart`.
+- [x] **4.9** `lib/core/storage/drift/tables/meal_time_preferences_table.dart` + `doctor_notes_table.dart` + `medication_batches_table.dart`.
+- [x] **4.10** `lib/core/storage/drift/tables/outbox_entries_table.dart` (already in 00-overview).
+- [x] **4.11** Generate Drift code: `dart run build_runner build --delete-conflicting-outputs`.
+- [x] **4.12** DAO classes for each table with `watch*()` reactive queries and CRUD.
+- [x] **4.13** Drift schema test: create empty DB → run migrations → verify schema.
 
 ## Phase 5 — Repository layer wiring (1 day)
 
-- [ ] **5.1** `lib/core/data/repository.dart` — base `Repository` with `localStream`, `enqueueOp`, `bootstrapFromRemote`.
-- [ ] **5.2** Riverpod providers for each repository (will be filled in by feature specs).
-- [ ] **5.3** `BootstrapService` — on first sign-in, fetch user's full visible dataset (profile, connections, prescriptions, medications, future dose_events) and seed Drift.
+- [x] **5.1** `lib/core/data/repository.dart` — base `Repository` with `localStream`, `enqueueOp`, `bootstrapFromRemote`.
+- [x] **5.2** Riverpod providers for each repository (will be filled in by feature specs).
+- [x] **5.3** `BootstrapService` — on first sign-in, fetch user's full visible dataset (profile, connections, prescriptions, medications, future dose_events) and seed Drift.
 
 ## Phase 6 — Realtime wiring (1 day)
 
-- [ ] **6.1** `lib/core/sync/realtime_subscriber.dart` — subscribe to `dose_events`, `notifications`, `prescriptions`, `connections` channels with RLS filter applied server-side.
-- [ ] **6.2** Merge incoming changes into Drift; emit Riverpod invalidations.
-- [ ] **6.3** Lifecycle: subscribe on sign-in, unsubscribe on sign-out / app close.
-- [ ] **6.4** Reconnect logic: on socket disconnect, reconnect with exponential backoff up to 60s.
+- [x] **6.1** `lib/core/sync/realtime_subscriber.dart` — subscribe to `dose_events`, `notifications`, `prescriptions`, `connections` channels with RLS filter applied server-side.
+- [x] **6.2** Merge incoming changes into Drift; emit Riverpod invalidations.
+- [x] **6.3** Lifecycle: subscribe on sign-in, unsubscribe on sign-out / app close.
+- [x] **6.4** Reconnect logic: on socket disconnect, reconnect with exponential backoff up to 60s.
 
 ## Phase 7 — Storage upload helpers (0.5 day)
 
-- [ ] **7.1** `lib/core/storage/supabase_storage.dart` — typed wrapper for upload/get-signed-url.
-- [ ] **7.2** Path builders that enforce `{user_id}/...` prefix automatically.
-- [ ] **7.3** 50 MB size cap enforced client-side; server-side enforced by Storage policy file size limit.
+- [x] **7.1** `lib/core/storage/supabase_storage.dart` — typed wrapper for upload/get-signed-url.
+- [x] **7.2** Path builders that enforce `{user_id}/...` prefix automatically.
+- [x] **7.3** 50 MB size cap enforced client-side; server-side enforced by Storage policy file size limit.
 
 ## Phase 8 — Cron and maintenance (0.5 day)
 

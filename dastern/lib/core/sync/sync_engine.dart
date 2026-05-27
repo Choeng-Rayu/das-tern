@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import '../logging/app_logger.dart';
 import '../storage/drift/app_database.dart';
 import '../storage/drift/daos/outbox_dao.dart';
-import '../storage/drift/tables/outbox.dart';
 
 /// Convenience constructor for an outbox entry.
 OutboxEntriesCompanion outboxOp({
