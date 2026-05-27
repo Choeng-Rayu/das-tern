@@ -19,6 +19,10 @@ class MedicationsTable extends Table {
   RealColumn get dosageAmount =>
       real().withDefault(const Constant(1.0))();
   TextColumn get description => text().nullable()();
+  TextColumn get morningDosage => text().nullable()();   // JSON DosageSlot
+  TextColumn get afternoonDosage => text().nullable()(); // JSON DosageSlot
+  TextColumn get eveningDosage => text().nullable()();   // JSON DosageSlot
+  TextColumn get nightDosage => text().nullable()();     // JSON DosageSlot
   TextColumn get frequency => text().nullable()();
   IntColumn get duration => integer().nullable()();
   BoolColumn get isPrn =>

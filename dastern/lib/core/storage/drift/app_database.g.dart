@@ -4254,6 +4254,50 @@ class $MedicationsTableTable extends MedicationsTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _morningDosageMeta = const VerificationMeta(
+    'morningDosage',
+  );
+  @override
+  late final GeneratedColumn<String> morningDosage = GeneratedColumn<String>(
+    'morning_dosage',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _afternoonDosageMeta = const VerificationMeta(
+    'afternoonDosage',
+  );
+  @override
+  late final GeneratedColumn<String> afternoonDosage = GeneratedColumn<String>(
+    'afternoon_dosage',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _eveningDosageMeta = const VerificationMeta(
+    'eveningDosage',
+  );
+  @override
+  late final GeneratedColumn<String> eveningDosage = GeneratedColumn<String>(
+    'evening_dosage',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nightDosageMeta = const VerificationMeta(
+    'nightDosage',
+  );
+  @override
+  late final GeneratedColumn<String> nightDosage = GeneratedColumn<String>(
+    'night_dosage',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _frequencyMeta = const VerificationMeta(
     'frequency',
   );
@@ -4339,6 +4383,10 @@ class $MedicationsTableTable extends MedicationsTable
     unit,
     dosageAmount,
     description,
+    morningDosage,
+    afternoonDosage,
+    eveningDosage,
+    nightDosage,
     frequency,
     duration,
     isPrn,
@@ -4447,6 +4495,42 @@ class $MedicationsTableTable extends MedicationsTable
         ),
       );
     }
+    if (data.containsKey('morning_dosage')) {
+      context.handle(
+        _morningDosageMeta,
+        morningDosage.isAcceptableOrUnknown(
+          data['morning_dosage']!,
+          _morningDosageMeta,
+        ),
+      );
+    }
+    if (data.containsKey('afternoon_dosage')) {
+      context.handle(
+        _afternoonDosageMeta,
+        afternoonDosage.isAcceptableOrUnknown(
+          data['afternoon_dosage']!,
+          _afternoonDosageMeta,
+        ),
+      );
+    }
+    if (data.containsKey('evening_dosage')) {
+      context.handle(
+        _eveningDosageMeta,
+        eveningDosage.isAcceptableOrUnknown(
+          data['evening_dosage']!,
+          _eveningDosageMeta,
+        ),
+      );
+    }
+    if (data.containsKey('night_dosage')) {
+      context.handle(
+        _nightDosageMeta,
+        nightDosage.isAcceptableOrUnknown(
+          data['night_dosage']!,
+          _nightDosageMeta,
+        ),
+      );
+    }
     if (data.containsKey('frequency')) {
       context.handle(
         _frequencyMeta,
@@ -4540,6 +4624,22 @@ class $MedicationsTableTable extends MedicationsTable
         DriftSqlType.string,
         data['${effectivePrefix}description'],
       ),
+      morningDosage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}morning_dosage'],
+      ),
+      afternoonDosage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}afternoon_dosage'],
+      ),
+      eveningDosage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}evening_dosage'],
+      ),
+      nightDosage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}night_dosage'],
+      ),
       frequency: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}frequency'],
@@ -4586,6 +4686,10 @@ class MedicationsTableData extends DataClass
   final String unit;
   final double dosageAmount;
   final String? description;
+  final String? morningDosage;
+  final String? afternoonDosage;
+  final String? eveningDosage;
+  final String? nightDosage;
   final String? frequency;
   final int? duration;
   final bool isPrn;
@@ -4604,6 +4708,10 @@ class MedicationsTableData extends DataClass
     required this.unit,
     required this.dosageAmount,
     this.description,
+    this.morningDosage,
+    this.afternoonDosage,
+    this.eveningDosage,
+    this.nightDosage,
     this.frequency,
     this.duration,
     required this.isPrn,
@@ -4632,6 +4740,18 @@ class MedicationsTableData extends DataClass
     map['dosage_amount'] = Variable<double>(dosageAmount);
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || morningDosage != null) {
+      map['morning_dosage'] = Variable<String>(morningDosage);
+    }
+    if (!nullToAbsent || afternoonDosage != null) {
+      map['afternoon_dosage'] = Variable<String>(afternoonDosage);
+    }
+    if (!nullToAbsent || eveningDosage != null) {
+      map['evening_dosage'] = Variable<String>(eveningDosage);
+    }
+    if (!nullToAbsent || nightDosage != null) {
+      map['night_dosage'] = Variable<String>(nightDosage);
     }
     if (!nullToAbsent || frequency != null) {
       map['frequency'] = Variable<String>(frequency);
@@ -4667,6 +4787,18 @@ class MedicationsTableData extends DataClass
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
+      morningDosage: morningDosage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(morningDosage),
+      afternoonDosage: afternoonDosage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(afternoonDosage),
+      eveningDosage: eveningDosage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(eveningDosage),
+      nightDosage: nightDosage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nightDosage),
       frequency: frequency == null && nullToAbsent
           ? const Value.absent()
           : Value(frequency),
@@ -4699,6 +4831,10 @@ class MedicationsTableData extends DataClass
       unit: serializer.fromJson<String>(json['unit']),
       dosageAmount: serializer.fromJson<double>(json['dosageAmount']),
       description: serializer.fromJson<String?>(json['description']),
+      morningDosage: serializer.fromJson<String?>(json['morningDosage']),
+      afternoonDosage: serializer.fromJson<String?>(json['afternoonDosage']),
+      eveningDosage: serializer.fromJson<String?>(json['eveningDosage']),
+      nightDosage: serializer.fromJson<String?>(json['nightDosage']),
       frequency: serializer.fromJson<String?>(json['frequency']),
       duration: serializer.fromJson<int?>(json['duration']),
       isPrn: serializer.fromJson<bool>(json['isPrn']),
@@ -4722,6 +4858,10 @@ class MedicationsTableData extends DataClass
       'unit': serializer.toJson<String>(unit),
       'dosageAmount': serializer.toJson<double>(dosageAmount),
       'description': serializer.toJson<String?>(description),
+      'morningDosage': serializer.toJson<String?>(morningDosage),
+      'afternoonDosage': serializer.toJson<String?>(afternoonDosage),
+      'eveningDosage': serializer.toJson<String?>(eveningDosage),
+      'nightDosage': serializer.toJson<String?>(nightDosage),
       'frequency': serializer.toJson<String?>(frequency),
       'duration': serializer.toJson<int?>(duration),
       'isPrn': serializer.toJson<bool>(isPrn),
@@ -4743,6 +4883,10 @@ class MedicationsTableData extends DataClass
     String? unit,
     double? dosageAmount,
     Value<String?> description = const Value.absent(),
+    Value<String?> morningDosage = const Value.absent(),
+    Value<String?> afternoonDosage = const Value.absent(),
+    Value<String?> eveningDosage = const Value.absent(),
+    Value<String?> nightDosage = const Value.absent(),
     Value<String?> frequency = const Value.absent(),
     Value<int?> duration = const Value.absent(),
     bool? isPrn,
@@ -4763,6 +4907,16 @@ class MedicationsTableData extends DataClass
     unit: unit ?? this.unit,
     dosageAmount: dosageAmount ?? this.dosageAmount,
     description: description.present ? description.value : this.description,
+    morningDosage: morningDosage.present
+        ? morningDosage.value
+        : this.morningDosage,
+    afternoonDosage: afternoonDosage.present
+        ? afternoonDosage.value
+        : this.afternoonDosage,
+    eveningDosage: eveningDosage.present
+        ? eveningDosage.value
+        : this.eveningDosage,
+    nightDosage: nightDosage.present ? nightDosage.value : this.nightDosage,
     frequency: frequency.present ? frequency.value : this.frequency,
     duration: duration.present ? duration.value : this.duration,
     isPrn: isPrn ?? this.isPrn,
@@ -4795,6 +4949,18 @@ class MedicationsTableData extends DataClass
       description: data.description.present
           ? data.description.value
           : this.description,
+      morningDosage: data.morningDosage.present
+          ? data.morningDosage.value
+          : this.morningDosage,
+      afternoonDosage: data.afternoonDosage.present
+          ? data.afternoonDosage.value
+          : this.afternoonDosage,
+      eveningDosage: data.eveningDosage.present
+          ? data.eveningDosage.value
+          : this.eveningDosage,
+      nightDosage: data.nightDosage.present
+          ? data.nightDosage.value
+          : this.nightDosage,
       frequency: data.frequency.present ? data.frequency.value : this.frequency,
       duration: data.duration.present ? data.duration.value : this.duration,
       isPrn: data.isPrn.present ? data.isPrn.value : this.isPrn,
@@ -4820,6 +4986,10 @@ class MedicationsTableData extends DataClass
           ..write('unit: $unit, ')
           ..write('dosageAmount: $dosageAmount, ')
           ..write('description: $description, ')
+          ..write('morningDosage: $morningDosage, ')
+          ..write('afternoonDosage: $afternoonDosage, ')
+          ..write('eveningDosage: $eveningDosage, ')
+          ..write('nightDosage: $nightDosage, ')
           ..write('frequency: $frequency, ')
           ..write('duration: $duration, ')
           ..write('isPrn: $isPrn, ')
@@ -4831,7 +5001,7 @@ class MedicationsTableData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     prescriptionId,
     rowNumber,
@@ -4843,13 +5013,17 @@ class MedicationsTableData extends DataClass
     unit,
     dosageAmount,
     description,
+    morningDosage,
+    afternoonDosage,
+    eveningDosage,
+    nightDosage,
     frequency,
     duration,
     isPrn,
     beforeMeal,
     createdAt,
     updatedAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4865,6 +5039,10 @@ class MedicationsTableData extends DataClass
           other.unit == this.unit &&
           other.dosageAmount == this.dosageAmount &&
           other.description == this.description &&
+          other.morningDosage == this.morningDosage &&
+          other.afternoonDosage == this.afternoonDosage &&
+          other.eveningDosage == this.eveningDosage &&
+          other.nightDosage == this.nightDosage &&
           other.frequency == this.frequency &&
           other.duration == this.duration &&
           other.isPrn == this.isPrn &&
@@ -4885,6 +5063,10 @@ class MedicationsTableCompanion extends UpdateCompanion<MedicationsTableData> {
   final Value<String> unit;
   final Value<double> dosageAmount;
   final Value<String?> description;
+  final Value<String?> morningDosage;
+  final Value<String?> afternoonDosage;
+  final Value<String?> eveningDosage;
+  final Value<String?> nightDosage;
   final Value<String?> frequency;
   final Value<int?> duration;
   final Value<bool> isPrn;
@@ -4904,6 +5086,10 @@ class MedicationsTableCompanion extends UpdateCompanion<MedicationsTableData> {
     this.unit = const Value.absent(),
     this.dosageAmount = const Value.absent(),
     this.description = const Value.absent(),
+    this.morningDosage = const Value.absent(),
+    this.afternoonDosage = const Value.absent(),
+    this.eveningDosage = const Value.absent(),
+    this.nightDosage = const Value.absent(),
     this.frequency = const Value.absent(),
     this.duration = const Value.absent(),
     this.isPrn = const Value.absent(),
@@ -4924,6 +5110,10 @@ class MedicationsTableCompanion extends UpdateCompanion<MedicationsTableData> {
     this.unit = const Value.absent(),
     this.dosageAmount = const Value.absent(),
     this.description = const Value.absent(),
+    this.morningDosage = const Value.absent(),
+    this.afternoonDosage = const Value.absent(),
+    this.eveningDosage = const Value.absent(),
+    this.nightDosage = const Value.absent(),
     this.frequency = const Value.absent(),
     this.duration = const Value.absent(),
     this.isPrn = const Value.absent(),
@@ -4949,6 +5139,10 @@ class MedicationsTableCompanion extends UpdateCompanion<MedicationsTableData> {
     Expression<String>? unit,
     Expression<double>? dosageAmount,
     Expression<String>? description,
+    Expression<String>? morningDosage,
+    Expression<String>? afternoonDosage,
+    Expression<String>? eveningDosage,
+    Expression<String>? nightDosage,
     Expression<String>? frequency,
     Expression<int>? duration,
     Expression<bool>? isPrn,
@@ -4969,6 +5163,10 @@ class MedicationsTableCompanion extends UpdateCompanion<MedicationsTableData> {
       if (unit != null) 'unit': unit,
       if (dosageAmount != null) 'dosage_amount': dosageAmount,
       if (description != null) 'description': description,
+      if (morningDosage != null) 'morning_dosage': morningDosage,
+      if (afternoonDosage != null) 'afternoon_dosage': afternoonDosage,
+      if (eveningDosage != null) 'evening_dosage': eveningDosage,
+      if (nightDosage != null) 'night_dosage': nightDosage,
       if (frequency != null) 'frequency': frequency,
       if (duration != null) 'duration': duration,
       if (isPrn != null) 'is_prn': isPrn,
@@ -4991,6 +5189,10 @@ class MedicationsTableCompanion extends UpdateCompanion<MedicationsTableData> {
     Value<String>? unit,
     Value<double>? dosageAmount,
     Value<String?>? description,
+    Value<String?>? morningDosage,
+    Value<String?>? afternoonDosage,
+    Value<String?>? eveningDosage,
+    Value<String?>? nightDosage,
     Value<String?>? frequency,
     Value<int?>? duration,
     Value<bool>? isPrn,
@@ -5011,6 +5213,10 @@ class MedicationsTableCompanion extends UpdateCompanion<MedicationsTableData> {
       unit: unit ?? this.unit,
       dosageAmount: dosageAmount ?? this.dosageAmount,
       description: description ?? this.description,
+      morningDosage: morningDosage ?? this.morningDosage,
+      afternoonDosage: afternoonDosage ?? this.afternoonDosage,
+      eveningDosage: eveningDosage ?? this.eveningDosage,
+      nightDosage: nightDosage ?? this.nightDosage,
       frequency: frequency ?? this.frequency,
       duration: duration ?? this.duration,
       isPrn: isPrn ?? this.isPrn,
@@ -5057,6 +5263,18 @@ class MedicationsTableCompanion extends UpdateCompanion<MedicationsTableData> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (morningDosage.present) {
+      map['morning_dosage'] = Variable<String>(morningDosage.value);
+    }
+    if (afternoonDosage.present) {
+      map['afternoon_dosage'] = Variable<String>(afternoonDosage.value);
+    }
+    if (eveningDosage.present) {
+      map['evening_dosage'] = Variable<String>(eveningDosage.value);
+    }
+    if (nightDosage.present) {
+      map['night_dosage'] = Variable<String>(nightDosage.value);
+    }
     if (frequency.present) {
       map['frequency'] = Variable<String>(frequency.value);
     }
@@ -5095,6 +5313,10 @@ class MedicationsTableCompanion extends UpdateCompanion<MedicationsTableData> {
           ..write('unit: $unit, ')
           ..write('dosageAmount: $dosageAmount, ')
           ..write('description: $description, ')
+          ..write('morningDosage: $morningDosage, ')
+          ..write('afternoonDosage: $afternoonDosage, ')
+          ..write('eveningDosage: $eveningDosage, ')
+          ..write('nightDosage: $nightDosage, ')
           ..write('frequency: $frequency, ')
           ..write('duration: $duration, ')
           ..write('isPrn: $isPrn, ')
@@ -11421,6 +11643,10 @@ typedef $$MedicationsTableTableCreateCompanionBuilder =
       Value<String> unit,
       Value<double> dosageAmount,
       Value<String?> description,
+      Value<String?> morningDosage,
+      Value<String?> afternoonDosage,
+      Value<String?> eveningDosage,
+      Value<String?> nightDosage,
       Value<String?> frequency,
       Value<int?> duration,
       Value<bool> isPrn,
@@ -11442,6 +11668,10 @@ typedef $$MedicationsTableTableUpdateCompanionBuilder =
       Value<String> unit,
       Value<double> dosageAmount,
       Value<String?> description,
+      Value<String?> morningDosage,
+      Value<String?> afternoonDosage,
+      Value<String?> eveningDosage,
+      Value<String?> nightDosage,
       Value<String?> frequency,
       Value<int?> duration,
       Value<bool> isPrn,
@@ -11512,6 +11742,26 @@ class $$MedicationsTableTableFilterComposer
 
   ColumnFilters<String> get description => $composableBuilder(
     column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get morningDosage => $composableBuilder(
+    column: $table.morningDosage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get afternoonDosage => $composableBuilder(
+    column: $table.afternoonDosage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get eveningDosage => $composableBuilder(
+    column: $table.eveningDosage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nightDosage => $composableBuilder(
+    column: $table.nightDosage,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11610,6 +11860,26 @@ class $$MedicationsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get morningDosage => $composableBuilder(
+    column: $table.morningDosage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get afternoonDosage => $composableBuilder(
+    column: $table.afternoonDosage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get eveningDosage => $composableBuilder(
+    column: $table.eveningDosage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nightDosage => $composableBuilder(
+    column: $table.nightDosage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get frequency => $composableBuilder(
     column: $table.frequency,
     builder: (column) => ColumnOrderings(column),
@@ -11695,6 +11965,26 @@ class $$MedicationsTableTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get morningDosage => $composableBuilder(
+    column: $table.morningDosage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get afternoonDosage => $composableBuilder(
+    column: $table.afternoonDosage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get eveningDosage => $composableBuilder(
+    column: $table.eveningDosage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get nightDosage => $composableBuilder(
+    column: $table.nightDosage,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get frequency =>
       $composableBuilder(column: $table.frequency, builder: (column) => column);
 
@@ -11764,6 +12054,10 @@ class $$MedicationsTableTableTableManager
                 Value<String> unit = const Value.absent(),
                 Value<double> dosageAmount = const Value.absent(),
                 Value<String?> description = const Value.absent(),
+                Value<String?> morningDosage = const Value.absent(),
+                Value<String?> afternoonDosage = const Value.absent(),
+                Value<String?> eveningDosage = const Value.absent(),
+                Value<String?> nightDosage = const Value.absent(),
                 Value<String?> frequency = const Value.absent(),
                 Value<int?> duration = const Value.absent(),
                 Value<bool> isPrn = const Value.absent(),
@@ -11783,6 +12077,10 @@ class $$MedicationsTableTableTableManager
                 unit: unit,
                 dosageAmount: dosageAmount,
                 description: description,
+                morningDosage: morningDosage,
+                afternoonDosage: afternoonDosage,
+                eveningDosage: eveningDosage,
+                nightDosage: nightDosage,
                 frequency: frequency,
                 duration: duration,
                 isPrn: isPrn,
@@ -11804,6 +12102,10 @@ class $$MedicationsTableTableTableManager
                 Value<String> unit = const Value.absent(),
                 Value<double> dosageAmount = const Value.absent(),
                 Value<String?> description = const Value.absent(),
+                Value<String?> morningDosage = const Value.absent(),
+                Value<String?> afternoonDosage = const Value.absent(),
+                Value<String?> eveningDosage = const Value.absent(),
+                Value<String?> nightDosage = const Value.absent(),
                 Value<String?> frequency = const Value.absent(),
                 Value<int?> duration = const Value.absent(),
                 Value<bool> isPrn = const Value.absent(),
@@ -11823,6 +12125,10 @@ class $$MedicationsTableTableTableManager
                 unit: unit,
                 dosageAmount: dosageAmount,
                 description: description,
+                morningDosage: morningDosage,
+                afternoonDosage: afternoonDosage,
+                eveningDosage: eveningDosage,
+                nightDosage: nightDosage,
                 frequency: frequency,
                 duration: duration,
                 isPrn: isPrn,
