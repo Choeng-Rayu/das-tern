@@ -109,8 +109,8 @@ class _PatientDoctorTokenScreenState extends State<PatientDoctorTokenScreen> {
           child: _isGenerating
               ? const Center(child: CircularProgressIndicator())
               : _error != null
-                  ? _buildErrorState(context)
-                  : _buildTokenDisplay(context),
+              ? _buildErrorState(context)
+              : _buildTokenDisplay(context),
         ),
       ),
     );
@@ -250,9 +250,7 @@ class _PatientDoctorTokenScreenState extends State<PatientDoctorTokenScreen> {
                       children: [
                         Text(
                           _token ?? '',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
+                          style: Theme.of(context).textTheme.headlineMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 4,

@@ -1249,5 +1249,11 @@
   "shareWithDoctor": "ចែករំលែកជាមួយវេជ្ជបណ្ឌិត",
   "generateDoctorCode": "បង្កើតកូដវេជ្ជបណ្ឌិត",
   "doctorWillScan": "វេជ្ជបណ្ឌិតរបស់អ្នកនឹងស្កេនកូដនេះដើម្បីភ្ជាប់",
-  "youWillApprove": "អ្នកត្រូវយល់ព្រមការភ្ជាប់"
+  "youWillApprove": "អ្នកត្រូវយល់ព្រមការភ្ជាប់",
+
+  "somethingWentWrong": "មានបញ្ហាកើតឡើង",
+  "tapToChangePhoto": "ចុចដើម្បីប្តូររូបថត",
+  "takePhoto": "ថតរូប",
+  "chooseFromGallery": "ជ្រើសរើសពីវិចិត្រសាល",
+  "invalidEmail": "អ៊ីមែលមិនត្រឹមត្រូវ"
 }

@@ -37,7 +37,12 @@ class _DoctorShellState extends State<DoctorShell> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
+      backgroundColor: isDark
+          ? const Color(0xFF0A0A0F)
+          : const Color(0xFFF2F2F7),
+      extendBody: true,
       body: IndexedStack(index: _currentIndex, children: _tabs),
       bottomNavigationBar: AppBottomNavigation(
         currentIndex: _currentIndex,

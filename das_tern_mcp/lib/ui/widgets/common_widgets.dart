@@ -449,7 +449,7 @@ class AppGradientHeader extends StatelessWidget {
                   ),
                 ),
               ],
-              if (extraContent != null) ...extraContent!,
+              ...?extraContent,
             ],
           ),
         ),

@@ -779,7 +779,9 @@ class ApiService {
 
   /// Doctor consumes a connection token
   /// POST /connections/tokens/doctor-consume
-  Future<Map<String, dynamic>> doctorConsumeConnectionToken(String token) async {
+  Future<Map<String, dynamic>> doctorConsumeConnectionToken(
+    String token,
+  ) async {
     return Map<String, dynamic>.from(
       await _authenticatedRequest(
         (h) => http.post(

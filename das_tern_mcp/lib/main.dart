@@ -18,6 +18,8 @@ import 'providers/health_monitoring_provider.dart';
 import 'providers/batch_provider.dart';
 import 'providers/adherence_provider.dart';
 import 'providers/shell_tab_controller.dart';
+import 'data/repositories/auth_repository.dart';
+import 'data/repositories/user_repository.dart';
 import 'services/notification_service.dart';
 import 'services/sync_service.dart';
 import 'services/logger_service.dart';
@@ -140,6 +142,8 @@ class _DasTernAppState extends State<DasTernApp> with WidgetsBindingObserver {
           create: (_) => LocaleProvider()..loadLocalePreference(),
         ),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        Provider<AuthRepository>(create: (_) => AuthRepository()),
+        Provider<UserRepository>(create: (_) => UserRepository()),
         ChangeNotifierProvider(create: (_) => DoseProvider()),
         ChangeNotifierProvider(create: (_) => PrescriptionProvider()),
         ChangeNotifierProvider(create: (_) => ConnectionProvider()),

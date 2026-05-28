@@ -149,6 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = context.watch<AuthProvider>();
     final l10n = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     // Responsive horizontal padding: scales with screen width
     final hPad = (size.width * 0.06).clamp(16.0, 40.0);
     // Tighten vertical gaps on small/short screens
@@ -347,18 +348,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   icon: const _GoogleIcon(size: 20),
                   label: Text(
                     l10n.signInWithGoogle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF333333),
+                      color: isDark ? Colors.white : const Color(0xFF333333),
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF333333),
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(
-                      color: Color(0xFFE0E0E0),
-                      width: 1.5,
+                    foregroundColor: isDark
+                        ? Colors.white
+                        : const Color(0xFF333333),
+                    backgroundColor: isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.white.withValues(alpha: 0.7),
+                    side: BorderSide(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.2)
+                          : const Color(0xFFE0E0E0),
+                      width: 1,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
@@ -384,18 +391,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   label: Text(
                     l10n.signInWithTelegram,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF333333),
+                      color: isDark ? Colors.white : const Color(0xFF333333),
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF333333),
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(
-                      color: Color(0xFFE0E0E0),
-                      width: 1.5,
+                    foregroundColor: isDark
+                        ? Colors.white
+                        : const Color(0xFF333333),
+                    backgroundColor: isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.white.withValues(alpha: 0.7),
+                    side: BorderSide(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.2)
+                          : const Color(0xFFE0E0E0),
+                      width: 1,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),

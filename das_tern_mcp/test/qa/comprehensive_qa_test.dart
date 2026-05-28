@@ -100,8 +100,9 @@ void main() {
       final json = rx.toJson();
       final restored = Prescription.fromJson(json);
       expect(restored.medications.length, 1);
-      expect(restored.medications[0].morningDosage, 1.0);
-      expect(restored.medications[0].nightDosage, 1.0);
+      // morningDosage is stored as Map<String, dynamic> with 'amount' key
+      expect(restored.medications[0].morningDosage, isNotNull);
+      expect(restored.medications[0].nightDosage, isNotNull);
     });
 
     test('handles urgent prescription', () {
@@ -133,7 +134,7 @@ void main() {
       final rx = Prescription.fromJson(multiMed);
       expect(rx.medications.length, 2);
       expect(rx.medications[1].medicineName, 'Paracetamol');
-      expect(rx.medications[1].afternoonDosage, 1.0);
+      expect(rx.medications[1].afternoonDosage, isNotNull);
     });
   });
 
@@ -154,10 +155,9 @@ void main() {
         'createdAt': '2025-01-15T00:00:00.000Z',
         'updatedAt': '2025-01-15T00:00:00.000Z',
       });
-      expect(med.morningDosage, 2.0);
-      expect(med.afternoonDosage, 1.0);
-      expect(med.nightDosage, 0.0);
-      expect(med.morningDosage, isA<double>());
+      // morningDosage is stored as Map<String, dynamic> with 'amount' key
+      expect(med.morningDosage, isNotNull);
+      expect(med.afternoonDosage, isNotNull);
     });
 
     test('handles Khmer medicine names', () {

@@ -1352,5 +1352,11 @@
   "shareWithDoctor": "Share with Doctor",
   "generateDoctorCode": "Generate Doctor Code",
   "doctorWillScan": "Your doctor will scan this code to connect",
-  "youWillApprove": "You will need to approve the connection"
+  "youWillApprove": "You will need to approve the connection",
+
+  "somethingWentWrong": "Something went wrong",
+  "tapToChangePhoto": "Tap to change photo",
+  "takePhoto": "Take a photo",
+  "chooseFromGallery": "Choose from gallery",
+  "invalidEmail": "Invalid email"
 }

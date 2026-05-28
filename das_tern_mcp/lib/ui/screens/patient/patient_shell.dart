@@ -183,7 +183,12 @@ class _PatientShellState extends State<PatientShell> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
+      backgroundColor: isDark
+          ? const Color(0xFF0A0A0F)
+          : const Color(0xFFF2F2F7),
+      extendBody: true,
       body: PageView(
         controller: _pageController,
         onPageChanged: (i) => setState(() => _currentIndex = i),

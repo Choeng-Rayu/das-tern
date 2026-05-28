@@ -431,13 +431,21 @@ class _DoctorSettingsTabState extends State<DoctorSettingsTab> {
   }
 
   Widget _buildGroupCard(bool isDark, List<Widget> children) {
+    final glassFillColor = isDark
+        ? Colors.white.withValues(alpha: 0.20)
+        : Colors.white.withValues(alpha: 0.75);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.black.withValues(alpha: 0.08);
+
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+        color: glassFillColor,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor, width: 0.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
+            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

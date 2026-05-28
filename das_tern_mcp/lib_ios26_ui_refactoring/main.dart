@@ -14,7 +14,6 @@ import 'core/theme/theme.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/widgets/widgets.dart';
 
-
 void main() {
   runApp(
     ChangeNotifierProvider(

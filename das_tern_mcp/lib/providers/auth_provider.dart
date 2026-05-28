@@ -9,6 +9,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../domain/models/user_models.dart';
 import '../services/api_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
@@ -16,6 +17,9 @@ import '../services/logger_service.dart';
 import '../core/config/dev_config.dart';
 
 /// Manages authentication state: login, register, logout, token storage.
+///
+/// Exposes both the legacy [user] map (for existing screens) and the typed
+/// [currentUser] / [authStatus] for new MVVM views.
 class AuthProvider extends ChangeNotifier {
   AuthProvider({bool enableTelegramDeepLinkListener = true}) {
     if (enableTelegramDeepLinkListener) {
@@ -50,8 +54,29 @@ class AuthProvider extends ChangeNotifier {
   String? _telegramExpectedState;
   bool _telegramLinkListenerStarted = false;
 
+  // ── Typed MVVM state ────────────────────────────────────────────────────
+  AuthStatus _authStatus = AuthStatus.unknown;
+  CurrentUser? _currentUser;
+
+  /// Typed authentication status for new MVVM views.
+  AuthStatus get authStatus => _authStatus;
+
+  /// Typed current user — prefer this over [user] map in new code.
+  CurrentUser? get currentUser => _currentUser;
+
+  /// Composite view state snapshot for UI consumption.
+  AuthViewState get viewState => AuthViewState(
+    status: _authStatus,
+    currentUser: _currentUser,
+    error: _error,
+    isLoading: _isLoading,
+  );
+
+  // ── Legacy getters (preserved for existing screens) ─────────────────────
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _isAuthenticated;
+
+  /// Legacy raw user map. New code should use [currentUser] instead.
   Map<String, dynamic>? get user => _user;
   String? get error => _error;
   String? get userRole => _user?['role'];
@@ -86,6 +111,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> _loadAuthStateInternal() async {
     _log.info('AuthProvider', 'Loading auth state from storage');
+    _authStatus = AuthStatus.loading;
 
     // ── DEV BYPASS ──────────────────────────────────────────────────────────
     // Skips login/register screen during development. Flip DevConfig.skipAuth
@@ -106,6 +132,7 @@ class AuthProvider extends ChangeNotifier {
       } catch (_) {
         // Keychain errors in simulator are non-fatal in dev mode
       }
+      _syncTypedState();
       notifyListeners();
       return;
     }
@@ -170,6 +197,7 @@ class AuthProvider extends ChangeNotifier {
     } else {
       _log.info('AuthProvider', 'No stored tokens found');
     }
+    _syncTypedState();
     notifyListeners();
   }
 
@@ -187,6 +215,7 @@ class AuthProvider extends ChangeNotifier {
         'userId': _user?['id'],
         'role': _user?['role'],
       });
+      _syncTypedState();
       notifyListeners();
       return true;
     } catch (e) {
@@ -251,6 +280,7 @@ class AuthProvider extends ChangeNotifier {
         'email': _user?['email'],
       });
 
+      _syncTypedState();
       notifyListeners();
       return true;
     } catch (e) {
@@ -353,6 +383,7 @@ class AuthProvider extends ChangeNotifier {
       await _saveTokens(result);
       _user = result['user'];
       _isAuthenticated = true;
+      _syncTypedState();
       notifyListeners();
       return true;
     } catch (e) {
@@ -447,6 +478,7 @@ class AuthProvider extends ChangeNotifier {
       await _saveTokens(result);
       _user = result['user'];
       _isAuthenticated = true;
+      _syncTypedState();
       notifyListeners();
       return true;
     } catch (e) {
@@ -538,6 +570,7 @@ class AuthProvider extends ChangeNotifier {
       final result = await _api.updateProfile(data);
       _user = result;
       _log.success('AuthProvider', 'Profile updated');
+      _syncTypedState();
       notifyListeners();
       return true;
     } catch (e) {
@@ -581,6 +614,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       if (_accessToken != null) {
         _user = await _api.getProfile(_accessToken!);
+        _syncTypedState();
         notifyListeners();
       }
     } catch (e) {
@@ -600,6 +634,18 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Syncs typed [_currentUser] and [_authStatus] from the legacy [_user] map.
+  /// Call explicitly after any change to [_isAuthenticated] or [_user].
+  void _syncTypedState() {
+    if (_isAuthenticated && _user != null) {
+      _currentUser = CurrentUser.fromJson(_user!);
+      _authStatus = AuthStatus.authenticated;
+    } else if (!_isAuthenticated) {
+      _currentUser = null;
+      _authStatus = AuthStatus.unauthenticated;
+    }
+  }
+
   Future<void> _saveTokens(Map<String, dynamic> result) async {
     _accessToken = result['accessToken'];
     _refreshToken = result['refreshToken'];
@@ -616,6 +662,8 @@ class AuthProvider extends ChangeNotifier {
     _refreshToken = null;
     _user = null;
     _isAuthenticated = false;
+    _currentUser = null;
+    _authStatus = AuthStatus.unauthenticated;
     await _secureStorage.delete(key: 'accessToken');
     await _secureStorage.delete(key: 'refreshToken');
   }

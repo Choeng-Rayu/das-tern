@@ -176,13 +176,9 @@ class AppRouter {
           builder: (_) => const DoctorConnectIntroScreen(),
         );
       case doctorScan:
-        return MaterialPageRoute(
-          builder: (_) => const DoctorQRScannerScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const DoctorQRScannerScreen());
       case doctorEnterCode:
-        return MaterialPageRoute(
-          builder: (_) => const DoctorCodeEntryScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const DoctorCodeEntryScreen());
       case doctorConnectionPreview:
         return MaterialPageRoute(
           builder: (_) => const DoctorConnectionPreviewScreen(),

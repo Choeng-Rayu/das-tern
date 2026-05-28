@@ -1,8 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../theme/app_spacing.dart';
+import 'app_glass_panel.dart';
 
 /// The standard border radius for glass dialogs and bottom sheets.
 const double _kGlassDialogRadius = 28.0;
@@ -61,61 +60,13 @@ class _GlassDialogContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final glassFillColor = isDark
-        ? Colors.white.withValues(alpha: 0.18)
-        : Colors.white.withValues(alpha: 0.60);
-
-    final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.20)
-        : Colors.black.withValues(alpha: 0.12);
-
-    final shadowColor = isDark
-        ? Colors.black.withValues(alpha: 0.25)
-        : Colors.black.withValues(alpha: 0.10);
-
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(_kGlassDialogRadius),
-          boxShadow: [
-            BoxShadow(
-              color: shadowColor,
-              blurRadius: 24.0,
-              spreadRadius: 0,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(_kGlassDialogRadius),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: _kGlassBlurSigma,
-              sigmaY: _kGlassBlurSigma,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    glassFillColor,
-                    glassFillColor.withValues(
-                      alpha: (glassFillColor.a * 0.8).clamp(0.0, 1.0),
-                    ),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(_kGlassDialogRadius),
-                border: Border.all(color: borderColor, width: 1.0),
-              ),
-              child: child,
-            ),
-          ),
-        ),
+      child: AppGlassPanel(
+        borderRadius: _kGlassDialogRadius,
+        blurRadius: _kGlassBlurSigma,
+        child: child,
       ),
     );
   }
@@ -283,63 +234,10 @@ class _GlassBottomSheetContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final glassFillColor = isDark
-        ? Colors.white.withValues(alpha: 0.18)
-        : Colors.white.withValues(alpha: 0.60);
-
-    final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.20)
-        : Colors.black.withValues(alpha: 0.12);
-
-    final shadowColor = isDark
-        ? Colors.black.withValues(alpha: 0.25)
-        : Colors.black.withValues(alpha: 0.10);
-
-    final topRadius = BorderRadius.only(
-      topLeft: const Radius.circular(_kGlassDialogRadius),
-      topRight: const Radius.circular(_kGlassDialogRadius),
-    );
-
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: topRadius,
-        boxShadow: [
-          BoxShadow(
-            color: shadowColor,
-            blurRadius: 24.0,
-            spreadRadius: 0,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: topRadius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: _kGlassBlurSigma,
-            sigmaY: _kGlassBlurSigma,
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  glassFillColor,
-                  glassFillColor.withValues(
-                    alpha: (glassFillColor.a * 0.8).clamp(0.0, 1.0),
-                  ),
-                ],
-              ),
-              borderRadius: topRadius,
-              border: Border.all(color: borderColor, width: 1.0),
-            ),
-            child: child,
-          ),
-        ),
-      ),
+    return AppGlassPanel(
+      borderRadius: _kGlassDialogRadius,
+      blurRadius: _kGlassBlurSigma,
+      child: child,
     );
   }
 }

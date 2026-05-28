@@ -103,8 +103,8 @@ class _DoctorCodeEntryScreenState extends State<DoctorCodeEntryScreen> {
                 Text(
                   l10n.enterEightDigitFromPatient,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
 
@@ -113,9 +113,9 @@ class _DoctorCodeEntryScreenState extends State<DoctorCodeEntryScreen> {
                   controller: _codeController,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 6,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 6,
+                  ),
                   maxLength: 8,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
@@ -123,11 +123,11 @@ class _DoctorCodeEntryScreenState extends State<DoctorCodeEntryScreen> {
                   ],
                   decoration: InputDecoration(
                     hintText: l10n.codeHintPlaceholder,
-                    hintStyle:
-                        Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: AppColors.neutral300,
-                              letterSpacing: 6,
-                            ),
+                    hintStyle: Theme.of(context).textTheme.headlineMedium
+                        ?.copyWith(
+                          color: AppColors.neutral300,
+                          letterSpacing: 6,
+                        ),
                     counterText: '',
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.lg,
@@ -153,13 +153,15 @@ class _DoctorCodeEntryScreenState extends State<DoctorCodeEntryScreen> {
                   onPressed: () async {
                     final data = await Clipboard.getData('text/plain');
                     if (data?.text != null && data!.text!.isNotEmpty) {
-                      _codeController.text =
-                          data.text!.trim().toUpperCase().substring(
-                                0,
-                                data.text!.trim().length > 8
-                                    ? 8
-                                    : data.text!.trim().length,
-                              );
+                      _codeController.text = data.text!
+                          .trim()
+                          .toUpperCase()
+                          .substring(
+                            0,
+                            data.text!.trim().length > 8
+                                ? 8
+                                : data.text!.trim().length,
+                          );
                     }
                   },
                   icon: const Icon(Icons.content_paste, size: 18),

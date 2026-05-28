@@ -126,9 +126,7 @@ class DoctorConnectIntroScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.primaryBlue.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(
-          color: AppColors.primaryBlue.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,11 +155,7 @@ class DoctorConnectIntroScreen extends StatelessWidget {
             'Patient generates a QR code or connection code',
           ),
           const SizedBox(height: AppSpacing.xs),
-          _buildInfoStep(
-            context,
-            '2',
-            'Scan the code or enter it manually',
-          ),
+          _buildInfoStep(context, '2', 'Scan the code or enter it manually'),
           const SizedBox(height: AppSpacing.xs),
           _buildInfoStep(
             context,

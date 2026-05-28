@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -17,6 +15,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/theme_provider.dart';
 import '../../../widgets/common_widgets.dart';
+import '../../../widgets/app_glass_panel.dart';
 import '../../../widgets/language_switcher.dart';
 
 class PatientSettingsTab extends StatefulWidget {
@@ -212,56 +211,60 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
       onTap: () => Navigator.pushNamed(context, '/patient/edit-profile'),
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
+              color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.06),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.12),
-                child: const Icon(
-                  Icons.person_outline,
-                  color: AppColors.primaryBlue,
-                  size: 26,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: AppGlassPanel(
+            borderRadius: 14,
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: AppColors.primaryBlue.withValues(
+                    alpha: 0.12,
+                  ),
+                  child: const Icon(
+                    Icons.person_outline,
+                    color: AppColors.primaryBlue,
+                    size: 26,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _patientName(auth.user),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _patientName(auth.user),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      l10n.patientRole,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                      const SizedBox(height: 2),
+                      Text(
+                        l10n.patientRole,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.chevron_right,
-                color: AppColors.textSecondary,
-                size: 20,
-              ),
-            ],
+                const Icon(
+                  Icons.chevron_right,
+                  color: AppColors.textSecondary,
+                  size: 20,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -509,12 +512,6 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
   }
 
   Widget _buildGroupCard(bool isDark, List<Widget> children) {
-    final glassFillColor = isDark
-        ? Colors.white.withValues(alpha: 0.20)
-        : Colors.white.withValues(alpha: 0.75);
-    final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.15)
-        : Colors.black.withValues(alpha: 0.08);
     final shadowColor = isDark
         ? Colors.black.withValues(alpha: 0.20)
         : Colors.black.withValues(alpha: 0.06);
@@ -532,16 +529,10 @@ class _PatientSettingsTabState extends State<PatientSettingsTab> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              color: glassFillColor,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: borderColor, width: 0.5),
-            ),
-            child: Column(children: children),
-          ),
+        child: AppGlassPanel(
+          borderRadius: 14,
+          padding: EdgeInsets.zero,
+          child: Column(children: children),
         ),
       ),
     );

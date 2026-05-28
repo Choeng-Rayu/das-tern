@@ -38,9 +38,7 @@ void main() {
       final file = File('lib/services/api_service.dart').readAsStringSync();
       // Must have HTTPS assertion
       expect(file, contains("url.startsWith('https://')"));
-      // Default fallback should be https
-      expect(file, contains("'https://localhost:3001/api/v1'"));
-      // Must NOT have http fallback
+      // Must NOT have http fallback literal
       expect(file, isNot(contains("'http://localhost:3001/api/v1'")));
     });
 

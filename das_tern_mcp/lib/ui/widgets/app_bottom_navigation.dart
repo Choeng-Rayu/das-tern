@@ -221,8 +221,7 @@ class AppBottomNavigation extends StatelessWidget {
   static const double _maxExpandedWidthCap = 120.0;
 
   /// Visual height of the pill panel including vertical padding.
-  static const double _panelHeight =
-      _prominentButtonSize + (AppSpacing.sm * 2);
+  static const double _panelHeight = _prominentButtonSize + (AppSpacing.sm * 2);
 
   @override
   Widget build(BuildContext context) {

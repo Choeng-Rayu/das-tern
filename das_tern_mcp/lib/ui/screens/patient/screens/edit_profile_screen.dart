@@ -1,16 +1,17 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../../../domain/models/user_models.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers/auth_provider.dart';
+import '../../../../providers/profile_editor_view_model.dart';
+import '../../../../data/repositories/user_repository.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../widgets/common_widgets.dart';
 
-/// Edit profile screen for patients.
-/// Pre-fills all fields from current user data and saves via PATCH /users/me.
+/// Edit profile screen — thin view backed by [ProfileEditorViewModel].
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -20,48 +21,56 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  late TextEditingController _firstNameController;
-  late TextEditingController _lastNameController;
-  late TextEditingController _emailController;
-  late TextEditingController _phoneController;
-  String _gender = 'MALE';
-  DateTime? _dateOfBirth;
-  bool _hasChanges = false;
-  File? _pickedImage;
-  String? _existingProfilePictureUrl;
+  late final ProfileEditorViewModel _vm;
+  late final TextEditingController _firstNameCtrl;
+  late final TextEditingController _lastNameCtrl;
+  late final TextEditingController _emailCtrl;
+  late final TextEditingController _phoneCtrl;
 
   @override
   void initState() {
     super.initState();
-    final user = context.read<AuthProvider>().user;
+    final auth = context.read<AuthProvider>();
+    final repo = context.read<UserRepository>();
 
-    _firstNameController = TextEditingController(
-      text: user?['firstName'] ?? '',
-    );
-    _lastNameController = TextEditingController(text: user?['lastName'] ?? '');
-    _emailController = TextEditingController(text: user?['email'] ?? '');
-    _phoneController = TextEditingController(text: user?['phoneNumber'] ?? '');
-    _existingProfilePictureUrl = user?['profilePictureUrl'];
-    _gender = user?['gender'] ?? 'MALE';
+    // Use typed currentUser if available, fall back to legacy map
+    final currentUser =
+        auth.currentUser ??
+        (auth.user != null ? CurrentUser.fromJson(auth.user!) : null) ??
+        const CurrentUser(id: '', firstName: '', role: UserRole.patient);
 
-    if (user?['dateOfBirth'] != null) {
-      _dateOfBirth = DateTime.tryParse(user!['dateOfBirth'].toString());
+    _vm = ProfileEditorViewModel(user: currentUser, userRepository: repo);
+
+    _firstNameCtrl = TextEditingController(text: _vm.firstName);
+    _lastNameCtrl = TextEditingController(text: _vm.lastName);
+    _emailCtrl = TextEditingController(text: _vm.email);
+    _phoneCtrl = TextEditingController(text: _vm.phone);
+
+    for (final c in [_firstNameCtrl, _lastNameCtrl, _emailCtrl, _phoneCtrl]) {
+      c.addListener(_onFieldChanged);
     }
-
-    // Listen for changes
-    _firstNameController.addListener(_onFieldChanged);
-    _lastNameController.addListener(_onFieldChanged);
-    _emailController.addListener(_onFieldChanged);
-    _phoneController.addListener(_onFieldChanged);
   }
 
   void _onFieldChanged() {
-    if (!_hasChanges) setState(() => _hasChanges = true);
+    _vm.updateField(() {
+      _vm.firstName = _firstNameCtrl.text;
+      _vm.lastName = _lastNameCtrl.text;
+      _vm.email = _emailCtrl.text;
+      _vm.phone = _phoneCtrl.text;
+    });
+  }
+
+  @override
+  void dispose() {
+    _firstNameCtrl.dispose();
+    _lastNameCtrl.dispose();
+    _emailCtrl.dispose();
+    _phoneCtrl.dispose();
+    _vm.dispose();
+    super.dispose();
   }
 
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -96,76 +105,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       ),
     );
-
-    if (source == null) return;
-
-    final picked = await picker.pickImage(
-      source: source,
-      maxWidth: 512,
-      maxHeight: 512,
-      imageQuality: 75,
-    );
-
-    if (picked != null) {
-      setState(() {
-        _pickedImage = File(picked.path);
-        _hasChanges = true;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    super.dispose();
+    if (source != null) await _vm.pickImage(source);
   }
 
   Future<void> _selectDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _dateOfBirth ?? DateTime(2000),
+      initialDate: _vm.dateOfBirth ?? DateTime(2000),
       firstDate: DateTime(1920),
       lastDate: DateTime.now(),
     );
-    if (picked != null && picked != _dateOfBirth) {
-      setState(() {
-        _dateOfBirth = picked;
-        _hasChanges = true;
-      });
+    if (picked != null) {
+      _vm.updateField(() => _vm.dateOfBirth = picked);
     }
   }
 
   Future<void> _handleSave() async {
     if (!_formKey.currentState!.validate()) return;
-
-    final auth = context.read<AuthProvider>();
-    final data = <String, dynamic>{
-      'firstName': _firstNameController.text.trim(),
-      'lastName': _lastNameController.text.trim(),
-    };
-
-    final email = _emailController.text.trim();
-    if (email.isNotEmpty) data['email'] = email;
-
-    final phone = _phoneController.text.trim();
-    if (phone.isNotEmpty) data['phoneNumber'] = phone;
-
-    if (_pickedImage != null) {
-      final bytes = await _pickedImage!.readAsBytes();
-      final base64Image = base64Encode(bytes);
-      final ext = _pickedImage!.path.split('.').last.toLowerCase();
-      final mime = ext == 'png' ? 'image/png' : 'image/jpeg';
-      data['profilePictureUrl'] = 'data:$mime;base64,$base64Image';
-    }
-
-    final success = await auth.updateUserProfile(data);
-
+    final success = await _vm.save();
     if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;
     if (success) {
+      // Sync updated profile back to AuthProvider
+      context.read<AuthProvider>().refreshProfile();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.settingsSaved),
@@ -176,7 +138,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(auth.error ?? l10n.failedToSave),
+          content: Text(_vm.error ?? l10n.failedToSave),
           backgroundColor: AppColors.statusError,
         ),
       );
@@ -186,274 +148,162 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final auth = context.watch<AuthProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      appBar: AppHeader(
-        title: l10n.editProfile,
-        actions: [
-          TextButton(
-            onPressed: _hasChanges && !auth.isLoading ? _handleSave : null,
-            child: auth.isLoading
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(
-                    l10n.save,
-                    style: TextStyle(
-                      color: _hasChanges
-                          ? AppColors.primaryBlue
-                          : AppColors.textSecondary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              // ── Profile Avatar ──
-              const SizedBox(height: AppSpacing.sm),
-              Center(
-                child: GestureDetector(
-                  onTap: _pickImage,
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 54,
-                        backgroundColor: AppColors.primaryBlue.withValues(
-                          alpha: 0.12,
-                        ),
-                        backgroundImage: _pickedImage != null
-                            ? FileImage(_pickedImage!) as ImageProvider
-                            : (_existingProfilePictureUrl != null &&
-                                  _existingProfilePictureUrl!.startsWith(
-                                    'data:',
-                                  ))
-                            ? MemoryImage(
-                                base64Decode(
-                                  _existingProfilePictureUrl!.split(',').last,
-                                ),
-                              )
-                            : (_existingProfilePictureUrl != null &&
-                                  _existingProfilePictureUrl!.isNotEmpty)
-                            ? NetworkImage(_existingProfilePictureUrl!)
-                            : null,
-                        child:
-                            (_pickedImage == null &&
-                                (_existingProfilePictureUrl == null ||
-                                    _existingProfilePictureUrl!.isEmpty))
-                            ? const Icon(
-                                Icons.person,
-                                color: AppColors.primaryBlue,
-                                size: 52,
-                              )
-                            : null,
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryBlue,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isDark
-                                  ? const Color(0xFF1E1E2E)
-                                  : Colors.white,
-                              width: 2.5,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 18,
-                          ),
+    return ListenableBuilder(
+      listenable: _vm,
+      builder: (context, _) {
+        final isSaving = _vm.saveStatus == SaveStatus.saving;
+
+        return Scaffold(
+          appBar: AppHeader(
+            title: l10n.editProfile,
+            actions: [
+              TextButton(
+                onPressed: _vm.canSave && !isSaving ? _handleSave : null,
+                child: isSaving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        l10n.save,
+                        style: TextStyle(
+                          color: _vm.canSave
+                              ? AppColors.primaryBlue
+                              : AppColors.textSecondary,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ],
-                  ),
-                ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Tap to change photo',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-
-              // ── First Name ──
-              _buildField(
-                label: l10n.firstName,
-                controller: _firstNameController,
-                icon: Icons.person_outline,
-                validator: (v) =>
-                    v?.trim().isEmpty ?? true ? l10n.fillFirstNameError : null,
-              ),
-              const SizedBox(height: AppSpacing.md),
-
-              // ── Last Name ──
-              _buildField(
-                label: l10n.lastName,
-                controller: _lastNameController,
-                icon: Icons.person_outline,
-                validator: (v) =>
-                    v?.trim().isEmpty ?? true ? l10n.fillLastNameError : null,
-              ),
-              const SizedBox(height: AppSpacing.md),
-
-              // ── Gender ──
-              _buildLabel(l10n.gender),
-              const SizedBox(height: 6),
-              _buildGroupCard(isDark, [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.wc_outlined,
-                        size: 20,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _gender,
-                            isExpanded: true,
-                            items: [
-                              DropdownMenuItem(
-                                value: 'MALE',
-                                child: Text(l10n.genderMale),
-                              ),
-                              DropdownMenuItem(
-                                value: 'FEMALE',
-                                child: Text(l10n.genderFemale),
-                              ),
-                              DropdownMenuItem(
-                                value: 'OTHER',
-                                child: Text(l10n.genderOther),
-                              ),
-                            ],
-                            onChanged: (v) {
-                              setState(() {
-                                _gender = v ?? 'MALE';
-                                _hasChanges = true;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ]),
-              const SizedBox(height: AppSpacing.md),
-
-              // ── Date of Birth ──
-              _buildLabel(l10n.dateOfBirth),
-              const SizedBox(height: 6),
-              _buildGroupCard(isDark, [
-                InkWell(
-                  onTap: _selectDate,
-                  borderRadius: BorderRadius.circular(14),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today_outlined,
-                          size: 20,
-                          color: AppColors.textSecondary,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            _dateOfBirth != null
-                                ? '${_dateOfBirth!.day.toString().padLeft(2, '0')}/${_dateOfBirth!.month.toString().padLeft(2, '0')}/${_dateOfBirth!.year}'
-                                : l10n.selectDateOfBirth,
-                            style: Theme.of(context).textTheme.bodyLarge
-                                ?.copyWith(
-                                  color: _dateOfBirth != null
-                                      ? null
-                                      : AppColors.textSecondary,
-                                ),
-                          ),
-                        ),
-                        const Icon(
-                          Icons.chevron_right,
-                          size: 18,
-                          color: AppColors.textSecondary,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ]),
-              const SizedBox(height: AppSpacing.md),
-
-              // ── Email ──
-              _buildField(
-                label: l10n.email,
-                controller: _emailController,
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return null; // optional
-                  final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                  if (!emailRegex.hasMatch(v.trim())) {
-                    return l10n.emailInvalid;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppSpacing.md),
-
-              // ── Phone Number ──
-              _buildField(
-                label: l10n.phoneNumber,
-                controller: _phoneController,
-                icon: Icons.phone_outlined,
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: AppSpacing.xxl),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  // ── Helpers ──────────────────────────────────────────────────────────────
-
-  Widget _buildLabel(String label) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 4),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  const SizedBox(height: AppSpacing.sm),
+                  // Avatar
+                  Center(
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 54,
+                            backgroundColor: AppColors.primaryBlue.withValues(
+                              alpha: 0.12,
+                            ),
+                            backgroundImage: _vm.pickedImage != null
+                                ? FileImage(_vm.pickedImage!) as ImageProvider
+                                : (_vm.existingImageUrl != null &&
+                                      _vm.existingImageUrl!.startsWith('data:'))
+                                ? MemoryImage(
+                                    base64Decode(
+                                      _vm.existingImageUrl!.split(',').last,
+                                    ),
+                                  )
+                                : (_vm.existingImageUrl != null &&
+                                      _vm.existingImageUrl!.isNotEmpty)
+                                ? NetworkImage(_vm.existingImageUrl!)
+                                : null,
+                            child:
+                                (_vm.pickedImage == null &&
+                                    (_vm.existingImageUrl == null ||
+                                        _vm.existingImageUrl!.isEmpty))
+                                ? const Icon(
+                                    Icons.person,
+                                    color: AppColors.primaryBlue,
+                                    size: 52,
+                                  )
+                                : null,
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryBlue,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isDark
+                                      ? const Color(0xFF1E1E2E)
+                                      : Colors.white,
+                                  width: 2.5,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap to change photo',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  _buildField(
+                    label: l10n.firstName,
+                    controller: _firstNameCtrl,
+                    icon: Icons.person_outline,
+                    validator: (_) {
+                      final e = _vm.validateFirstName();
+                      return e == null ? null : l10n.fillFirstNameError;
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  _buildField(
+                    label: l10n.lastName,
+                    controller: _lastNameCtrl,
+                    icon: Icons.person_outline,
+                    validator: (_) {
+                      final e = _vm.validateLastName();
+                      return e == null ? null : l10n.fillLastNameError;
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  _buildGenderRow(l10n, isDark),
+                  const SizedBox(height: AppSpacing.md),
+                  _buildDobRow(l10n, isDark),
+                  const SizedBox(height: AppSpacing.md),
+                  _buildField(
+                    label: l10n.email,
+                    controller: _emailCtrl,
+                    icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (_) {
+                      final e = _vm.validateEmail();
+                      return e == null ? null : l10n.emailInvalid;
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  _buildField(
+                    label: l10n.phoneNumber,
+                    controller: _phoneCtrl,
+                    icon: Icons.phone_outlined,
+                    keyboardType: TextInputType.phone,
+                  ),
+                  const SizedBox(height: AppSpacing.xxl),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -463,72 +313,67 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     required IconData icon,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
-    bool readOnly = false,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final focusColor = AppColors.primaryBlue;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildLabel(label),
-        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 6),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
         Container(
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.white.withValues(alpha: 0.75),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
+                  ? Colors.white.withValues(alpha: 0.12)
                   : const Color(0xFFE0E0E0),
-              width: 1.2,
             ),
           ),
           child: TextFormField(
             controller: controller,
-            readOnly: readOnly,
             keyboardType: keyboardType,
             validator: validator,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: readOnly ? AppColors.textSecondary : null,
-              fontWeight: FontWeight.w500,
-            ),
             decoration: InputDecoration(
-              prefixIcon: Padding(
-                padding: const EdgeInsets.only(left: 14, right: 10),
-                child: Icon(icon, size: 20, color: AppColors.textSecondary),
-              ),
-              prefixIconConstraints: const BoxConstraints(minWidth: 44),
-              suffixIcon: readOnly
-                  ? Padding(
-                      padding: const EdgeInsets.only(right: 14),
-                      child: Icon(
-                        Icons.lock_outline,
-                        size: 16,
-                        color: AppColors.textSecondary.withValues(alpha: 0.5),
-                      ),
-                    )
-                  : null,
-              suffixIconConstraints: const BoxConstraints(minWidth: 40),
+              prefixIcon: Icon(icon, size: 20, color: AppColors.textSecondary),
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: focusColor, width: 1.8),
+                borderSide: const BorderSide(
+                  color: AppColors.primaryBlue,
+                  width: 1.8,
+                ),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.alertRed, width: 1.5),
+                borderSide: const BorderSide(
+                  color: AppColors.alertRed,
+                  width: 1.5,
+                ),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.alertRed, width: 1.8),
+                borderSide: const BorderSide(
+                  color: AppColors.alertRed,
+                  width: 1.8,
+                ),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 14,
               ),
-              errorStyle: TextStyle(fontSize: 12, color: AppColors.alertRed),
             ),
           ),
         ),
@@ -536,21 +381,123 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildGroupCard(bool isDark, List<Widget> children) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+  Widget _buildGenderRow(AppLocalizations l10n, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 6),
+          child: Text(
+            l10n.gender,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
+            ),
           ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(children: children),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.white.withValues(alpha: 0.75),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.12)
+                  : const Color(0xFFE0E0E0),
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<Gender>(
+              value: _vm.gender,
+              isExpanded: true,
+              items: [
+                DropdownMenuItem(
+                  value: Gender.male,
+                  child: Text(l10n.genderMale),
+                ),
+                DropdownMenuItem(
+                  value: Gender.female,
+                  child: Text(l10n.genderFemale),
+                ),
+                DropdownMenuItem(
+                  value: Gender.other,
+                  child: Text(l10n.genderOther),
+                ),
+              ],
+              onChanged: (v) {
+                if (v != null) _vm.updateField(() => _vm.gender = v);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDobRow(AppLocalizations l10n, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 6),
+          child: Text(
+            l10n.dateOfBirth,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+        InkWell(
+          onTap: _selectDate,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.white.withValues(alpha: 0.75),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : const Color(0xFFE0E0E0),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 20,
+                  color: AppColors.textSecondary,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    _vm.dateOfBirth != null
+                        ? '${_vm.dateOfBirth!.day.toString().padLeft(2, '0')}/${_vm.dateOfBirth!.month.toString().padLeft(2, '0')}/${_vm.dateOfBirth!.year}'
+                        : l10n.selectDateOfBirth,
+                    style: TextStyle(
+                      color: _vm.dateOfBirth != null
+                          ? null
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  size: 18,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

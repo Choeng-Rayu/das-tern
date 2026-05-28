@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../theme/app_spacing.dart';
+import '../theme/glass_tokens.dart';
+import 'app_glass_panel.dart';
 
-/// Light background scaffold used across all auth screens.
+/// Glass-style scaffold used across all auth screens.
+/// Uses calm system background with subtle glass treatment.
 class AuthGradientScaffold extends StatelessWidget {
   final Widget child;
 
@@ -10,8 +13,11 @@ class AuthGradientScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC),
+      backgroundColor: isDark
+          ? const Color(0xFF0A0A0F)
+          : const Color(0xFFF2F2F7),
       body: SafeArea(child: child),
     );
   }
@@ -129,7 +135,7 @@ class AuthFieldLabel extends StatelessWidget {
   }
 }
 
-/// Themed text field for auth screens — white fill with light border.
+/// Glass-styled text field for auth screens.
 class AuthTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
@@ -152,50 +158,83 @@ class AuthTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      maxLength: maxLength,
-      style: const TextStyle(color: Color(0xFF333333), fontSize: 13),
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: const TextStyle(color: Color(0xFFBBBBBB), fontSize: 13),
-        counterText: '',
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE8EAF0), width: 1.5),
+    final tokens = GlassTokens.resolve(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(GlassTokens.radiusSm),
+      child: AppGlassPanel(
+        borderRadius: GlassTokens.radiusSm,
+        padding: EdgeInsets.zero,
+        child: TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          maxLength: maxLength,
+          style: TextStyle(
+            color: isDark ? Colors.white : const Color(0xFF333333),
+            fontSize: 13,
+          ),
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: TextStyle(
+              color: isDark ? Colors.white54 : const Color(0xFFBBBBBB),
+              fontSize: 13,
+            ),
+            counterText: '',
+            filled: true,
+            fillColor: isDark
+                ? Colors.white.withValues(alpha: tokens.tintOpacity)
+                : Colors.white.withValues(alpha: tokens.tintOpacity),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(GlassTokens.radiusSm),
+              borderSide: BorderSide(
+                color: tokens.borderColor,
+                width: GlassTokens.borderWidth,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(GlassTokens.radiusSm),
+              borderSide: BorderSide(
+                color: tokens.borderColor,
+                width: GlassTokens.borderWidth,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(GlassTokens.radiusSm),
+              borderSide: const BorderSide(
+                color: Color(0xFF2196F3),
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(GlassTokens.radiusSm),
+              borderSide: const BorderSide(
+                color: Color(0xFFE53935),
+                width: 1.5,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(GlassTokens.radiusSm),
+              borderSide: const BorderSide(
+                color: Color(0xFFE53935),
+                width: 1.5,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
+            suffixIcon: suffixIcon,
+          ),
+          validator: validator,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE8EAF0), width: 1.5),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF2196F3), width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.5),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 14,
-        ),
-        suffixIcon: suffixIcon,
       ),
-      validator: validator,
     );
   }
 }
 
-/// Primary action button for auth screens — blue gradient pill.
+/// Primary action button for auth screens — glass pill with brand tint.
 class AuthPrimaryButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isLoading;
@@ -222,7 +261,16 @@ class AuthPrimaryButton extends StatelessWidget {
                   colors: [Color(0xFF2196F3), Color(0xFF1976D2)],
                 ),
           color: isDisabled ? const Color(0xFF90CAF9) : null,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(GlassTokens.radiusFull),
+          boxShadow: isDisabled
+              ? null
+              : [
+                  BoxShadow(
+                    color: const Color(0xFF2196F3).withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
         ),
         child: ElevatedButton(
           onPressed: isLoading ? null : onPressed,
@@ -231,7 +279,7 @@ class AuthPrimaryButton extends StatelessWidget {
             shadowColor: Colors.transparent,
             disabledBackgroundColor: Colors.transparent,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(GlassTokens.radiusFull),
             ),
             elevation: 0,
           ),
@@ -301,7 +349,7 @@ class AuthLinkRow extends StatelessWidget {
   }
 }
 
-/// Error message banner for auth screens.
+/// Error message banner for auth screens — glass panel with red tint.
 class AuthErrorBanner extends StatelessWidget {
   final String message;
 
@@ -309,12 +357,19 @@ class AuthErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFEBEE),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: const Color(0xFFEF9A9A)),
+        color: isDark
+            ? const Color(0xFFE53935).withValues(alpha: 0.15)
+            : const Color(0xFFFFEBEE),
+        borderRadius: BorderRadius.circular(GlassTokens.radiusSm),
+        border: Border.all(
+          color: isDark
+              ? const Color(0xFFE53935).withValues(alpha: 0.4)
+              : const Color(0xFFEF9A9A),
+        ),
       ),
       child: Row(
         children: [
